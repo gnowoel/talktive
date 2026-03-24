@@ -451,8 +451,9 @@ class MessageBubble extends ConsumerWidget {
                         );
                       }
                     } catch (e) {
-                      if (context.mounted)
-                        DuoSnackBarHelper.showError(context, e);
+                      if (context.mounted) {
+                        DuoSnackBarHelper.showError(context, e.toString());
+                      }
                     }
                   }
                 },

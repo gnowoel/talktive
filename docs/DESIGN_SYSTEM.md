@@ -61,6 +61,16 @@ We use a dual-font approach to balance brand playfulness with readability:
 *   **Header Casing**: We favor **Sentence Case** or **Title Case** over all-caps for headers and titles. This creates a softer, more approachable, and "youthful" feel that aligns with modern social apps. All-caps is reserved for extremely critical, tactical labels only.
 
 ---
+ 
+## 🧭 Navigation Architecture: Persistent Tabs
+ 
+Talktive uses a **Stateful Navigation** model to ensure that the resident's journey through the building feels seamless and persistent:
+ 
+*   **StatefulShellRoute**: Each of the five main tabs (Plaza, Moments, Chats, Lounges, Activity) is implemented as a separate navigation branch. 
+*   **Persistent State**: This architecture ensures that scroll positions, input field text, and nested navigation states (e.g., being halfway through a chat thread) are preserved when switching between tabs.
+*   **Deep Linking**: All notification-driven actions (push/in-app) are mapped to absolute paths (e.g., `/my-profile`, `/chats/thread/:id`) to ensure consistent entry points regardless of the current tab.
+ 
+---
 
 ## 🏗️ Structural Pattern: Destinations vs. Actions
 

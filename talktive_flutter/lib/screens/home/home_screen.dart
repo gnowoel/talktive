@@ -3,48 +3,34 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../plaza/plaza_screen.dart';
-import '../moments/moments_screen.dart';
-import '../chats/chats_screen.dart';
-import '../lounges/lounges_screen.dart';
-import '../activity/activity_screen.dart';
 import '../../providers/private_chat_provider.dart';
 import '../../providers/lounge_provider.dart';
 import '../../providers/unread_counts_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../../providers/gamification_provider.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../config/theme.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
-  final int initialIndex;
+  final StatefulNavigationShell navigationShell;
 
-  const HomeScreen({super.key, this.initialIndex = 0});
+  const HomeScreen({super.key, required this.navigationShell});
 
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  late int _currentIndex;
-
   @override
   void initState() {
     super.initState();
-    _currentIndex = widget.initialIndex;
     _checkPendingNotifications();
   }
 
   void _checkPendingNotifications() {
     // Handled natively by FCMManager initializing background messages
   }
-
-  final List<Widget> _screens = [
-    const PlazaScreen(),
-    const MomentsScreen(),
-    const ChatsScreen(),
-    const LoungesScreen(),
-    const ActivityScreen(),
-  ];
 
   final List<_NavItem> _navItems = const [
     _NavItem(emoji: '🏛️', label: 'Plaza', color: AppTheme.primaryColor),
@@ -60,7 +46,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       extendBody: false,
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
-      body: IndexedStack(index: _currentIndex, children: _screens),
+      body: widget.navigationShell,
       bottomNavigationBar: _buildDuoBottomNav(),
     );
   }
@@ -79,16 +65,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(_navItems.length, (index) {
               final item = _navItems[index];
-              final isSelected = _currentIndex == index;
+              final isSelected = widget.navigationShell.currentIndex == index;
 
               return Expanded(
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () {
                     HapticFeedback.lightImpact();
-                    setState(() {
-                      _currentIndex = index;
-                    });
+                    widget.navigationShell.goBranch(
+                      index,
+                      initialLocation: index == widget.navigationShell.currentIndex,
+                    );
 
                     // Refresh target list when switching to a dynamic tab
                     if (index == 2) {

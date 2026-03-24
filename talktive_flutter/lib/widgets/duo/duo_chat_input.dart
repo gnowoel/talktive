@@ -395,8 +395,9 @@ class _DuoChatInputState extends State<DuoChatInput> {
   void _handleSend() {
     if (widget.isSending ||
         widget.isLoading ||
-        widget.controller.text.trim().isEmpty)
+        widget.controller.text.trim().isEmpty) {
       return;
+    }
     HapticFeedback.lightImpact();
     widget.onSend();
   }

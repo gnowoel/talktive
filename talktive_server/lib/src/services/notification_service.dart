@@ -241,7 +241,7 @@ class NotificationService {
       'Don\'t break your streak! 🔥',
       'You\'re on a $currentStreak day streak. Come back today to keep it going!',
       data: {
-        'route': '/profile',
+        'route': '/my-profile',
       },
     );
   }
@@ -468,7 +468,7 @@ class NotificationService {
       'New Vouch! 🤝',
       '$senderName has vouched for you. Your trust score has increased!',
       data: {
-        'route': '/profile',
+        'route': '/my-profile',
       },
       saveToHistory: true,
     );

@@ -77,20 +77,24 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
         currentResident = await ref.read(currentResidentProvider.future);
       } catch (e) {
         debugPrint('MomentsScreen: Error waiting for resident: $e');
-        if (mounted)
+        if (mounted) {
           DuoSnackBarHelper.showError(
             context,
             'Failed to load profile. Please try again.',
           );
+        }
         return;
       }
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
     }
 
     if (currentResident == null) {
       debugPrint('MomentsScreen: Resident still null after waiting');
-      if (mounted)
+      if (mounted) {
         DuoSnackBarHelper.showError(context, 'Resident profile not found.');
+      }
       return;
     }
 

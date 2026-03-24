@@ -208,7 +208,7 @@ final class LoungeMembersWithProfilesProvider
 }
 
 String _$loungeMembersWithProfilesHash() =>
-    r'c7a5731d064675b76ea5bdf28b6876ff4a54a7d0';
+    r'97a5c64a831d509e76aade2010b02397646ca8bd';
 
 /// Provider for getting members of a lounge with their profiles.
 
@@ -299,7 +299,7 @@ final class PendingApplicationsProvider
 }
 
 String _$pendingApplicationsHash() =>
-    r'8cfce17c1c14d671bda7fd256c9d95a7e369bd52';
+    r'93099558a6622cf264000b6ea10b1e90c7f4308f';
 
 /// Provider for getting pending applications of a lounge.
 
@@ -387,7 +387,7 @@ final class LoungeMembersProvider
   }
 }
 
-String _$loungeMembersHash() => r'b9f08ea7e3ef258bb4ad6c4769cd16adf4a909c9';
+String _$loungeMembersHash() => r'590b72afca1415d6c9722bfc22704a0e25986026';
 
 /// Provider for getting members of a lounge.
 

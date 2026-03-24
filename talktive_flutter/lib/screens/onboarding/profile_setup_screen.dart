@@ -183,6 +183,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
         curve: Curves.easeInOut,
       );
       HapticFeedback.lightImpact();
+    } else if (widget.initialResident != null) {
+      context.pop();
     }
   }
 
@@ -297,51 +299,54 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          // Background gradient
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppTheme.primaryColor.withValues(alpha: 0.1),
-                  AppTheme.secondaryColor.withValues(alpha: 0.1),
-                ],
+    final isEditing = widget.initialResident != null;
+    return PopScope(
+      canPop: isEditing,
+      child: Scaffold(
+        body: Stack(
+          children: [
+            // Background gradient
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppTheme.primaryColor.withValues(alpha: 0.1),
+                    AppTheme.secondaryColor.withValues(alpha: 0.1),
+                  ],
+                ),
               ),
             ),
-          ),
-
-          // Main content
-          SafeArea(
-            child: DuoKeyboardDismissible(
-              child: Column(
-                children: [
-                  _buildProgressIndicator(),
-
-                  Expanded(
-                    child: PageView(
-                      controller: _pageController,
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: [
-                        _buildAvatarStep(),
-                        _buildNameStep(),
-                        _buildGenderCountryStep(),
-                        _buildLanguagesStep(), // New Step
-                        _buildBioStep(),
-                        _buildInterestsStep(),
-                        _buildMoodStep(),
-                      ],
+  
+            // Main content
+            SafeArea(
+              child: DuoKeyboardDismissible(
+                child: Column(
+                  children: [
+                    _buildProgressIndicator(),
+  
+                    Expanded(
+                      child: PageView(
+                        controller: _pageController,
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: [
+                          _buildAvatarStep(),
+                          _buildNameStep(),
+                          _buildGenderCountryStep(),
+                          _buildLanguagesStep(), // New Step
+                          _buildBioStep(),
+                          _buildInterestsStep(),
+                          _buildMoodStep(),
+                        ],
+                      ),
                     ),
-                  ),
-
-                  _buildNavigationButtons(),
-                ],
+  
+                    _buildNavigationButtons(),
+                  ],
+                ),
               ),
             ),
-          ),
 
           // Confetti overlay
           Align(
@@ -366,18 +371,36 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
   }
 
   Widget _buildProgressIndicator() {
+    final isEditing = widget.initialResident != null;
     return Container(
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
-          // Step counter
-          Text(
-            'Step ${_currentStep + 1} of 7',
-            style: const TextStyle(
-              color: AppTheme.textSecondary,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (isEditing)
+                IconButton(
+                  icon: const Icon(Icons.close, color: AppTheme.textSecondary),
+                  onPressed: () => context.pop(),
+                  tooltip: 'Exit without saving',
+                )
+              else
+                const SizedBox(width: 48),
+
+              // Step counter
+              Text(
+                'Step ${_currentStep + 1} of 7',
+                style: const TextStyle(
+                  color: AppTheme.textSecondary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+
+              const SizedBox(width: 48),
+            ],
           ),
           const SizedBox(height: 12),
           // Progress bar
@@ -1296,6 +1319,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
   }
 
   Widget _buildNavigationButtons() {
+    final isEditing = widget.initialResident != null;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -1312,17 +1336,17 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
         top: false,
         child: Row(
           children: [
-            if (_currentStep > 0)
+            if (_currentStep > 0 || isEditing)
               Expanded(
                 child: DuoButton(
-                  text: 'Back',
+                  text: _currentStep > 0 ? 'Back' : 'Cancel',
                   onPressed: _isLoading ? null : _previousStep,
                   variant: DuoButtonVariant.secondary,
                 ),
               ),
-            if (_currentStep > 0) const SizedBox(width: 12),
+            if (_currentStep > 0 || isEditing) const SizedBox(width: 12),
             Expanded(
-              flex: _currentStep == 0 ? 1 : 2,
+              flex: (_currentStep == 0 && !isEditing) ? 1 : 2,
               child: DuoButton(
                 text: _currentStep < 6 ? 'Next' : 'Complete Setup',
                 onPressed: _isLoading ? null : _nextStep,

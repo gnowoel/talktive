@@ -22,6 +22,7 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     required this.createdAt,
     required this.likesCount,
     required this.commentsCount,
+    this.fileSize,
     required this.authorName,
     this.authorAvatar,
     this.authorMood,
@@ -38,6 +39,7 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     required DateTime createdAt,
     required int likesCount,
     required int commentsCount,
+    int? fileSize,
     required String authorName,
     String? authorAvatar,
     String? authorMood,
@@ -59,6 +61,7 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       ),
       likesCount: jsonSerialization['likesCount'] as int,
       commentsCount: jsonSerialization['commentsCount'] as int,
+      fileSize: jsonSerialization['fileSize'] as int?,
       authorName: jsonSerialization['authorName'] as String,
       authorAvatar: jsonSerialization['authorAvatar'] as String?,
       authorMood: jsonSerialization['authorMood'] as String?,
@@ -88,6 +91,8 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
 
   int commentsCount;
 
+  int? fileSize;
+
   String authorName;
 
   String? authorAvatar;
@@ -113,6 +118,7 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     DateTime? createdAt,
     int? likesCount,
     int? commentsCount,
+    int? fileSize,
     String? authorName,
     String? authorAvatar,
     String? authorMood,
@@ -131,6 +137,7 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       'createdAt': createdAt.toJson(),
       'likesCount': likesCount,
       'commentsCount': commentsCount,
+      if (fileSize != null) 'fileSize': fileSize,
       'authorName': authorName,
       if (authorAvatar != null) 'authorAvatar': authorAvatar,
       if (authorMood != null) 'authorMood': authorMood,
@@ -151,6 +158,7 @@ abstract class Moment implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       'createdAt': createdAt.toJson(),
       'likesCount': likesCount,
       'commentsCount': commentsCount,
+      if (fileSize != null) 'fileSize': fileSize,
       'authorName': authorName,
       if (authorAvatar != null) 'authorAvatar': authorAvatar,
       if (authorMood != null) 'authorMood': authorMood,
@@ -201,6 +209,7 @@ class _MomentImpl extends Moment {
     required DateTime createdAt,
     required int likesCount,
     required int commentsCount,
+    int? fileSize,
     required String authorName,
     String? authorAvatar,
     String? authorMood,
@@ -215,6 +224,7 @@ class _MomentImpl extends Moment {
          createdAt: createdAt,
          likesCount: likesCount,
          commentsCount: commentsCount,
+         fileSize: fileSize,
          authorName: authorName,
          authorAvatar: authorAvatar,
          authorMood: authorMood,
@@ -235,6 +245,7 @@ class _MomentImpl extends Moment {
     DateTime? createdAt,
     int? likesCount,
     int? commentsCount,
+    Object? fileSize = _Undefined,
     String? authorName,
     Object? authorAvatar = _Undefined,
     Object? authorMood = _Undefined,
@@ -250,6 +261,7 @@ class _MomentImpl extends Moment {
       createdAt: createdAt ?? this.createdAt,
       likesCount: likesCount ?? this.likesCount,
       commentsCount: commentsCount ?? this.commentsCount,
+      fileSize: fileSize is int? ? fileSize : this.fileSize,
       authorName: authorName ?? this.authorName,
       authorAvatar: authorAvatar is String? ? authorAvatar : this.authorAvatar,
       authorMood: authorMood is String? ? authorMood : this.authorMood,
@@ -296,6 +308,11 @@ class MomentUpdateTable extends _i1.UpdateTable<MomentTable> {
 
   _i1.ColumnValue<int, int> commentsCount(int value) => _i1.ColumnValue(
     table.commentsCount,
+    value,
+  );
+
+  _i1.ColumnValue<int, int> fileSize(int? value) => _i1.ColumnValue(
+    table.fileSize,
     value,
   );
 
@@ -358,6 +375,10 @@ class MomentTable extends _i1.Table<int?> {
       'commentsCount',
       this,
     );
+    fileSize = _i1.ColumnInt(
+      'fileSize',
+      this,
+    );
     authorName = _i1.ColumnString(
       'authorName',
       this,
@@ -396,6 +417,8 @@ class MomentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnInt commentsCount;
 
+  late final _i1.ColumnInt fileSize;
+
   late final _i1.ColumnString authorName;
 
   late final _i1.ColumnString authorAvatar;
@@ -416,6 +439,7 @@ class MomentTable extends _i1.Table<int?> {
     createdAt,
     likesCount,
     commentsCount,
+    fileSize,
     authorName,
     authorAvatar,
     authorMood,

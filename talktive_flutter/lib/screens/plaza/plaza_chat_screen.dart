@@ -63,9 +63,9 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     });
 
     try {
-      final imageUrl = await mediaService.uploadFile(image, 'chats');
-      if (imageUrl != null) {
-        await _sendMessage(imageUrl: imageUrl);
+      final uploadResult = await mediaService.uploadFile(image, 'chats');
+      if (uploadResult != null) {
+        await _sendMessage(imageUrl: uploadResult.url, fileSize: uploadResult.sizeInBytes);
       }
     } catch (e) {
       if (mounted) {
@@ -80,7 +80,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     }
   }
 
-  Future<void> _sendMessage({String? imageUrl}) async {
+  Future<void> _sendMessage({String? imageUrl, String? mediaUrl, String? mediaType, int? duration, int? fileSize}) async {
     final content = _messageController.text.trim();
     if (content.isEmpty && imageUrl == null) return;
 
@@ -104,6 +104,10 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
           .sendMessage(
             content: content.isEmpty ? null : content,
             imageUrl: imageUrl,
+            mediaUrl: mediaUrl,
+            mediaType: mediaType,
+            duration: duration,
+            fileSize: fileSize,
           );
 
       _messageController.clear();
@@ -131,7 +135,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     }
   }
 
-  Future<void> _sendVoiceMessage(String path) async {
+  Future<void> _sendVoiceMessage(String path, int durationSeconds) async {
     final currentResident = ref.read(currentResidentProvider).value;
     if (currentResident == null) return;
 
@@ -149,12 +153,15 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
 
     try {
       final mediaService = ref.read(mediaServiceProvider);
-      final voiceUrl = await mediaService.uploadFile(XFile(path), 'voices');
+      final uploadResult = await mediaService.uploadFile(XFile(path), 'voices');
 
-      if (voiceUrl != null) {
-        await ref
-            .read(realtimeChatProvider(1).notifier)
-            .sendMessage(mediaUrl: voiceUrl, mediaType: 'voice');
+      if (uploadResult != null) {
+        await _sendMessage(
+          mediaUrl: uploadResult.url,
+          mediaType: 'voice',
+          duration: durationSeconds,
+          fileSize: uploadResult.sizeInBytes,
+        );
         HapticFeedback.lightImpact();
       }
     } catch (e) {

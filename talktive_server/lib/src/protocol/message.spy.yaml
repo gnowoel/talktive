@@ -9,6 +9,8 @@ fields:
   mediaType: String?
   isSystem: bool
   createdAt: DateTime
+  duration: int?
+  fileSize: int?
 
   # Denormalized Sender Info
   senderName: String

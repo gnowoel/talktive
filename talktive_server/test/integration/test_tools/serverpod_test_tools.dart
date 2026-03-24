@@ -2294,6 +2294,8 @@ class _MessageEndpoint {
     String? imageUrl,
     String? mediaUrl,
     String? mediaType,
+    int? duration,
+    int? fileSize,
     required bool isSystem,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -2313,6 +2315,8 @@ class _MessageEndpoint {
             'imageUrl': imageUrl,
             'mediaUrl': mediaUrl,
             'mediaType': mediaType,
+            'duration': duration,
+            'fileSize': fileSize,
             'isSystem': isSystem,
           }),
           serializationManager: _serializationManager,
@@ -2516,6 +2520,7 @@ class _MomentEndpoint {
     _i1.TestSessionBuilder sessionBuilder, {
     required String imageUrl,
     required String caption,
+    int? fileSize,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -2531,6 +2536,7 @@ class _MomentEndpoint {
           parameters: _i1.testObjectToJson({
             'imageUrl': imageUrl,
             'caption': caption,
+            'fileSize': fileSize,
           }),
           serializationManager: _serializationManager,
         );
@@ -3577,8 +3583,9 @@ class _ResidentEndpoint {
 
   _i3.Future<_i11.Resident> updateCustomAvatar(
     _i1.TestSessionBuilder sessionBuilder,
-    String? customAvatarUrl,
-  ) async {
+    String? customAvatarUrl, {
+    int? avatarSize,
+  }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
           (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
@@ -3592,6 +3599,7 @@ class _ResidentEndpoint {
           methodName: 'updateCustomAvatar',
           parameters: _i1.testObjectToJson({
             'customAvatarUrl': customAvatarUrl,
+            'avatarSize': avatarSize,
           }),
           serializationManager: _serializationManager,
         );

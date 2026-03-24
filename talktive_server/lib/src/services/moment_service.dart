@@ -14,6 +14,7 @@ class MomentService {
     required Resident author,
     required String imageUrl,
     String caption = '',
+    int? fileSize,
   }) async {
     final effectiveFloor = ApartmentService.computeEffectiveFloor(author);
 
@@ -42,6 +43,7 @@ class MomentService {
       createdAt: DateTime.now(),
       likesCount: 0,
       commentsCount: 0,
+      fileSize: fileSize,
       authorName: author.userName ?? 'Anonymous',
       authorAvatar: author.customAvatarUrl ?? author.avatar ?? '',
       authorMood: author.mood,

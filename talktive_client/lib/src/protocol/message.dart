@@ -23,6 +23,8 @@ abstract class Message implements _i1.SerializableModel {
     this.mediaType,
     required this.isSystem,
     required this.createdAt,
+    this.duration,
+    this.fileSize,
     required this.senderName,
     this.senderAvatar,
     this.senderMood,
@@ -40,6 +42,8 @@ abstract class Message implements _i1.SerializableModel {
     String? mediaType,
     required bool isSystem,
     required DateTime createdAt,
+    int? duration,
+    int? fileSize,
     required String senderName,
     String? senderAvatar,
     String? senderMood,
@@ -62,6 +66,8 @@ abstract class Message implements _i1.SerializableModel {
       createdAt: _i1.DateTimeJsonExtension.fromJson(
         jsonSerialization['createdAt'],
       ),
+      duration: jsonSerialization['duration'] as int?,
+      fileSize: jsonSerialization['fileSize'] as int?,
       senderName: jsonSerialization['senderName'] as String,
       senderAvatar: jsonSerialization['senderAvatar'] as String?,
       senderMood: jsonSerialization['senderMood'] as String?,
@@ -91,6 +97,10 @@ abstract class Message implements _i1.SerializableModel {
 
   DateTime createdAt;
 
+  int? duration;
+
+  int? fileSize;
+
   String senderName;
 
   String? senderAvatar;
@@ -114,6 +124,8 @@ abstract class Message implements _i1.SerializableModel {
     String? mediaType,
     bool? isSystem,
     DateTime? createdAt,
+    int? duration,
+    int? fileSize,
     String? senderName,
     String? senderAvatar,
     String? senderMood,
@@ -133,6 +145,8 @@ abstract class Message implements _i1.SerializableModel {
       if (mediaType != null) 'mediaType': mediaType,
       'isSystem': isSystem,
       'createdAt': createdAt.toJson(),
+      if (duration != null) 'duration': duration,
+      if (fileSize != null) 'fileSize': fileSize,
       'senderName': senderName,
       if (senderAvatar != null) 'senderAvatar': senderAvatar,
       if (senderMood != null) 'senderMood': senderMood,
@@ -160,6 +174,8 @@ class _MessageImpl extends Message {
     String? mediaType,
     required bool isSystem,
     required DateTime createdAt,
+    int? duration,
+    int? fileSize,
     required String senderName,
     String? senderAvatar,
     String? senderMood,
@@ -175,6 +191,8 @@ class _MessageImpl extends Message {
          mediaType: mediaType,
          isSystem: isSystem,
          createdAt: createdAt,
+         duration: duration,
+         fileSize: fileSize,
          senderName: senderName,
          senderAvatar: senderAvatar,
          senderMood: senderMood,
@@ -196,6 +214,8 @@ class _MessageImpl extends Message {
     Object? mediaType = _Undefined,
     bool? isSystem,
     DateTime? createdAt,
+    Object? duration = _Undefined,
+    Object? fileSize = _Undefined,
     String? senderName,
     Object? senderAvatar = _Undefined,
     Object? senderMood = _Undefined,
@@ -212,6 +232,8 @@ class _MessageImpl extends Message {
       mediaType: mediaType is String? ? mediaType : this.mediaType,
       isSystem: isSystem ?? this.isSystem,
       createdAt: createdAt ?? this.createdAt,
+      duration: duration is int? ? duration : this.duration,
+      fileSize: fileSize is int? ? fileSize : this.fileSize,
       senderName: senderName ?? this.senderName,
       senderAvatar: senderAvatar is String? ? senderAvatar : this.senderAvatar,
       senderMood: senderMood is String? ? senderMood : this.senderMood,

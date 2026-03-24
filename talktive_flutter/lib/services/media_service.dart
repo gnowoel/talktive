@@ -4,6 +4,13 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+class UploadResult {
+  final String url;
+  final int sizeInBytes;
+
+  UploadResult({required this.url, required this.sizeInBytes});
+}
+
 class MediaService {
   final Ref ref;
   final _picker = ImagePicker();
@@ -20,14 +27,15 @@ class MediaService {
   }
 
   /// Uploads a file to Firebase Cloud Storage.
-  /// Returns the public URL of the uploaded file.
-  Future<String?> uploadFile(
+  /// Returns the public URL of the uploaded file and its size.
+  Future<UploadResult?> uploadFile(
     XFile file,
     String folder, {
-    int maxSizeMb = 10,
+    int maxSizeMb = 5,
   }) async {
     final bytes = await file.readAsBytes();
-    final sizeInMb = bytes.length / (1024 * 1024);
+    final sizeInBytes = bytes.length;
+    final sizeInMb = sizeInBytes / (1024 * 1024);
 
     if (sizeInMb > maxSizeMb) {
       throw Exception(
@@ -68,7 +76,7 @@ class MediaService {
       debugPrint(
         'MediaService: Successfully generated Download URL: $downloadUrl',
       );
-      return downloadUrl;
+      return UploadResult(url: downloadUrl, sizeInBytes: sizeInBytes);
     } catch (e, stack) {
       debugPrint('MediaService: CRITICAL ERROR during upload: $e');
       debugPrint('MediaService: Stack trace: $stack');

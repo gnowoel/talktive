@@ -860,6 +860,8 @@ class EndpointMessage extends _i2.EndpointRef {
     String? imageUrl,
     String? mediaUrl,
     String? mediaType,
+    int? duration,
+    int? fileSize,
     required bool isSystem,
   }) => caller.callServerEndpoint<_i17.Message>(
     'message',
@@ -870,6 +872,8 @@ class EndpointMessage extends _i2.EndpointRef {
       'imageUrl': imageUrl,
       'mediaUrl': mediaUrl,
       'mediaType': mediaType,
+      'duration': duration,
+      'fileSize': fileSize,
       'isSystem': isSystem,
     },
   );
@@ -950,12 +954,14 @@ class EndpointMoment extends _i2.EndpointRef {
   _i3.Future<_i19.Moment> postMoment({
     required String imageUrl,
     required String caption,
+    int? fileSize,
   }) => caller.callServerEndpoint<_i19.Moment>(
     'moment',
     'postMoment',
     {
       'imageUrl': imageUrl,
       'caption': caption,
+      'fileSize': fileSize,
     },
   );
 
@@ -1346,12 +1352,17 @@ class EndpointResident extends _i2.EndpointRef {
   );
 
   /// Updates only the custom avatar URL (standalone method for overlay button).
-  _i3.Future<_i11.Resident> updateCustomAvatar(String? customAvatarUrl) =>
-      caller.callServerEndpoint<_i11.Resident>(
-        'resident',
-        'updateCustomAvatar',
-        {'customAvatarUrl': customAvatarUrl},
-      );
+  _i3.Future<_i11.Resident> updateCustomAvatar(
+    String? customAvatarUrl, {
+    int? avatarSize,
+  }) => caller.callServerEndpoint<_i11.Resident>(
+    'resident',
+    'updateCustomAvatar',
+    {
+      'customAvatarUrl': customAvatarUrl,
+      'avatarSize': avatarSize,
+    },
+  );
 
   /// Get a user's profile view (with stats)
   _i3.Future<_i26.UserProfileView?> getUserProfile(String userId) =>

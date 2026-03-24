@@ -20,6 +20,11 @@ class InputValidationService {
   static const int maxListLimit = 100;
   static const int maxOffset = 10000;
 
+  // Media limits
+  static const int maxImageSizeBytes = 5 * 1024 * 1024; // 5MB
+  static const int maxVoiceDurationSeconds = 60; // 1 minute
+  static const int maxAvatarSizeBytes = 2 * 1024 * 1024; // 2MB
+
   /// Validates a user name or lounge name.
   static ValidationResult validateName(
     String name, {
@@ -290,6 +295,35 @@ class InputValidationService {
       }
     }
 
+    return ValidationResult(isValid: true);
+  }
+
+  /// Validates file size in bytes.
+  static ValidationResult validateFileSize(int size, {int maxSize = maxImageSizeBytes, String fieldName = 'File'}) {
+    if (size > maxSize) {
+      final mb = (maxSize / (1024 * 1024)).toStringAsFixed(0);
+      return ValidationResult(
+        isValid: false,
+        error: '$fieldName is too large. Maximum size is ${mb}MB.',
+      );
+    }
+    return ValidationResult(isValid: true);
+  }
+
+  /// Validates voice message duration.
+  static ValidationResult validateVoiceDuration(int durationSeconds) {
+    if (durationSeconds > maxVoiceDurationSeconds) {
+      return ValidationResult(
+        isValid: false,
+        error: 'Voice message is too long. Maximum length is $maxVoiceDurationSeconds seconds.',
+      );
+    }
+    if (durationSeconds <= 0) {
+      return ValidationResult(
+        isValid: false,
+        error: 'Voice message is too short.',
+      );
+    }
     return ValidationResult(isValid: true);
   }
 }

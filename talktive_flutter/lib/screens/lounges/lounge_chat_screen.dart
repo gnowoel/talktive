@@ -160,7 +160,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
   bool _isSending = false;
   bool _hasMarkedAsRead = false;
 
-  Future<void> _sendVoiceMessage(String path) async {
+  Future<void> _sendVoiceMessage(String path, int durationSeconds) async {
     final currentResident = ref.read(currentResidentProvider).value;
     if (currentResident == null) return;
 
@@ -176,12 +176,15 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
 
     try {
       final mediaService = ref.read(mediaServiceProvider);
-      final voiceUrl = await mediaService.uploadFile(XFile(path), 'voices');
+      final uploadResult = await mediaService.uploadFile(XFile(path), 'voices');
 
-      if (voiceUrl != null) {
-        await ref
-            .read(realtimeChatProvider(widget.lounge.channelId).notifier)
-            .sendMessage(mediaUrl: voiceUrl, mediaType: 'voice');
+      if (uploadResult != null) {
+        await _sendMessage(
+          mediaUrl: uploadResult.url,
+          mediaType: 'voice',
+          duration: durationSeconds,
+          fileSize: uploadResult.sizeInBytes,
+        );
         HapticFeedback.lightImpact();
       }
     } catch (e) {
@@ -251,9 +254,9 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
     });
 
     try {
-      final imageUrl = await mediaService.uploadFile(image, 'chats');
-      if (imageUrl != null) {
-        await _sendMessage(imageUrl: imageUrl);
+      final uploadResult = await mediaService.uploadFile(image, 'chats');
+      if (uploadResult != null) {
+        await _sendMessage(imageUrl: uploadResult.url, fileSize: uploadResult.sizeInBytes);
       }
     } catch (e) {
       if (mounted) {
@@ -268,7 +271,13 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
     }
   }
 
-  Future<void> _sendMessage({String? imageUrl}) async {
+  Future<void> _sendMessage({
+    String? imageUrl,
+    String? mediaUrl,
+    String? mediaType,
+    int? duration,
+    int? fileSize,
+  }) async {
     final content = _messageController.text.trim();
     if (content.isEmpty && imageUrl == null) {
       return;
@@ -281,6 +290,10 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
           .sendMessage(
             content: content.isEmpty ? null : content,
             imageUrl: imageUrl,
+            mediaUrl: mediaUrl,
+            mediaType: mediaType,
+            duration: duration,
+            fileSize: fileSize,
           );
 
       _messageController.clear();

@@ -24,6 +24,8 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     String? imageUrl,
     String? mediaUrl,
     String? mediaType,
+    int? duration,
+    int? fileSize,
     bool isSystem = false,
   }) async {
     try {
@@ -31,8 +33,9 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       InputValidationService.validateId(channelId, 'Channel ID').throwIfInvalid();
       
       final bool hasContent = content != null && content.trim().isNotEmpty;
-      final bool hasMedia = (imageUrl != null && imageUrl.trim().isNotEmpty) ||
-                           (mediaUrl != null && mediaUrl.trim().isNotEmpty);
+      final bool hasImageUrl = imageUrl != null && imageUrl.trim().isNotEmpty;
+      final bool hasMediaUrl = mediaUrl != null && mediaUrl.trim().isNotEmpty;
+      final bool hasMedia = hasImageUrl || hasMediaUrl;
 
       if (!hasContent && !hasMedia) {
         throw protocol.TalktiveException(
@@ -43,6 +46,15 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
 
       if (hasContent) {
         InputValidationService.validateMessageContent(content!).throwIfInvalid();
+      }
+
+      // Media & Voice Validation
+      if (fileSize != null) {
+        InputValidationService.validateFileSize(fileSize, fieldName: 'Media file').throwIfInvalid();
+      }
+
+      if (mediaType == 'voice' && duration != null) {
+        InputValidationService.validateVoiceDuration(duration).throwIfInvalid();
       }
 
       // 2. Auth & Resident Fetch
@@ -79,6 +91,8 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         mediaType: mediaType,
         isSystem: isSystem,
         createdAt: DateTime.now(),
+        duration: duration,
+        fileSize: fileSize,
         senderName: sender.userName ?? 'Resident',
         senderAvatar: sender.customAvatarUrl ?? sender.avatar,
         senderMood: sender.mood,

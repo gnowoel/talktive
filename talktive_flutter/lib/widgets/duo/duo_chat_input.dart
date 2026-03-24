@@ -10,7 +10,7 @@ import '../../config/theme.dart';
 class DuoChatInput extends StatefulWidget {
   final TextEditingController controller;
   final VoidCallback onSend;
-  final Function(String path)? onVoiceSend;
+  final Function(String path, int durationSeconds)? onVoiceSend;
   final Future<bool> Function()? onVoiceStart;
   final bool enabled;
   final String hintText;
@@ -111,6 +111,10 @@ class _DuoChatInputState extends State<DuoChatInput> {
         _recordStartTime = DateTime.now();
         _recordTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
           final duration = DateTime.now().difference(_recordStartTime!);
+          if (duration.inSeconds >= 60) {
+            _stopRecording();
+            return;
+          }
           final minutes = duration.inMinutes;
           final seconds = duration.inSeconds % 60;
           setState(() {
@@ -132,13 +136,16 @@ class _DuoChatInputState extends State<DuoChatInput> {
   Future<void> _stopRecording({bool cancel = false}) async {
     _recordTimer?.cancel();
     final path = await _audioRecorder.stop();
+    final durationSeconds = _recordStartTime != null
+        ? DateTime.now().difference(_recordStartTime!).inSeconds
+        : 0;
 
     setState(() {
       _isRecording = false;
     });
 
     if (!cancel && path != null && widget.onVoiceSend != null) {
-      widget.onVoiceSend!(path);
+      widget.onVoiceSend!(path, durationSeconds);
       HapticFeedback.lightImpact();
     } else if (cancel && path != null) {
       final file = File(path);

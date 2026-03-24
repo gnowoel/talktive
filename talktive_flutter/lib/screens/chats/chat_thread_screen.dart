@@ -98,13 +98,17 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     }
   }
 
-  Future<void> _sendMessageInternal({String? content, String? imageUrl}) async {
+  Future<void> _sendMessageInternal({String? content, String? imageUrl, String? mediaUrl, String? mediaType, int? duration, int? fileSize}) async {
     try {
       await ref
           .read(realtimeChatProvider(widget.channelId).notifier)
           .sendMessage(
             content: content ?? _messageController.text.trim(),
             imageUrl: imageUrl,
+            mediaUrl: mediaUrl,
+            mediaType: mediaType,
+            duration: duration,
+            fileSize: fileSize,
           );
       _messageController.clear();
       _hasMarkedAsRead = false;
@@ -148,9 +152,9 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     });
 
     try {
-      final imageUrl = await mediaService.uploadFile(image, 'chats');
-      if (imageUrl != null) {
-        await _sendMessageInternal(imageUrl: imageUrl);
+      final uploadResult = await mediaService.uploadFile(image, 'chats');
+      if (uploadResult != null) {
+        await _sendMessageInternal(imageUrl: uploadResult.url, fileSize: uploadResult.sizeInBytes);
       }
     } catch (e) {
       if (mounted) {
@@ -165,7 +169,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     }
   }
 
-  Future<void> _sendVoiceMessage(String path) async {
+  Future<void> _sendVoiceMessage(String path, int durationSeconds) async {
     final currentResident = ref.read(currentResidentProvider).value;
     if (currentResident == null) return;
 
@@ -181,12 +185,15 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
 
     try {
       final mediaService = ref.read(mediaServiceProvider);
-      final voiceUrl = await mediaService.uploadFile(XFile(path), 'voices');
+      final uploadResult = await mediaService.uploadFile(XFile(path), 'voices');
 
-      if (voiceUrl != null) {
-        await ref
-            .read(realtimeChatProvider(widget.channelId).notifier)
-            .sendMessage(mediaUrl: voiceUrl, mediaType: 'voice');
+      if (uploadResult != null) {
+        await _sendMessageInternal(
+          mediaUrl: uploadResult.url,
+          mediaType: 'voice',
+          duration: durationSeconds,
+          fileSize: uploadResult.sizeInBytes,
+        );
         HapticFeedback.lightImpact();
       }
     } catch (e) {

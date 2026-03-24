@@ -144,19 +144,23 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
     try {
       // 1. Upload image to storage
       debugPrint('Moments: [UI] Uploading image to Firebase...');
-      final imageUrl = await ref
+      final uploadResult = await ref
           .read(mediaServiceProvider)
           .uploadFile(_selectedImage!, 'moments');
 
-      if (imageUrl == null) {
-        throw Exception('Failed to upload image. URL was null.');
+      if (uploadResult == null) {
+        throw Exception('Failed to upload image. Result was null.');
       }
-      debugPrint('Moments: [UI] Image uploaded successfully. URL: $imageUrl');
+      debugPrint('Moments: [UI] Image uploaded successfully. URL: ${uploadResult.url}');
 
       // 2. Post moment to backend
       debugPrint('Moments: [UI] Sending post request to Serverpod...');
       final client = ref.read(clientProvider);
-      await client.moment.postMoment(imageUrl: imageUrl, caption: caption);
+      await client.moment.postMoment(
+        imageUrl: uploadResult.url,
+        caption: caption,
+        fileSize: uploadResult.sizeInBytes,
+      );
       debugPrint('Moments: [UI] Status: Post successful on server.');
 
       if (mounted) {
@@ -320,7 +324,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                                     ),
                                     const SizedBox(height: 4),
                                     const Text(
-                                      'Max size: 10MB',
+                                      'Max size: 5MB',
                                       style: TextStyle(
                                         fontSize: 10,
                                         color: AppTheme.textLight,

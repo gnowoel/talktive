@@ -14,10 +14,14 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
     Session session, {
     required String imageUrl,
     String caption = '',
+    int? fileSize,
   }) async {
     // Validate inputs
     InputValidationService.validateImageUrl(imageUrl).throwIfInvalid();
     InputValidationService.validateCaption(caption).throwIfInvalid();
+    if (fileSize != null) {
+      InputValidationService.validateFileSize(fileSize, fieldName: 'Moment image').throwIfInvalid();
+    }
 
     final resident = await getAuthenticatedResident(session);
 
@@ -26,6 +30,7 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
       author: resident,
       imageUrl: imageUrl,
       caption: caption,
+      fileSize: fileSize,
     );
   }
 

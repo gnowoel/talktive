@@ -367,8 +367,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildProgressIndicator() {
     final isEditing = widget.initialResident != null;
@@ -1492,10 +1493,10 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
     });
 
     try {
-      final url = await picker.uploadFile(image, 'avatars');
-      if (url != null) {
+      final uploadResult = await picker.uploadFile(image, 'avatars');
+      if (uploadResult != null) {
         setState(() {
-          _customAvatarUrl = url;
+          _customAvatarUrl = uploadResult.url;
           // When a custom photo is uploaded, we still keep the emoji but it's hidden in the preview
         });
         if (mounted) {

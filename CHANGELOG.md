@@ -2,6 +2,28 @@
 
 This document tracks the major development milestones and changes made during the Talktive rebuild from Firebase to Serverpod.
 
+## March 24, 2026 - Media Validation & Metadata Infrastructure (Phase 8.41) 🖼️🎙️🛡️
+
+### Backend Validation & Security
+- **InputValidationService**: Implemented a centralized validation engine for all user-generated content:
+    - **Image Size Enforcement**: Strictly enforces a **5MB** limit for all image uploads in messages and moments.
+    - **Voice Duration Enforcement**: Strictly enforces a **60-second** limit for all voice message recordings.
+    - **Content Length**: Standardized text constraints (1000 characters for chats, 500 for moments).
+- **Protocol Metadata Extension**: Updated `Message` and `Moment` protocols to include `fileSize` (bytes) and `duration` (seconds), enabling richer UI feedback and better storage management.
+- **Service Integration**: Integrated validation checks into `MessageService` and `MomentService` to reject non-compliant payloads with descriptive `TalktiveException` errors.
+
+### Frontend Metadata & UX
+- **MediaService Upgrade**: Updated the media upload pipeline to capture and return `UploadResult` (URL + fileSize), ensuring accurate metadata is sent to the server.
+- **DuoChatInput Refinement**:
+    - Added real-time duration tracking for voice messages with an automatic **60-second cutoff**.
+    - Integrated haptic feedback and visual progress indicators for recording sessions.
+- **Plaza, Lounges & Private Chats**: Updated all chat screens to propagate media metadata and handle new validation errors gracefully.
+- **Moments & Onboarding**: Standardized media uploads in the Moments feed and Profile Setup to include file size metadata.
+
+### UI/UX Consistency
+- **DuoChatLayout Alignment**: Updated the `DuoChatLayout` and `DuoChatInputLayout` components to support the new `onVoiceSend(path, durationSeconds)` signature.
+- **PopScope Integration**: Corrected a syntax error in the `ProfileSetupScreen` to properly implement the `PopScope` for exiting/saving flows.
+
 ## March 25, 2026 - Accessibility & Contrast Polish (Phase 8.40) 🎨♿
  
  ### UI/UX Design & Consistency

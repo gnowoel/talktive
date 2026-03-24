@@ -1430,6 +1430,16 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<String?>(),
               nullable: true,
             ),
+            'duration': _i1.ParameterDescription(
+              name: 'duration',
+              type: _i1.getType<int?>(),
+              nullable: true,
+            ),
+            'fileSize': _i1.ParameterDescription(
+              name: 'fileSize',
+              type: _i1.getType<int?>(),
+              nullable: true,
+            ),
             'isSystem': _i1.ParameterDescription(
               name: 'isSystem',
               type: _i1.getType<bool>(),
@@ -1448,6 +1458,8 @@ class Endpoints extends _i1.EndpointDispatch {
                     imageUrl: params['imageUrl'],
                     mediaUrl: params['mediaUrl'],
                     mediaType: params['mediaType'],
+                    duration: params['duration'],
+                    fileSize: params['fileSize'],
                     isSystem: params['isSystem'],
                   ),
         ),
@@ -1591,6 +1603,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<String>(),
               nullable: false,
             ),
+            'fileSize': _i1.ParameterDescription(
+              name: 'fileSize',
+              type: _i1.getType<int?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -1601,6 +1618,7 @@ class Endpoints extends _i1.EndpointDispatch {
                     session,
                     imageUrl: params['imageUrl'],
                     caption: params['caption'],
+                    fileSize: params['fileSize'],
                   ),
         ),
         'listMoments': _i1.MethodConnector(
@@ -2354,6 +2372,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<String?>(),
               nullable: true,
             ),
+            'avatarSize': _i1.ParameterDescription(
+              name: 'avatarSize',
+              type: _i1.getType<int?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -2363,6 +2386,7 @@ class Endpoints extends _i1.EndpointDispatch {
                   .updateCustomAvatar(
                     session,
                     params['customAvatarUrl'],
+                    avatarSize: params['avatarSize'],
                   ),
         ),
         'getUserProfile': _i1.MethodConnector(

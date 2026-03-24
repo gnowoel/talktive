@@ -8,6 +8,7 @@ fields:
   createdAt: DateTime
   likesCount: int
   commentsCount: int
+  fileSize: int?
 
   # Denormalized Author Info
   authorName: String

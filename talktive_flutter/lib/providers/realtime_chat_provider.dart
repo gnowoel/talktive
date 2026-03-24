@@ -201,6 +201,8 @@ class RealtimeChat extends _$RealtimeChat {
     String? imageUrl,
     String? mediaUrl,
     String? mediaType,
+    int? duration,
+    int? fileSize,
   }) async {
     if ((content == null || content.trim().isEmpty) &&
         imageUrl == null &&
@@ -217,6 +219,8 @@ class RealtimeChat extends _$RealtimeChat {
         imageUrl: imageUrl,
         mediaUrl: mediaUrl,
         mediaType: mediaType,
+        duration: duration,
+        fileSize: fileSize,
         isSystem: false,
       );
 

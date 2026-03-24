@@ -63,7 +63,7 @@ class DuoChatInputLayout extends StatelessWidget {
   // DuoChatInput parameters
   final TextEditingController controller;
   final VoidCallback onSend;
-  final Function(String path)? onVoiceSend;
+  final Function(String path, int durationSeconds)? onVoiceSend;
   final Future<bool> Function()? onVoiceStart;
   final bool enabled;
   final String hintText;

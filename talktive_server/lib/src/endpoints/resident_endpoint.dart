@@ -111,7 +111,15 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Updates only the custom avatar URL (standalone method for overlay button).
-  Future<protocol.Resident> updateCustomAvatar(Session session, String? customAvatarUrl) async {
+  Future<protocol.Resident> updateCustomAvatar(Session session, String? customAvatarUrl, {int? avatarSize}) async {
+    if (avatarSize != null) {
+      InputValidationService.validateFileSize(
+        avatarSize,
+        maxSize: InputValidationService.maxAvatarSizeBytes,
+        fieldName: 'Avatar image',
+      ).throwIfInvalid();
+    }
+    
     final resident = await getAuthenticatedResident(session);
     
     if (customAvatarUrl != null && !resident.isPremium) {

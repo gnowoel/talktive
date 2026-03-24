@@ -102,21 +102,27 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
 
       final savedMessage = await protocol.Message.db.insertRow(session, message);
 
-      // 6. Post-Save Lifecycle (Broadcast, Notifications, Gamification)
-      await ChatService.onMessageSaved(
-        session,
-        message: savedMessage,
-        channel: channel,
-        sender: sender,
-      );
+      // 6. Handle side effects (async) - DON'T AWAIT (Run in background)
+      runBackground(session, (backgroundSession) async {
+        // Send notifications (includes mentions, push, and lounge logic)
+        final channel = await protocol.Channel.db.findById(backgroundSession, savedMessage.channelId);
+        if (channel != null) {
+          await _triggerNotifications(
+            backgroundSession,
+            channel,
+            savedMessage,
+            sender,
+          );
 
-      // 7. Background Notifications (Mentions/Push)
-      unawaited(_triggerNotifications(
-        session,
-        channel,
-        savedMessage,
-        sender,
-      ).catchError((e) => session.log('Notification error: $e', level: LogLevel.error)));
+          // Side effects: Broadcast, Recents, Gamification
+          await ChatService.onMessageSaved(
+            backgroundSession,
+            message: savedMessage,
+            channel: channel,
+            sender: sender,
+          );
+        }
+      });
 
       return savedMessage;
     } catch (e, stack) {

@@ -115,9 +115,9 @@ class FCMService {
           'notification': {
             'title': title,
             'body': body,
-            'image': ?imageUrl,
+            if (imageUrl != null) 'image': imageUrl,
           },
-          'data': ?data,
+          if (data != null) 'data': data,
           'android': {
             'priority': 'high',
             'notification': {
@@ -133,7 +133,7 @@ class FCMService {
                   'body': body,
                 },
                 'sound': sound ?? 'default',
-                'badge': ?badge,
+                if (badge != null) 'badge': badge,
               },
             },
           },
@@ -286,7 +286,7 @@ class FCMService {
             'title': title,
             'body': body,
           },
-          'data': ?data,
+          if (data != null) 'data': data,
         },
       };
 

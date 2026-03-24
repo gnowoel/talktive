@@ -49,9 +49,8 @@ class RateLimitService {
       final lastMessageEntry = await session.caches.global.get<CacheString>(
         lastMessageKey,
       );
-      final entry = lastMessageEntry;
-      if (entry != null) {
-        final lastMessage = DateTime.tryParse(entry.value);
+      if (lastMessageEntry != null) {
+        final lastMessage = DateTime.tryParse(lastMessageEntry.value);
         if (lastMessage != null) {
           final secondsSince = now.difference(lastMessage).inSeconds;
 

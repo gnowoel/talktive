@@ -3,6 +3,7 @@ import 'package:talktive_server/src/generated/protocol.dart';
 
 import '../services/input_validation_service.dart';
 import '../services/moment_service.dart';
+import '../services/gamification_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 
 class MomentEndpoint extends Endpoint with EndpointAuthMixin {
@@ -25,13 +26,25 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
 
     final resident = await getAuthenticatedResident(session);
 
-    return await MomentService.postMoment(
+    final savedMoment = await MomentService.postMoment(
       session,
       author: resident,
       imageUrl: imageUrl,
       caption: caption,
       fileSize: fileSize,
     );
+
+    // 4. Handle side effects (async) - DON'T AWAIT (Run in background)
+    runBackground(session, (backgroundSession) async {
+       // Track achievements
+       GamificationService.trackMultipleProgress(
+        backgroundSession,
+        resident.userInfoId,
+        ['first_moment', 'photographer', 'influencer'],
+      );
+    });
+
+    return savedMoment;
   }
 
   /// Lists the latest moments.

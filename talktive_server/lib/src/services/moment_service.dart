@@ -62,15 +62,7 @@ class MomentService {
       save: false,
     );
 
-    // Final single save for author state updates
     await Resident.db.updateRow(session, author);
-
-    // 5. Track achievements in background
-    unawaited(GamificationService.trackMultipleProgress(
-      session,
-      author.userInfoId,
-      ['first_moment', 'photographer', 'influencer'],
-    ));
 
     return savedMoment;
   }

@@ -1,5 +1,6 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart';
+import '../services/input_validation_service.dart';
 
 /// Content filtering service for profanity and spam detection
 class ContentFilterService {
@@ -94,10 +95,11 @@ class ContentFilterService {
       );
     }
 
-    if (content.length > 1000) {
+    if (content.length > InputValidationService.maxMessageLength) {
       return ValidationResult(
         isValid: false,
-        reason: 'Message too long (max 1000 characters)',
+        reason:
+            'Message too long (max ${InputValidationService.maxMessageLength} characters)',
       );
     }
 
@@ -127,25 +129,24 @@ class ContentFilterService {
     String content,
   ) async {
     try {
+      final cache = session.caches.global;
       final key = 'lastmsg:$userId';
-      final entry = await session.caches.global.get<CacheString>(key);
+      final entry = await cache.get<CacheString>(key);
       if (entry != null && entry.value == content) {
         return true; // Same message as last one
       }
 
       // Store this message for 5 minutes
-      await session.caches.global.put(
+      await cache.put(
         key,
         CacheString(value: content),
         lifetime: const Duration(minutes: 5),
       );
       return false;
-    } catch (e) {
-      session.log(
-        'Error checking repeated message: $e',
-        level: LogLevel.warning,
-      );
-      return false; // Allow if Redis fails
+    } catch (e, stack) {
+      session.log('Error checking repeated message: $e',
+          level: LogLevel.warning, stackTrace: stack);
+      return false; // Fail open (allow message) on cache errors
     }
   }
 

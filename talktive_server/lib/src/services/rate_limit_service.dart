@@ -40,15 +40,15 @@ class RateLimitService {
     final now = DateTime.now();
 
     try {
+      final cache = session.caches.global;
+
       // Redis keys for rate limiting - using simple counters with TTL
       final minuteKey = 'ratelimit:$userId:$channelId:minute:${now.minute}';
       final hourKey = 'ratelimit:$userId:$channelId:hour:${now.hour}';
       final lastMessageKey = 'ratelimit:$userId:$channelId:last';
 
       // Check last message time (minimum interval)
-      final lastMessageEntry = await session.caches.global.get<CacheString>(
-        lastMessageKey,
-      );
+      final lastMessageEntry = await cache.get<CacheString>(lastMessageKey);
       if (lastMessageEntry != null) {
         final lastMessage = DateTime.tryParse(lastMessageEntry.value);
         if (lastMessage != null) {
@@ -61,7 +61,7 @@ class RateLimitService {
       }
 
       // Check minute limit
-      final minuteEntry = await session.caches.global.get<CacheInt>(minuteKey);
+      final minuteEntry = await cache.get<CacheInt>(minuteKey);
       final minuteCount = minuteEntry?.value ?? 0;
 
       if (minuteCount >= config.messagesPerMinute) {
@@ -69,7 +69,7 @@ class RateLimitService {
       }
 
       // Check hour limit
-      final hourEntry = await session.caches.global.get<CacheInt>(hourKey);
+      final hourEntry = await cache.get<CacheInt>(hourKey);
       final hourCount = hourEntry?.value ?? 0;
 
       if (hourCount >= config.messagesPerHour) {
@@ -77,27 +77,28 @@ class RateLimitService {
       }
 
       // Increment counters and update TTL
-      await session.caches.global.put(
+      await cache.put(
         minuteKey,
         CacheInt(value: minuteCount + 1),
         lifetime: const Duration(minutes: 2),
       );
 
-      await session.caches.global.put(
+      await cache.put(
         hourKey,
         CacheInt(value: hourCount + 1),
         lifetime: const Duration(hours: 2),
       );
 
-      await session.caches.global.put(
+      await cache.put(
         lastMessageKey,
         CacheString(value: now.toIso8601String()),
         lifetime: const Duration(minutes: 5),
       );
 
       return null; // No rate limit hit
-    } catch (e) {
-      session.log('Rate limit check error: $e', level: LogLevel.warning);
+    } catch (e, stack) {
+      session.log('Rate limit check error: $e',
+          level: LogLevel.warning, stackTrace: stack);
       // Fallback to allowing the message if cache fails (availability over restriction)
       return null;
     }
@@ -105,7 +106,13 @@ class RateLimitService {
 
   static RateLimitConfig _getConfigForFloor(int floor) {
     if (floor >= 3) return unlimitedConfig;
-    return floorLimits[floor] ?? floorLimits[0]!;
+    return floorLimits[floor] ??
+        floorLimits[0] ??
+        const RateLimitConfig(
+          messagesPerMinute: 1,
+          messagesPerHour: 10,
+          minSecondsBetweenMessages: 5,
+        );
   }
 
   /// Get current rate limit status for a user

@@ -25,6 +25,7 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     InputValidationService.validateLoungeName(name).throwIfInvalid();
     InputValidationService.validateLoungeDescription(description).throwIfInvalid();
     InputValidationService.validateLoungeMemberLimit(maxMembers).throwIfInvalid();
+    InputValidationService.validateStringList(interests, 'Interests').throwIfInvalid();
 
     final currentUserId = await getUserId(session);
     final currentResident = await getAuthenticatedResident(session);
@@ -307,6 +308,7 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     if (name != null) InputValidationService.validateLoungeName(name).throwIfInvalid();
     if (description != null) InputValidationService.validateLoungeDescription(description).throwIfInvalid();
     if (maxMembers != null) InputValidationService.validateLoungeMemberLimit(maxMembers).throwIfInvalid();
+    if (interests != null) InputValidationService.validateStringList(interests, 'Interests').throwIfInvalid();
 
     if (isPublic != null && isPublic && lounge.isStaffLocked) {
       throw protocol.TalktiveException(message: 'This lounge is locked to private by staff.');

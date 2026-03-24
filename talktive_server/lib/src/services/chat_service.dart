@@ -8,6 +8,7 @@ import 'resident_service.dart';
 import 'gamification_service.dart';
 import 'notification_service.dart';
 import 'content_filter_service.dart';
+import 'input_validation_service.dart';
 import 'rate_limit_service.dart';
 
 class ChatService {
@@ -417,6 +418,8 @@ class ChatService {
     String? imageUrl,
     String? mediaUrl,
     String? mediaType,
+    int? duration,
+    int? fileSize,
   }) async {
     final senderUuid = sender.userInfoId;
     final senderEffectiveFloor = ApartmentService.computeEffectiveFloor(sender);
@@ -429,7 +432,21 @@ class ChatService {
       );
     }
 
-    // 2. Content Validation (profanity and spam filtering)
+    // 2. Basic Input Validation (Length/Size/Duration)
+    if (content != null && content.isNotEmpty) {
+      InputValidationService.validateMessageContent(content).throwIfInvalid();
+    }
+
+    if (fileSize != null) {
+      InputValidationService.validateFileSize(fileSize, fieldName: 'Media file')
+          .throwIfInvalid();
+    }
+
+    if (mediaType == 'voice' && duration != null) {
+      InputValidationService.validateVoiceDuration(duration).throwIfInvalid();
+    }
+
+    // 3. Content Validation (profanity and spam filtering)
     String? filteredContent = content;
     if (content != null && content.isNotEmpty) {
       final validation = await ContentFilterService.validateMessage(
@@ -460,7 +477,7 @@ class ChatService {
       filteredContent = validation.filteredContent ?? content;
     }
 
-    // 3. Check rate limiting
+    // 4. Check rate limiting
     final rateLimitError = await RateLimitService.checkRateLimit(
       session,
       senderUuid.toString(),
@@ -474,7 +491,7 @@ class ChatService {
       );
     }
 
-    // 4. Floor-based and Premium content restrictions
+    // 5. Floor-based and Premium content restrictions
     final hasMedia = (imageUrl != null && imageUrl.isNotEmpty) ||
         (mediaUrl != null && mediaUrl.isNotEmpty);
 
@@ -498,7 +515,7 @@ class ChatService {
       }
     }
 
-    // 5. Privacy Check: Blocked status (Private Chats)
+    // 6. Privacy Check: Blocked status (Private Chats)
     if (channel.type == protocol.ChannelType.private) {
       final members = await protocol.ChannelMember.db.find(
         session,

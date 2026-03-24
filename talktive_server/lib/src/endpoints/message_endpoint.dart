@@ -79,6 +79,8 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         imageUrl: imageUrl,
         mediaUrl: mediaUrl,
         mediaType: mediaType,
+        duration: duration,
+        fileSize: fileSize,
       );
 
       // 5. Create & Save Message

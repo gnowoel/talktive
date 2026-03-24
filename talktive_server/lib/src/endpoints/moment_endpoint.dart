@@ -1,13 +1,13 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart';
 
-import '../services/notification_service.dart';
 import '../services/input_validation_service.dart';
-import '../services/apartment_service.dart';
-import '../services/gamification_service.dart';
+import '../services/moment_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 
 class MomentEndpoint extends Endpoint with EndpointAuthMixin {
+  /// Posts a new moment to the feed.
+  /// Only residents on Floor 2+ can post moments (to prevent spam).
   /// Posts a new moment to the feed.
   /// Only residents on Floor 2+ can post moments (to prevent spam).
   Future<Moment> postMoment(
@@ -19,70 +19,17 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
     InputValidationService.validateImageUrl(imageUrl).throwIfInvalid();
     InputValidationService.validateCaption(caption).throwIfInvalid();
 
-    final senderUuid = await getUserId(session);
-    final resident = await getResidentProfile(session, senderUuid);
+    final resident = await getAuthenticatedResident(session);
 
-    // 2. Floor restriction: Only Floor 2+ can post moments (prevent spam)
-    final effectiveFloor = ApartmentService.computeEffectiveFloor(resident);
-    if (effectiveFloor < 2) {
-      throw TalktiveException(
-        message:
-            'You must reach Floor 2 to post moments. Keep interacting to climb higher! (Current Floor: $effectiveFloor)',
-        code: 'FLOOR_TOO_LOW',
-      );
-    }
-
-    // 3. Check if user is muted
-    if (ApartmentService.isMuted(resident)) {
-      throw TalktiveException(
-        message: ApartmentService.getMuteReason(resident),
-        code: 'USER_MUTED',
-      );
-    }
-
-    // 5. Create Moment
-    final moment = Moment(
-      authorId: resident.userInfoId,
+    return await MomentService.postMoment(
+      session,
+      author: resident,
       imageUrl: imageUrl,
       caption: caption,
-      mediaType: 'image',
-      createdAt: DateTime.now(),
-      likesCount: 0,
-      commentsCount: 0,
-      authorName: resident.userName ?? 'Anonymous',
-      authorAvatar: resident.customAvatarUrl ?? resident.avatar ?? '',
-      authorMood: resident.mood,
-      authorFloor: effectiveFloor,
-      authorTrustScore: resident.trustScore,
     );
-
-    final savedMoment = await Moment.db.insertRow(session, moment);
-
-    // Award XP for posting moment (Batched)
-    await GamificationService.awardXP(
-      session,
-      resident,
-      GamificationService.XP_PER_MOMENT,
-      'Posted moment',
-      save: false,
-    );
-
-    // Final single save for resident
-    await Resident.db.updateRow(session, resident);
-
-    // Track achievements (Batched)
-    await GamificationService.trackMultipleProgress(
-      session,
-      senderUuid,
-      ['first_moment', 'photographer', 'influencer'],
-    );
-
-    // Update streak (already handled by checkDailyLogin in awardXP, but can add specifics here if needed)
-    // For now, awardXP handles the basic streak logic.
-
-    return savedMoment;
   }
 
+  /// Lists the latest moments.
   /// Lists the latest moments.
   Future<List<Moment>> listMoments(
     Session session, {
@@ -98,15 +45,14 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
       InputValidationService.validateId(lastId, 'Last ID').throwIfInvalid();
     }
 
-    return await Moment.db.find(
+    return await MomentService.listMoments(
       session,
       limit: limit,
-      orderBy: (t) => t.id,
-      orderDescending: true,
-      where: lastId != null ? (t) => t.id < lastId : null,
+      lastId: lastId,
     );
   }
 
+  /// Lists the moments for a specific user.
   /// Lists the moments for a specific user.
   Future<List<Moment>> listUserMoments(
     Session session, {
@@ -120,117 +66,39 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
       offset: 0,
     ).throwIfInvalid();
 
-    return await Moment.db.find(
+    return await MomentService.listUserMoments(
       session,
+      userId: userId,
       limit: limit,
-      orderBy: (t) => t.id,
-      orderDescending: true,
-      where: (t) {
-        var filter = t.authorId.equals(userId);
-        if (lastId != null) {
-          filter &= t.id < lastId;
-        }
-        return filter;
-      },
+      lastId: lastId,
     );
   }
 
+  /// Likes a moment.
   /// Likes a moment.
   Future<void> likeMoment(Session session, int momentId) async {
     // Validate inputs
     InputValidationService.validateId(momentId, 'Moment ID').throwIfInvalid();
 
-    final userId = await getUserId(session);
-    final resident = await getResidentProfile(session, userId);
-
-    // Check if already liked
-    final existingLike = await MomentLike.db.findFirstRow(
+    final resident = await getAuthenticatedResident(session);
+    await MomentService.likeMoment(
       session,
-      where: (t) => t.momentId.equals(momentId) & t.userId.equals(userId),
-    );
-
-    if (existingLike != null) {
-      // Already liked, do nothing (or could throw exception)
-      return;
-    }
-
-    // Create like
-    final like = MomentLike(
       momentId: momentId,
-      userId: userId,
-      createdAt: DateTime.now(),
-      userName: resident.userName ?? 'Anonymous',
-      userAvatar: resident.customAvatarUrl ?? resident.avatar ?? '',
-      userMood: resident.mood,
-      userFloor: ApartmentService.computeEffectiveFloor(resident),
-      userTrustScore: resident.trustScore,
+      resident: resident,
     );
-
-    await MomentLike.db.insertRow(session, like);
-
-    // Increment likes count on moment
-    final moment = await Moment.db.findById(session, momentId);
-    if (moment != null) {
-      moment.likesCount += 1;
-      await Moment.db.updateRow(session, moment);
-
-      // Send notification to moment author (if not liking own moment)
-      final momentAuthor = await Resident.db.findFirstRow(
-        session,
-        where: (t) => t.userInfoId.equals(moment.authorId),
-      );
-      if (momentAuthor != null && momentAuthor.userInfoId != userId) {
-        // Award XP to author
-        await GamificationService.awardXP(
-          session,
-          momentAuthor,
-          GamificationService.XP_USER_VOUCH,
-          'Moment liked',
-          save: false,
-        );
-
-        // Award Trust Score (Vouch) to author
-        ApartmentService.awardVouch(target: momentAuthor);
-
-        // Save author updates
-        await Resident.db.updateRow(session, momentAuthor);
-
-        await NotificationService.sendMomentLikeNotification(
-          session,
-          momentAuthor.userInfoId,
-          resident.userName ?? 'Someone',
-          momentId,
-        );
-      }
-    }
   }
 
   /// Unlikes a moment.
+  /// Unlikes a moment.
   Future<void> unlikeMoment(Session session, int momentId) async {
-    // Validate inputs
     InputValidationService.validateId(momentId, 'Moment ID').throwIfInvalid();
-
     final userId = await getUserId(session);
 
-    // Find and delete like
-    final existingLike = await MomentLike.db.findFirstRow(
+    await MomentService.unlikeMoment(
       session,
-      where: (t) => t.momentId.equals(momentId) & t.userId.equals(userId),
+      momentId: momentId,
+      userId: userId,
     );
-
-    if (existingLike == null) {
-      // Not liked, do nothing
-      return;
-    }
-
-    await MomentLike.db.deleteRow(session, existingLike);
-
-    // Decrement likes count on moment
-    final moment = await Moment.db.findById(session, momentId);
-    if (moment != null && moment.likesCount > 0) {
-      moment.likesCount -= 1;
-      await Moment.db.updateRow(session, moment);
-    }
   }
 
   /// Gets likes for a moment.
@@ -268,34 +136,25 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
   /// Batch checks if the current user has liked multiple moments.
   /// This solves the N+1 query problem when loading a feed of moments.
   /// Returns a Map of momentId -> isLiked.
+  /// Batch checks if the current user has liked multiple moments.
+  /// Returns a Map of momentId -> isLiked.
   Future<Map<int, bool>> hasLikedMoments(
     Session session,
     List<int> momentIds,
   ) async {
-    final authenticationInfo = session.authenticated;
-    final userIdentifier = authenticationInfo?.userIdentifier;
-
-    if (userIdentifier == null) {
-      // Return all false if not authenticated
+    final userId = await getUserIdOptional(session);
+    if (userId == null) {
       return {for (var id in momentIds) id: false};
     }
 
-    final userId = UuidValue.fromString(userIdentifier);
-
-    // Fetch all likes for these moments by this user in one query
-    final likes = await MomentLike.db.find(
+    return await MomentService.hasLikedMoments(
       session,
-      where: (t) =>
-          t.momentId.inSet(momentIds.toSet()) & t.userId.equals(userId),
+      momentIds,
+      userId,
     );
-
-    // Create a set of liked moment IDs for O(1) lookup
-    final likedMomentIds = likes.map((like) => like.momentId).toSet();
-
-    // Return map of momentId -> isLiked
-    return {for (var id in momentIds) id: likedMomentIds.contains(id)};
   }
 
+  /// Adds a comment to a moment.
   /// Adds a comment to a moment.
   Future<MomentComment> addComment(
     Session session,
@@ -306,47 +165,14 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
     InputValidationService.validateId(momentId, 'Moment ID').throwIfInvalid();
     InputValidationService.validateComment(text).throwIfInvalid();
 
-    final userId = await getUserId(session);
-    final resident = await getResidentProfile(session, userId);
+    final resident = await getAuthenticatedResident(session);
 
-    // Create comment
-    final comment = MomentComment(
+    return await MomentService.addComment(
+      session,
       momentId: momentId,
-      userId: userId,
+      resident: resident,
       text: text,
-      createdAt: DateTime.now(),
-      userName: resident.userName ?? 'Anonymous',
-      userAvatar: resident.customAvatarUrl ?? resident.avatar ?? '',
-      userMood: resident.mood,
-      userFloor: ApartmentService.computeEffectiveFloor(resident),
-      userTrustScore: resident.trustScore,
     );
-
-    final savedComment = await MomentComment.db.insertRow(session, comment);
-
-    // Increment comments count on moment
-    final moment = await Moment.db.findById(session, momentId);
-    if (moment != null) {
-      moment.commentsCount += 1;
-      await Moment.db.updateRow(session, moment);
-
-      // Send notification to moment author (if not commenting on own moment)
-      final momentAuthor = await Resident.db.findFirstRow(
-        session,
-        where: (t) => t.userInfoId.equals(moment.authorId),
-      );
-      if (momentAuthor != null && momentAuthor.userInfoId != userId) {
-        await NotificationService.sendMomentCommentNotification(
-          session,
-          momentAuthor.userInfoId,
-          resident.userName ?? 'Someone',
-          text,
-          momentId,
-        );
-      }
-    }
-
-    return savedComment;
   }
 
   /// Gets comments for a moment.
@@ -365,27 +191,13 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Deletes a comment (only by author).
+  /// Deletes a comment (only by author).
   Future<void> deleteComment(Session session, int commentId) async {
     final userId = await getUserId(session);
-
-    final comment = await MomentComment.db.findById(session, commentId);
-
-    if (comment == null) {
-      throw TalktiveException(message: 'Comment not found');
-    }
-
-    // Check if user is the author
-    if (comment.userId != userId) {
-      throw TalktiveException(message: 'You can only delete your own comments');
-    }
-
-    await MomentComment.db.deleteRow(session, comment);
-
-    // Decrement comments count on moment
-    final moment = await Moment.db.findById(session, comment.momentId);
-    if (moment != null && moment.commentsCount > 0) {
-      moment.commentsCount -= 1;
-      await Moment.db.updateRow(session, moment);
-    }
+    await MomentService.deleteComment(
+      session,
+      commentId: commentId,
+      userId: userId,
+    );
   }
 }

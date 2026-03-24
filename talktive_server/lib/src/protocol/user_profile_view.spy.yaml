@@ -1,7 +1,7 @@
 ### User profile view data
 class: UserProfileView
 fields:
-  userId: String
+  userId: UuidValue
   userName: String?
   userAvatar: String?
   userMood: String?

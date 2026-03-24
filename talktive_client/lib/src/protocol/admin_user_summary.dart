@@ -31,7 +31,7 @@ abstract class AdminUserSummary implements _i1.SerializableModel {
   });
 
   factory AdminUserSummary({
-    required String userId,
+    required _i1.UuidValue userId,
     String? userName,
     required int floor,
     required int trustScore,
@@ -48,7 +48,7 @@ abstract class AdminUserSummary implements _i1.SerializableModel {
 
   factory AdminUserSummary.fromJson(Map<String, dynamic> jsonSerialization) {
     return AdminUserSummary(
-      userId: jsonSerialization['userId'] as String,
+      userId: _i1.UuidValueJsonExtension.fromJson(jsonSerialization['userId']),
       userName: jsonSerialization['userName'] as String?,
       floor: jsonSerialization['floor'] as int,
       trustScore: jsonSerialization['trustScore'] as int,
@@ -68,7 +68,7 @@ abstract class AdminUserSummary implements _i1.SerializableModel {
     );
   }
 
-  String userId;
+  _i1.UuidValue userId;
 
   String? userName;
 
@@ -98,7 +98,7 @@ abstract class AdminUserSummary implements _i1.SerializableModel {
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   AdminUserSummary copyWith({
-    String? userId,
+    _i1.UuidValue? userId,
     String? userName,
     int? floor,
     int? trustScore,
@@ -116,7 +116,7 @@ abstract class AdminUserSummary implements _i1.SerializableModel {
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'AdminUserSummary',
-      'userId': userId,
+      'userId': userId.toJson(),
       if (userName != null) 'userName': userName,
       'floor': floor,
       'trustScore': trustScore,
@@ -142,7 +142,7 @@ class _Undefined {}
 
 class _AdminUserSummaryImpl extends AdminUserSummary {
   _AdminUserSummaryImpl({
-    required String userId,
+    required _i1.UuidValue userId,
     String? userName,
     required int floor,
     required int trustScore,
@@ -176,7 +176,7 @@ class _AdminUserSummaryImpl extends AdminUserSummary {
   @_i1.useResult
   @override
   AdminUserSummary copyWith({
-    String? userId,
+    _i1.UuidValue? userId,
     Object? userName = _Undefined,
     int? floor,
     int? trustScore,

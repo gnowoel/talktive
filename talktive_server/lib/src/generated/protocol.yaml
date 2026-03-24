@@ -13,30 +13,26 @@ firebaseIdp:
 jwtRefresh:
   - refreshAccessToken:
 admin:
-  - isAdmin:
-  - isModerator:
-  - isStaff:
   - getPendingReports:
+  - listReports:
   - getAllReports:
   - resolveReport:
   - suspendUser:
   - unsuspendUser:
   - muteUser:
   - unmuteUser:
-  - resetReputation:
   - deleteMessage:
-  - deleteMoment:
+  - resetReputation:
   - getStatistics:
   - searchUsers:
   - promoteToAdmin:
+  - demoteFromAdmin:
   - promoteToModerator:
   - demoteFromModerator:
-  - demoteFromAdmin:
-  - disbandLounge:
   - makeLoungePrivate:
+  - disbandLounge:
+  - isStaff:
   - getUserDetails:
-  - runArchival:
-  - getArchivalStats:
 gamification:
   - getUserAchievements:
   - markAchievementsAsNotified:
@@ -61,14 +57,13 @@ lounge:
   - inviteUserToLounge:
   - respondToLoungeInvite:
   - approveLoungeApplication:
-  - kickMember:
   - leaveLounge:
   - toggleMuteLounge:
-  - getLoungeMembersWithProfiles:
-  - getPendingApplicationsWithProfiles:
   - getLoungeMembers:
+  - getPendingApplications:
   - updateLounge:
   - deleteLounge:
+  - kickMember:
 message:
   - sendMessage:
   - subscribe:

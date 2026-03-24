@@ -17,6 +17,20 @@ mixin EndpointAuthMixin {
     return UuidValue.fromString(auth.userIdentifier);
   }
 
+  /// Retrieves the UUID of the authenticated user if they are signed in.
+  Future<UuidValue?> getUserIdOptional(Session session) async {
+    final auth = session.authenticated;
+    if (auth == null) return null;
+    return UuidValue.fromString(auth.userIdentifier);
+  }
+
+  /// Retrieves the Resident record for the authenticated user session if they exist.
+  Future<protocol.Resident?> getResidentOptional(Session session) async {
+    final userId = await getUserIdOptional(session);
+    if (userId == null) return null;
+    return await ResidentService.getResident(session, userId);
+  }
+
   /// Retrieves the Resident record for a specific user ID.
   /// Throws a TalktiveException if the resident is not found.
   Future<protocol.Resident> getResidentProfile(

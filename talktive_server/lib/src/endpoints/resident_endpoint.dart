@@ -79,6 +79,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     String? mood,
     String? customAvatarUrl,
   }) async {
+    // Input validation
     InputValidationService.validateName(name).throwIfInvalid();
     InputValidationService.validateGender(gender).throwIfInvalid();
     InputValidationService.validateBio(bio).throwIfInvalid();
@@ -86,10 +87,11 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     InputValidationService.validateStringList(languages, 'Languages').throwIfInvalid();
 
     final resident = await getAuthenticatedResident(session);
-    final senderUuid = resident.userInfoId;
+    
+    // Sync name with auth profile
+    await ResidentService.syncAuthProfile(session, resident.userInfoId, name);
 
-    await ResidentService.syncAuthProfile(session, senderUuid, name);
-
+    // Update basic fields
     resident.userName = name;
     resident.avatar = avatar;
     resident.gender = gender;
@@ -99,6 +101,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     resident.interests = interests ?? resident.interests;
     resident.languages = languages ?? resident.languages;
 
+    // Premium check for custom avatar
     if (customAvatarUrl != null && !resident.isPremium) {
       throw protocol.TalktiveException(
         message: 'Custom avatars are a Premium feature.',
@@ -143,57 +146,14 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
   /// Vouch/Like a user.
   Future<void> likeUser(Session session, String targetUserId) async {
     InputValidationService.validateUuid(targetUserId).throwIfInvalid();
-    final callerId = await getUserId(session);
+    final resident = await getAuthenticatedResident(session);
     final targetId = UuidValue.fromString(targetUserId);
 
-    if (callerId == targetId) throw protocol.TalktiveException(message: 'You cannot like yourself.');
-
-    final target = await ResidentService.getResident(session, targetId);
-    if (target == null) throw protocol.TalktiveException(message: 'Target user not found');
-
-    // One-Vote Rule
-    final existingLike = await protocol.UserLike.db.findFirstRow(
+    await ResidentService.vouchForUser(
       session,
-      where: (t) => t.senderId.equals(callerId) & t.receiverId.equals(targetId),
+      sender: resident,
+      targetId: targetId,
     );
-    if (existingLike != null) throw protocol.TalktiveException(message: 'You have already vouched for this user.');
-
-    final isBlocked = await ResidentService.isBlocked(session, blockerId: callerId, blockedId: targetId);
-    final hasBlockedMe = await ResidentService.isBlocked(session, blockerId: targetId, blockedId: callerId);
-    if (isBlocked || hasBlockedMe) {
-      throw protocol.TalktiveException(message: 'You cannot vouch for this resident due to privacy settings.');
-    }
-
-    final existingReport = await protocol.Report.db.findFirstRow(
-      session,
-      where: (t) => t.reporterId.equals(callerId) & t.targetId.equals(targetId),
-    );
-    if (existingReport != null) throw protocol.TalktiveException(message: 'You cannot vouch for a user you have reported.');
-
-    await protocol.UserLike.db.insertRow(session, protocol.UserLike(senderId: callerId, receiverId: targetId, createdAt: DateTime.now()));
-
-    // Trust Score Increase & XP Reward
-    ApartmentService.awardVouch(target: target);
-    await GamificationService.awardXP(
-      session,
-      target,
-      GamificationService.XP_USER_VOUCH,
-      'Vouched by another resident',
-      save: false,
-    );
-    await protocol.Resident.db.updateRow(session, target);
-
-    // Send notification
-    try {
-      final liker = await getAuthenticatedResident(session);
-      await NotificationService.sendVouchNotification(
-        session,
-        targetId,
-        liker.userName ?? 'A resident',
-      );
-    } catch (e) {
-      session.log('Failed to send vouch notification: $e');
-    }
   }
 
   /// Remove a Vouch/Like.
@@ -202,19 +162,11 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     final callerId = await getUserId(session);
     final targetId = UuidValue.fromString(targetUserId);
 
-    final target = await ResidentService.getResident(session, targetId);
-    if (target == null) throw protocol.TalktiveException(message: 'Target user not found');
-
-    final existingLike = await protocol.UserLike.db.findFirstRow(
+    await ResidentService.removeVouch(
       session,
-      where: (t) => t.senderId.equals(callerId) & t.receiverId.equals(targetId),
+      senderId: callerId,
+      targetId: targetId,
     );
-    if (existingLike == null) throw protocol.TalktiveException(message: 'Like not found');
-
-    await protocol.UserLike.db.deleteRow(session, existingLike);
-
-    ApartmentService.removeVouch(target: target);
-    await protocol.Resident.db.updateRow(session, target);
   }
 
   /// Get list of user IDs liked by current user.
@@ -231,10 +183,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     final blockerId = await getUserId(session);
     final targetId = UuidValue.fromString(userId);
 
-    final existing = await protocol.Block.db.findFirstRow(session, where: (t) => t.blockerId.equals(blockerId) & t.blockedId.equals(targetId));
-    if (existing != null) return true;
-
-    await protocol.Block.db.insertRow(session, protocol.Block(blockerId: blockerId, blockedId: targetId, createdAt: DateTime.now()));
+    await ResidentService.setBlockStatus(session, blockerId: blockerId, targetId: targetId, block: true);
     return true;
   }
 
@@ -243,10 +192,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     final blockerId = await getUserId(session);
     final targetId = UuidValue.fromString(userId);
 
-    final block = await protocol.Block.db.findFirstRow(session, where: (t) => t.blockerId.equals(blockerId) & t.blockedId.equals(targetId));
-    if (block == null) return true;
-
-    await protocol.Block.db.deleteRow(session, block);
+    await ResidentService.setBlockStatus(session, blockerId: blockerId, targetId: targetId, block: false);
     return true;
   }
 
@@ -285,6 +231,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
   /// Updates privacy settings (Read Receipts, Typing Indicator, Voice, Search, etc).
   Future<protocol.Resident> updatePrivacySettings(
     Session session, {
+    bool? showOnlineStatus,
     bool? showReadReceipts,
     bool? showTypingIndicator,
     bool? showVoiceMessages,
@@ -297,16 +244,19 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
   }) async {
     final resident = await getAuthenticatedResident(session);
 
-    if (showReadReceipts != null) resident.showReadReceipts = showReadReceipts;
-    if (showTypingIndicator != null) resident.showTypingIndicator = showTypingIndicator;
-    if (showVoiceMessages != null) resident.showVoiceMessages = showVoiceMessages;
-    if (showNeighborsDiscovery != null) resident.showNeighborsDiscovery = showNeighborsDiscovery;
-    if (showCustomAvatar != null) resident.showCustomAvatar = showCustomAvatar;
-    if (showOthersOnlineStatus != null) resident.showOthersOnlineStatus = showOthersOnlineStatus;
-    if (showOthersReadReceipts != null) resident.showOthersReadReceipts = showOthersReadReceipts;
-    if (showOthersTypingIndicators != null) resident.showOthersTypingIndicators = showOthersTypingIndicators;
-    if (keepPrivateChats != null) resident.keepPrivateChats = keepPrivateChats;
-    
-    return await protocol.Resident.db.updateRow(session, resident);
+    return await ResidentService.updatePrivacy(
+      session,
+      resident: resident,
+      showOnlineStatus: showOnlineStatus,
+      showReadReceipts: showReadReceipts,
+      showTypingIndicator: showTypingIndicator,
+      showVoiceMessages: showVoiceMessages,
+      showNeighborsDiscovery: showNeighborsDiscovery,
+      showCustomAvatar: showCustomAvatar,
+      showOthersOnlineStatus: showOthersOnlineStatus,
+      showOthersReadReceipts: showOthersReadReceipts,
+      showOthersTypingIndicators: showOthersTypingIndicators,
+      keepPrivateChats: keepPrivateChats,
+    );
   }
 }

@@ -64,21 +64,20 @@ import 'package:talktive_client/src/protocol/lounge_with_membership.dart'
 import 'package:talktive_client/src/protocol/lounge.dart' as _i50;
 import 'package:talktive_client/src/protocol/lounge_member_with_profile.dart'
     as _i51;
-import 'package:talktive_client/src/protocol/resident.dart' as _i52;
-import 'package:talktive_client/src/protocol/message.dart' as _i53;
-import 'package:talktive_client/src/protocol/moment.dart' as _i54;
-import 'package:talktive_client/src/protocol/moment_like.dart' as _i55;
-import 'package:talktive_client/src/protocol/moment_comment.dart' as _i56;
-import 'package:talktive_client/src/protocol/user_notification.dart' as _i57;
+import 'package:talktive_client/src/protocol/message.dart' as _i52;
+import 'package:talktive_client/src/protocol/moment.dart' as _i53;
+import 'package:talktive_client/src/protocol/moment_like.dart' as _i54;
+import 'package:talktive_client/src/protocol/moment_comment.dart' as _i55;
+import 'package:talktive_client/src/protocol/user_notification.dart' as _i56;
 import 'package:talktive_client/src/protocol/private_chat_with_profile.dart'
-    as _i58;
-import 'package:talktive_client/src/protocol/report.dart' as _i59;
-import 'package:talktive_client/src/protocol/user_summary.dart' as _i60;
+    as _i57;
+import 'package:talktive_client/src/protocol/report.dart' as _i58;
+import 'package:talktive_client/src/protocol/user_summary.dart' as _i59;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
-    as _i61;
+    as _i60;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
-    as _i62;
-import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i63;
+    as _i61;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i62;
 export 'achievement.dart';
 export 'admin_activity.dart';
 export 'admin_report_summary.dart';
@@ -484,12 +483,6 @@ class Protocol extends _i1.SerializationManager {
               .toList()
           as T;
     }
-    if (t == Map<String, int>) {
-      return (data as Map).map(
-            (k, v) => MapEntry(deserialize<String>(k), deserialize<int>(v)),
-          )
-          as T;
-    }
     if (t == List<_i47.UserAchievementView>) {
       return (data as List)
               .map((e) => deserialize<_i47.UserAchievementView>(e))
@@ -536,20 +529,16 @@ class Protocol extends _i1.SerializationManager {
               .toList()
           as T;
     }
-    if (t == List<_i52.Resident>) {
-      return (data as List).map((e) => deserialize<_i52.Resident>(e)).toList()
+    if (t == List<_i52.Message>) {
+      return (data as List).map((e) => deserialize<_i52.Message>(e)).toList()
           as T;
     }
-    if (t == List<_i53.Message>) {
-      return (data as List).map((e) => deserialize<_i53.Message>(e)).toList()
+    if (t == List<_i53.Moment>) {
+      return (data as List).map((e) => deserialize<_i53.Moment>(e)).toList()
           as T;
     }
-    if (t == List<_i54.Moment>) {
-      return (data as List).map((e) => deserialize<_i54.Moment>(e)).toList()
-          as T;
-    }
-    if (t == List<_i55.MomentLike>) {
-      return (data as List).map((e) => deserialize<_i55.MomentLike>(e)).toList()
+    if (t == List<_i54.MomentLike>) {
+      return (data as List).map((e) => deserialize<_i54.MomentLike>(e)).toList()
           as T;
     }
     if (t == Map<int, bool>) {
@@ -561,42 +550,42 @@ class Protocol extends _i1.SerializationManager {
           )
           as T;
     }
-    if (t == List<_i56.MomentComment>) {
+    if (t == List<_i55.MomentComment>) {
       return (data as List)
-              .map((e) => deserialize<_i56.MomentComment>(e))
+              .map((e) => deserialize<_i55.MomentComment>(e))
               .toList()
           as T;
     }
-    if (t == List<_i57.UserNotification>) {
+    if (t == List<_i56.UserNotification>) {
       return (data as List)
-              .map((e) => deserialize<_i57.UserNotification>(e))
+              .map((e) => deserialize<_i56.UserNotification>(e))
               .toList()
           as T;
     }
-    if (t == List<_i58.PrivateChatWithProfile>) {
+    if (t == List<_i57.PrivateChatWithProfile>) {
       return (data as List)
-              .map((e) => deserialize<_i58.PrivateChatWithProfile>(e))
+              .map((e) => deserialize<_i57.PrivateChatWithProfile>(e))
               .toList()
           as T;
     }
-    if (t == List<_i59.Report>) {
-      return (data as List).map((e) => deserialize<_i59.Report>(e)).toList()
+    if (t == List<_i58.Report>) {
+      return (data as List).map((e) => deserialize<_i58.Report>(e)).toList()
           as T;
     }
-    if (t == List<_i60.UserSummary>) {
+    if (t == List<_i59.UserSummary>) {
       return (data as List)
-              .map((e) => deserialize<_i60.UserSummary>(e))
+              .map((e) => deserialize<_i59.UserSummary>(e))
               .toList()
           as T;
     }
+    try {
+      return _i60.Protocol().deserialize<T>(data, t);
+    } on _i1.DeserializationTypeNotFoundException catch (_) {}
     try {
       return _i61.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     try {
       return _i62.Protocol().deserialize<T>(data, t);
-    } on _i1.DeserializationTypeNotFoundException catch (_) {}
-    try {
-      return _i63.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     return super.deserialize<T>(data, t);
   }
@@ -747,15 +736,15 @@ class Protocol extends _i1.SerializationManager {
       case _i44.UserSummary():
         return 'UserSummary';
     }
-    className = _i61.Protocol().getClassNameForObject(data);
+    className = _i60.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_idp.$className';
     }
-    className = _i62.Protocol().getClassNameForObject(data);
+    className = _i61.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_core.$className';
     }
-    className = _i63.Protocol().getClassNameForObject(data);
+    className = _i62.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth.$className';
     }
@@ -899,15 +888,15 @@ class Protocol extends _i1.SerializationManager {
     }
     if (dataClassName.startsWith('serverpod_auth_idp.')) {
       data['className'] = dataClassName.substring(19);
-      return _i61.Protocol().deserializeByClassName(data);
+      return _i60.Protocol().deserializeByClassName(data);
     }
     if (dataClassName.startsWith('serverpod_auth_core.')) {
       data['className'] = dataClassName.substring(20);
-      return _i62.Protocol().deserializeByClassName(data);
+      return _i61.Protocol().deserializeByClassName(data);
     }
     if (dataClassName.startsWith('serverpod_auth.')) {
       data['className'] = dataClassName.substring(15);
-      return _i63.Protocol().deserializeByClassName(data);
+      return _i62.Protocol().deserializeByClassName(data);
     }
     return super.deserializeByClassName(data);
   }
@@ -922,13 +911,13 @@ class Protocol extends _i1.SerializationManager {
       return null;
     }
     try {
+      return _i60.Protocol().mapRecordToJson(record);
+    } catch (_) {}
+    try {
       return _i61.Protocol().mapRecordToJson(record);
     } catch (_) {}
     try {
       return _i62.Protocol().mapRecordToJson(record);
-    } catch (_) {}
-    try {
-      return _i63.Protocol().mapRecordToJson(record);
     } catch (_) {}
     throw Exception('Unsupported record type ${record.runtimeType}');
   }

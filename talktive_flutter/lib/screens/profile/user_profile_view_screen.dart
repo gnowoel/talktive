@@ -997,7 +997,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       try {
         final client = ref.read(clientProvider);
         await client.admin.muteUser(
-          userId: widget.userId,
+          userId: UuidValue.fromString(widget.userId),
           durationHours: duration,
           reason: reasonController.text.trim(),
         );
@@ -1093,7 +1093,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
       try {
         final client = ref.read(clientProvider);
         await client.admin.suspendUser(
-          userId: widget.userId,
+          userId: UuidValue.fromString(widget.userId),
           reason: reasonController.text.trim(),
         );
         if (context.mounted) {

@@ -298,6 +298,7 @@ class EndpointJwtRefresh extends _i4.EndpointRefreshJwtTokens {
   );
 }
 
+/// Endpoint for administrative and moderation tasks.
 /// {@category Endpoint}
 class EndpointAdmin extends _i2.EndpointRef {
   EndpointAdmin(_i2.EndpointCaller caller) : super(caller);
@@ -305,28 +306,7 @@ class EndpointAdmin extends _i2.EndpointRef {
   @override
   String get name => 'admin';
 
-  /// Check if the current user is an admin
-  _i3.Future<bool> isAdmin() => caller.callServerEndpoint<bool>(
-    'admin',
-    'isAdmin',
-    {},
-  );
-
-  /// Check if the current user is a moderator
-  _i3.Future<bool> isModerator() => caller.callServerEndpoint<bool>(
-    'admin',
-    'isModerator',
-    {},
-  );
-
-  /// Check if the current user is staff (Admin or Moderator)
-  _i3.Future<bool> isStaff() => caller.callServerEndpoint<bool>(
-    'admin',
-    'isStaff',
-    {},
-  );
-
-  /// Get all pending reports with pagination
+  /// Fetches pending reports with detailed user summaries.
   _i3.Future<List<_i5.AdminReportSummary>> getPendingReports({
     required int limit,
     required int offset,
@@ -339,7 +319,22 @@ class EndpointAdmin extends _i2.EndpointRef {
     },
   );
 
-  /// Get all reports (with status filter)
+  /// Fetches all reports with optional status filtering.
+  _i3.Future<List<_i5.AdminReportSummary>> listReports({
+    _i6.ReportStatus? status,
+    required int limit,
+    required int offset,
+  }) => caller.callServerEndpoint<List<_i5.AdminReportSummary>>(
+    'admin',
+    'listReports',
+    {
+      'status': status,
+      'limit': limit,
+      'offset': offset,
+    },
+  );
+
+  /// Legacy helper for getAllReports
   _i3.Future<List<_i5.AdminReportSummary>> getAllReports({
     _i6.ReportStatus? status,
     required int limit,
@@ -354,24 +349,24 @@ class EndpointAdmin extends _i2.EndpointRef {
     },
   );
 
-  /// Resolve a report (approve or reject)
+  /// Resolves a report, optionally taking action against the target.
   _i3.Future<void> resolveReport({
     required int reportId,
     required _i6.ReportStatus status,
-    String? adminNotes,
+    String? reason,
   }) => caller.callServerEndpoint<void>(
     'admin',
     'resolveReport',
     {
       'reportId': reportId,
       'status': status,
-      'adminNotes': adminNotes,
+      'reason': reason,
     },
   );
 
-  /// Suspend a user (disable account)
+  /// Suspends a user account.
   _i3.Future<void> suspendUser({
-    required String userId,
+    required _i2.UuidValue userId,
     String? reason,
   }) => caller.callServerEndpoint<void>(
     'admin',
@@ -382,39 +377,50 @@ class EndpointAdmin extends _i2.EndpointRef {
     },
   );
 
-  /// Unsuspend a user (re-enable account)
-  _i3.Future<void> unsuspendUser({required String userId}) =>
+  /// Unsuspends a user account.
+  _i3.Future<void> unsuspendUser({required _i2.UuidValue userId}) =>
       caller.callServerEndpoint<void>(
         'admin',
         'unsuspendUser',
         {'userId': userId},
       );
 
-  /// Manually mutes a user for a specified duration.
+  /// Mutes a user for a specified duration.
   _i3.Future<void> muteUser({
-    required String userId,
-    required int durationHours,
-    required String reason,
+    required _i2.UuidValue userId,
+    int? minutes,
+    int? durationHours,
+    String? reason,
   }) => caller.callServerEndpoint<void>(
     'admin',
     'muteUser',
     {
       'userId': userId,
+      'minutes': minutes,
       'durationHours': durationHours,
       'reason': reason,
     },
   );
 
-  /// Manually unmutes a user.
-  _i3.Future<void> unmuteUser(String userId) => caller.callServerEndpoint<void>(
-    'admin',
-    'unmuteUser',
-    {'userId': userId},
-  );
+  /// Unmutes a user immediately.
+  _i3.Future<void> unmuteUser({required _i2.UuidValue userId}) =>
+      caller.callServerEndpoint<void>(
+        'admin',
+        'unmuteUser',
+        {'userId': userId},
+      );
 
-  /// Reset user trustScore to 100 (for appeals)
+  /// Deletes a message.
+  _i3.Future<void> deleteMessage({required int messageId}) =>
+      caller.callServerEndpoint<void>(
+        'admin',
+        'deleteMessage',
+        {'messageId': messageId},
+      );
+
+  /// Resets a user's reputation to default.
   _i3.Future<void> resetReputation({
-    required String userId,
+    required _i2.UuidValue userId,
     String? reason,
   }) => caller.callServerEndpoint<void>(
     'admin',
@@ -425,33 +431,7 @@ class EndpointAdmin extends _i2.EndpointRef {
     },
   );
 
-  /// Delete a message
-  _i3.Future<void> deleteMessage({
-    required int messageId,
-    String? reason,
-  }) => caller.callServerEndpoint<void>(
-    'admin',
-    'deleteMessage',
-    {
-      'messageId': messageId,
-      'reason': reason,
-    },
-  );
-
-  /// Delete a moment
-  _i3.Future<void> deleteMoment({
-    required int momentId,
-    String? reason,
-  }) => caller.callServerEndpoint<void>(
-    'admin',
-    'deleteMoment',
-    {
-      'momentId': momentId,
-      'reason': reason,
-    },
-  );
-
-  /// Get platform statistics - OPTIMIZED with caching
+  /// Computes platform-wide statistics.
   _i3.Future<_i7.AdminStatistics> getStatistics() =>
       caller.callServerEndpoint<_i7.AdminStatistics>(
         'admin',
@@ -459,11 +439,11 @@ class EndpointAdmin extends _i2.EndpointRef {
         {},
       );
 
-  /// Search users by name or ID with pagination
+  /// Searches for users by name or specific ID.
   _i3.Future<List<_i8.AdminUserSummary>> searchUsers({
-    required String query,
-    required int limit,
-    required int offset,
+    String? query,
+    int? limit,
+    int? offset,
   }) => caller.callServerEndpoint<List<_i8.AdminUserSummary>>(
     'admin',
     'searchUsers',
@@ -474,42 +454,50 @@ class EndpointAdmin extends _i2.EndpointRef {
     },
   );
 
-  /// Promote user to admin
-  _i3.Future<void> promoteToAdmin({required String userId}) =>
+  /// Promotes a user to Admin role.
+  _i3.Future<void> promoteToAdmin({required _i2.UuidValue userId}) =>
       caller.callServerEndpoint<void>(
         'admin',
         'promoteToAdmin',
         {'userId': userId},
       );
 
-  /// Promote user to moderator
-  _i3.Future<void> promoteToModerator({required String userId}) =>
-      caller.callServerEndpoint<void>(
-        'admin',
-        'promoteToModerator',
-        {'userId': userId},
-      );
-
-  /// Demote user from moderator
-  _i3.Future<void> demoteFromModerator({required String userId}) =>
-      caller.callServerEndpoint<void>(
-        'admin',
-        'demoteFromModerator',
-        {'userId': userId},
-      );
-
-  /// Demote admin to regular user
-  _i3.Future<void> demoteFromAdmin({required String userId}) =>
+  /// Demotes an Admin to Moderator or regular user.
+  _i3.Future<void> demoteFromAdmin({required _i2.UuidValue userId}) =>
       caller.callServerEndpoint<void>(
         'admin',
         'demoteFromAdmin',
         {'userId': userId},
       );
 
-  /// Disbands a lounge immediately.
+  /// Promotes a user to Moderator role.
+  _i3.Future<void> promoteToModerator({required _i2.UuidValue userId}) =>
+      caller.callServerEndpoint<void>(
+        'admin',
+        'promoteToModerator',
+        {'userId': userId},
+      );
+
+  /// Demotes a moderator back to a regular user.
+  _i3.Future<void> demoteFromModerator({required _i2.UuidValue userId}) =>
+      caller.callServerEndpoint<void>(
+        'admin',
+        'demoteFromModerator',
+        {'userId': userId},
+      );
+
+  /// Makes a lounge private/locked by staff.
+  _i3.Future<void> makeLoungePrivate(int loungeId) =>
+      caller.callServerEndpoint<void>(
+        'admin',
+        'makeLoungePrivate',
+        {'loungeId': loungeId},
+      );
+
+  /// Disbands a lounge.
   _i3.Future<void> disbandLounge({
     required int loungeId,
-    required String reason,
+    String? reason,
   }) => caller.callServerEndpoint<void>(
     'admin',
     'disbandLounge',
@@ -519,37 +507,21 @@ class EndpointAdmin extends _i2.EndpointRef {
     },
   );
 
-  /// Forces a lounge to become private.
-  _i3.Future<void> makeLoungePrivate(int loungeId) =>
-      caller.callServerEndpoint<void>(
-        'admin',
-        'makeLoungePrivate',
-        {'loungeId': loungeId},
-      );
+  /// Checks if the current user is a staff member.
+  _i3.Future<bool> isStaff() => caller.callServerEndpoint<bool>(
+    'admin',
+    'isStaff',
+    {},
+  );
 
-  /// Get user details for admin view
-  _i3.Future<_i9.AdminUserDetails> getUserDetails({required String userId}) =>
-      caller.callServerEndpoint<_i9.AdminUserDetails>(
-        'admin',
-        'getUserDetails',
-        {'userId': userId},
-      );
-
-  /// Run data cleanup/ephemerality tasks (admin only).
-  _i3.Future<Map<String, int>> runArchival() =>
-      caller.callServerEndpoint<Map<String, int>>(
-        'admin',
-        'runArchival',
-        {},
-      );
-
-  /// Get cleanup/ephemerality statistics (admin only).
-  _i3.Future<Map<String, int>> getArchivalStats() =>
-      caller.callServerEndpoint<Map<String, int>>(
-        'admin',
-        'getArchivalStats',
-        {},
-      );
+  /// Fetches detailed user information and history for administrative review.
+  _i3.Future<_i9.AdminUserDetails> getUserDetails({
+    required _i2.UuidValue userId,
+  }) => caller.callServerEndpoint<_i9.AdminUserDetails>(
+    'admin',
+    'getUserDetails',
+    {'userId': userId},
+  );
 }
 
 /// {@category Endpoint}
@@ -671,6 +643,7 @@ class EndpointHealth extends _i2.EndpointRef {
       );
 }
 
+/// Endpoint for managing interest-based lounges (Clubhouse).
 /// {@category Endpoint}
 class EndpointLounge extends _i2.EndpointRef {
   EndpointLounge(_i2.EndpointCaller caller) : super(caller);
@@ -743,7 +716,7 @@ class EndpointLounge extends _i2.EndpointRef {
         {'loungeId': loungeId},
       );
 
-  /// Invites a user to a lounge (by any current member or creator).
+  /// Invites a user to a lounge.
   _i3.Future<void> inviteUserToLounge(
     int loungeId,
     String targetUserIdString,
@@ -756,7 +729,7 @@ class EndpointLounge extends _i2.EndpointRef {
     },
   );
 
-  /// Responds to a lounge invite (accept or decline).
+  /// Responds to a lounge invite.
   _i3.Future<void> respondToLoungeInvite(
     int loungeId,
     bool accept,
@@ -784,27 +757,20 @@ class EndpointLounge extends _i2.EndpointRef {
     },
   );
 
-  /// Kicks a member from the lounge (creator only).
-  _i3.Future<void> kickMember(
-    int loungeId,
-    String targetUserIdString,
-  ) => caller.callServerEndpoint<void>(
+  /// Leaves a lounge or kicks a member.
+  _i3.Future<void> leaveLounge(
+    int loungeId, {
+    String? targetUserIdString,
+  }) => caller.callServerEndpoint<void>(
     'lounge',
-    'kickMember',
+    'leaveLounge',
     {
       'loungeId': loungeId,
       'targetUserIdString': targetUserIdString,
     },
   );
 
-  /// Leaves a lounge.
-  _i3.Future<void> leaveLounge(int loungeId) => caller.callServerEndpoint<void>(
-    'lounge',
-    'leaveLounge',
-    {'loungeId': loungeId},
-  );
-
-  /// Gets all members of a lounge with their profiles.
+  /// Toggles mute status for lounge notifications.
   _i3.Future<void> toggleMuteLounge(
     int loungeId,
     bool isMuted,
@@ -817,33 +783,25 @@ class EndpointLounge extends _i2.EndpointRef {
     },
   );
 
-  /// Gets all members of a lounge with their profiles.
-  _i3.Future<List<_i16.LoungeMemberWithProfile>> getLoungeMembersWithProfiles(
+  /// Gets all active members of a lounge.
+  _i3.Future<List<_i16.LoungeMemberWithProfile>> getLoungeMembers(
     int loungeId,
   ) => caller.callServerEndpoint<List<_i16.LoungeMemberWithProfile>>(
     'lounge',
-    'getLoungeMembersWithProfiles',
+    'getLoungeMembers',
     {'loungeId': loungeId},
   );
 
   /// Gets all pending applications for a lounge (creator only).
-  _i3.Future<List<_i16.LoungeMemberWithProfile>>
-  getPendingApplicationsWithProfiles(int loungeId) =>
-      caller.callServerEndpoint<List<_i16.LoungeMemberWithProfile>>(
-        'lounge',
-        'getPendingApplicationsWithProfiles',
-        {'loungeId': loungeId},
-      );
+  _i3.Future<List<_i16.LoungeMemberWithProfile>> getPendingApplications(
+    int loungeId,
+  ) => caller.callServerEndpoint<List<_i16.LoungeMemberWithProfile>>(
+    'lounge',
+    'getPendingApplications',
+    {'loungeId': loungeId},
+  );
 
-  /// Gets all members of a lounge.
-  _i3.Future<List<_i11.Resident>> getLoungeMembers(int loungeId) =>
-      caller.callServerEndpoint<List<_i11.Resident>>(
-        'lounge',
-        'getLoungeMembers',
-        {'loungeId': loungeId},
-      );
-
-  /// Updates lounge details (admin only).
+  /// Updates lounge metadata (admin only).
   _i3.Future<_i14.Lounge> updateLounge(
     int loungeId, {
     String? name,
@@ -873,6 +831,19 @@ class EndpointLounge extends _i2.EndpointRef {
         'deleteLounge',
         {'loungeId': loungeId},
       );
+
+  /// Kicks a member from a lounge (creator only).
+  _i3.Future<void> kickMember({
+    required int loungeId,
+    required _i2.UuidValue targetUserId,
+  }) => caller.callServerEndpoint<void>(
+    'lounge',
+    'kickMember',
+    {
+      'loungeId': loungeId,
+      'targetUserId': targetUserId,
+    },
+  );
 }
 
 /// {@category Endpoint}
@@ -974,6 +945,8 @@ class EndpointMoment extends _i2.EndpointRef {
 
   /// Posts a new moment to the feed.
   /// Only residents on Floor 2+ can post moments (to prevent spam).
+  /// Posts a new moment to the feed.
+  /// Only residents on Floor 2+ can post moments (to prevent spam).
   _i3.Future<_i19.Moment> postMoment({
     required String imageUrl,
     required String caption,
@@ -987,6 +960,7 @@ class EndpointMoment extends _i2.EndpointRef {
   );
 
   /// Lists the latest moments.
+  /// Lists the latest moments.
   _i3.Future<List<_i19.Moment>> listMoments({
     required int limit,
     int? lastId,
@@ -999,6 +973,7 @@ class EndpointMoment extends _i2.EndpointRef {
     },
   );
 
+  /// Lists the moments for a specific user.
   /// Lists the moments for a specific user.
   _i3.Future<List<_i19.Moment>> listUserMoments({
     required _i2.UuidValue userId,
@@ -1015,12 +990,14 @@ class EndpointMoment extends _i2.EndpointRef {
   );
 
   /// Likes a moment.
+  /// Likes a moment.
   _i3.Future<void> likeMoment(int momentId) => caller.callServerEndpoint<void>(
     'moment',
     'likeMoment',
     {'momentId': momentId},
   );
 
+  /// Unlikes a moment.
   /// Unlikes a moment.
   _i3.Future<void> unlikeMoment(int momentId) =>
       caller.callServerEndpoint<void>(
@@ -1048,6 +1025,8 @@ class EndpointMoment extends _i2.EndpointRef {
   /// Batch checks if the current user has liked multiple moments.
   /// This solves the N+1 query problem when loading a feed of moments.
   /// Returns a Map of momentId -> isLiked.
+  /// Batch checks if the current user has liked multiple moments.
+  /// Returns a Map of momentId -> isLiked.
   _i3.Future<Map<int, bool>> hasLikedMoments(List<int> momentIds) =>
       caller.callServerEndpoint<Map<int, bool>>(
         'moment',
@@ -1055,6 +1034,7 @@ class EndpointMoment extends _i2.EndpointRef {
         {'momentIds': momentIds},
       );
 
+  /// Adds a comment to a moment.
   /// Adds a comment to a moment.
   _i3.Future<_i21.MomentComment> addComment(
     int momentId,
@@ -1081,6 +1061,7 @@ class EndpointMoment extends _i2.EndpointRef {
     },
   );
 
+  /// Deletes a comment (only by author).
   /// Deletes a comment (only by author).
   _i3.Future<void> deleteComment(int commentId) =>
       caller.callServerEndpoint<void>(
@@ -1158,6 +1139,8 @@ class EndpointPrivateChat extends _i2.EndpointRef {
 
   /// Creates or retrieves a private chat between two users.
   /// Returns the channel ID for the private chat.
+  /// Creates or retrieves a private chat between two users.
+  /// Returns the channel ID for the private chat.
   _i3.Future<_i23.PrivateChat> getOrCreatePrivateChat(
     String otherUserId, {
     String? initialMessage,
@@ -1171,6 +1154,7 @@ class EndpointPrivateChat extends _i2.EndpointRef {
   );
 
   /// Lists all private chats for the current user.
+  /// Lists all private chats for the current user.
   _i3.Future<List<_i24.PrivateChatWithProfile>> listPrivateChats() =>
       caller.callServerEndpoint<List<_i24.PrivateChatWithProfile>>(
         'privateChat',
@@ -1178,6 +1162,7 @@ class EndpointPrivateChat extends _i2.EndpointRef {
         {},
       );
 
+  /// Gets details about a private chat including the other participant's info.
   /// Gets details about a private chat including the other participant's info.
   _i3.Future<_i24.PrivateChatWithProfile> getPrivateChatDetails(
     int channelId,
@@ -1187,6 +1172,7 @@ class EndpointPrivateChat extends _i2.EndpointRef {
     {'channelId': channelId},
   );
 
+  /// Accepts or declines a private chat invitation
   /// Accepts or declines a private chat invitation
   _i3.Future<void> respondToChatInvite(
     int channelId,
@@ -1200,6 +1186,7 @@ class EndpointPrivateChat extends _i2.EndpointRef {
     },
   );
 
+  /// Leaves a private chat.
   /// Leaves a private chat.
   _i3.Future<void> leaveChat(int channelId) => caller.callServerEndpoint<void>(
     'privateChat',
@@ -1444,6 +1431,7 @@ class EndpointResident extends _i2.EndpointRef {
 
   /// Updates privacy settings (Read Receipts, Typing Indicator, Voice, Search, etc).
   _i3.Future<_i11.Resident> updatePrivacySettings({
+    bool? showOnlineStatus,
     bool? showReadReceipts,
     bool? showTypingIndicator,
     bool? showVoiceMessages,
@@ -1457,6 +1445,7 @@ class EndpointResident extends _i2.EndpointRef {
     'resident',
     'updatePrivacySettings',
     {
+      'showOnlineStatus': showOnlineStatus,
       'showReadReceipts': showReadReceipts,
       'showTypingIndicator': showTypingIndicator,
       'showVoiceMessages': showVoiceMessages,

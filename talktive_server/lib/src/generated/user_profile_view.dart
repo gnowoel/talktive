@@ -48,7 +48,7 @@ abstract class UserProfileView
   }) : isOnline = isOnline ?? false;
 
   factory UserProfileView({
-    required String userId,
+    required _i1.UuidValue userId,
     String? userName,
     String? userAvatar,
     String? userMood,
@@ -78,7 +78,7 @@ abstract class UserProfileView
 
   factory UserProfileView.fromJson(Map<String, dynamic> jsonSerialization) {
     return UserProfileView(
-      userId: jsonSerialization['userId'] as String,
+      userId: _i1.UuidValueJsonExtension.fromJson(jsonSerialization['userId']),
       userName: jsonSerialization['userName'] as String?,
       userAvatar: jsonSerialization['userAvatar'] as String?,
       userMood: jsonSerialization['userMood'] as String?,
@@ -125,7 +125,7 @@ abstract class UserProfileView
     );
   }
 
-  String userId;
+  _i1.UuidValue userId;
 
   String? userName;
 
@@ -181,7 +181,7 @@ abstract class UserProfileView
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   UserProfileView copyWith({
-    String? userId,
+    _i1.UuidValue? userId,
     String? userName,
     String? userAvatar,
     String? userMood,
@@ -212,7 +212,7 @@ abstract class UserProfileView
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'UserProfileView',
-      'userId': userId,
+      'userId': userId.toJson(),
       if (userName != null) 'userName': userName,
       if (userAvatar != null) 'userAvatar': userAvatar,
       if (userMood != null) 'userMood': userMood,
@@ -246,7 +246,7 @@ abstract class UserProfileView
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'UserProfileView',
-      'userId': userId,
+      'userId': userId.toJson(),
       if (userName != null) 'userName': userName,
       if (userAvatar != null) 'userAvatar': userAvatar,
       if (userMood != null) 'userMood': userMood,
@@ -288,7 +288,7 @@ class _Undefined {}
 
 class _UserProfileViewImpl extends UserProfileView {
   _UserProfileViewImpl({
-    required String userId,
+    required _i1.UuidValue userId,
     String? userName,
     String? userAvatar,
     String? userMood,
@@ -348,7 +348,7 @@ class _UserProfileViewImpl extends UserProfileView {
   @_i1.useResult
   @override
   UserProfileView copyWith({
-    String? userId,
+    _i1.UuidValue? userId,
     Object? userName = _Undefined,
     Object? userAvatar = _Undefined,
     Object? userMood = _Undefined,

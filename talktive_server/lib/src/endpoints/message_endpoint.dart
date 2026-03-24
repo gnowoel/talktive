@@ -27,42 +27,29 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     bool isSystem = false,
   }) async {
     try {
-      // Validate inputs
-      InputValidationService.validateId(
-        channelId,
-        'Channel ID',
-      ).throwIfInvalid();
+      // 1. Basic Input Validation
+      InputValidationService.validateId(channelId, 'Channel ID').throwIfInvalid();
+      
+      final bool hasContent = content != null && content.trim().isNotEmpty;
+      final bool hasMedia = (imageUrl != null && imageUrl.trim().isNotEmpty) ||
+                           (mediaUrl != null && mediaUrl.trim().isNotEmpty);
 
-      if (content != null && content.trim().isNotEmpty) {
-        InputValidationService.validateMessageContent(content).throwIfInvalid();
-      }
-
-      if ((content == null || content.trim().isEmpty) &&
-          (imageUrl == null || imageUrl.trim().isEmpty) &&
-          (mediaUrl == null || mediaUrl.trim().isEmpty)) {
+      if (!hasContent && !hasMedia) {
         throw protocol.TalktiveException(
           message: 'Message cannot be empty',
           code: 'VALIDATION_ERROR',
         );
       }
 
-      if (imageUrl != null) {
-        InputValidationService.validateUrl(imageUrl).throwIfInvalid();
+      if (hasContent) {
+        InputValidationService.validateMessageContent(content!).throwIfInvalid();
       }
 
-      if (mediaUrl != null) {
-        InputValidationService.validateUrl(mediaUrl).throwIfInvalid();
-      }
-
+      // 2. Auth & Resident Fetch
       final senderUuid = await getUserId(session);
-
-      // 1. Fetch sender resident data
       final sender = await getResidentProfile(session, senderUuid);
 
-      // Passively restore trustScore early (important for mute checks)
-      await ApartmentService.restoreTrustScore(session, sender, save: false);
-
-      // 2. Fetch channel to verify access and type
+      // 3. Channel Fetch & Access Verification
       final channel = await protocol.Channel.db.findById(session, channelId);
       if (channel == null) {
         throw protocol.TalktiveException(
@@ -71,113 +58,18 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         );
       }
 
-      // 3. User info and floor Computation
-      final senderName = sender.userName;
-      final senderAvatar = sender.customAvatarUrl ?? sender.avatar;
-      final senderEffectiveFloor = ApartmentService.computeEffectiveFloor(
-        sender,
-      );
-
-      // 4. Safety Checks (Muted / Suspended)
-      if (ApartmentService.isMuted(sender)) {
-        throw protocol.TalktiveException(
-          message: ApartmentService.getMuteReason(sender),
-          code: 'USER_MUTED',
-        );
-      }
-
-      // 5. Content Validation (profanity and spam filtering)
-      String? filteredContent = content;
-      if (content != null && content.isNotEmpty) {
-        final validation = await ContentFilterService.validateMessage(
-          session,
-          content,
-          senderEffectiveFloor,
-        );
-        if (!validation.isValid) {
-          throw protocol.TalktiveException(
-            message: validation.reason ?? 'Invalid message content',
-            code: 'CONTENT_FILTER_FAIL',
-          );
-        }
-
-        // Check for repeated messages (spam detection)
-        final isRepeated = await ContentFilterService.isRepeatedMessage(
-          session,
-          senderUuid.toString(),
-          content,
-        );
-        if (isRepeated) {
-          throw protocol.TalktiveException(
-            message: 'Please don\'t send the same message repeatedly',
-            code: 'SPAM_DETECTED',
-          );
-        }
-
-        filteredContent = validation.filteredContent ?? content;
-      }
-
-      // 6. Check rate limiting (faster than database)
-      final rateLimitError = await RateLimitService.checkRateLimit(
+      // 4. Detailed Validation (Mute, Floor, Filter, Privacy)
+      final filteredContent = await ChatService.validateMessage(
         session,
-        senderUuid.toString(),
-        channelId,
-        senderEffectiveFloor,
+        sender: sender,
+        channel: channel,
+        content: content,
+        imageUrl: imageUrl,
+        mediaUrl: mediaUrl,
+        mediaType: mediaType,
       );
-      if (rateLimitError != null) {
-        throw protocol.TalktiveException(
-          message: rateLimitError,
-          code: 'RATE_LIMIT_EXCEEDED',
-        );
-      }
 
-      // 7. Floor-based and Premium content restrictions
-      final hasMedia =
-          (imageUrl != null && imageUrl.isNotEmpty) ||
-          (mediaUrl != null && mediaUrl.isNotEmpty);
-      
-      if (hasMedia) {
-        // Plaza restrictions: images/media allowed only for Floor 2+
-        if (channel.type == protocol.ChannelType.plaza && senderEffectiveFloor < 2) {
-          throw protocol.TalktiveException(
-            message: 'You must reach Floor 2 to send media in the Plaza.',
-            code: 'FLOOR_RESTRICTION',
-          );
-        }
-
-        // Voice message premium check
-        if (mediaType == 'voice' && !sender.isPremium) {
-          throw protocol.TalktiveException(
-            message: 'Voice messages are a Premium feature. 🎙️ Upgrade in Settings!',
-            code: 'PREMIUM_REQUIRED',
-          );
-        }
-      }
-
-      // 7.1. Privacy Check: Blocked status (Private Chats)
-      if (channel.type == protocol.ChannelType.private) {
-        final members = await protocol.ChannelMember.db.find(
-          session,
-          where: (t) => t.channelId.equals(channelId) & t.userInfoId.notEquals(senderUuid),
-        );
-        if (members.isNotEmpty) {
-          final otherUserUuid = members.first.userInfoId;
-          // Check if the other user has blocked the sender
-          final isBlocked = await ResidentService.isBlocked(
-            session,
-            blockerId: otherUserUuid,
-            blockedId: senderUuid,
-          );
-          if (isBlocked) {
-            throw protocol.TalktiveException(
-              message: 'Message not delivered. You are currently restricted by this resident.',
-              code: 'PRIVACY_RESTRICTED',
-            );
-          }
-        }
-      }
-
-      // 8. Create Message object
+      // 5. Create & Save Message
       final message = protocol.Message(
         channelId: channelId,
         senderId: sender.userInfoId,
@@ -187,48 +79,24 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         mediaType: mediaType,
         isSystem: isSystem,
         createdAt: DateTime.now(),
-        senderName: senderName ?? 'Resident',
-        senderAvatar: senderAvatar,
+        senderName: sender.userName ?? 'Resident',
+        senderAvatar: sender.customAvatarUrl ?? sender.avatar,
         senderMood: sender.mood,
-        senderFloor: senderEffectiveFloor,
+        senderFloor: ApartmentService.computeEffectiveFloor(sender),
         senderTrustScore: sender.trustScore,
       );
 
-      // 9. Database Updates (Single transaction if possible or batched saves)
-      final savedMessage = await protocol.Message.db.insertRow(
+      final savedMessage = await protocol.Message.db.insertRow(session, message);
+
+      // 6. Post-Save Lifecycle (Broadcast, Notifications, Gamification)
+      await ChatService.onMessageSaved(
         session,
-        message,
+        message: savedMessage,
+        channel: channel,
+        sender: sender,
       );
 
-      // 9.1 Update sender's lastReadAt to current time
-      final senderMembership = await protocol.ChannelMember.db.findFirstRow(
-        session,
-        where: (t) => t.channelId.equals(channelId) & t.userInfoId.equals(senderUuid),
-      );
-      if (senderMembership != null) {
-        senderMembership.lastReadAt = savedMessage.createdAt;
-        await protocol.ChannelMember.db.updateRow(session, senderMembership);
-      }
-
-      // 9.2 Update lastMessage denormalized fields (Bubbling up)
-      if (channel.type != protocol.ChannelType.plaza) {
-        await ChatService.updateLastMessage(
-          session,
-          channelId,
-          channelType: channel.type,
-          content: filteredContent,
-          imageUrl: imageUrl,
-          mediaUrl: mediaUrl,
-          mediaType: mediaType,
-        );
-      }
-
-      // 10. Distribute via Streaming (Real-time)
-      final streamKey = 'channel_$channelId';
-      await session.messages.postMessage(streamKey, savedMessage);
-
-      // 10.1 Trigger Notifications (FCM / Activity Hub) - DO NOT AWAIT
-      // We offload this to avoid blocking the sender's UI
+      // 7. Background Notifications (Mentions/Push)
       unawaited(_triggerNotifications(
         session,
         channel,
@@ -236,44 +104,13 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         sender,
       ).catchError((e) => session.log('Notification error: $e', level: LogLevel.error)));
 
-      // 11. Gamification & Stats Batching
-      await GamificationService.awardXP(
-        session,
-        sender,
-        GamificationService.XP_PER_MESSAGE,
-        'Sent message',
-        save: false,
-      );
-      sender.experienceMessageCount += 1;
-      await GamificationService.updateMessageStreak(
-        session,
-        sender,
-        save: false,
-      );
-
-      // FINAL SINGLE SAVE for the resident object
-      await protocol.Resident.db.updateRow(session, sender);
-
-      // 12. Achievement tracking (already uses batching internally)
-      unawaited(GamificationService.trackMultipleProgress(
-        session,
-        sender.userInfoId,
-        ['first_message', 'conversationalist', 'chatterbox'],
-      ));
-
-      // Secondary checks
-      await GamificationService.checkTimeBasedAchievements(
-        session,
-        sender.userInfoId,
-      );
-
       return savedMessage;
     } catch (e, stack) {
       session.log('FAILED to send message: $e', level: LogLevel.error);
       session.log(stack.toString(), level: LogLevel.error);
       rethrow;
     }
-  }
+   }
 
   /// Subscribes to a channel to receive real-time updates (Messages, Typing, etc).
   Stream<SerializableModel> subscribe(Session session, int channelId) {

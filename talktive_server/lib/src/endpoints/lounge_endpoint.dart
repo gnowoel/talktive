@@ -1,15 +1,16 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
-import '../services/gamification_service.dart';
 import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
-import '../services/notification_service.dart';
 import '../services/lounge_service.dart';
 import '../services/resident_service.dart';
-import '../services/chat_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 
+/// Endpoint for managing interest-based lounges (Clubhouse).
 class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
+  @override
+  bool get requireLogin => true;
+
   /// Creates a new lounge.
   Future<protocol.Lounge> createLounge(
     Session session,
@@ -20,19 +21,15 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     int maxMembers = 50,
     List<String>? interests,
   }) async {
-    // Validate inputs
+    // 1. Validation
     InputValidationService.validateLoungeName(name).throwIfInvalid();
-    InputValidationService.validateLoungeDescription(
-      description,
-    ).throwIfInvalid();
-    InputValidationService.validateLoungeMemberLimit(
-      maxMembers,
-    ).throwIfInvalid();
+    InputValidationService.validateLoungeDescription(description).throwIfInvalid();
+    InputValidationService.validateLoungeMemberLimit(maxMembers).throwIfInvalid();
 
     final currentUserId = await getUserId(session);
     final currentResident = await getAuthenticatedResident(session);
 
-    // Safety: muted or suspended users cannot create lounges
+    // 2. Safety Checks
     if (ApartmentService.isMuted(currentResident)) {
       throw protocol.TalktiveException(
         message: ApartmentService.getMuteReason(currentResident),
@@ -40,7 +37,6 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
       );
     }
 
-    // Safety: must be at least Floor 1 to create a lounge
     if (ApartmentService.computeEffectiveFloor(currentResident) < 1) {
       throw protocol.TalktiveException(
         message: 'You must reach Floor 1 to create a lounge. Keep chatting!',
@@ -48,6 +44,7 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
       );
     }
 
+    // 3. Delegation
     return await LoungeService.createLounge(
       session,
       name: name,
@@ -66,72 +63,26 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     int limit = 50,
     int offset = 0,
   }) async {
-    // Validate inputs
-    InputValidationService.validatePagination(
-      limit: limit,
-      offset: offset,
-    ).throwIfInvalid();
-
+    InputValidationService.validatePagination(limit: limit, offset: offset).throwIfInvalid();
     final currentUserId = await getUserId(session);
 
-    // Get all lounges where user is a tracked member
-    final memberships = await protocol.ChannelMember.db.find(
+    return await LoungeService.listMyLounges(
       session,
-      where: (t) =>
-          t.userInfoId.equals(currentUserId) &
-          t.status.inSet({
-            protocol.ChannelMemberStatus.joined,
-            protocol.ChannelMemberStatus.invited,
-            protocol.ChannelMemberStatus.applied,
-          }),
+      currentUserId,
       limit: limit,
       offset: offset,
     );
-
-    final membershipMap = {
-      for (var m in memberships) m.channelId: m,
-    };
-
-    if (membershipMap.isEmpty) {
-      return [];
-    }
-
-    final lounges = await protocol.Lounge.db.find(
-      session,
-      where: (t) => t.channelId.inSet(membershipMap.keys.toSet()),
-      orderBy: (t) => t.lastMessageAt,
-      orderDescending: true,
-    );
-
-    final unreadCounts = await ChatService.batchGetUnreadCounts(
-      session,
-      lounges.map((l) => l.channelId).toList(),
-      currentUserId,
-    );
-
-    return lounges.map((g) {
-      final member = membershipMap[g.channelId];
-      return protocol.LoungeWithMembership(
-        lounge: g,
-        membershipStatus: member?.status ?? protocol.ChannelMemberStatus.left,
-        membershipRole: member?.role,
-        isMuted: member?.isMuted,
-        unreadCount: unreadCounts[g.channelId] ?? 0,
-      );
-    }).toList();
   }
 
   /// Gets details about a specific lounge.
   Future<protocol.Lounge> getLounge(Session session, int loungeId) async {
     final lounge = await protocol.Lounge.db.findById(session, loungeId);
-
     if (lounge == null) {
       throw protocol.TalktiveException(
         message: 'Lounge not found',
         code: 'LOUNGE_NOT_FOUND',
       );
     }
-
     return lounge;
   }
 
@@ -142,14 +93,10 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     int limit = 50,
     int offset = 0,
   }) async {
-    final authenticationInfo = session.authenticated;
-    final currentUserIdentifier = authenticationInfo?.userIdentifier;
+    final userId = await getUserIdOptional(session);
 
-    // If query is empty and user is logged in, show personalized recommendations
-    if (query.trim().isEmpty && currentUserIdentifier != null) {
-      final currentUserId = UuidValue.fromString(currentUserIdentifier);
-      final resident = await ResidentService.getResident(session, currentUserId);
-
+    if (query.trim().isEmpty && userId != null) {
+      final resident = await ResidentService.getResident(session, userId);
       if (resident != null) {
         return await LoungeService.getRecommendedLounges(
           session,
@@ -170,283 +117,75 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
 
   /// Applies to join a public lounge.
   Future<void> applyToLounge(Session session, int loungeId) async {
-    final authenticationInfo = session.authenticated;
-    final currentUserIdentifier = authenticationInfo?.userIdentifier;
+    final lounge = await getLounge(session, loungeId);
+    final resident = await getAuthenticatedResident(session);
 
-    if (currentUserIdentifier == null) {
-      throw protocol.TalktiveException(message: 'Not authenticated');
+    if (ApartmentService.isMuted(resident)) {
+      throw protocol.TalktiveException(message: ApartmentService.getMuteReason(resident));
     }
 
-    final currentUserId = UuidValue.fromString(currentUserIdentifier);
-
-    // Get the lounge
-    final lounge = await protocol.Lounge.db.findById(session, loungeId);
-
-    if (lounge == null) {
-      throw protocol.TalktiveException(
-        message: 'Lounge not found',
-        code: 'LOUNGE_NOT_FOUND',
-      );
-    }
-
-    if (!lounge.isPublic) {
-      throw protocol.TalktiveException(message: 'Cannot apply to a private lounge');
-    }
-
-    // Check if lounge is full
-    if (lounge.memberCount >= lounge.maxMembers) {
-      throw protocol.TalktiveException(message: 'Lounge is full');
-    }
-
-    // Fetch current resident profile for safety checks
-    final currentResident = await protocol.Resident.db.findFirstRow(
+    await LoungeService.applyToLounge(
       session,
-      where: (t) => t.userInfoId.equals(currentUserId),
+      lounge: lounge,
+      resident: resident,
     );
-    if (currentResident == null) {
-      throw protocol.TalktiveException(message: 'User profile not found');
-    }
-
-    // Safety: muted or suspended users cannot apply to lounges
-    if (ApartmentService.isMuted(currentResident)) {
-      throw protocol.TalktiveException(message: ApartmentService.getMuteReason(currentResident));
-    }
-
-    // Check if user is already a member or has already applied
-    final existingMember = await protocol.ChannelMember.db.findFirstRow(
-      session,
-      where: (t) =>
-          t.channelId.equals(lounge.channelId) &
-          t.userInfoId.equals(currentUserId),
-    );
-
-    if (existingMember != null) {
-      if (existingMember.status == protocol.ChannelMemberStatus.joined) {
-        throw protocol.TalktiveException(message: 'Already a member of this lounge');
-      } else if (existingMember.status ==
-          protocol.ChannelMemberStatus.applied) {
-        throw protocol.TalktiveException(message: 'Already applied to this lounge');
-      }
-
-      // Update status if previously left or declined
-      existingMember.status = protocol.ChannelMemberStatus.applied;
-      existingMember.joinedAt = DateTime.now();
-      await protocol.ChannelMember.db.updateRow(session, existingMember);
-    } else {
-      // Add as new applied member
-      await protocol.ChannelMember.db.insertRow(
-        session,
-        protocol.ChannelMember(
-          channelId: lounge.channelId,
-          userInfoId: currentUserId,
-          status: protocol.ChannelMemberStatus.applied,
-          joinedAt: DateTime.now(),
-        ),
-      );
-    }
   }
 
-  /// Invites a user to a lounge (by any current member or creator).
+  /// Invites a user to a lounge.
   Future<void> inviteUserToLounge(
     Session session,
     int loungeId,
     String targetUserIdString,
   ) async {
-    final authenticationInfo = session.authenticated;
-    final currentUserIdentifier = authenticationInfo?.userIdentifier;
-
-    if (currentUserIdentifier == null) {
-      throw protocol.TalktiveException(message: 'Not authenticated');
-    }
-
-    final currentUserId = UuidValue.fromString(currentUserIdentifier);
+    final inviter = await getAuthenticatedResident(session);
+    final lounge = await getLounge(session, loungeId);
     final targetUserId = UuidValue.fromString(targetUserIdString);
 
-    if (currentUserId == targetUserId) {
+    if (inviter.userInfoId == targetUserId) {
       throw protocol.TalktiveException(message: 'Cannot invite yourself');
     }
 
-    // Get the lounge
-    final lounge = await protocol.Lounge.db.findById(session, loungeId);
-
-    if (lounge == null) {
-      throw protocol.TalktiveException(
-        message: 'Lounge not found',
-        code: 'LOUNGE_NOT_FOUND',
-      );
+    if (ApartmentService.isMuted(inviter)) {
+      throw protocol.TalktiveException(message: ApartmentService.getMuteReason(inviter));
     }
 
-    // Verify current user is a joined member and not muted
-    final currentUserResident = await protocol.Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(currentUserId),
-    );
-    if (currentUserResident == null) {
-      throw protocol.TalktiveException(message: 'User profile not found');
-    }
-
-    if (ApartmentService.isMuted(currentUserResident)) {
-      throw protocol.TalktiveException(
-        message: ApartmentService.getMuteReason(currentUserResident),
-      );
-    }
-
-    final currentUserMemberResult = await protocol.ChannelMember.db.findFirstRow(
+    // Verify inviter is a member
+    final member = await protocol.ChannelMember.db.findFirstRow(
       session,
       where: (t) =>
           t.channelId.equals(lounge.channelId) &
-          t.userInfoId.equals(currentUserId) &
+          t.userInfoId.equals(inviter.userInfoId) &
           t.status.equals(protocol.ChannelMemberStatus.joined),
     );
 
-    if (currentUserMemberResult == null) {
-      throw protocol.TalktiveException(
-        message: 'You are not a member of this lounge',
-      );
+    if (member == null) {
+      throw protocol.TalktiveException(message: 'You are not a member of this lounge');
     }
 
-    // Check if lounge is full
-    if (lounge.memberCount >= lounge.maxMembers) {
-      throw protocol.TalktiveException(message: 'Lounge is full');
-    }
+    final target = await ResidentService.getResident(session, targetUserId);
+    if (target == null) throw protocol.TalktiveException(message: 'User profile not found');
 
-    // Check if target has blocked inviter
-    if (await ResidentService.isBlocked(
+    await LoungeService.inviteUser(
       session,
-      blockerId: targetUserId,
-      blockedId: currentUserId,
-    )) {
-      throw protocol.TalktiveException(
-        message: 'You cannot invite this user.',
-      );
-    }
-
-    // Check if target is already in the lounge
-    final targetMember = await protocol.ChannelMember.db.findFirstRow(
-      session,
-      where: (t) =>
-          t.channelId.equals(lounge.channelId) &
-          t.userInfoId.equals(targetUserId),
+      lounge: lounge,
+      inviter: inviter,
+      target: target,
     );
-
-    if (targetMember != null) {
-      if (targetMember.status == protocol.ChannelMemberStatus.joined) {
-        throw protocol.TalktiveException(message: 'User is already a member');
-      } else if (targetMember.status == protocol.ChannelMemberStatus.invited) {
-        throw protocol.TalktiveException(message: 'User is already invited');
-      }
-
-      targetMember.status = protocol.ChannelMemberStatus.invited;
-      targetMember.invitedBy = currentUserId;
-      targetMember.joinedAt = DateTime.now();
-      await protocol.ChannelMember.db.updateRow(session, targetMember);
-    } else {
-      await protocol.ChannelMember.db.insertRow(
-        session,
-        protocol.ChannelMember(
-          channelId: lounge.channelId,
-          userInfoId: targetUserId,
-          status: protocol.ChannelMemberStatus.invited,
-          invitedBy: currentUserId,
-          joinedAt: DateTime.now(),
-        ),
-      );
-    }
-
-    // Send notification
-    try {
-      final inviter = await protocol.Resident.db.findFirstRow(
-        session,
-        where: (t) => t.userInfoId.equals(currentUserId),
-      );
-
-      if (inviter != null) {
-        await NotificationService.sendLoungeInviteNotification(
-          session,
-          targetUserId,
-          inviter.userName ?? 'Someone',
-          lounge.name,
-          lounge.emoji ?? '👥',
-          lounge.id!,
-        );
-      }
-    } catch (e) {
-      session.log('Failed to send lounge invite notification: $e');
-    }
   }
 
-  /// Responds to a lounge invite (accept or decline).
+  /// Responds to a lounge invite.
   Future<void> respondToLoungeInvite(
     Session session,
     int loungeId,
     bool accept,
   ) async {
     final currentUserId = await getUserId(session);
-
-    // Get the lounge
-    final lounge = await protocol.Lounge.db.findById(session, loungeId);
-
-    if (lounge == null) {
-      throw protocol.TalktiveException(
-        message: 'Lounge not found',
-        code: 'LOUNGE_NOT_FOUND',
-      );
-    }
-
-    final member = await protocol.ChannelMember.db.findFirstRow(
+    await LoungeService.respondToInvite(
       session,
-      where: (t) =>
-          t.channelId.equals(lounge.channelId) &
-          t.userInfoId.equals(currentUserId) &
-          t.status.equals(protocol.ChannelMemberStatus.invited),
+      loungeId: loungeId,
+      userId: currentUserId,
+      accept: accept,
     );
-
-    if (member == null) {
-      throw protocol.TalktiveException(message: 'No pending invitation found');
-    }
-
-    if (!accept) {
-      member.status = protocol.ChannelMemberStatus.declined;
-      await protocol.ChannelMember.db.updateRow(session, member);
-      return;
-    }
-
-    // The user accepted.
-    // If they were invited by the creator (host), they bypass approval and join instantly.
-    if (member.invitedBy == lounge.creatorId) {
-      if (lounge.memberCount >= lounge.maxMembers) {
-        throw protocol.TalktiveException(message: 'Lounge is full');
-      }
-      member.status = protocol.ChannelMemberStatus.joined;
-      await protocol.ChannelMember.db.updateRow(session, member);
-
-      lounge.memberCount += 1;
-      await protocol.Lounge.db.updateRow(session, lounge);
-
-      await GamificationService.trackProgress(
-        session,
-        currentUserId,
-        'social_butterfly',
-      );
-
-      // Award XP for joining lounge
-      final resident = await protocol.Resident.db.findFirstRow(
-        session,
-        where: (t) => t.userInfoId.equals(currentUserId),
-      );
-      if (resident != null) {
-        await GamificationService.awardXP(
-          session,
-          resident,
-          25,
-          'Joined lounge',
-        );
-      }
-    } else {
-      // Invited by a regular member, they transition to "applied" and wait for the Host to approve.
-      member.status = protocol.ChannelMemberStatus.applied;
-      await protocol.ChannelMember.db.updateRow(session, member);
-    }
   }
 
   /// Approves or rejects a pending lounge application (creator only).
@@ -459,203 +198,54 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     final currentUserId = await getUserId(session);
     final targetUserId = UuidValue.fromString(targetUserIdString);
 
-    // Get the lounge
-    final lounge = await protocol.Lounge.db.findById(session, loungeId);
-
-    if (lounge == null) {
-      throw protocol.TalktiveException(
-        message: 'Lounge not found',
-        code: 'LOUNGE_NOT_FOUND',
-      );
-    }
-
-    // Enforce creator access control
-    if (lounge.creatorId != currentUserId) {
-      throw protocol.TalktiveException(message: 'Only the creator can approve applications');
-    }
-
-    final pendingMember = await protocol.ChannelMember.db.findFirstRow(
+    await LoungeService.approveApplication(
       session,
-      where: (t) =>
-          t.channelId.equals(lounge.channelId) &
-          t.userInfoId.equals(targetUserId) &
-          t.status.equals(protocol.ChannelMemberStatus.applied),
+      loungeId: loungeId,
+      creatorId: currentUserId,
+      targetId: targetUserId,
+      approve: approve,
     );
-
-    if (pendingMember == null) {
-      throw protocol.TalktiveException(message: 'No pending application found for this user');
-    }
-
-    if (!approve) {
-      pendingMember.status = protocol.ChannelMemberStatus.declined;
-      await protocol.ChannelMember.db.updateRow(session, pendingMember);
-      return;
-    }
-
-    // Approve user
-    if (lounge.memberCount >= lounge.maxMembers) {
-      throw protocol.TalktiveException(message: 'Lounge is full');
-    }
-
-    pendingMember.status = protocol.ChannelMemberStatus.joined;
-    await protocol.ChannelMember.db.updateRow(session, pendingMember);
-
-    lounge.memberCount += 1;
-    await protocol.Lounge.db.updateRow(session, lounge);
-
-    await GamificationService.trackProgress(
-      session,
-      targetUserId,
-      'social_butterfly',
-    );
-
-    // Award XP to the approved user
-    final targetResident = await protocol.Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(targetUserId),
-    );
-    if (targetResident != null) {
-      await GamificationService.awardXP(
-        session,
-        targetResident,
-        25,
-        'Application approved',
-      );
-    }
   }
 
-  /// Kicks a member from the lounge (creator only).
-  Future<void> kickMember(
+  /// Leaves a lounge or kicks a member.
+  Future<void> leaveLounge(
     Session session,
-    int loungeId,
-    String targetUserIdString,
-  ) async {
-    final authenticationInfo = session.authenticated;
-    final currentUserIdentifier = authenticationInfo?.userIdentifier;
+    int loungeId, {
+    String? targetUserIdString,
+  }) async {
+    final currentUserId = await getUserId(session);
+    UuidValue targetId = currentUserId;
 
-    if (currentUserIdentifier == null) {
-      throw protocol.TalktiveException(message: 'Not authenticated');
+    if (targetUserIdString != null) {
+      targetId = UuidValue.fromString(targetUserIdString);
+      if (targetId != currentUserId) {
+        // Kick logic: verify requester is creator
+        final lounge = await getLounge(session, loungeId);
+        if (lounge.creatorId != currentUserId) {
+          throw protocol.TalktiveException(message: 'Only the creator can kick members');
+        }
+      }
     }
 
-    final currentUserId = UuidValue.fromString(currentUserIdentifier);
-    final targetUserId = UuidValue.fromString(targetUserIdString);
-
-    if (currentUserId == targetUserId) {
-      throw protocol.TalktiveException(message: 'You cannot kick yourself. Use leaveLounge instead.');
-    }
-
-    final lounge = await protocol.Lounge.db.findById(session, loungeId);
-
-    if (lounge == null) {
-      throw protocol.TalktiveException(
-        message: 'Lounge not found',
-        code: 'LOUNGE_NOT_FOUND',
-      );
-    }
-
-    if (lounge.creatorId != currentUserId) {
-      throw protocol.TalktiveException(message: 'Only the creator can kick members');
-    }
-
-    final member = await protocol.ChannelMember.db.findFirstRow(
+    await LoungeService.leaveLounge(
       session,
-      where: (t) =>
-          t.channelId.equals(lounge.channelId) &
-          t.userInfoId.equals(targetUserId) &
-          t.status.equals(protocol.ChannelMemberStatus.joined),
+      loungeId: loungeId,
+      userId: targetId,
     );
-
-    if (member == null) {
-      throw protocol.TalktiveException(message: 'User is not a member of the lounge');
-    }
-
-    member.status = protocol.ChannelMemberStatus.left;
-    await protocol.ChannelMember.db.updateRow(session, member);
-
-    lounge.memberCount = (lounge.memberCount - 1).clamp(0, lounge.maxMembers);
-    await protocol.Lounge.db.updateRow(session, lounge);
   }
 
-  /// Leaves a lounge.
-  Future<void> leaveLounge(Session session, int loungeId) async {
-    final authenticationInfo = session.authenticated;
-    final currentUserIdentifier = authenticationInfo?.userIdentifier;
-
-    if (currentUserIdentifier == null) {
-      throw protocol.TalktiveException(message: 'Not authenticated');
-    }
-
-    final currentUserId = UuidValue.fromString(currentUserIdentifier);
-
-    // Get the lounge
-    final lounge = await protocol.Lounge.db.findById(session, loungeId);
-
-    if (lounge == null) {
-      throw protocol.TalktiveException(
-        message: 'Lounge not found',
-        code: 'LOUNGE_NOT_FOUND',
-      );
-    }
-
-    // Check if user is a member
-    final member = await protocol.ChannelMember.db.findFirstRow(
-      session,
-      where: (t) =>
-          t.channelId.equals(lounge.channelId) &
-          t.userInfoId.equals(currentUserId) &
-          t.status.equals(protocol.ChannelMemberStatus.joined),
-    );
-
-    if (member == null) {
-      throw protocol.TalktiveException(message: 'Not a member of this lounge');
-    }
-
-    // Update member status
-    member.status = protocol.ChannelMemberStatus.left;
-    await protocol.ChannelMember.db.updateRow(session, member);
-
-    // Decrement member count
-    lounge.memberCount = (lounge.memberCount - 1).clamp(0, lounge.maxMembers);
-    await protocol.Lounge.db.updateRow(session, lounge);
-  }
-
-  /// Gets all members of a lounge with their profiles.
+  /// Toggles mute status for lounge notifications.
   Future<void> toggleMuteLounge(
     Session session,
     int loungeId,
     bool isMuted,
   ) async {
     final currentUserId = await getUserId(session);
-
-    // Get the lounge
-    final lounge = await protocol.Lounge.db.findById(session, loungeId);
-
-    if (lounge == null) {
-      throw protocol.TalktiveException(
-        message: 'Lounge not found',
-        code: 'LOUNGE_NOT_FOUND',
-      );
-    }
-
-    // Check if user is a member
-    final member = await protocol.ChannelMember.db.findFirstRow(
-      session,
-      where: (t) =>
-          t.channelId.equals(lounge.channelId) &
-          t.userInfoId.equals(currentUserId) &
-          t.status.equals(protocol.ChannelMemberStatus.joined),
-    );
-
-    if (member == null) {
-      throw protocol.TalktiveException(message: 'Not a member of this lounge');
-    }
-
-    member.isMuted = isMuted;
-    await protocol.ChannelMember.db.updateRow(session, member);
+    await LoungeService.toggleMute(session, loungeId, currentUserId, isMuted);
   }
 
-  /// Gets all members of a lounge with their profiles.
-  Future<List<protocol.LoungeMemberWithProfile>> getLoungeMembersWithProfiles(
+  /// Gets all active members of a lounge.
+  Future<List<protocol.LoungeMemberWithProfile>> getLoungeMembers(
     Session session,
     int loungeId,
   ) async {
@@ -668,8 +258,7 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Gets all pending applications for a lounge (creator only).
-  Future<List<protocol.LoungeMemberWithProfile>>
-  getPendingApplicationsWithProfiles(
+  Future<List<protocol.LoungeMemberWithProfile>> getPendingApplications(
     Session session,
     int loungeId,
   ) async {
@@ -677,9 +266,7 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     final lounge = await getLounge(session, loungeId);
 
     if (lounge.creatorId != currentUserId) {
-      throw protocol.TalktiveException(
-        message: 'Only the creator can view pending applications',
-      );
+      throw protocol.TalktiveException(message: 'Only the creator can view applications');
     }
 
     return await LoungeService.getMembersByStatus(
@@ -689,28 +276,7 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     );
   }
 
-  /// Gets all members of a lounge.
-  Future<List<protocol.Resident>> getLoungeMembers(
-    Session session,
-    int loungeId,
-  ) async {
-    final lounge = await getLounge(session, loungeId);
-
-    final members = await protocol.ChannelMember.db.find(
-      session,
-      where: (t) =>
-          t.channelId.equals(lounge.channelId) &
-          t.status.equals(protocol.ChannelMemberStatus.joined),
-      orderBy: (t) => t.joinedAt,
-    );
-
-    if (members.isEmpty) return [];
-
-    final userIds = members.map((m) => m.userInfoId).toSet().toList();
-    return await ResidentService.getResidents(session, userIds);
-  }
-
-  /// Updates lounge details (admin only).
+  /// Updates lounge metadata (admin only).
   Future<protocol.Lounge> updateLounge(
     Session session,
     int loungeId, {
@@ -722,18 +288,9 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     List<String>? interests,
   }) async {
     final currentUserId = await getUserId(session);
+    final lounge = await getLounge(session, loungeId);
 
-    // Get the lounge
-    final lounge = await protocol.Lounge.db.findById(session, loungeId);
-
-    if (lounge == null) {
-      throw protocol.TalktiveException(
-        message: 'Lounge not found',
-        code: 'LOUNGE_NOT_FOUND',
-      );
-    }
-
-    // Check if user is admin
+    // Verify admin role in lounge
     final member = await protocol.ChannelMember.db.findFirstRow(
       session,
       where: (t) =>
@@ -743,110 +300,54 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     );
 
     if (member == null || member.role != 'admin') {
-      throw protocol.TalktiveException(
-        message: 'Only admins can update lounge details',
-        code: 'ACCESS_DENIED',
-      );
+      throw protocol.TalktiveException(message: 'Only lounge admins can update details');
     }
 
-    // Validate inputs if provided
-    if (name != null) {
-      InputValidationService.validateLoungeName(name).throwIfInvalid();
-    }
-    if (description != null) {
-      InputValidationService.validateLoungeDescription(
-        description,
-      ).throwIfInvalid();
-    }
-    if (maxMembers != null) {
-      InputValidationService.validateLoungeMemberLimit(
-        maxMembers,
-      ).throwIfInvalid();
+    // Validation
+    if (name != null) InputValidationService.validateLoungeName(name).throwIfInvalid();
+    if (description != null) InputValidationService.validateLoungeDescription(description).throwIfInvalid();
+    if (maxMembers != null) InputValidationService.validateLoungeMemberLimit(maxMembers).throwIfInvalid();
+
+    if (isPublic != null && isPublic && lounge.isStaffLocked) {
+      throw protocol.TalktiveException(message: 'This lounge is locked to private by staff.');
     }
 
-    // Update fields
-    if (name != null && name.trim().isNotEmpty) {
-      lounge.name = name;
-    }
-
-    if (description != null) {
-      lounge.description = description;
-    }
-
-    if (emoji != null) {
-      lounge.emoji = emoji;
-    }
-
-    if (isPublic != null) {
-      if (isPublic && lounge.isStaffLocked) {
-        throw protocol.TalktiveException(
-          message:
-              'This lounge has been locked to private by an administrator and cannot be made public.',
-          code: 'ADMIN_LOCKED',
-        );
-      }
-      lounge.isPublic = isPublic;
-    }
-
-    if (maxMembers != null) {
-      if (maxMembers < lounge.memberCount) {
-        throw protocol.TalktiveException(
-          message: 'Cannot set max members below current member count',
-          code: 'INVALID_INPUT',
-        );
-      }
-      lounge.maxMembers = maxMembers;
-    }
-
-    if (interests != null) {
-      lounge.interests = interests;
-    }
-
-    return await protocol.Lounge.db.updateRow(session, lounge);
+    return await LoungeService.updateLounge(
+      session,
+      lounge,
+      name: name,
+      description: description,
+      emoji: emoji,
+      isPublic: isPublic,
+      maxMembers: maxMembers,
+      interests: interests,
+    );
   }
 
   /// Deletes a lounge (creator only).
   Future<void> deleteLounge(Session session, int loungeId) async {
     final currentUserId = await getUserId(session);
+    final lounge = await getLounge(session, loungeId);
 
-    // Get the lounge
-    final lounge = await protocol.Lounge.db.findById(session, loungeId);
-
-    if (lounge == null) {
-      throw protocol.TalktiveException(
-        message: 'Lounge not found',
-        code: 'LOUNGE_NOT_FOUND',
-      );
-    }
-
-    // Check if user is the creator
     if (lounge.creatorId != currentUserId) {
-      throw protocol.TalktiveException(
-        message: 'Only the creator can delete the lounge',
-        code: 'ACCESS_DENIED',
-      );
+      throw protocol.TalktiveException(message: 'Only the creator can delete the lounge');
     }
 
-    // Delete all channel members
-    final members = await protocol.ChannelMember.db.find(
+    await LoungeService.deleteLounge(session, lounge);
+  }
+
+  /// Kicks a member from a lounge (creator only).
+  Future<void> kickMember(
+    Session session, {
+    required int loungeId,
+    required UuidValue targetUserId,
+  }) async {
+    final adminResident = await getAuthenticatedResident(session);
+    await LoungeService.kickMember(
       session,
-      where: (t) => t.channelId.equals(lounge.channelId),
+      loungeId: loungeId,
+      targetId: targetUserId,
+      creatorId: adminResident.userInfoId,
     );
-
-    for (final member in members) {
-      await protocol.ChannelMember.db.deleteRow(session, member);
-    }
-
-    // Delete the lounge
-    await protocol.Lounge.db.deleteRow(session, lounge);
-
-    // Delete the channel
-    final channel = await protocol.Channel.db.findById(
-      session,
-      lounge.channelId,
-    );
-    if (channel != null) {
-      await protocol.Channel.db.deleteRow(session, channel);
-    }
   }
 }

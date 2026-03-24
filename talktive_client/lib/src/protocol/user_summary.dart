@@ -32,7 +32,7 @@ abstract class UserSummary implements _i1.SerializableModel {
   }) : isOnline = isOnline ?? false;
 
   factory UserSummary({
-    required String userId,
+    required _i1.UuidValue userId,
     String? userName,
     String? userAvatar,
     String? userMood,
@@ -48,7 +48,7 @@ abstract class UserSummary implements _i1.SerializableModel {
 
   factory UserSummary.fromJson(Map<String, dynamic> jsonSerialization) {
     return UserSummary(
-      userId: jsonSerialization['userId'] as String,
+      userId: _i1.UuidValueJsonExtension.fromJson(jsonSerialization['userId']),
       userName: jsonSerialization['userName'] as String?,
       userAvatar: jsonSerialization['userAvatar'] as String?,
       userMood: jsonSerialization['userMood'] as String?,
@@ -75,7 +75,7 @@ abstract class UserSummary implements _i1.SerializableModel {
     );
   }
 
-  String userId;
+  _i1.UuidValue userId;
 
   String? userName;
 
@@ -103,7 +103,7 @@ abstract class UserSummary implements _i1.SerializableModel {
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   UserSummary copyWith({
-    String? userId,
+    _i1.UuidValue? userId,
     String? userName,
     String? userAvatar,
     String? userMood,
@@ -120,7 +120,7 @@ abstract class UserSummary implements _i1.SerializableModel {
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'UserSummary',
-      'userId': userId,
+      'userId': userId.toJson(),
       if (userName != null) 'userName': userName,
       if (userAvatar != null) 'userAvatar': userAvatar,
       if (userMood != null) 'userMood': userMood,
@@ -145,7 +145,7 @@ class _Undefined {}
 
 class _UserSummaryImpl extends UserSummary {
   _UserSummaryImpl({
-    required String userId,
+    required _i1.UuidValue userId,
     String? userName,
     String? userAvatar,
     String? userMood,
@@ -177,7 +177,7 @@ class _UserSummaryImpl extends UserSummary {
   @_i1.useResult
   @override
   UserSummary copyWith({
-    String? userId,
+    _i1.UuidValue? userId,
     Object? userName = _Undefined,
     Object? userAvatar = _Undefined,
     Object? userMood = _Undefined,

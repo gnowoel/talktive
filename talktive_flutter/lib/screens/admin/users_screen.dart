@@ -204,7 +204,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
     );
   }
 
-  Future<void> _resetReputation(String userId, String userName) async {
+  Future<void> _resetReputation(protocol.UuidValue userId, String userName) async {
     final confirmed = await _showConfirmDialog(
       'Reset Trust Score',
       'Reset $userName\'s trust score to 100?',
@@ -236,7 +236,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
     }
   }
 
-  Future<void> _suspendUser(String userId, String userName) async {
+  Future<void> _suspendUser(protocol.UuidValue userId, String userName) async {
     final confirmed = await _showConfirmDialog(
       'Suspend User',
       'Suspend $userName? This will disable their account.',
@@ -265,7 +265,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
     }
   }
 
-  Future<void> _unsuspendUser(String userId, String userName) async {
+  Future<void> _unsuspendUser(protocol.UuidValue userId, String userName) async {
     final confirmed = await _showConfirmDialog(
       'Unsuspend User',
       'Restore access for $userName? Their trust score will be reset to 50.',
@@ -294,7 +294,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
     }
   }
 
-  Future<void> _promoteToAdmin(String userId, String userName) async {
+  Future<void> _promoteToAdmin(protocol.UuidValue userId, String userName) async {
     final confirmed = await _showConfirmDialog(
       'Promote to Admin',
       'Give $userName admin privileges?',
@@ -323,7 +323,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
     }
   }
 
-  Future<void> _demoteFromAdmin(String userId, String userName) async {
+  Future<void> _demoteFromAdmin(protocol.UuidValue userId, String userName) async {
     final confirmed = await _showConfirmDialog(
       'Remove Admin',
       'Remove admin privileges from $userName?',
@@ -352,7 +352,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
     }
   }
 
-  Future<void> _promoteToModerator(String userId, String userName) async {
+  Future<void> _promoteToModerator(protocol.UuidValue userId, String userName) async {
     final confirmed = await _showConfirmDialog(
       'Promote to Moderator',
       'Give $userName moderator privileges?',
@@ -381,7 +381,7 @@ class _UsersScreenState extends ConsumerState<UsersScreen> {
     }
   }
 
-  Future<void> _demoteFromModerator(String userId, String userName) async {
+  Future<void> _demoteFromModerator(protocol.UuidValue userId, String userName) async {
     final confirmed = await _showConfirmDialog(
       'Remove Moderator',
       'Remove moderator privileges from $userName?',

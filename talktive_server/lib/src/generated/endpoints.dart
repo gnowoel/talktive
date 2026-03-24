@@ -374,37 +374,6 @@ class Endpoints extends _i1.EndpointDispatch {
       name: 'admin',
       endpoint: endpoints['admin']!,
       methodConnectors: {
-        'isAdmin': _i1.MethodConnector(
-          name: 'isAdmin',
-          params: {},
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['admin'] as _i5.AdminEndpoint).isAdmin(session),
-        ),
-        'isModerator': _i1.MethodConnector(
-          name: 'isModerator',
-          params: {},
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['admin'] as _i5.AdminEndpoint).isModerator(
-                session,
-              ),
-        ),
-        'isStaff': _i1.MethodConnector(
-          name: 'isStaff',
-          params: {},
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['admin'] as _i5.AdminEndpoint).isStaff(session),
-        ),
         'getPendingReports': _i1.MethodConnector(
           name: 'getPendingReports',
           params: {
@@ -429,6 +398,36 @@ class Endpoints extends _i1.EndpointDispatch {
                     limit: params['limit'],
                     offset: params['offset'],
                   ),
+        ),
+        'listReports': _i1.MethodConnector(
+          name: 'listReports',
+          params: {
+            'status': _i1.ParameterDescription(
+              name: 'status',
+              type: _i1.getType<_i17.ReportStatus?>(),
+              nullable: true,
+            ),
+            'limit': _i1.ParameterDescription(
+              name: 'limit',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'offset': _i1.ParameterDescription(
+              name: 'offset',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['admin'] as _i5.AdminEndpoint).listReports(
+                session,
+                status: params['status'],
+                limit: params['limit'],
+                offset: params['offset'],
+              ),
         ),
         'getAllReports': _i1.MethodConnector(
           name: 'getAllReports',
@@ -474,8 +473,8 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<_i17.ReportStatus>(),
               nullable: false,
             ),
-            'adminNotes': _i1.ParameterDescription(
-              name: 'adminNotes',
+            'reason': _i1.ParameterDescription(
+              name: 'reason',
               type: _i1.getType<String?>(),
               nullable: true,
             ),
@@ -489,7 +488,7 @@ class Endpoints extends _i1.EndpointDispatch {
                     session,
                     reportId: params['reportId'],
                     status: params['status'],
-                    adminNotes: params['adminNotes'],
+                    reason: params['reason'],
                   ),
         ),
         'suspendUser': _i1.MethodConnector(
@@ -497,7 +496,7 @@ class Endpoints extends _i1.EndpointDispatch {
           params: {
             'userId': _i1.ParameterDescription(
               name: 'userId',
-              type: _i1.getType<String>(),
+              type: _i1.getType<_i1.UuidValue>(),
               nullable: false,
             ),
             'reason': _i1.ParameterDescription(
@@ -521,7 +520,7 @@ class Endpoints extends _i1.EndpointDispatch {
           params: {
             'userId': _i1.ParameterDescription(
               name: 'userId',
-              type: _i1.getType<String>(),
+              type: _i1.getType<_i1.UuidValue>(),
               nullable: false,
             ),
           },
@@ -540,18 +539,23 @@ class Endpoints extends _i1.EndpointDispatch {
           params: {
             'userId': _i1.ParameterDescription(
               name: 'userId',
-              type: _i1.getType<String>(),
+              type: _i1.getType<_i1.UuidValue>(),
               nullable: false,
+            ),
+            'minutes': _i1.ParameterDescription(
+              name: 'minutes',
+              type: _i1.getType<int?>(),
+              nullable: true,
             ),
             'durationHours': _i1.ParameterDescription(
               name: 'durationHours',
-              type: _i1.getType<int>(),
-              nullable: false,
+              type: _i1.getType<int?>(),
+              nullable: true,
             ),
             'reason': _i1.ParameterDescription(
               name: 'reason',
-              type: _i1.getType<String>(),
-              nullable: false,
+              type: _i1.getType<String?>(),
+              nullable: true,
             ),
           },
           call:
@@ -561,6 +565,7 @@ class Endpoints extends _i1.EndpointDispatch {
               ) async => (endpoints['admin'] as _i5.AdminEndpoint).muteUser(
                 session,
                 userId: params['userId'],
+                minutes: params['minutes'],
                 durationHours: params['durationHours'],
                 reason: params['reason'],
               ),
@@ -570,7 +575,7 @@ class Endpoints extends _i1.EndpointDispatch {
           params: {
             'userId': _i1.ParameterDescription(
               name: 'userId',
-              type: _i1.getType<String>(),
+              type: _i1.getType<_i1.UuidValue>(),
               nullable: false,
             ),
           },
@@ -580,15 +585,34 @@ class Endpoints extends _i1.EndpointDispatch {
                 Map<String, dynamic> params,
               ) async => (endpoints['admin'] as _i5.AdminEndpoint).unmuteUser(
                 session,
-                params['userId'],
+                userId: params['userId'],
               ),
+        ),
+        'deleteMessage': _i1.MethodConnector(
+          name: 'deleteMessage',
+          params: {
+            'messageId': _i1.ParameterDescription(
+              name: 'messageId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['admin'] as _i5.AdminEndpoint).deleteMessage(
+                    session,
+                    messageId: params['messageId'],
+                  ),
         ),
         'resetReputation': _i1.MethodConnector(
           name: 'resetReputation',
           params: {
             'userId': _i1.ParameterDescription(
               name: 'userId',
-              type: _i1.getType<String>(),
+              type: _i1.getType<_i1.UuidValue>(),
               nullable: false,
             ),
             'reason': _i1.ParameterDescription(
@@ -608,55 +632,6 @@ class Endpoints extends _i1.EndpointDispatch {
                     reason: params['reason'],
                   ),
         ),
-        'deleteMessage': _i1.MethodConnector(
-          name: 'deleteMessage',
-          params: {
-            'messageId': _i1.ParameterDescription(
-              name: 'messageId',
-              type: _i1.getType<int>(),
-              nullable: false,
-            ),
-            'reason': _i1.ParameterDescription(
-              name: 'reason',
-              type: _i1.getType<String?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['admin'] as _i5.AdminEndpoint).deleteMessage(
-                    session,
-                    messageId: params['messageId'],
-                    reason: params['reason'],
-                  ),
-        ),
-        'deleteMoment': _i1.MethodConnector(
-          name: 'deleteMoment',
-          params: {
-            'momentId': _i1.ParameterDescription(
-              name: 'momentId',
-              type: _i1.getType<int>(),
-              nullable: false,
-            ),
-            'reason': _i1.ParameterDescription(
-              name: 'reason',
-              type: _i1.getType<String?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['admin'] as _i5.AdminEndpoint).deleteMoment(
-                session,
-                momentId: params['momentId'],
-                reason: params['reason'],
-              ),
-        ),
         'getStatistics': _i1.MethodConnector(
           name: 'getStatistics',
           params: {},
@@ -672,18 +647,18 @@ class Endpoints extends _i1.EndpointDispatch {
           params: {
             'query': _i1.ParameterDescription(
               name: 'query',
-              type: _i1.getType<String>(),
-              nullable: false,
+              type: _i1.getType<String?>(),
+              nullable: true,
             ),
             'limit': _i1.ParameterDescription(
               name: 'limit',
-              type: _i1.getType<int>(),
-              nullable: false,
+              type: _i1.getType<int?>(),
+              nullable: true,
             ),
             'offset': _i1.ParameterDescription(
               name: 'offset',
-              type: _i1.getType<int>(),
-              nullable: false,
+              type: _i1.getType<int?>(),
+              nullable: true,
             ),
           },
           call:
@@ -702,7 +677,7 @@ class Endpoints extends _i1.EndpointDispatch {
           params: {
             'userId': _i1.ParameterDescription(
               name: 'userId',
-              type: _i1.getType<String>(),
+              type: _i1.getType<_i1.UuidValue>(),
               nullable: false,
             ),
           },
@@ -716,12 +691,31 @@ class Endpoints extends _i1.EndpointDispatch {
                     userId: params['userId'],
                   ),
         ),
+        'demoteFromAdmin': _i1.MethodConnector(
+          name: 'demoteFromAdmin',
+          params: {
+            'userId': _i1.ParameterDescription(
+              name: 'userId',
+              type: _i1.getType<_i1.UuidValue>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['admin'] as _i5.AdminEndpoint).demoteFromAdmin(
+                    session,
+                    userId: params['userId'],
+                  ),
+        ),
         'promoteToModerator': _i1.MethodConnector(
           name: 'promoteToModerator',
           params: {
             'userId': _i1.ParameterDescription(
               name: 'userId',
-              type: _i1.getType<String>(),
+              type: _i1.getType<_i1.UuidValue>(),
               nullable: false,
             ),
           },
@@ -740,7 +734,7 @@ class Endpoints extends _i1.EndpointDispatch {
           params: {
             'userId': _i1.ParameterDescription(
               name: 'userId',
-              type: _i1.getType<String>(),
+              type: _i1.getType<_i1.UuidValue>(),
               nullable: false,
             ),
           },
@@ -752,50 +746,6 @@ class Endpoints extends _i1.EndpointDispatch {
                   (endpoints['admin'] as _i5.AdminEndpoint).demoteFromModerator(
                     session,
                     userId: params['userId'],
-                  ),
-        ),
-        'demoteFromAdmin': _i1.MethodConnector(
-          name: 'demoteFromAdmin',
-          params: {
-            'userId': _i1.ParameterDescription(
-              name: 'userId',
-              type: _i1.getType<String>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['admin'] as _i5.AdminEndpoint).demoteFromAdmin(
-                    session,
-                    userId: params['userId'],
-                  ),
-        ),
-        'disbandLounge': _i1.MethodConnector(
-          name: 'disbandLounge',
-          params: {
-            'loungeId': _i1.ParameterDescription(
-              name: 'loungeId',
-              type: _i1.getType<int>(),
-              nullable: false,
-            ),
-            'reason': _i1.ParameterDescription(
-              name: 'reason',
-              type: _i1.getType<String>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['admin'] as _i5.AdminEndpoint).disbandLounge(
-                    session,
-                    loungeId: params['loungeId'],
-                    reason: params['reason'],
                   ),
         ),
         'makeLoungePrivate': _i1.MethodConnector(
@@ -817,12 +767,47 @@ class Endpoints extends _i1.EndpointDispatch {
                     params['loungeId'],
                   ),
         ),
+        'disbandLounge': _i1.MethodConnector(
+          name: 'disbandLounge',
+          params: {
+            'loungeId': _i1.ParameterDescription(
+              name: 'loungeId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'reason': _i1.ParameterDescription(
+              name: 'reason',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['admin'] as _i5.AdminEndpoint).disbandLounge(
+                    session,
+                    loungeId: params['loungeId'],
+                    reason: params['reason'],
+                  ),
+        ),
+        'isStaff': _i1.MethodConnector(
+          name: 'isStaff',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['admin'] as _i5.AdminEndpoint).isStaff(session),
+        ),
         'getUserDetails': _i1.MethodConnector(
           name: 'getUserDetails',
           params: {
             'userId': _i1.ParameterDescription(
               name: 'userId',
-              type: _i1.getType<String>(),
+              type: _i1.getType<_i1.UuidValue>(),
               nullable: false,
             ),
           },
@@ -835,27 +820,6 @@ class Endpoints extends _i1.EndpointDispatch {
                     session,
                     userId: params['userId'],
                   ),
-        ),
-        'runArchival': _i1.MethodConnector(
-          name: 'runArchival',
-          params: {},
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['admin'] as _i5.AdminEndpoint).runArchival(
-                session,
-              ),
-        ),
-        'getArchivalStats': _i1.MethodConnector(
-          name: 'getArchivalStats',
-          params: {},
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['admin'] as _i5.AdminEndpoint)
-                  .getArchivalStats(session),
         ),
       },
     );
@@ -1246,8 +1210,8 @@ class Endpoints extends _i1.EndpointDispatch {
                     params['approve'],
                   ),
         ),
-        'kickMember': _i1.MethodConnector(
-          name: 'kickMember',
+        'leaveLounge': _i1.MethodConnector(
+          name: 'leaveLounge',
           params: {
             'loungeId': _i1.ParameterDescription(
               name: 'loungeId',
@@ -1256,27 +1220,8 @@ class Endpoints extends _i1.EndpointDispatch {
             ),
             'targetUserIdString': _i1.ParameterDescription(
               name: 'targetUserIdString',
-              type: _i1.getType<String>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['lounge'] as _i8.LoungeEndpoint).kickMember(
-                session,
-                params['loungeId'],
-                params['targetUserIdString'],
-              ),
-        ),
-        'leaveLounge': _i1.MethodConnector(
-          name: 'leaveLounge',
-          params: {
-            'loungeId': _i1.ParameterDescription(
-              name: 'loungeId',
-              type: _i1.getType<int>(),
-              nullable: false,
+              type: _i1.getType<String?>(),
+              nullable: true,
             ),
           },
           call:
@@ -1287,6 +1232,7 @@ class Endpoints extends _i1.EndpointDispatch {
                   (endpoints['lounge'] as _i8.LoungeEndpoint).leaveLounge(
                     session,
                     params['loungeId'],
+                    targetUserIdString: params['targetUserIdString'],
                   ),
         ),
         'toggleMuteLounge': _i1.MethodConnector(
@@ -1314,44 +1260,6 @@ class Endpoints extends _i1.EndpointDispatch {
                     params['isMuted'],
                   ),
         ),
-        'getLoungeMembersWithProfiles': _i1.MethodConnector(
-          name: 'getLoungeMembersWithProfiles',
-          params: {
-            'loungeId': _i1.ParameterDescription(
-              name: 'loungeId',
-              type: _i1.getType<int>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['lounge'] as _i8.LoungeEndpoint)
-                  .getLoungeMembersWithProfiles(
-                    session,
-                    params['loungeId'],
-                  ),
-        ),
-        'getPendingApplicationsWithProfiles': _i1.MethodConnector(
-          name: 'getPendingApplicationsWithProfiles',
-          params: {
-            'loungeId': _i1.ParameterDescription(
-              name: 'loungeId',
-              type: _i1.getType<int>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['lounge'] as _i8.LoungeEndpoint)
-                  .getPendingApplicationsWithProfiles(
-                    session,
-                    params['loungeId'],
-                  ),
-        ),
         'getLoungeMembers': _i1.MethodConnector(
           name: 'getLoungeMembers',
           params: {
@@ -1367,6 +1275,25 @@ class Endpoints extends _i1.EndpointDispatch {
                 Map<String, dynamic> params,
               ) async =>
                   (endpoints['lounge'] as _i8.LoungeEndpoint).getLoungeMembers(
+                    session,
+                    params['loungeId'],
+                  ),
+        ),
+        'getPendingApplications': _i1.MethodConnector(
+          name: 'getPendingApplications',
+          params: {
+            'loungeId': _i1.ParameterDescription(
+              name: 'loungeId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['lounge'] as _i8.LoungeEndpoint)
+                  .getPendingApplications(
                     session,
                     params['loungeId'],
                   ),
@@ -1444,6 +1371,30 @@ class Endpoints extends _i1.EndpointDispatch {
                     session,
                     params['loungeId'],
                   ),
+        ),
+        'kickMember': _i1.MethodConnector(
+          name: 'kickMember',
+          params: {
+            'loungeId': _i1.ParameterDescription(
+              name: 'loungeId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'targetUserId': _i1.ParameterDescription(
+              name: 'targetUserId',
+              type: _i1.getType<_i1.UuidValue>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['lounge'] as _i8.LoungeEndpoint).kickMember(
+                session,
+                loungeId: params['loungeId'],
+                targetUserId: params['targetUserId'],
+              ),
         ),
       },
     );
@@ -2580,6 +2531,11 @@ class Endpoints extends _i1.EndpointDispatch {
         'updatePrivacySettings': _i1.MethodConnector(
           name: 'updatePrivacySettings',
           params: {
+            'showOnlineStatus': _i1.ParameterDescription(
+              name: 'showOnlineStatus',
+              type: _i1.getType<bool?>(),
+              nullable: true,
+            ),
             'showReadReceipts': _i1.ParameterDescription(
               name: 'showReadReceipts',
               type: _i1.getType<bool?>(),
@@ -2633,6 +2589,7 @@ class Endpoints extends _i1.EndpointDispatch {
               ) async => (endpoints['resident'] as _i14.ResidentEndpoint)
                   .updatePrivacySettings(
                     session,
+                    showOnlineStatus: params['showOnlineStatus'],
                     showReadReceipts: params['showReadReceipts'],
                     showTypingIndicator: params['showTypingIndicator'],
                     showVoiceMessages: params['showVoiceMessages'],

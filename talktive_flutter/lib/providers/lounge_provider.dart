@@ -171,7 +171,7 @@ Future<List<LoungeMemberWithProfile>> loungeMembersWithProfiles(
 ) async {
   final client = ref.read(clientProvider);
   try {
-    return await client.lounge.getLoungeMembersWithProfiles(loungeId);
+    return await client.lounge.getLoungeMembers(loungeId);
   } catch (e) {
     debugPrint('LoungeMembersWithProfiles: Fetch error: $e');
     rethrow;
@@ -186,7 +186,7 @@ Future<List<LoungeMemberWithProfile>> pendingApplications(
 ) async {
   final client = ref.read(clientProvider);
   try {
-    return await client.lounge.getPendingApplicationsWithProfiles(loungeId);
+    return await client.lounge.getPendingApplications(loungeId);
   } catch (e) {
     debugPrint('PendingApplications: Fetch error: $e');
     rethrow;
@@ -198,7 +198,8 @@ Future<List<LoungeMemberWithProfile>> pendingApplications(
 Future<List<Resident>> loungeMembers(Ref ref, int loungeId) async {
   final client = ref.read(clientProvider);
   try {
-    return await client.lounge.getLoungeMembers(loungeId);
+    final members = await client.lounge.getLoungeMembers(loungeId);
+    return members.map((m) => m.resident).toList();
   } catch (e) {
     debugPrint('LoungeMembers: Fetch error: $e');
     rethrow;

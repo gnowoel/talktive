@@ -1,6 +1,6 @@
 class: AdminUserSummary
 fields:
-  userId: String
+  userId: UuidValue
   userName: String?
   floor: int
   trustScore: int

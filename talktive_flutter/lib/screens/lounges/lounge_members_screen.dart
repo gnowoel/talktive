@@ -287,7 +287,10 @@ class LoungeMembersScreen extends ConsumerWidget {
     HapticFeedback.heavyImpact();
     try {
       final client = ref.read(clientProvider);
-      await client.lounge.kickMember(loungeId, userId);
+      await client.lounge.kickMember(
+        loungeId: loungeId,
+        targetUserId: UuidValue.fromString(userId),
+      );
 
       ref.invalidate(loungeMembersWithProfilesProvider(loungeId));
       ref.invalidate(loungeListProvider);

@@ -111,6 +111,10 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 
 ## Recent Fixes
 
+- **Endpoint Refactoring & API Reconciliation (Mar 2026)**:
+  - **Server**: Successfully migrated business logic from all primary endpoints (`Admin`, `Lounge`, `Message`, `Resident`) to dedicated service classes, ensuring a clean, testable architecture. Standardized on `UuidValue` for all user identifiers across the Serverpod protocol and service layers.
+  - **Client**: Refactored the Flutter application to align with the new `UuidValue` protocol, fixing all compilation errors. Standardized and reconciled administrative API signatures (Mute, Suspend, Kick) between frontend and backend.
+
 - **Structural Consolidation & Optimization (Mar 2026)**:
   - **Server**: Optimized `AdminEndpoint` with batch fetching for reports, eliminating N+1 query issues. Encapsulated Resident and Lounge creation logic into `ResidentService` and `LoungeService`. Parallelized database queries in `ResidentService.getResidentProfileView` for significantly faster profile loading. Fixed a race condition in `GamificationService` streak updates by ensuring asynchronous methods are properly awaited.
   - **Client**: Implemented a lean `ServerpodInitialize` wrapper that bypasses legacy `ServiceLocator` and Firebase-specific initialization for the Serverpod version. Decoupled the Serverpod app path from legacy code by moving old services, helpers, pages, and models to a `lib/legacy/` directory, resulting in a significantly cleaner and more maintainable `lib/` root.

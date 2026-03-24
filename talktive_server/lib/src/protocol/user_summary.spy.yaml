@@ -1,7 +1,7 @@
 ### Simplified user data for lists and search
 class: UserSummary
 fields:
-  userId: String
+  userId: UuidValue
   userName: String?
   userAvatar: String?
   userMood: String?

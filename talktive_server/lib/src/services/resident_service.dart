@@ -1,8 +1,10 @@
 import 'package:serverpod/serverpod.dart' hide Message;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
-import 'apartment_service.dart';
-import 'gamification_service.dart';
+import '../services/notification_service.dart';
+import '../services/gamification_service.dart';
+import '../services/apartment_service.dart';
+import '../utils/endpoint_auth_mixin.dart';
 
 /// Service for managing Resident profiles and synchronization with AuthUser.
 class ResidentService {
@@ -29,39 +31,52 @@ class ResidentService {
     );
   }
 
-  /// Fetches a Resident and performs passive updates (Trust Score, Daily Login).
+  /// Fetches a Resident and performs passive updates (Trust Score, Daily Login, lastSeen).
   static Future<protocol.Resident?> getActiveResident(
     Session session,
-    UuidValue userId,
+    UuidValue userInfoId,
   ) async {
-    final resident = await getResident(session, userId);
+    final resident = await getResident(session, userInfoId);
     if (resident == null) return null;
 
-    bool needsSave = false;
+    // Perform passive updates
+    await ensureActiveState(session, resident);
+    return resident;
+  }
 
-    // Passively restore trustScore
-    if (await ApartmentService.restoreTrustScore(
+  /// Ensures the resident's temporal state is up to date (trust score, daily login, last seen).
+  /// Saves changes to the database if any occur.
+  static Future<protocol.Resident> ensureActiveState(
+    Session session,
+    protocol.Resident resident,
+  ) async {
+    bool changed = false;
+
+    // 1. Restore Trust Score (Passive)
+    final trustChanged = await ApartmentService.restoreTrustScore(
+      session,
+      resident,
+      save: false, // We'll save all at once
+    );
+    if (trustChanged) changed = true;
+
+    // 2. Daily Login & Streak
+    final loginChanged = await GamificationService.checkDailyLogin(
       session,
       resident,
       save: false,
-    )) {
-      needsSave = true;
+    );
+    if (loginChanged) changed = true;
+
+    // 3. Update Last Seen
+    final now = DateTime.now();
+    if (resident.lastSeen == null ||
+        now.difference(resident.lastSeen!).inMinutes >= 5) {
+      resident.lastSeen = now;
+      changed = true;
     }
 
-    // Check daily login
-    if (await GamificationService.checkDailyLogin(
-      session,
-      resident,
-      save: false,
-    )) {
-      needsSave = true;
-    }
-
-    // Update lastSeen (Always update when active)
-    resident.lastSeen = DateTime.now();
-    needsSave = true;
-
-    if (needsSave) {
+    if (changed) {
       await protocol.Resident.db.updateRow(session, resident);
     }
 
@@ -190,7 +205,7 @@ class ResidentService {
     int? messageCount,
   }) {
     return protocol.UserSummary(
-      userId: resident.userInfoId.toString(),
+      userId: resident.userInfoId,
       userName: resident.userName,
       userAvatar: resident.customAvatarUrl ?? resident.avatar,
       userMood: resident.mood,
@@ -282,7 +297,7 @@ class ResidentService {
     }
 
     return protocol.UserProfileView(
-      userId: targetId.toString(),
+      userId: targetId,
       userName: resident.userName ?? 'Resident',
       userAvatar: resident.customAvatarUrl ?? resident.avatar ?? '👤',
       userMood: resident.mood,
@@ -319,7 +334,7 @@ class ResidentService {
     int? reportCount,
   }) {
     return protocol.AdminUserSummary(
-      userId: resident.userInfoId.toString(),
+      userId: resident.userInfoId,
       userName: resident.userName,
       floor: ApartmentService.computeEffectiveFloor(resident),
       trustScore: resident.trustScore,
@@ -333,6 +348,75 @@ class ResidentService {
       createdAt: resident.createdAt,
       lastSeen: resident.lastSeen,
     );
+  }
+
+  /// Updates a user's suspension status.
+  static Future<void> setSuspensionStatus(
+    Session session,
+    UuidValue userId, {
+    required bool suspended,
+  }) async {
+    final resident = await protocol.Resident.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(userId),
+    );
+    if (resident == null) throw protocol.TalktiveException(message: 'User not found');
+
+    resident.suspended = suspended;
+    if (suspended) {
+      resident.trustScore = 0;
+    } else {
+      resident.trustScore = 50; // Restore partial trust
+    }
+    await protocol.Resident.db.updateRow(session, resident);
+  }
+
+  /// Sets a user's mute status.
+  static Future<void> setMuteStatus(
+    Session session,
+    UuidValue userId, {
+    required DateTime? until,
+  }) async {
+    final resident = await protocol.Resident.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(userId),
+    );
+    if (resident == null) throw protocol.TalktiveException(message: 'User not found');
+
+    resident.mutedUntil = until;
+    await protocol.Resident.db.updateRow(session, resident);
+  }
+
+  /// Updates a user's role.
+  static Future<void> setRole(
+    Session session,
+    UuidValue userId,
+    protocol.ResidentRole role,
+  ) async {
+    final resident = await protocol.Resident.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(userId),
+    );
+    if (resident == null) throw protocol.TalktiveException(message: 'User not found');
+
+    resident.role = role;
+    await protocol.Resident.db.updateRow(session, resident);
+  }
+
+  /// Resets a user's reputation and clears mutes.
+  static Future<void> resetReputation(
+    Session session,
+    UuidValue userId,
+  ) async {
+    final resident = await protocol.Resident.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(userId),
+    );
+    if (resident == null) throw protocol.TalktiveException(message: 'User not found');
+
+    resident.trustScore = 100;
+    resident.mutedUntil = null;
+    await protocol.Resident.db.updateRow(session, resident);
   }
 
   /// Batch retrieve message, moment, and report counts for multiple users.
@@ -391,5 +475,153 @@ class ResidentService {
     }
 
     return result;
+  }
+
+  /// Vouches for a resident, increasing their trust score and awarding XP.
+  static Future<void> vouchForUser(
+    Session session, {
+    required protocol.Resident sender,
+    required UuidValue targetId,
+  }) async {
+    final senderId = sender.userInfoId;
+
+    if (senderId == targetId) {
+      throw protocol.TalktiveException(message: 'You cannot vouch for yourself.');
+    }
+
+    final target = await getResident(session, targetId);
+    if (target == null) throw protocol.TalktiveException(message: 'Target resident not found');
+
+    // One-Vouch Rule
+    final existingLike = await protocol.UserLike.db.findFirstRow(
+      session,
+      where: (t) => t.senderId.equals(senderId) & t.receiverId.equals(targetId),
+    );
+    if (existingLike != null) throw protocol.TalktiveException(message: 'You have already vouched for this resident.');
+
+    // Blocking Check
+    final isBlocked = await ResidentService.isBlocked(session, blockerId: senderId, blockedId: targetId);
+    final hasBlockedMe = await ResidentService.isBlocked(session, blockerId: targetId, blockedId: senderId);
+    if (isBlocked || hasBlockedMe) {
+      throw protocol.TalktiveException(message: 'You cannot vouch for this resident due to privacy settings.');
+    }
+
+    // Report Check
+    final existingReport = await protocol.Report.db.findFirstRow(
+      session,
+      where: (t) => t.reporterId.equals(senderId) & t.targetId.equals(targetId),
+    );
+    if (existingReport != null) {
+      throw protocol.TalktiveException(message: 'You cannot vouch for a resident you have reported.');
+    }
+
+    await protocol.UserLike.db.insertRow(
+      session,
+      protocol.UserLike(
+        senderId: senderId,
+        receiverId: targetId,
+        createdAt: DateTime.now(),
+      ),
+    );
+
+    // Trust Score Increase & XP Reward
+    ApartmentService.awardVouch(target: target);
+    await GamificationService.awardXP(
+      session,
+      target,
+      GamificationService.XP_USER_VOUCH,
+      'Vouched by another resident',
+      save: false,
+    );
+    await protocol.Resident.db.updateRow(session, target);
+
+    // Send notification
+    try {
+      await NotificationService.sendVouchNotification(
+        session,
+        targetId,
+        sender.userName ?? 'A resident',
+      );
+    } catch (e) {
+      session.log('Failed to send vouch notification: $e');
+    }
+  }
+
+  /// Removes a vouch for a resident.
+  static Future<void> removeVouch(
+    Session session, {
+    required UuidValue senderId,
+    required UuidValue targetId,
+  }) async {
+    final target = await getResident(session, targetId);
+    if (target == null) throw protocol.TalktiveException(message: 'Target resident not found');
+
+    final existingLike = await protocol.UserLike.db.findFirstRow(
+      session,
+      where: (t) => t.senderId.equals(senderId) & t.receiverId.equals(targetId),
+    );
+    if (existingLike == null) throw protocol.TalktiveException(message: 'Vouch not found');
+
+    await protocol.UserLike.db.deleteRow(session, existingLike);
+
+    ApartmentService.removeVouch(target: target);
+    await protocol.Resident.db.updateRow(session, target);
+  }
+
+  /// Blocks or unblocks a resident.
+  static Future<void> setBlockStatus(
+    Session session, {
+    required UuidValue blockerId,
+    required UuidValue targetId,
+    required bool block,
+  }) async {
+    final existing = await protocol.Block.db.findFirstRow(
+      session,
+      where: (t) => t.blockerId.equals(blockerId) & t.blockedId.equals(targetId),
+    );
+
+    if (block) {
+      if (existing != null) return;
+      await protocol.Block.db.insertRow(
+        session,
+        protocol.Block(
+          blockerId: blockerId,
+          blockedId: targetId,
+          createdAt: DateTime.now(),
+        ),
+      );
+    } else {
+      if (existing == null) return;
+      await protocol.Block.db.deleteRow(session, existing);
+    }
+  }
+
+  /// Updates privacy settings for a resident.
+  static Future<protocol.Resident> updatePrivacy(
+    Session session, {
+    required protocol.Resident resident,
+    bool? showOnlineStatus,
+    bool? showReadReceipts,
+    bool? showTypingIndicator,
+    bool? showVoiceMessages,
+    bool? showNeighborsDiscovery,
+    bool? showCustomAvatar,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
+    bool? keepPrivateChats,
+  }) async {
+    if (showOnlineStatus != null) resident.showOnlineStatus = showOnlineStatus;
+    if (showReadReceipts != null) resident.showReadReceipts = showReadReceipts;
+    if (showTypingIndicator != null) resident.showTypingIndicator = showTypingIndicator;
+    if (showVoiceMessages != null) resident.showVoiceMessages = showVoiceMessages;
+    if (showNeighborsDiscovery != null) resident.showNeighborsDiscovery = showNeighborsDiscovery;
+    if (showCustomAvatar != null) resident.showCustomAvatar = showCustomAvatar;
+    if (showOthersOnlineStatus != null) resident.showOthersOnlineStatus = showOthersOnlineStatus;
+    if (showOthersReadReceipts != null) resident.showOthersReadReceipts = showOthersReadReceipts;
+    if (showOthersTypingIndicators != null) resident.showOthersTypingIndicators = showOthersTypingIndicators;
+    if (keepPrivateChats != null) resident.keepPrivateChats = keepPrivateChats;
+
+    return await protocol.Resident.db.updateRow(session, resident);
   }
 }

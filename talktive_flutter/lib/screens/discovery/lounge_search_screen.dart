@@ -8,7 +8,6 @@ import 'package:talktive_client/talktive_client.dart' as protocol;
 import '../../config/theme.dart';
 import '../../providers/client_provider.dart';
 import '../../providers/lounge_provider.dart';
-import '../../providers/current_resident_provider.dart';
 import '../../widgets/duo/duo_input.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_empty_state.dart';
@@ -232,8 +231,9 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
                 await ref
                     .read(loungeListProvider.notifier)
                     .applyToLounge(lounge.id!);
-                if (mounted)
+                if (mounted) {
                   DuoSnackBarHelper.showSuccess(context, 'Application sent!');
+                }
               } catch (e) {
                 if (mounted) DuoSnackBarHelper.showError(context, 'Failed: $e');
               }

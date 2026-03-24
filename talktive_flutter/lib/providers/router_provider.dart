@@ -80,16 +80,6 @@ GoRouter router(Ref ref) {
               GoRoute(
                 path: '/plaza',
                 builder: (context, state) => const PlazaScreen(),
-                routes: [
-                  GoRoute(
-                    path: 'chat',
-                    builder: (context, state) => const PlazaChatScreen(),
-                  ),
-                  GoRoute(
-                    path: 'help',
-                    builder: (context, state) => const HelpCenterScreen(),
-                  ),
-                ],
               ),
             ],
           ),
@@ -99,15 +89,6 @@ GoRouter router(Ref ref) {
               GoRoute(
                 path: '/moments',
                 builder: (context, state) => const MomentsScreen(),
-                routes: [
-                  GoRoute(
-                    path: 'detail',
-                    builder: (context, state) {
-                      final moment = state.extra as Moment;
-                      return MomentDetailScreen(moment: moment);
-                    },
-                  ),
-                ],
               ),
             ],
           ),
@@ -117,24 +98,6 @@ GoRouter router(Ref ref) {
               GoRoute(
                 path: '/chats',
                 builder: (context, state) => const ChatsScreen(),
-                routes: [
-                  GoRoute(
-                    path: 'peephole',
-                    builder: (context, state) {
-                      final chatItem = state.extra as PrivateChatWithProfile;
-                      return PeepholeScreen(chatItem: chatItem);
-                    },
-                  ),
-                  GoRoute(
-                    path: 'thread/:channelId',
-                    builder: (context, state) {
-                      final channelId =
-                          int.tryParse(state.pathParameters['channelId'] ?? '') ??
-                          0;
-                      return ChatThreadScreen(channelId: channelId);
-                    },
-                  ),
-                ],
               ),
             ],
           ),
@@ -144,49 +107,6 @@ GoRouter router(Ref ref) {
               GoRoute(
                 path: '/lounges',
                 builder: (context, state) => const LoungesScreen(),
-                routes: [
-                  GoRoute(
-                    path: 'search',
-                    builder: (context, state) => const LoungeSearchScreen(),
-                  ),
-                  GoRoute(
-                    path: 'profile/:loungeId',
-                    builder: (context, state) {
-                      final loungeId =
-                          int.parse(state.pathParameters['loungeId']!);
-                      final lounge = state.extra as Lounge?;
-                      return LoungeProfileScreen(
-                        loungeId: loungeId,
-                        initialLounge: lounge,
-                      );
-                    },
-                  ),
-                  GoRoute(
-                    path: 'chat/:loungeId',
-                    builder: (context, state) {
-                      final loungeId =
-                          int.parse(state.pathParameters['loungeId']!);
-                      final lounge = state.extra as Lounge?;
-                      if (lounge != null) {
-                        return LoungeChatScreen(lounge: lounge);
-                      } else {
-                        return LoungeChatLoader(loungeId: loungeId);
-                      }
-                    },
-                  ),
-                  GoRoute(
-                    path: 'members/:loungeId',
-                    builder: (context, state) {
-                      final loungeId =
-                          int.parse(state.pathParameters['loungeId']!);
-                      final lounge = state.extra as Lounge?;
-                      return LoungeMembersScreen(
-                        loungeId: loungeId,
-                        initialLounge: lounge,
-                      );
-                    },
-                  ),
-                ],
               ),
             ],
           ),
@@ -196,16 +116,83 @@ GoRouter router(Ref ref) {
               GoRoute(
                 path: '/activity',
                 builder: (context, state) => const ActivityScreen(),
-                routes: [
-                  GoRoute(
-                    path: 'settings',
-                    builder: (context, state) => const SettingsScreen(),
-                  ),
-                ],
               ),
             ],
           ),
         ],
+      ),
+ 
+      // Utility/Detail Screens (Outer routes to hide bottom nav)
+      GoRoute(
+        path: '/plaza/chat',
+        builder: (context, state) => const PlazaChatScreen(),
+      ),
+      GoRoute(
+        path: '/plaza/help',
+        builder: (context, state) => const HelpCenterScreen(),
+      ),
+      GoRoute(
+        path: '/moments/detail',
+        builder: (context, state) {
+          final moment = state.extra as Moment;
+          return MomentDetailScreen(moment: moment);
+        },
+      ),
+      GoRoute(
+        path: '/chats/peephole',
+        builder: (context, state) {
+          final chatItem = state.extra as PrivateChatWithProfile;
+          return PeepholeScreen(chatItem: chatItem);
+        },
+      ),
+      GoRoute(
+        path: '/chats/thread/:channelId',
+        builder: (context, state) {
+          final channelId = int.parse(state.pathParameters['channelId']!);
+          return ChatThreadScreen(channelId: channelId);
+        },
+      ),
+      GoRoute(
+        path: '/lounges/search',
+        builder: (context, state) => const LoungeSearchScreen(),
+      ),
+      GoRoute(
+        path: '/lounges/profile/:loungeId',
+        builder: (context, state) {
+          final loungeId = int.parse(state.pathParameters['loungeId']!);
+          final lounge = state.extra as Lounge?;
+          return LoungeProfileScreen(
+            loungeId: loungeId,
+            initialLounge: lounge,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/lounges/chat/:loungeId',
+        builder: (context, state) {
+          final loungeId = int.parse(state.pathParameters['loungeId']!);
+          final lounge = state.extra as Lounge?;
+          if (lounge != null) {
+            return LoungeChatScreen(lounge: lounge);
+          } else {
+            return LoungeChatLoader(loungeId: loungeId);
+          }
+        },
+      ),
+      GoRoute(
+        path: '/lounges/members/:loungeId',
+        builder: (context, state) {
+          final loungeId = int.parse(state.pathParameters['loungeId']!);
+          final lounge = state.extra as Lounge?;
+          return LoungeMembersScreen(
+            loungeId: loungeId,
+            initialLounge: lounge,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/activity/settings',
+        builder: (context, state) => const SettingsScreen(),
       ),
 
       // Other routes outside the shell if needed (e.g., discovery/people)

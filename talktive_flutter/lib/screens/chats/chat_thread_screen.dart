@@ -339,8 +339,8 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                         DuoSnackBarHelper.showSuccess(
                           context,
                           !isPersistent
-                              ? 'Chat will be kept permanently! 📌'
-                              : 'Chat ephemerality restored. 📍',
+                              ? 'Chat will be kept permanently! 🔖'
+                              : 'Chat ephemerality restored. ✨',
                         );
                         // Invalidate to refresh the Details (specifically the channel object)
                         ref.invalidate(
@@ -358,22 +358,33 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                   icon: Stack(
                     alignment: Alignment.center,
                     children: [
-                      Text(
-                        details.channel?.isPersistent == true ? '📌' : '📍',
-                        style: const TextStyle(fontSize: 22),
+                      Icon(
+                        details.channel?.isPersistent == true
+                            ? Icons.bookmark_rounded
+                            : Icons.bookmark_border_rounded,
+                        color: details.channel?.isPersistent == true
+                            ? AppTheme.duoPurple
+                            : Colors.black54,
+                        size: 28,
                       ),
                       if (currentResident?.isPremium != true)
                         Positioned(
-                          right: -4,
-                          bottom: -4,
+                          right: 0,
+                          bottom: 0,
                           child: Container(
-                            padding: const EdgeInsets.all(1),
-                            decoration: const BoxDecoration(
+                            padding: const EdgeInsets.all(1.5),
+                            decoration: BoxDecoration(
                               color: Colors.white,
                               shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.1),
+                                  blurRadius: 2,
+                                ),
+                              ],
                             ),
                             child: const Icon(
-                              Icons.lock,
+                              Icons.lock_rounded,
                               size: 10,
                               color: AppTheme.duoOrange,
                             ),

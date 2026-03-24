@@ -234,11 +234,32 @@ Each version has its own notification service implementation to maintain compati
 - Verify notification creation: `SELECT * FROM user_notification WHERE user_id = ?`
 - Check FCM token is valid and not expired
 
-### Deep Linking Not Working
+### 5. Deep Linking Not Working
 - Verify routes are defined in `serverpod_app.dart`
 - Check notification data structure matches expected format
 - Ensure `HomeScreen` is checking for pending notifications
 - Verify `navigateFromNotification()` is being called
+
+---
+
+## Performance & Reliability (Phase 8.46 Optimization) 🚀⚡
+
+To ensure the application remains responsive and handles high-throughput notifications without UI delays, the following optimizations have been implemented:
+
+### 1. Asynchronous Background Execution
+**Problem:** Sending notifications involves external network calls to FCM. Awaiting these in the main request cycle causes "hanging" UI delays (1-4 seconds).
+**Solution:** All notification delivery is now wrapped in `TaskUtils.runBackground(session, ...)`. This allows the endpoint to return a success response immediately while the notification task executes independently.
+**Safety:** Use of a dedicated `backgroundSession` prevents "Session is closed" errors common with unawaited tasks in Serverpod.
+
+### 2. Parallel Device Delivery
+**Problem:** Users often have multiple devices (Android, iOS, Web). Sequential delivery increases total request time linearly.
+**Solution:** `FCMService.sendToTokens` now uses `Future.wait` to trigger all FCM network calls in parallel.
+**Benefit:** Total notification time is now bound by the slowest single device rather than the sum of all devices.
+
+### 3. Automatic Token Cleanup (Self-Healing)
+**Problem:** Stale or unregistered FCM tokens cause redundant network calls and log noise.
+**Solution:** `FCMService` automatically detects `404 - UNREGISTERED` responses from Google. Upon detection, it immediately deletes the invalid token from the `device_tokens` table.
+**Benefit:** Continuous database maintenance that ensures only active devices are targeted, reducing future latency and improving deliverability.
 
 ---
 
@@ -249,5 +270,7 @@ Each version has its own notification service implementation to maintain compati
 ✅ **Backend integration complete**  
 ✅ **Deep linking implemented**  
 ✅ **Both versions can coexist during migration**
+✅ **Asynchronous backgrounding prevents UI delays**
+✅ **Self-healing infrastructure purges invalid tokens**
 
 The notification architecture is designed for a smooth migration from Firebase to Serverpod while maintaining backward compatibility and zero downtime.

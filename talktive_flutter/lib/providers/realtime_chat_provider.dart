@@ -69,7 +69,7 @@ class RealtimeChat extends _$RealtimeChat {
       final details = await ref.read(
         privateChatDetailsProvider(_channelId).future,
       );
-      if (details.otherUserLastReadAt != null) {
+      if (details != null && details.otherUserLastReadAt != null) {
         initialState.lastReadStatus[details.otherResident.userInfoId
                 .toString()] =
             details.otherUserLastReadAt!;

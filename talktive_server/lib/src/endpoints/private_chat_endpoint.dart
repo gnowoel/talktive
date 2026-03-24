@@ -43,7 +43,7 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
 
   /// Gets details about a private chat including the other participant's info.
   /// Gets details about a private chat including the other participant's info.
-  Future<protocol.PrivateChatWithProfile> getPrivateChatDetails(
+  Future<protocol.PrivateChatWithProfile?> getPrivateChatDetails(
     Session session,
     int channelId,
   ) async {

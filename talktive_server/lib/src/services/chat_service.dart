@@ -10,6 +10,7 @@ import 'notification_service.dart';
 import 'content_filter_service.dart';
 import 'input_validation_service.dart';
 import 'rate_limit_service.dart';
+import '../utils/task_utils.dart';
 
 class ChatService {
   /// Creates or retrieves a private chat between two users.
@@ -600,12 +601,14 @@ class ChatService {
     );
     await protocol.Resident.db.updateRow(session, sender);
 
-    // Achievement Progress
-    unawaited(GamificationService.trackMultipleProgress(
-      session,
-      senderUuid,
-      ['first_message', 'conversationalist', 'chatterbox'],
-    ));
+    // Achievement Progress (Background to prevent message send delay)
+    TaskUtils.runBackground(session, (backgroundSession) async {
+      await GamificationService.trackMultipleProgress(
+        backgroundSession,
+        senderUuid,
+        ['first_message', 'conversationalist', 'chatterbox'],
+      );
+    });
 
     // Time-based achievements
     await GamificationService.checkTimeBasedAchievements(session, senderUuid);
@@ -713,7 +716,7 @@ class ChatService {
   }
 
   /// Gets full details for a specific private chat.
-  static Future<protocol.PrivateChatWithProfile> getPrivateChatDetails(
+  static Future<protocol.PrivateChatWithProfile?> getPrivateChatDetails(
     Session session,
     int channelId,
     UuidValue currentUserId,
@@ -724,10 +727,7 @@ class ChatService {
     );
 
     if (privateChat == null) {
-      throw protocol.TalktiveException(
-        message: 'Private chat not found.',
-        code: 'CHAT_NOT_FOUND',
-      );
+      return null;
     }
 
     // Security check

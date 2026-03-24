@@ -78,13 +78,13 @@ final privateChatDetailsProvider = PrivateChatDetailsFamily._();
 final class PrivateChatDetailsProvider
     extends
         $FunctionalProvider<
-          AsyncValue<PrivateChatWithProfile>,
-          PrivateChatWithProfile,
-          FutureOr<PrivateChatWithProfile>
+          AsyncValue<PrivateChatWithProfile?>,
+          PrivateChatWithProfile?,
+          FutureOr<PrivateChatWithProfile?>
         >
     with
-        $FutureModifier<PrivateChatWithProfile>,
-        $FutureProvider<PrivateChatWithProfile> {
+        $FutureModifier<PrivateChatWithProfile?>,
+        $FutureProvider<PrivateChatWithProfile?> {
   /// Provider for getting details about a specific private chat.
   PrivateChatDetailsProvider._({
     required PrivateChatDetailsFamily super.from,
@@ -109,12 +109,12 @@ final class PrivateChatDetailsProvider
 
   @$internal
   @override
-  $FutureProviderElement<PrivateChatWithProfile> $createElement(
+  $FutureProviderElement<PrivateChatWithProfile?> $createElement(
     $ProviderPointer pointer,
   ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<PrivateChatWithProfile> create(Ref ref) {
+  FutureOr<PrivateChatWithProfile?> create(Ref ref) {
     final argument = this.argument as int;
     return privateChatDetails(ref, argument);
   }
@@ -131,12 +131,12 @@ final class PrivateChatDetailsProvider
 }
 
 String _$privateChatDetailsHash() =>
-    r'1c1408b79f6f63cebfa24fa58a022d6f9aa195fb';
+    r'2dc2918acc77cac455a2c2252e5f56d27e7d26a9';
 
 /// Provider for getting details about a specific private chat.
 
 final class PrivateChatDetailsFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<PrivateChatWithProfile>, int> {
+    with $FunctionalFamilyOverride<FutureOr<PrivateChatWithProfile?>, int> {
   PrivateChatDetailsFamily._()
     : super(
         retry: null,

@@ -1,5 +1,7 @@
 import 'package:serverpod/serverpod.dart';
-// ignore_for_file: avoid_print
+import 'package:talktive_server/src/generated/protocol.dart' as protocol;
+import '../services/resident_service.dart';
+import '../utils/task_utils.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
@@ -154,6 +156,22 @@ class FCMService {
         session.log('FCM DEBUG: Successfully sent notification to $token');
         return true;
       } else {
+        // Cleanup unregistered tokens
+        if (response.statusCode == 404 && response.body.contains('UNREGISTERED')) {
+          session.log(
+            'FCM DEBUG: Unregistered device token detected. Deleting for cleanup: $token',
+            level: LogLevel.warning,
+          );
+          try {
+            await protocol.DeviceToken.db.deleteWhere(
+              session,
+              where: (t) => t.token.equals(token),
+            );
+          } catch (e) {
+            session.log('FCM DEBUG: Error cleaning up token: $e', level: LogLevel.error);
+          }
+        }
+
         session.log(
           'FCM DEBUG: FCM send failed: ${response.statusCode} - ${response.body}',
           level: LogLevel.warning,
@@ -182,18 +200,21 @@ class FCMService {
   }) async {
     final results = <String, bool>{};
 
-    for (final token in tokens) {
-      final success = await sendToToken(
-        session,
-        token,
-        title,
-        body,
-        data: data,
-        imageUrl: imageUrl,
-        sound: sound,
-        badge: badge,
-      );
-      results[token] = success;
+    final futures = tokens.map((token) => sendToToken(
+          session,
+          token,
+          title,
+          body,
+          data: data,
+          imageUrl: imageUrl,
+          sound: sound,
+          badge: badge,
+        ));
+
+    final sendResults = await Future.wait(futures);
+
+    for (var i = 0; i < tokens.length; i++) {
+      results[tokens[i]] = sendResults[i];
     }
 
     return results;

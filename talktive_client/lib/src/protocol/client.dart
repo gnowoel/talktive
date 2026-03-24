@@ -1170,9 +1170,9 @@ class EndpointPrivateChat extends _i2.EndpointRef {
 
   /// Gets details about a private chat including the other participant's info.
   /// Gets details about a private chat including the other participant's info.
-  _i3.Future<_i24.PrivateChatWithProfile> getPrivateChatDetails(
+  _i3.Future<_i24.PrivateChatWithProfile?> getPrivateChatDetails(
     int channelId,
-  ) => caller.callServerEndpoint<_i24.PrivateChatWithProfile>(
+  ) => caller.callServerEndpoint<_i24.PrivateChatWithProfile?>(
     'privateChat',
     'getPrivateChatDetails',
     {'channelId': channelId},

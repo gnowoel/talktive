@@ -38,6 +38,10 @@ Order of operations for Firebase + Serverpod Auth:
 4. Await `sessionManager.initialize()`.
 5. Call `client.firebaseIdp.login(idToken: ...)` after Google Sign-In.
 
+### 5. Background Tasks & Performance
+- **TaskUtils.runBackground**: For any side-effect that is not critical to the immediate response (Notifications, Achievements, Stats), use `TaskUtils.runBackground(session, (...) async { ... })`. This prevents UI hanging while external network calls (FCM) or secondary database writes are performed.
+- **Session Lifecycle**: Never use a closed request `session` inside a background task. `TaskUtils` correctly creates a temporary `backgroundSession` to handle this safely.
+
 ---
 
 ## 🧹 Maintenance & Best Practices

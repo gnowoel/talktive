@@ -3132,7 +3132,7 @@ class _PrivateChatEndpoint {
     });
   }
 
-  _i3.Future<_i25.PrivateChatWithProfile> getPrivateChatDetails(
+  _i3.Future<_i25.PrivateChatWithProfile?> getPrivateChatDetails(
     _i1.TestSessionBuilder sessionBuilder,
     int channelId,
   ) async {
@@ -3155,7 +3155,7 @@ class _PrivateChatEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i25.PrivateChatWithProfile>);
+                as _i3.Future<_i25.PrivateChatWithProfile?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

@@ -1,6 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import '../services/resident_service.dart';
+import 'task_utils.dart';
 
 /// A mixin to provide shared authentication and resident lookup utility for Serverpod endpoints.
 mixin EndpointAuthMixin {
@@ -100,19 +101,6 @@ mixin EndpointAuthMixin {
   /// Safely runs a background task with a temporary background session.
   /// This prevents 'Session is closed' errors for tasks that outlive the request.
   void runBackground(Session session, Future<void> Function(Session backgroundSession) task) {
-    // Note: Creating a session is synchronous, but we need to ensure it's closed eventually.
-    // We don't await the background task so that the request can return immediately.
-    Future.microtask(() async {
-      final backgroundSession = await session.serverpod.createSession();
-      try {
-        await task(backgroundSession);
-      } catch (e) {
-        // We can't use the original session's logger if it's potentially closed.
-        // We use the background session's logger.
-        backgroundSession.log('Background task error: $e', level: LogLevel.error);
-      } finally {
-        await backgroundSession.close();
-      }
-    });
+    TaskUtils.runBackground(session, task);
   }
 }

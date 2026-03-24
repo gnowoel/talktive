@@ -135,9 +135,10 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
    }
 
   /// Subscribes to a channel to receive real-time updates (Messages, Typing, etc).
-  Stream<SerializableModel> subscribe(Session session, int channelId) {
+  Stream<SerializableModel> subscribe(Session session, int channelId) async* {
+    await getUserId(session);
     final streamKey = 'channel_$channelId';
-    return session.messages.createStream(streamKey);
+    yield* session.messages.createStream(streamKey);
   }
 
   /// Fetches the history of messages for a channel.

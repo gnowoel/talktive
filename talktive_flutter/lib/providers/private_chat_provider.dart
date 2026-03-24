@@ -85,7 +85,7 @@ class PrivateChatList extends _$PrivateChatList {
 
 /// Provider for getting details about a specific private chat.
 @riverpod
-Future<PrivateChatWithProfile> privateChatDetails(
+Future<PrivateChatWithProfile?> privateChatDetails(
   Ref ref,
   int privateChatId,
 ) async {

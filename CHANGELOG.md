@@ -1,6 +1,33 @@
+
 # Talktive Development Changelog
 
 This document tracks the major development milestones and changes made during the Talktive rebuild from Firebase to Serverpod.
+
+
+## March 28, 2026 - Notification Performance & Token Cleanup (Phase 8.46) 🚀⚡🧹
+
+### Performance & Latency Optimization
+- **Asynchronous Backgrounding**: Migrated slow side-effects (FCM Notifications, Achievement Tracking, Lounge Invites) to use `session.runBackground`. This ensures that the main request returns immediately to the user, eliminating the "hanging" delay on Send and Like actions while the slow network tasks complete in the background safely.
+- **Parallel FCM Delivery**: Updated `FCMService.sendToTokens` to use `Future.wait` for parallel notification delivery instead of sequential processing, significantly reducing the total time required to notify multiple devices.
+- **Service Delegation**: Applied these performance patterns across `MomentService` (Likes/Comments), `ChatService` (Achievements), and `LoungeService` (Invites).
+
+### System Health & Token Management
+- **Automatic Token Cleanup**: Implemented automatic cleanup of "UNREGISTERED" FCM tokens within `FCMService.sendToToken`. The system now detects `404 - NOT_FOUND` responses from Google and deletes the stale tokens from the database immediately, preventing future latency and reducing database load.
+- **Robust Logging**: Enhanced FCM debug logs to explicitly mention token cleanup actions, providing better visibility into system maintenance.
+
+### Stability & Safety
+- **Session Lifecycle Management**: Ensured all background tasks use the provided `backgroundSession` to prevent "Bad state: Session is closed" runtime exceptions, maintaining full log and database integrity for asynchronous operations.
+
+## March 27, 2026 - Chat Thread Navigation & Stream Authentication (Phase 8.45) 🛡️🔌✅
+
+### Stability & Error Resolution
+- **Graceful Chat Details**: Refactored `getPrivateChatDetails` to return `null` instead of throwing `CHAT_NOT_FOUND` exceptions. This resolves runtime errors when the `RealtimeChatProvider` elective metadata lookup attempted to fetch details for public channels like the Global Lounge (Channel ID 1).
+- **Service-Side Support**: Updated `ChatService` and `PrivateChatEndpoint` to return a nullable `PrivateChatWithProfile`, ensuring client-side Riverpod providers can handle non-private channels silently without logging server errors.
+- **Improved UI Safety**: Enhanced `ChatThreadScreen` to include a post-frame callback that gracefully redirects users back to the main Chats list if private chat details are not found, preventing "stuck" loading states.
+
+### Authentication & Logging
+- **Authenticated Streams**: Added mandatory `getUserId(session)` checks to the `MessageEndpoint.subscribe` method, ensuring message WebSocket streams are securely associated with authenticated users and reducing `user=null` log entries in the Serverpod monitor.
+- **Protocol Re-generation**: Synchronized all client and server protocol files to include nullable support for private chat metadata.
 
 ## March 26, 2026 - Backend Stability & Cache Null-Safety (Phase 8.44) 🛡️⚡✅
 

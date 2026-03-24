@@ -231,6 +231,18 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
 
     return chatDetailsAsync.when(
       data: (details) {
+        if (details == null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              DuoSnackBarHelper.showError(context, 'Private chat not found');
+              context.go('/chats');
+            }
+          });
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
         if (details.currentMemberStatus == ChannelMemberStatus.invited) {
           // Instead of redirecting inside build, we can just return PeepholeScreen inline, or schedule a GoRouter push
           // But since it's a deep link, it's safe to just show the peephole view if they haven't accepted

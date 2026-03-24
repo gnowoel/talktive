@@ -4,6 +4,7 @@ import 'gamification_service.dart';
 import 'notification_service.dart';
 import 'resident_service.dart';
 import 'chat_service.dart';
+import '../utils/task_utils.dart';
 
 /// Service for managing Lounge logic and discovery.
 class LoungeService {
@@ -272,18 +273,20 @@ class LoungeService {
       );
     }
 
-    try {
-      await NotificationService.sendLoungeInviteNotification(
-        session,
-        targetId,
-        inviter.userName ?? 'Someone',
-        lounge.name,
-        lounge.emoji ?? '👥',
-        lounge.id!,
-      );
-    } catch (e) {
-      session.log('Failed to send lounge invite notification: $e');
-    }
+    TaskUtils.runBackground(session, (backgroundSession) async {
+      try {
+        await NotificationService.sendLoungeInviteNotification(
+          backgroundSession,
+          targetId,
+          inviter.userName ?? 'Someone',
+          lounge.name,
+          lounge.emoji ?? '👥',
+          lounge.id!,
+        );
+      } catch (e) {
+        backgroundSession.log('Failed to send lounge invite notification: $e');
+      }
+    });
   }
 
   /// Responds to a lounge invite.

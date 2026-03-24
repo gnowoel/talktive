@@ -4,6 +4,7 @@ import 'package:talktive_server/src/generated/protocol.dart';
 import 'apartment_service.dart';
 import 'gamification_service.dart';
 import 'notification_service.dart';
+import '../utils/task_utils.dart';
 import 'resident_service.dart';
 
 class MomentService {
@@ -158,13 +159,15 @@ class MomentService {
           ApartmentService.awardVouch(target: momentAuthor);
           await Resident.db.updateRow(session, momentAuthor);
 
-          // Notify author
-          unawaited(NotificationService.sendMomentLikeNotification(
-            session,
-            momentAuthor.userInfoId,
-            resident.userName ?? 'Someone',
-            momentId,
-          ));
+          // Notify author (background to prevent UI delay and session closure errors)
+          TaskUtils.runBackground(session, (backgroundSession) async {
+            await NotificationService.sendMomentLikeNotification(
+              backgroundSession,
+              momentAuthor.userInfoId,
+              resident.userName ?? 'Someone',
+              momentId,
+            );
+          });
         }
       }
     }
@@ -239,15 +242,17 @@ class MomentService {
       moment.commentsCount += 1;
       await Moment.db.updateRow(session, moment);
 
-      // Notify author
+      // Notify author (background to prevent UI delay)
       if (moment.authorId != userId) {
-        unawaited(NotificationService.sendMomentCommentNotification(
-          session,
-          moment.authorId,
-          resident.userName ?? 'Someone',
-          text,
-          momentId,
-        ));
+        TaskUtils.runBackground(session, (backgroundSession) async {
+          await NotificationService.sendMomentCommentNotification(
+            backgroundSession,
+            moment.authorId,
+            resident.userName ?? 'Someone',
+            text,
+            momentId,
+          );
+        });
       }
     }
 

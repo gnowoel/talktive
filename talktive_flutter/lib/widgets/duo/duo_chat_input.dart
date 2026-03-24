@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../config/theme.dart';
 
 /// Duolingo-style chat input with a pill-shaped design and vibrant send button.
@@ -51,6 +52,11 @@ class _DuoChatInputState extends State<DuoChatInput> {
   String _recordDuration = '0:00';
   Timer? _typingTimer;
   bool _wasTyping = false;
+
+  // Voice Recording Enhancements
+  double _dragDeltaX = 0;
+  bool _isCancelling = false;
+  static const double _cancelThreshold = 80.0;
 
   @override
   void initState() {
@@ -109,7 +115,9 @@ class _DuoChatInputState extends State<DuoChatInput> {
         await _audioRecorder.start(config, path: path);
 
         _recordStartTime = DateTime.now();
-        _recordTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        _recordTimer = Timer.periodic(const Duration(milliseconds: 100), (
+          timer,
+        ) {
           final duration = DateTime.now().difference(_recordStartTime!);
           if (duration.inSeconds >= 60) {
             _stopRecording();
@@ -117,41 +125,90 @@ class _DuoChatInputState extends State<DuoChatInput> {
           }
           final minutes = duration.inMinutes;
           final seconds = duration.inSeconds % 60;
-          setState(() {
-            _recordDuration = '$minutes:${seconds.toString().padLeft(2, '0')}';
-          });
+          if (mounted) {
+            setState(() {
+              _recordDuration =
+                  '$minutes:${seconds.toString().padLeft(2, '0')}';
+            });
+          }
         });
 
         setState(() {
           _isRecording = true;
           _recordDuration = '0:00';
+          _dragDeltaX = 0;
+          _isCancelling = false;
         });
-        HapticFeedback.mediumImpact();
+        HapticFeedback.heavyImpact();
       }
     } catch (e) {
       debugPrint('Error starting recording: $e');
     }
   }
 
+  void _onDragUpdate(DragUpdateDetails details) {
+    if (!_isRecording) return;
+
+    setState(() {
+      _dragDeltaX -= details.delta.dx; // Track left swipe
+      if (_dragDeltaX < 0) _dragDeltaX = 0;
+
+      if (_dragDeltaX > _cancelThreshold && !_isCancelling) {
+        _isCancelling = true;
+        HapticFeedback.vibrate();
+      } else if (_dragDeltaX <= _cancelThreshold && _isCancelling) {
+        _isCancelling = false;
+      }
+    });
+  }
+
   Future<void> _stopRecording({bool cancel = false}) async {
+    if (!_isRecording) return;
+
     _recordTimer?.cancel();
     final path = await _audioRecorder.stop();
-    final durationSeconds = _recordStartTime != null
-        ? DateTime.now().difference(_recordStartTime!).inSeconds
+    final durationMs = _recordStartTime != null
+        ? DateTime.now().difference(_recordStartTime!).inMilliseconds
         : 0;
+
+    final actualCancel = cancel || _isCancelling;
 
     setState(() {
       _isRecording = false;
+      _dragDeltaX = 0;
+      _isCancelling = false;
     });
 
-    if (!cancel && path != null && widget.onVoiceSend != null) {
-      widget.onVoiceSend!(path, durationSeconds);
-      HapticFeedback.lightImpact();
-    } else if (cancel && path != null) {
+    if (!actualCancel && path != null && widget.onVoiceSend != null) {
+      if (durationMs < 1000) {
+        // Too short!
+        HapticFeedback.vibrate();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text(
+                'Hold to record! Voice message too short. 🎙️',
+              ),
+              backgroundColor: AppTheme.duoRed,
+              behavior: SnackBarBehavior.floating,
+              duration: 1.seconds,
+            ),
+          );
+        }
+        // Clean up
+        final file = File(path);
+        if (await file.exists()) await file.delete();
+        return;
+      }
+
+      widget.onVoiceSend!(path, (durationMs / 1000).ceil());
+      HapticFeedback.mediumImpact();
+    } else if (path != null) {
       final file = File(path);
       if (await file.exists()) {
         await file.delete();
       }
+      HapticFeedback.lightImpact();
     }
   }
 
@@ -182,26 +239,71 @@ class _DuoChatInputState extends State<DuoChatInput> {
           children: [
             if (_isRecording)
               Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
+                padding: const EdgeInsets.only(bottom: 12.0),
                 child: Row(
                   children: [
-                    const Icon(Icons.mic, color: AppTheme.duoRed, size: 20),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Recording: $_recordDuration',
-                      style: const TextStyle(
-                        color: AppTheme.duoRed,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Rubik',
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _isCancelling
+                            ? Colors.grey.shade100
+                            : AppTheme.duoRed.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                                Icons.mic,
+                                color: _isCancelling
+                                    ? Colors.grey
+                                    : AppTheme.duoRed,
+                                size: 16,
+                              )
+                              .animate(onPlay: (c) => c.repeat())
+                              .shimmer(
+                                duration: 1.seconds,
+                                color: Colors.white,
+                              ),
+                          const SizedBox(width: 4),
+                          Text(
+                            _recordDuration,
+                            style: TextStyle(
+                              color: _isCancelling
+                                  ? Colors.grey
+                                  : AppTheme.duoRed,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              fontFamily: 'Rubik',
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const Spacer(),
-                    const Text(
-                      'Release to send',
-                      style: TextStyle(
-                        color: AppTheme.textLight,
-                        fontSize: 12,
-                        fontFamily: 'Rubik',
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Center(
+                        child:
+                            Text(
+                                  _isCancelling
+                                      ? 'Release to delete'
+                                      : ' < < Slide to cancel',
+                                  style: TextStyle(
+                                    color: _isCancelling
+                                        ? AppTheme.duoRed
+                                        : AppTheme.textLight,
+                                    fontSize: 13,
+                                    fontWeight: _isCancelling
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                    fontFamily: 'Rubik',
+                                  ),
+                                )
+                                .animate(onPlay: (c) => c.repeat())
+                                .shimmer(delay: 500.ms, duration: 2.seconds),
                       ),
                     ),
                   ],
@@ -313,6 +415,8 @@ class _DuoChatInputState extends State<DuoChatInput> {
 
                 // Send/Voice button
                 GestureDetector(
+                  onPanUpdate: _isRecording ? _onDragUpdate : null,
+                  onPanEnd: _isRecording ? (_) => _stopRecording() : null,
                   onTap:
                       (widget.enabled &&
                           !widget.isSending &&
@@ -328,62 +432,87 @@ class _DuoChatInputState extends State<DuoChatInput> {
                       ? _startRecording
                       : null,
                   onLongPressUp: _isRecording ? () => _stopRecording() : null,
-                  child: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      gradient:
-                          (widget.enabled &&
-                              !widget.isSending &&
-                              !widget.isLoading)
-                          ? LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: _isRecording
+                  child:
+                      Container(
+                            width: _isRecording ? 56 : 48,
+                            height: _isRecording ? 56 : 48,
+                            decoration: BoxDecoration(
+                              gradient:
+                                  (widget.enabled &&
+                                      !widget.isSending &&
+                                      !widget.isLoading)
+                                  ? LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: _isRecording
+                                          ? (_isCancelling
+                                                ? [
+                                                    Colors.grey.shade400,
+                                                    Colors.grey.shade600,
+                                                  ]
+                                                : [
+                                                    AppTheme.duoRed,
+                                                    AppTheme.duoRed.withValues(
+                                                      alpha: 0.8,
+                                                    ),
+                                                  ])
+                                          : [
+                                              themeColor,
+                                              themeColor.withValues(alpha: 0.8),
+                                            ],
+                                    )
+                                  : null,
+                              color:
+                                  (widget.enabled &&
+                                      !widget.isSending &&
+                                      !widget.isLoading)
+                                  ? null
+                                  : Colors.grey.shade300,
+                              shape: BoxShape.circle,
+                              boxShadow:
+                                  (widget.enabled &&
+                                      !widget.isSending &&
+                                      !widget.isLoading)
                                   ? [
-                                      AppTheme.duoRed,
-                                      AppTheme.duoRed.withValues(alpha: 0.8),
+                                      BoxShadow(
+                                        color:
+                                            (_isRecording
+                                                    ? (_isCancelling
+                                                          ? Colors.grey
+                                                          : AppTheme.duoRed)
+                                                    : themeColor)
+                                                .withValues(alpha: 0.3),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
                                     ]
-                                  : [
-                                      themeColor,
-                                      themeColor.withValues(alpha: 0.8),
-                                    ],
-                            )
-                          : null,
-                      color:
-                          (widget.enabled &&
-                              !widget.isSending &&
-                              !widget.isLoading)
-                          ? null
-                          : Colors.grey.shade300,
-                      shape: BoxShape.circle,
-                      boxShadow:
-                          (widget.enabled &&
-                              !widget.isSending &&
-                              !widget.isLoading)
-                          ? [
-                              BoxShadow(
-                                color:
-                                    (_isRecording
-                                            ? AppTheme.duoRed
-                                            : themeColor)
-                                        .withValues(alpha: 0.3),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
+                                  : null,
+                            ),
+                            child: Center(
+                              child: Icon(
+                                showVoice
+                                    ? (_isRecording
+                                          ? (_isCancelling
+                                                ? Icons.delete_outline
+                                                : Icons.mic)
+                                          : Icons.mic)
+                                    : Icons.send,
+                                color: Colors.white,
+                                size: _isRecording ? 28 : 24,
                               ),
-                            ]
-                          : null,
-                    ),
-                    child: Center(
-                      child: Icon(
-                        showVoice
-                            ? (_isRecording ? Icons.stop : Icons.mic)
-                            : Icons.send,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    ),
-                  ),
+                            ),
+                          )
+                          .animate(target: _isRecording ? 1 : 0)
+                          .scale(
+                            begin: const Offset(1, 1),
+                            end: const Offset(1.1, 1.1),
+                            duration: 200.ms,
+                          )
+                          .shake(
+                            hz: 2,
+                            duration: 1.seconds,
+                            curve: Curves.easeInOut,
+                          ),
                 ),
               ],
             ),

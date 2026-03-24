@@ -136,6 +136,11 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
   1. Migrating `Resident.userInfoId` to `UuidValue`.
   2. Updating `ResidentEndpoint` to use `AuthServices.instance.authUsers.create`.
   3. Configuring `MessageEndpoint` to use `authenticationInfo.userIdentifier` (String/UUID).
+- **Voice Messaging UX & Waveform Visualization (Mar 2026)**:
+  - **DuoChatInput Upgrades**: Implemented a mandatory **1-second minimum duration** check for voice messages, preventing server validation errors for accidentally tapped recordings.
+  - **Swipe-to-Cancel Gesture**: Added an intuitive left-swipe gesture during recording with progressive color shifting (red to gray) and trash can iconography.
+  - **Tactile Feedback**: Integrated haptic responses for starting, sending, and cancelling recordings. 
+  - **Modern Waveform Player**: Replaced the voice message player with a deterministic, animated waveform visualization that pulses and shimmers during playback, aligning with the playful Duolingo aesthetic.
 - **Message Send Error (Feb 2026)**: `DatabaseQueryException` due to missing `senderName` columns. Fixed by:
   1. Creating migration `20260213141911093` to add denormalized columns (`senderName`, `senderAvatar`, `senderFloor`) to `message` table.
   2. Applied migration to ensure schema matches protocol.

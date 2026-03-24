@@ -4,6 +4,22 @@
 This document tracks the major development milestones and changes made during the Talktive rebuild from Firebase to Serverpod.
 
 
+
+## March 29, 2026 - Voice Messaging UX & Waveform Visualization (Phase 8.47) 🎙️🎨✨
+
+### Voice Recording Reliability
+- **Minimum Duration Validation**: Implemented a mandatory **1-second duration** check in `DuoChatInput`. Recordings shorter than one second are now automatically discarded with a haptic warning, preventing accidental "blip" messages and server-side validation error logs.
+- **Server Enforcement**: Synchronized server-side `InputValidationService` to reject messages with duration <= 0, ensuring a robust end-to-end communication pipeline.
+
+### UX & Animation Upgrades
+- **Swipe-to-Cancel Gesture**: Integrated an intuitive left-swipe gesture for cancelling recordings. The UI displays immediate visual feedback by transitioning the microphone icon to a trash can and shifting the primary color to a muted gray.
+- **Modern Waveform Player**: Replaced the linear progress bar in `VoiceMessagePlayer` with a deterministic, animated waveform visualization. The active waveform pulses and shimmers during playback, providing a more tactile and engaging audio experience.
+- **Staggered Animations**: Applied entrance animations and shimmer effects to the voice player and recording state using `flutter_animate`.
+
+### Feedback & Polish
+- **Haptic Feedback**: Added distinct haptic patterns for starting (heavy), cancelling (vibrate), and successfully sending (medium) voice messages.
+- **Automatic Cleanup**: Ensured local audio files are immediately deleted upon cancellation or duration validation failure, maintaining a clean device storage state.
+
 ## March 28, 2026 - Notification Performance & Token Cleanup (Phase 8.46) 🚀⚡🧹
 
 ### Performance & Latency Optimization

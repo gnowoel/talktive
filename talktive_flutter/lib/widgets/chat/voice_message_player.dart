@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'dart:math';
 import '../../config/theme.dart';
 import '../../helpers/url_helper.dart';
 
@@ -23,11 +25,14 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
   PlayerState _playerState = PlayerState.stopped;
   Duration _duration = Duration.zero;
   Duration _position = Duration.zero;
+  late final List<double> _waveformHeights;
+  static const int _barCount = 25;
 
   @override
   void initState() {
     super.initState();
     _player = AudioPlayer();
+    _waveformHeights = _generateWaveform(widget.url, _barCount);
 
     if (!kIsWeb) {
       if (defaultTargetPlatform == TargetPlatform.android) {
@@ -94,6 +99,11 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
     }
   }
 
+  List<double> _generateWaveform(String seed, int count) {
+    final random = Random(seed.hashCode);
+    return List.generate(count, (_) => 0.2 + random.nextDouble() * 0.8);
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeColor = widget.isCurrentUser
@@ -150,25 +160,51 @@ class _VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(2),
-                        child: Stack(
-                          children: [
-                            Container(
-                              height: 4,
-                              width: waveformWidth,
-                              color: secondaryColor,
-                            ),
-                            FractionallySizedBox(
-                              alignment: Alignment.centerLeft,
-                              widthFactor: progress,
-                              child: Container(
-                                height: 4,
-                                width: waveformWidth,
-                                color: themeColor,
+                      SizedBox(
+                        height: 24,
+                        width: waveformWidth,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: List.generate(_barCount, (index) {
+                            final barProgress = index / _barCount;
+                            final isBarActive = progress >= barProgress;
+                            final isPlaying =
+                                _playerState == PlayerState.playing;
+
+                            var bar = Container(
+                              width: 3,
+                              height: 24 * _waveformHeights[index],
+                              decoration: BoxDecoration(
+                                color: isBarActive
+                                    ? themeColor
+                                    : secondaryColor,
+                                borderRadius: BorderRadius.circular(1.5),
                               ),
-                            ),
-                          ],
+                            );
+
+                            if (isPlaying && isBarActive) {
+                              return Flexible(
+                                child: bar
+                                    .animate(
+                                      onPlay: (c) => c.repeat(reverse: true),
+                                    )
+                                    .scaleY(
+                                      begin: 0.8,
+                                      end: 1.2,
+                                      duration: 400.ms + (index * 20).ms,
+                                    )
+                                    .shimmer(
+                                      duration: 2.seconds,
+                                      color: Colors.white.withValues(
+                                        alpha: 0.3,
+                                      ),
+                                    ),
+                              );
+                            }
+
+                            return Flexible(child: bar);
+                          }),
                         ),
                       ),
                       const SizedBox(height: 4),

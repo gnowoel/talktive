@@ -73,6 +73,9 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 ### Completed (Phase 8 Refinement)
 - **Standardization**: Universal `TalktiveException` handling and `DuoButton` migration.
 - **Architectural Polish**: Query optimizations, batch database operations, reactive profile providers, and dedicated search screens.
+- **Service-Delegated Architecture**: Migrated business logic from primary endpoints to service classes for better testability and maintenance.
+- **Database Stability**: Resolved `DatabaseQueryException` issues by applying schema-synced migrations and metadata tracking.
+- **Media Validation**: Implemented strict size (5MB) and duration (60s) validation for media uploads with metadata tracking.
 - **Privacy & Content Management**: Implemented a tiered content ephemerality system (Plaza: 24h, Lounge: 14d, Private: 30d).
 - **Accessibility & Contrast**: Systematically updated theme colors and component logic (DuoButton, DuoInput) to meet WCAG AA standards while preserving Duolingo aesthetics.
 - **Welcoming Aesthetic**: Restored inviting labels and unified iconography across all core screens.
@@ -111,6 +114,13 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 - `BlockedUsersProvider`: Block/unblock users; used in Plaza, Moments, and UserProfileViewScreen.
 
 ## Recent Fixes
+
+- **Service Refinement & Stability Verification (Mar 2026)**:
+  - **Server**: Successfully verified the delegated service architecture in `MessageEndpoint` and `MomentEndpoint`. Confirmed that all side effects (broadcasting, Notifications, Gamification) correctly execute in the background via `runBackground`, improving endpoint responsiveness.
+  - **Database**: Applied schema-synced migrations adding `fileSize` and `duration` metadata, resolving runtime `DatabaseQueryException` errors encountered during testing.
+  - **Verification**: Validated real-time synchronization and stable operation across Flutter Web and Android apps.
+
+- **Media Validation & Metadata Infrastructure (Mar 2026)**:
 
 - **Endpoint Refactoring & API Reconciliation (Mar 2026)**:
   - **Server**: Successfully migrated business logic from all primary endpoints (`Admin`, `Lounge`, `Message`, `Resident`) to dedicated service classes, ensuring a clean, testable architecture. Standardized on `UuidValue` for all user identifiers across the Serverpod protocol and service layers.

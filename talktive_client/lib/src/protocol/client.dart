@@ -1429,6 +1429,14 @@ class EndpointResident extends _i2.EndpointRef {
         {},
       );
 
+  /// Mocks a subscription cancellation (downgrade).
+  _i3.Future<_i11.Resident> cancelPremium() =>
+      caller.callServerEndpoint<_i11.Resident>(
+        'resident',
+        'cancelPremium',
+        {},
+      );
+
   /// Updates privacy settings (Read Receipts, Typing Indicator, Voice, Search, etc).
   _i3.Future<_i11.Resident> updatePrivacySettings({
     bool? showOnlineStatus,

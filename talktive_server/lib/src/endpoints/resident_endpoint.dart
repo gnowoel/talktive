@@ -1,10 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
-import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
 import '../services/resident_service.dart';
-import '../services/gamification_service.dart';
-import '../services/notification_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
   /// Checks if the authenticated user has a Resident profile and
@@ -223,9 +220,14 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
 
   /// Mocks a premium purchase.
   Future<protocol.Resident> purchasePremium(Session session) async {
-    final resident = await getAuthenticatedResident(session);
-    resident.isPremium = true;
-    return await protocol.Resident.db.updateRow(session, resident);
+    final senderUuid = await getUserId(session);
+    return await ResidentService.setPremiumStatus(session, senderUuid, true);
+  }
+
+  /// Mocks a subscription cancellation (downgrade).
+  Future<protocol.Resident> cancelPremium(Session session) async {
+    final senderUuid = await getUserId(session);
+    return await ResidentService.setPremiumStatus(session, senderUuid, false);
   }
 
   /// Updates privacy settings (Read Receipts, Typing Indicator, Voice, Search, etc).

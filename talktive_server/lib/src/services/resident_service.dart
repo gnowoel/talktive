@@ -626,11 +626,46 @@ class ResidentService {
     final updatedResident = await protocol.Resident.db.updateRow(session, resident);
 
     // If transitioned from true to false, unkeep all private chats for this user.
-    if (oldKeepPrivateChats && keepPrivateChats == false) {
+    if (oldKeepPrivateChats && updatedResident.keepPrivateChats == false) {
       await _unkeepAllPrivateChats(session, updatedResident.userInfoId);
     }
 
     return updatedResident;
+  }
+
+  /// Updates a user's premium status and cleans up premium settings if disabled.
+  static Future<protocol.Resident> setPremiumStatus(
+    Session session,
+    UuidValue userId,
+    bool isPremium,
+  ) async {
+    final resident = await getResident(session, userId);
+    if (resident == null) {
+      throw protocol.TalktiveException(message: 'Resident not found');
+    }
+
+    resident.isPremium = isPremium;
+
+    if (!isPremium) {
+      // Automatically disable all premium settings
+      final bool oldKeepPrivateChats = resident.keepPrivateChats;
+      resident.keepPrivateChats = false;
+      resident.showCustomAvatar = false;
+      resident.showVoiceMessages = false;
+      resident.showNeighborsDiscovery = false;
+      // We don't necessarily clear customAvatarUrl, just hide it via showCustomAvatar
+      // so they keep it if they resubscribe.
+
+      final updated = await protocol.Resident.db.updateRow(session, resident);
+
+      // Perform cleanup for kept chats if they were previously enabled
+      if (oldKeepPrivateChats) {
+        await _unkeepAllPrivateChats(session, userId);
+      }
+      return updated;
+    }
+
+    return await protocol.Resident.db.updateRow(session, resident);
   }
 
   /// Removes persistence for all private channels where the user is a member.

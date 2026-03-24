@@ -36,8 +36,9 @@ class SettingsScreen extends ConsumerWidget {
       ),
       body: residentAsync.when(
         data: (resident) {
-          if (resident == null)
+          if (resident == null) {
             return const Center(child: Text('Please log in'));
+          }
 
           return ListView(
             padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
@@ -386,16 +387,37 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
-                'Thank you for supporting the community! Enjoy your premium experience.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey[700]),
-              ),
-            ],
+                Text(
+                  'Thank you for supporting the community! Enjoy your premium experience.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey[700]),
+                ),
+                const SizedBox(height: 16),
+                DuoButton(
+                  text: 'Cancel Plus (Test)',
+                  onPressed: () async {
+                    HapticFeedback.mediumImpact();
+                    try {
+                      await client.resident.cancelPremium();
+                      ref.invalidate(currentResidentProvider);
+                      if (!context.mounted) return;
+                      DuoSnackBarHelper.showSuccess(
+                        context,
+                        'Subscription cancelled. Features disabled. 🧹',
+                      );
+                    } catch (e) {
+                      if (!context.mounted) return;
+                      DuoSnackBarHelper.showError(context, 'Cancellation failed');
+                    }
+                  },
+                  variant: DuoButtonVariant.secondary,
+                  width: double.infinity,
+                ),
+              ],
+            ),
           ),
-        ),
-      );
-    }
+        );
+      }
 
     return DuoCard(
       child: Padding(

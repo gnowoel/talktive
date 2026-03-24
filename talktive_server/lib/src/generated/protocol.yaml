@@ -117,6 +117,7 @@ resident:
   - getBlockedUserIds:
   - updateOnlineSettings:
   - purchasePremium:
+  - cancelPremium:
   - updatePrivacySettings:
 search:
   - searchUsers:

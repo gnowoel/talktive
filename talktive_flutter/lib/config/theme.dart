@@ -107,10 +107,33 @@ class AppTheme {
 
   // Text Colors
   static const Color textPrimary = Color(0xFF2D3436);
-  static const Color textSecondary = Color(0xFF636E72);
-  static const Color textLight = Color(0xFFB2BEC3);
+  static const Color textSecondary = Color(0xFF424242); // Even darker for high contrast (WCAG AA)
+  static const Color textLight = Color(0xFF616161); // Improved from #777777 for better hint readability
   static const Color textOnPrimary = Colors.white;
-  static const Color duoBorder = Color(0xFFE5E5E5);
+  static const Color duoBorder = Color(0xFFE0E0E0);
+
+  /// Returns a color that contrasts well with the given [background] color.
+  /// Primarily used for text on colored backgrounds (e.g. primary buttons).
+  static Color getContrastColor(Color background) {
+    final double luminance = background.computeLuminance();
+    // Standard threshold for choosing black vs white text
+    return luminance > 0.4 ? textPrimary : Colors.white;
+  }
+
+  /// Returns a brand color optimized for text on a white/light background.
+  /// If the color is too light, it returns a darkened version to meet contrast requirements.
+  static Color getBrandTextColor(Color color) {
+    final double luminance = color.computeLuminance();
+    // If contrast with white (L=1.0) is less than 4.5:1, darken the color.
+    // Contrast Ratio = (L1 + 0.05) / (L2 + 0.05)
+    // 4.5 = (1.05) / (L_brand + 0.05) => L_brand + 0.05 = 1.05 / 4.5 = 0.233 => L_brand = 0.183
+    if (luminance > 0.18) {
+      final hsl = HSLColor.fromColor(color);
+      // Darken until luminance is acceptable
+      return hsl.withLightness((hsl.lightness - 0.15).clamp(0.0, 1.0)).toColor();
+    }
+    return color;
+  }
 
   // Badge Colors (Gamification)
   static const Color diamondBadge = Color(0xFFB9F2FF);

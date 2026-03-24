@@ -55,15 +55,22 @@ class _DuoButtonState extends State<DuoButton> {
         .toColor();
   }
 
-  Color _getContrastColor(Color color, bool forWhiteBackground) {
-    if (!forWhiteBackground) return Colors.white;
-
+  Color _darkenColor(Color color, double amount) {
     final hsl = HSLColor.fromColor(color);
-    // If color is too light, darken it for better contrast on white background
-    if (hsl.lightness > 0.6) {
-      return hsl.withLightness(0.45).toColor();
+    return hsl
+        .withLightness((hsl.lightness - amount).clamp(0.0, 1.0))
+        .toColor();
+  }
+
+  Color _getContrastColor(Color color, DuoButtonVariant variant) {
+    // For primary/danger buttons, we need contrast for the colored background
+    if (variant == DuoButtonVariant.primary || variant == DuoButtonVariant.danger) {
+      return AppTheme.getContrastColor(color);
     }
-    return color;
+    
+    // For secondary/ghost, background is white/transparent,
+    // so we need a potentially darkened brand color for text on white.
+    return AppTheme.getBrandTextColor(color);
   }
 
   @override
@@ -78,11 +85,9 @@ class _DuoButtonState extends State<DuoButton> {
     final isGhost = widget.variant == DuoButtonVariant.ghost;
     final isSecondary = widget.variant == DuoButtonVariant.secondary;
 
-    final textColor = (isSecondary || isGhost)
-        ? (isDisabled
-              ? Colors.grey
-              : _getContrastColor(buttonColor, isSecondary))
-        : Colors.white;
+    final textColor = isDisabled 
+        ? Colors.grey.shade500 
+        : _getContrastColor(buttonColor, widget.variant);
 
     // Size settings
     double fontSize;
@@ -133,7 +138,7 @@ class _DuoButtonState extends State<DuoButton> {
                 : LinearGradient(
                     colors: isDisabled
                         ? [Colors.grey.shade300, Colors.grey.shade400]
-                        : [buttonColor, _lightenColor(buttonColor, 0.1)],
+                        : [buttonColor, _darkenColor(buttonColor, 0.05)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -165,9 +170,7 @@ class _DuoButtonState extends State<DuoButton> {
                     width: iconSize,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        (isSecondary || isGhost) ? buttonColor : Colors.white,
-                      ),
+                      valueColor: AlwaysStoppedAnimation<Color>(textColor),
                     ),
                   ),
                 )

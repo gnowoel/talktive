@@ -6,6 +6,7 @@ import '../../config/theme.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_stat_card.dart';
 import '../../widgets/duo/duo_button.dart';
+import '../../widgets/duo/duo_input.dart';
 import '../../providers/blocked_users_provider.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
@@ -333,7 +334,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                       fontWeight: FontWeight.w600,
                       color: profile?.isOnline == true
                           ? AppTheme.duoGreen
-                          : Colors.grey[500],
+                          : AppTheme.textSecondary,
                     ),
                   ),
                 ],
@@ -679,15 +680,11 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               'Leave an optional message to let them know why you are knocking.',
             ),
             const SizedBox(height: 12),
-            TextField(
+            DuoInput(
               controller: messageController,
               maxLines: 2,
-              decoration: InputDecoration(
-                hintText: 'Say hi...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
+              hintText: 'Say hi...',
+              autofocus: true,
             ),
           ],
         ),

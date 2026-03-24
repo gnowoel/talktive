@@ -89,8 +89,8 @@ class DuoInput extends StatelessWidget {
             ),
             decoration: InputDecoration(
               hintText: hintText,
-              hintStyle: TextStyle(
-                color: AppTheme.textLight,
+              hintStyle: const TextStyle(
+                color: AppTheme.textSecondary,
                 fontFamily: 'Rubik',
               ),
               prefixIcon: prefixEmoji != null

@@ -2,7 +2,24 @@
 
 This document tracks the major development milestones and changes made during the Talktive rebuild from Firebase to Serverpod.
 
-## March 25, 2026 - Enhanced Chat Persistence & Premium Polish (Phase 8.39) 📌💎
+## March 25, 2026 - Accessibility & Contrast Polish (Phase 8.40) 🎨♿
+ 
+ ### UI/UX Design & Consistency
+ - **WCAG AA Compliance**: Systematically audit and resolve color contrast issues across the application to improve readability and inclusivity.
+ - **Theme Standardization**:
+    - Darkened `textSecondary` (#424242) and `textLight` (#616161) globally to ensure all labels and hint texts meet the 4.5:1 contrast ratio against white backgrounds.
+    - Updated `AppTheme.getContrastColor` to use a luminance-based threshold instead of simple brightness, ensuring challenging colors like Duo Green and Duo Yellow automatically switch to dark text.
+ - **Dynamic Brand Colors**: Introduced `AppTheme.getBrandTextColor` to automatically darken bright brand colors when used as text or borders on white backgrounds (secondary/ghost buttons).
+ - **Button Accessibility**:
+    - Refactored `DuoButton` to dynamically select contrast-compliant text colors for all variants (Primary, Secondary, Ghost, Danger).
+    - Switched button gradients to **darken** (0.05 reduction in lightness) instead of lighten, ensuring buttons remain bold and legible.
+ - **Input & Dialog Polish**:
+    - Replaced raw `TextField` with the standard `DuoInput` in the **Knock Dialog**, ensuring consistent styling and better readability.
+    - Darkened placeholder text in all inputs to improve accessibility for low-vision users.
+    - Standardized "Away" status text to use `textSecondary`.
+- **Stat Card Refinement**: Updated `DuoStatCard` labels to use the darker `textSecondary`, ensuring statistics are easy to read at a glance.
+
+ ## March 25, 2026 - Enhanced Chat Persistence & Premium Polish (Phase 8.39) 📌💎
 
 ### Chat Persistence Improvements
 - **Default Persistence**: Set `keepPrivateChats` to `enabled` by default in the `Resident` protocol, ensuring new users benefit from chat history immediately.

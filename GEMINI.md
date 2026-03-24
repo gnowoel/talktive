@@ -74,6 +74,7 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 - **Standardization**: Universal `TalktiveException` handling and `DuoButton` migration.
 - **Architectural Polish**: Query optimizations, batch database operations, reactive profile providers, and dedicated search screens.
 - **Privacy & Content Management**: Implemented a tiered content ephemerality system (Plaza: 24h, Lounge: 14d, Private: 30d).
+- **Accessibility & Contrast**: Systematically updated theme colors and component logic (DuoButton, DuoInput) to meet WCAG AA standards while preserving Duolingo aesthetics.
 - **Welcoming Aesthetic**: Restored inviting labels and unified iconography across all core screens.
 
 *For detailed historical sub-phase notes (8.1 – 8.23), see [CHANGELOG.md](./CHANGELOG.md).*

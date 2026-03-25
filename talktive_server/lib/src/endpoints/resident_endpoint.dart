@@ -254,7 +254,12 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? allowDiscovery,
     bool? keepPrivateChats,
+    bool? showImagesInPlaza,
+    bool? showImagesInLounges,
+    bool? showImagesInPrivateChats,
+    bool? showImagesInMoments,
   }) async {
     final resident = await getAuthenticatedResident(session);
 
@@ -270,7 +275,12 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
       showOthersOnlineStatus: showOthersOnlineStatus,
       showOthersReadReceipts: showOthersReadReceipts,
       showOthersTypingIndicators: showOthersTypingIndicators,
+      allowDiscovery: allowDiscovery,
       keepPrivateChats: keepPrivateChats,
+      showImagesInPlaza: showImagesInPlaza,
+      showImagesInLounges: showImagesInLounges,
+      showImagesInPrivateChats: showImagesInPrivateChats,
+      showImagesInMoments: showImagesInMoments,
     );
   }
 }

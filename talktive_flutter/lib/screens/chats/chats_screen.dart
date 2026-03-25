@@ -31,19 +31,13 @@ class ChatsScreen extends ConsumerWidget {
       trailingHeader: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (ref.watch(currentResidentProvider).value?.isPremium == true &&
-              (ref
-                      .watch(currentResidentProvider)
-                      .value
-                      ?.showNeighborsDiscovery ??
-                  true))
-            IconButton(
-              icon: const Icon(Icons.search, size: 28, color: Colors.white),
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                context.push('/discovery/people');
-              },
-            ),
+          IconButton(
+            icon: const Icon(Icons.search, size: 28, color: Colors.white),
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              context.push('/discovery/people');
+            },
+          ),
           DuoRefreshButton(
             onRefresh: () async {
               await ref.read(privateChatListProvider.notifier).refresh();

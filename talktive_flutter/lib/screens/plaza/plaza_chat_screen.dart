@@ -7,6 +7,7 @@ import '../../providers/realtime_chat_provider.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../providers/blocked_users_provider.dart';
 import '../../config/theme.dart';
+import '../../helpers/duo_upgrade_helper.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
 
@@ -253,20 +254,18 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
       ),
       controller: _messageController,
       onSend: _sendMessage,
-      onVoiceSend:
-          (currentResident?.isPremium == true &&
-              currentResident?.showVoiceMessages == true)
-          ? _sendVoiceMessage
-          : null,
+      onVoiceSend: _sendVoiceMessage,
       onVoiceStart: () async {
         final currentResident = ref.read(currentResidentProvider).value;
         if (currentResident == null) return false;
 
         if (!currentResident.isPremium) {
-          DuoSnackBarHelper.showError(
-            context,
-            'Voice messages are a Premium feature! 🎙️ Upgrade in Settings.',
-          );
+          _showUpgradePrompt('Voice Messages');
+          return false;
+        }
+
+        if (!currentResident.showVoiceMessages) {
+          DuoSnackBarHelper.showWarning(context, 'Enable voice messages in Settings! 🎙️');
           return false;
         }
         return true;
@@ -277,11 +276,19 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
           ref.read(realtimeChatProvider(1).notifier).setTyping(isTyping);
         }
       },
-      onImagePick:
-          (currentResident?.isPremium == true &&
-              currentResident?.showImagesInPlaza == true)
-          ? _pickAndSendImage
-          : null,
+      onImagePick: () async {
+        if (currentResident?.isPremium != true) {
+          _showUpgradePrompt('Image Sharing');
+          return;
+        }
+
+        if (currentResident?.showImagesInPlaza != true) {
+          DuoSnackBarHelper.showWarning(context, 'Enable image sharing in Settings! 📸');
+          return;
+        }
+
+        _pickAndSendImage();
+      },
       enabled: canSend,
       isLoading: currentResidentAsync.isLoading,
       isSending: _isSending,

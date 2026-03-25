@@ -36,6 +36,12 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
           code: 'PREMIUM_REQUIRED',
         );
       }
+      if (!resident.showNeighborsDiscovery) {
+        throw protocol.TalktiveException(
+          message: 'Advanced Search is disabled in Settings.',
+          code: 'FEATURE_DISABLED',
+        );
+      }
     }
 
     if (!hasQuery) {
@@ -55,7 +61,7 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
     final residents = await protocol.Resident.db.find(
       session,
       where: (t) {
-        var expr = t.suspended.equals(false);
+        var expr = t.suspended.equals(false) & t.allowDiscovery.equals(true);
         final q = query!.trim();
         // Standardize search to include name, bio, and interests (as text)
         expr &= (t.userName.ilike('%$q%') |
@@ -236,7 +242,9 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
     final residents = await protocol.Resident.db.find(
       session,
       where: (t) {
-        var expr = t.suspended.equals(false) & (t.lastMessageDate >= sevenDaysAgo);
+        var expr = t.suspended.equals(false) & 
+                   t.allowDiscovery.equals(true) & 
+                   (t.lastMessageDate >= sevenDaysAgo);
         
         if (gender != null) expr &= t.gender.equals(gender);
         if (country != null) expr &= t.country.equals(country);
@@ -263,7 +271,7 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
       return await protocol.Resident.db.find(
         session,
         where: (t) {
-          var expr = t.suspended.equals(false);
+          var expr = t.suspended.equals(false) & t.allowDiscovery.equals(true);
           if (gender != null) expr &= t.gender.equals(gender);
           if (country != null) expr &= t.country.equals(country);
           if (ageRange != null) expr &= t.ageRange.equals(ageRange);
@@ -333,6 +341,7 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
       where: (t) =>
           t.userInfoId.notEquals(userId) &
           t.suspended.equals(false) &
+          t.allowDiscovery.equals(true) &
           Expression('interests::jsonb ?| array[$interestList]'),
       orderBy: (t) => t.lastSeen,
       orderDescending: true,
@@ -376,6 +385,7 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
       where: (t) =>
           t.userInfoId.notEquals(userId) &
           t.suspended.equals(false) &
+          t.allowDiscovery.equals(true) &
           Expression('languages::jsonb ?| array[$languageList]'),
       orderBy: (t) => t.lastSeen,
       orderDescending: true,

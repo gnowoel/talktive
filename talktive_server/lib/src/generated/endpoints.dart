@@ -2646,8 +2646,33 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<bool?>(),
               nullable: true,
             ),
+            'allowDiscovery': _i1.ParameterDescription(
+              name: 'allowDiscovery',
+              type: _i1.getType<bool?>(),
+              nullable: true,
+            ),
             'keepPrivateChats': _i1.ParameterDescription(
               name: 'keepPrivateChats',
+              type: _i1.getType<bool?>(),
+              nullable: true,
+            ),
+            'showImagesInPlaza': _i1.ParameterDescription(
+              name: 'showImagesInPlaza',
+              type: _i1.getType<bool?>(),
+              nullable: true,
+            ),
+            'showImagesInLounges': _i1.ParameterDescription(
+              name: 'showImagesInLounges',
+              type: _i1.getType<bool?>(),
+              nullable: true,
+            ),
+            'showImagesInPrivateChats': _i1.ParameterDescription(
+              name: 'showImagesInPrivateChats',
+              type: _i1.getType<bool?>(),
+              nullable: true,
+            ),
+            'showImagesInMoments': _i1.ParameterDescription(
+              name: 'showImagesInMoments',
               type: _i1.getType<bool?>(),
               nullable: true,
             ),
@@ -2669,7 +2694,13 @@ class Endpoints extends _i1.EndpointDispatch {
                     showOthersReadReceipts: params['showOthersReadReceipts'],
                     showOthersTypingIndicators:
                         params['showOthersTypingIndicators'],
+                    allowDiscovery: params['allowDiscovery'],
                     keepPrivateChats: params['keepPrivateChats'],
+                    showImagesInPlaza: params['showImagesInPlaza'],
+                    showImagesInLounges: params['showImagesInLounges'],
+                    showImagesInPrivateChats:
+                        params['showImagesInPrivateChats'],
+                    showImagesInMoments: params['showImagesInMoments'],
                   ),
         ),
       },

@@ -13,6 +13,11 @@ This document tracks the major development milestones and changes made during th
 - **Advanced Discovery Gate**: Unified and gated "Advanced Search" features (search terms and multi-criteria filtering) behind Talktive Plus.
 - **Contextual Upgrades**: Integrated lock iconography and automated upgrade prompts within the search search interfaces, providing a non-intrusive path to premium features.
 
+### Premium Experience & Privacy
+- **Default Premium Enablement**: Updated `ResidentService` to automatically enable all Talktive Plus features (Advanced Discovery, Custom Avatars, Voice Messages, Typing/Read Settings, and Chat Persistence) upon purchase, providing an immediate "unlocked" experience.
+- **Privacy Enforcement**: Updated the search engine to strictly respect the `showNeighborsDiscovery` privacy setting, filtering out private residents from all discovery feeds (active users, shared interests, shared languages).
+- **Consistently Visible Search**: Removed functional gates from the community search button in the Chats screen, ensuring the discovery entry point is always visible as "bait" for non-premium users.
+
 ### Settings Branding
 - **Advanced Discovery**: Renamed "Neighbors Discovery" to "Advanced Discovery" in the Settings screen to reflect its expanded scope (searching for both residents and lounges).
 - **Clearer Descriptions**: Updated the premium feature documentation in Settings to explicitly state that search terms and filters are Talktive Plus benefits.

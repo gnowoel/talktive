@@ -11,6 +11,7 @@ import '../../config/theme.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
 import '../../widgets/chat/message_bubble.dart';
 
+import '../../helpers/duo_upgrade_helper.dart';
 import '../../helpers/resident_ext.dart';
 import 'create_lounge_dialog.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
@@ -159,6 +160,10 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
   final FocusNode _focusNode = FocusNode();
   bool _isSending = false;
   bool _hasMarkedAsRead = false;
+
+  void _showUpgradePrompt(String feature) {
+    DuoUpgradeHelper.showUpgradePrompt(context, feature);
+  }
 
   Future<void> _sendVoiceMessage(String path, int durationSeconds) async {
     final currentResident = ref.read(currentResidentProvider).value;
@@ -611,10 +616,12 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
         if (currentResident == null) return false;
 
         if (!currentResident.isPremium) {
-          DuoSnackBarHelper.showError(
-            context,
-            'Voice messages are a Premium feature! 🎙️ Upgrade in Settings.',
-          );
+          _showUpgradePrompt('Voice Messages');
+          return false;
+        }
+
+        if (!currentResident.showVoiceMessages) {
+          DuoSnackBarHelper.showWarning(context, 'Enable voice messages in Settings! 🎙️');
           return false;
         }
         return true;
@@ -626,7 +633,20 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
               .setTyping(isTyping);
         }
       },
-      onImagePick: _pickAndSendImage,
+      onImagePick: () async {
+        final currentResident = ref.read(currentResidentProvider).value;
+        if (currentResident?.isPremium != true) {
+          _showUpgradePrompt('Image Sharing');
+          return;
+        }
+
+        if (currentResident?.showImagesInLounges != true) {
+          DuoSnackBarHelper.showWarning(context, 'Enable image sharing in Settings! 📸');
+          return;
+        }
+
+        _pickAndSendImage();
+      },
       enabled: canSend,
       isSending: _isSending,
       isLoading: currentResidentAsync.isLoading,

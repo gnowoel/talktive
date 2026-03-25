@@ -110,6 +110,22 @@ class SettingsScreen extends ConsumerWidget {
                         showTypingIndicator: value,
                       ),
                     ),
+                    SwitchListTile(
+                      title: const Text(
+                        'Appear in Discovery',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: const Text(
+                        'Allow other residents to discover your persona',
+                      ),
+                      value: resident.allowDiscovery,
+                      activeThumbColor: AppTheme.duoPurple,
+                      onChanged: (value) => _updatePrivacySettings(
+                        context,
+                        ref,
+                        allowDiscovery: value,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -159,8 +175,8 @@ class SettingsScreen extends ConsumerWidget {
               _buildFeatureRow(
                 context,
                 icon: Icons.person_search,
-                title: 'Advanced Discovery',
-                description: 'Search neighbors and lounges with terms and filters.',
+                title: 'Advanced Search',
+                description: 'Search neighbors and lounges using terms and filters.',
                 isLocked: !resident.isPremium,
                 value: resident.showNeighborsDiscovery,
                 onChanged: resident.isPremium
@@ -228,6 +244,24 @@ class SettingsScreen extends ConsumerWidget {
                         context,
                         ref,
                         keepPrivateChats: val,
+                      )
+                    : null,
+              ),
+              _buildFeatureRow(
+                context,
+                icon: Icons.image_outlined,
+                title: 'Media Sharing',
+                description: 'Share colorful images in Global and Lounges.',
+                isLocked: !resident.isPremium,
+                value: resident.showImagesInPlaza, // Using plaza as proxy for main toggle
+                onChanged: resident.isPremium
+                    ? (val) => _updatePrivacySettings(
+                        context,
+                        ref,
+                        showImagesInPlaza: val,
+                        showImagesInLounges: val,
+                        showImagesInPrivateChats: val,
+                        showImagesInMoments: val,
                       )
                     : null,
               ),
@@ -316,7 +350,12 @@ class SettingsScreen extends ConsumerWidget {
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? allowDiscovery,
     bool? keepPrivateChats,
+    bool? showImagesInPlaza,
+    bool? showImagesInLounges,
+    bool? showImagesInPrivateChats,
+    bool? showImagesInMoments,
   }) async {
     HapticFeedback.selectionClick();
     final resident = ref.read(currentResidentProvider).value;
@@ -337,7 +376,12 @@ class SettingsScreen extends ConsumerWidget {
             showOthersReadReceipts ?? resident.showOthersReadReceipts,
         showOthersTypingIndicators:
             showOthersTypingIndicators ?? resident.showOthersTypingIndicators,
+        allowDiscovery: allowDiscovery ?? resident.allowDiscovery,
         keepPrivateChats: keepPrivateChats ?? resident.keepPrivateChats,
+        showImagesInPlaza: showImagesInPlaza ?? resident.showImagesInPlaza,
+        showImagesInLounges: showImagesInLounges ?? resident.showImagesInLounges,
+        showImagesInPrivateChats: showImagesInPrivateChats ?? resident.showImagesInPrivateChats,
+        showImagesInMoments: showImagesInMoments ?? resident.showImagesInMoments,
       );
       ref.invalidate(currentResidentProvider);
       if (!context.mounted) return;

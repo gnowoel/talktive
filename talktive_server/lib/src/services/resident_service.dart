@@ -164,6 +164,7 @@ class ResidentService {
       createdAt: DateTime.now(),
       lastSeen: DateTime.now(),
       isPremium: false,
+      allowDiscovery: true,
       customAvatarUrl: customAvatarUrl,
     );
 
@@ -558,7 +559,12 @@ class ResidentService {
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? allowDiscovery,
     bool? keepPrivateChats,
+    bool? showImagesInPlaza,
+    bool? showImagesInLounges,
+    bool? showImagesInPrivateChats,
+    bool? showImagesInMoments,
   }) async {
     if (showOnlineStatus != null) resident.showOnlineStatus = showOnlineStatus;
     if (showReadReceipts != null) resident.showReadReceipts = showReadReceipts;
@@ -569,6 +575,12 @@ class ResidentService {
     if (showOthersOnlineStatus != null) resident.showOthersOnlineStatus = showOthersOnlineStatus;
     if (showOthersReadReceipts != null) resident.showOthersReadReceipts = showOthersReadReceipts;
     if (showOthersTypingIndicators != null) resident.showOthersTypingIndicators = showOthersTypingIndicators;
+    if (allowDiscovery != null) resident.allowDiscovery = allowDiscovery;
+    if (showImagesInPlaza != null) resident.showImagesInPlaza = showImagesInPlaza;
+    if (showImagesInLounges != null) resident.showImagesInLounges = showImagesInLounges;
+    if (showImagesInPrivateChats != null) resident.showImagesInPrivateChats = showImagesInPrivateChats;
+    if (showImagesInMoments != null) resident.showImagesInMoments = showImagesInMoments;
+    
     final bool oldKeepPrivateChats = resident.keepPrivateChats;
     if (keepPrivateChats != null) resident.keepPrivateChats = keepPrivateChats;
 
@@ -595,15 +607,36 @@ class ResidentService {
 
     resident.isPremium = isPremium;
 
-    if (!isPremium) {
-      // Automatically disable all premium settings
+    if (isPremium) {
+      // Enable all premium features by default on purchase
+      resident.showNeighborsDiscovery = true;
+      resident.allowDiscovery = true;
+      resident.showCustomAvatar = true;
+      resident.showVoiceMessages = true;
+      resident.showReadReceipts = true;
+      resident.showTypingIndicator = true;
+      resident.showOnlineStatus = true;
+      resident.showOthersOnlineStatus = true;
+      resident.showOthersReadReceipts = true;
+      resident.showOthersTypingIndicators = true;
+      resident.keepPrivateChats = true;
+      resident.showImagesInPlaza = true;
+      resident.showImagesInLounges = true;
+      resident.showImagesInPrivateChats = true;
+      resident.showImagesInMoments = true;
+    } else {
+      // Automatically disable all premium settings if subscription expires/cancels
       final bool oldKeepPrivateChats = resident.keepPrivateChats;
       resident.keepPrivateChats = false;
       resident.showCustomAvatar = false;
       resident.showVoiceMessages = false;
       resident.showNeighborsDiscovery = false;
-      // We don't necessarily clear customAvatarUrl, just hide it via showCustomAvatar
-      // so they keep it if they resubscribe.
+      resident.showImagesInPlaza = false;
+      resident.showImagesInLounges = false;
+      resident.showImagesInPrivateChats = false;
+      resident.showImagesInMoments = false;
+      // We don't disable read receipts/typing/online status as they are standard privacy 
+      // but premium lets you use them *while* staying hidden.
 
       final updated = await protocol.Resident.db.updateRow(session, resident);
 

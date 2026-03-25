@@ -112,7 +112,10 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isPremium = ref.watch(currentResidentProvider).value?.isPremium ?? false;
+    final resident = ref.watch(currentResidentProvider).value;
+    final isPremium = resident?.isPremium ?? false;
+    final hasSearchFeature =
+        isPremium && (resident?.showNeighborsDiscovery ?? true);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -133,13 +136,27 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
               children: [
                 Expanded(
                   child: GestureDetector(
-                    onTap: isPremium ? null : _showUpgradePrompt,
+                    onTap: hasSearchFeature
+                        ? null
+                        : () {
+                            if (!isPremium) {
+                              _showUpgradePrompt();
+                            } else {
+                              DuoSnackBarHelper.showActionRequired(
+                                context,
+                                'Please enable Advanced Search in Settings. ⚙️',
+                              );
+                            }
+                          },
                     child: DuoInput(
                       controller: _searchController,
-                      hintText: isPremium ? 'Search Lounges...' : 'Advanced Search (Plus)',
-                      prefixIcon: isPremium ? Icons.search : Icons.lock_outline,
+                      hintText: hasSearchFeature
+                          ? 'Search Lounges...'
+                          : 'Advanced Search (Plus)',
+                      prefixIcon:
+                          hasSearchFeature ? Icons.search : Icons.lock_outline,
                       iconColor: AppTheme.duoBlue,
-                      enabled: isPremium,
+                      enabled: hasSearchFeature,
                       onChanged: (val) => _performSearch(val),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
@@ -159,9 +176,20 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
                 ),
                 const SizedBox(width: 8),
                 IconButton(
-                  onPressed: isPremium ? _showFilterSheet : _showUpgradePrompt,
+                  onPressed: hasSearchFeature
+                      ? _showFilterSheet
+                      : () {
+                          if (!isPremium) {
+                            _showUpgradePrompt();
+                          } else {
+                            DuoSnackBarHelper.showActionRequired(
+                              context,
+                              'Please enable Advanced Search in Settings. ⚙️',
+                            );
+                          }
+                        },
                   icon: Icon(
-                    isPremium ? Icons.filter_list_rounded : Icons.lock_outline,
+                    hasSearchFeature ? Icons.filter_list_rounded : Icons.lock_outline,
                     color: _hasActiveFilters
                         ? AppTheme.duoBlue
                         : Colors.grey,

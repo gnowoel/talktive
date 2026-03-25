@@ -12,7 +12,7 @@ import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/chat/message_bubble.dart';
-import '../../widgets/duo/duo_refresh_button.dart';
+import '../../helpers/duo_upgrade_helper.dart';
 import '../../services/media_service.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../providers/private_chat_provider.dart';
@@ -36,6 +36,10 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
   final FocusNode _focusNode = FocusNode();
   bool _isSending = false;
   bool _hasMarkedAsRead = false;
+
+  void _showUpgradePrompt(String feature) {
+    DuoUpgradeHelper.showUpgradePrompt(context, feature);
+  }
 
   @override
   void initState() {
@@ -337,10 +341,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                 IconButton(
                   onPressed: () async {
                     if (currentResident?.isPremium != true) {
-                      DuoSnackBarHelper.showError(
-                        context,
-                        'Persistence is a Premium feature! 💎 Upgrade in Settings.',
-                      );
+                      _showUpgradePrompt('Chat Persistence 🔖');
                       return;
                     }
 
@@ -488,19 +489,17 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
           ),
           controller: _messageController,
           onSend: _sendMessage,
-          onVoiceSend:
-              (currentResident?.isPremium ?? false) &&
-                  (currentResident?.showVoiceMessages ?? true)
-              ? _sendVoiceMessage
-              : null,
+          onVoiceSend: _sendVoiceMessage,
           onVoiceStart: () async {
             if (currentResident == null) return false;
 
             if (!currentResident.isPremium) {
-              DuoSnackBarHelper.showError(
-                context,
-                'Voice messages are a Premium feature! 🎙️ Upgrade in Settings.',
-              );
+              _showUpgradePrompt('Voice Messages');
+              return false;
+            }
+
+            if (!currentResident.showVoiceMessages) {
+              DuoSnackBarHelper.showWarning(context, 'Enable voice messages in Settings! 🎙️');
               return false;
             }
             return true;
@@ -512,7 +511,19 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                   .setTyping(isTyping);
             }
           },
-          onImagePick: _pickAndSendImage,
+          onImagePick: () async {
+            if (currentResident?.isPremium != true) {
+              _showUpgradePrompt('Image Sharing');
+              return;
+            }
+
+            if (currentResident?.showImagesInPrivateChats != true) {
+              DuoSnackBarHelper.showWarning(context, 'Enable image sharing in Settings! 📸');
+              return;
+            }
+
+            _pickAndSendImage();
+          },
           enabled: canSend,
           isSending: _isSending,
           isLoading: currentResidentAsync.isLoading,

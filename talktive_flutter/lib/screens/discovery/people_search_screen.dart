@@ -16,7 +16,7 @@ import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../helpers/duo_snackbar_helper.dart';
-import '../../helpers/duo_upgrade_helper.dart';
+
 
 class PeopleSearchScreen extends ConsumerStatefulWidget {
   const PeopleSearchScreen({super.key});
@@ -30,7 +30,6 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
 
   List<protocol.UserSummary>? _users;
   bool _isLoading = false;
-  String? _searchQuery;
 
   // Search Filters
   String? _selectedGender;
@@ -77,7 +76,6 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
   Future<void> _performSearch(String query) async {
     setState(() {
       _isLoading = true;
-      _searchQuery = query;
     });
 
     try {
@@ -299,7 +297,7 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
   Widget _buildFilterPill(String label, VoidCallback onRemove, {IconData? icon, Color? color}) {
     final pillColor = color ?? AppTheme.primaryColor;
     return Material(
-      color: pillColor.withOpacity(0.08),
+      color: pillColor.withValues(alpha: 0.08),
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onRemove,
@@ -308,7 +306,7 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: pillColor.withOpacity(0.2), width: 1),
+            border: Border.all(color: pillColor.withValues(alpha: 0.2), width: 1),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -326,7 +324,7 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
                 ),
               ),
               const SizedBox(width: 4),
-              Icon(Icons.close, size: 12, color: pillColor.withOpacity(0.5)),
+              Icon(Icons.close, size: 12, color: pillColor.withValues(alpha: 0.5)),
             ],
           ),
         ),

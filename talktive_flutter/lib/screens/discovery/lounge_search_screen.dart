@@ -16,7 +16,7 @@ import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_lounge_card.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
-import '../../helpers/duo_upgrade_helper.dart';
+
 
 class LoungeSearchScreen extends ConsumerStatefulWidget {
   const LoungeSearchScreen({super.key});
@@ -275,7 +275,7 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
   Widget _buildFilterPill(String label, VoidCallback onRemove) {
     const pillColor = AppTheme.duoBlue;
     return Material(
-      color: pillColor.withOpacity(0.08),
+      color: pillColor.withValues(alpha: 0.08),
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onRemove,
@@ -284,7 +284,7 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: pillColor.withOpacity(0.2), width: 1),
+            border: Border.all(color: pillColor.withValues(alpha: 0.2), width: 1),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -298,7 +298,7 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
                 ),
               ),
               const SizedBox(width: 4),
-              Icon(Icons.close, size: 12, color: pillColor.withOpacity(0.5)),
+              Icon(Icons.close, size: 12, color: pillColor.withValues(alpha: 0.5)),
             ],
           ),
         ),

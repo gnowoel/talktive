@@ -80,7 +80,9 @@ class _ServerpodInitializeState extends State<ServerpodInitialize> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('ServerpodInitialize: build called, _initialized=$_initialized, _error=$_error');
+    debugPrint(
+      'ServerpodInitialize: build called, _initialized=$_initialized, _error=$_error',
+    );
     if (_error != null) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,

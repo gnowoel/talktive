@@ -48,7 +48,6 @@ class DuoButton extends StatefulWidget {
 class _DuoButtonState extends State<DuoButton> {
   bool _isPressed = false;
 
-
   Color _darkenColor(Color color, double amount) {
     final hsl = HSLColor.fromColor(color);
     return hsl
@@ -58,10 +57,11 @@ class _DuoButtonState extends State<DuoButton> {
 
   Color _getContrastColor(Color color, DuoButtonVariant variant) {
     // For primary/danger buttons, we need contrast for the colored background
-    if (variant == DuoButtonVariant.primary || variant == DuoButtonVariant.danger) {
+    if (variant == DuoButtonVariant.primary ||
+        variant == DuoButtonVariant.danger) {
       return AppTheme.getContrastColor(color);
     }
-    
+
     // For secondary/ghost, background is white/transparent,
     // so we need a potentially darkened brand color for text on white.
     return AppTheme.getBrandTextColor(color);
@@ -79,8 +79,8 @@ class _DuoButtonState extends State<DuoButton> {
     final isGhost = widget.variant == DuoButtonVariant.ghost;
     final isSecondary = widget.variant == DuoButtonVariant.secondary;
 
-    final textColor = isDisabled 
-        ? Colors.grey.shade500 
+    final textColor = isDisabled
+        ? Colors.grey.shade500
         : _getContrastColor(buttonColor, widget.variant);
 
     // Size settings
@@ -190,7 +190,8 @@ class _DuoButtonState extends State<DuoButton> {
                         fontFamily: 'Poppins',
                       ),
                     ),
-                    if (widget.secondaryIcon != null || widget.secondaryEmoji != null) ...[
+                    if (widget.secondaryIcon != null ||
+                        widget.secondaryEmoji != null) ...[
                       const SizedBox(width: 8),
                       (widget.secondaryIcon != null
                               ? Icon(

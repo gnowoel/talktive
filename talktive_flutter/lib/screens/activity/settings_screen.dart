@@ -170,14 +170,15 @@ class SettingsScreen extends ConsumerWidget {
                         context,
                         ref,
                         showVoiceMessages: val,
-                       )
+                      )
                     : null,
               ),
               _buildFeatureRow(
                 context,
                 icon: Icons.person_search,
                 title: 'Advanced Search',
-                description: 'Search neighbors and lounges using terms and filters.',
+                description:
+                    'Search neighbors and lounges using terms and filters.',
                 isLocked: !resident.isPremium,
                 value: resident.showNeighborsDiscovery,
                 onChanged: resident.isPremium
@@ -254,7 +255,8 @@ class SettingsScreen extends ConsumerWidget {
                 title: 'Media Sharing',
                 description: 'Share colorful images in Global and Lounges.',
                 isLocked: !resident.isPremium,
-                value: resident.showImagesInPlaza, // Using plaza as proxy for main toggle
+                value: resident
+                    .showImagesInPlaza, // Using plaza as proxy for main toggle
                 onChanged: resident.isPremium
                     ? (val) => _updatePrivacySettings(
                         context,
@@ -380,9 +382,12 @@ class SettingsScreen extends ConsumerWidget {
         allowDiscovery: allowDiscovery ?? resident.allowDiscovery,
         keepPrivateChats: keepPrivateChats ?? resident.keepPrivateChats,
         showImagesInPlaza: showImagesInPlaza ?? resident.showImagesInPlaza,
-        showImagesInLounges: showImagesInLounges ?? resident.showImagesInLounges,
-        showImagesInPrivateChats: showImagesInPrivateChats ?? resident.showImagesInPrivateChats,
-        showImagesInMoments: showImagesInMoments ?? resident.showImagesInMoments,
+        showImagesInLounges:
+            showImagesInLounges ?? resident.showImagesInLounges,
+        showImagesInPrivateChats:
+            showImagesInPrivateChats ?? resident.showImagesInPrivateChats,
+        showImagesInMoments:
+            showImagesInMoments ?? resident.showImagesInMoments,
       );
       ref.invalidate(currentResidentProvider);
       if (!context.mounted) return;
@@ -432,37 +437,37 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 8),
-                Text(
-                  'Thank you for supporting the community! Enjoy your premium experience.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey[700]),
-                ),
-                const SizedBox(height: 16),
-                DuoButton(
-                  text: 'Cancel Plus (Test)',
-                  onPressed: () async {
-                    HapticFeedback.mediumImpact();
-                    try {
-                      await client.resident.cancelPremium();
-                      ref.invalidate(currentResidentProvider);
-                      if (!context.mounted) return;
-                      DuoSnackBarHelper.showSuccess(
-                        context,
-                        'Subscription cancelled. Features disabled. 🧹',
-                      );
-                    } catch (e) {
-                      if (!context.mounted) return;
-                      DuoSnackBarHelper.showError(context, 'Cancellation failed');
-                    }
-                  },
-                  variant: DuoButtonVariant.secondary,
-                  width: double.infinity,
-                ),
-              ],
-            ),
+              Text(
+                'Thank you for supporting the community! Enjoy your premium experience.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey[700]),
+              ),
+              const SizedBox(height: 16),
+              DuoButton(
+                text: 'Cancel Plus (Test)',
+                onPressed: () async {
+                  HapticFeedback.mediumImpact();
+                  try {
+                    await client.resident.cancelPremium();
+                    ref.invalidate(currentResidentProvider);
+                    if (!context.mounted) return;
+                    DuoSnackBarHelper.showSuccess(
+                      context,
+                      'Subscription cancelled. Features disabled. 🧹',
+                    );
+                  } catch (e) {
+                    if (!context.mounted) return;
+                    DuoSnackBarHelper.showError(context, 'Cancellation failed');
+                  }
+                },
+                variant: DuoButtonVariant.secondary,
+                width: double.infinity,
+              ),
+            ],
           ),
-        );
-      }
+        ),
+      );
+    }
 
     return DuoCard(
       child: Padding(

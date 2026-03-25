@@ -102,11 +102,7 @@ class LoungesScreen extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         children: [
           if (pending.isNotEmpty) ...[
-            _buildSectionHeader(
-              context,
-              'The Doorstep',
-              emoji: '🎟️',
-            ),
+            _buildSectionHeader(context, 'The Doorstep', emoji: '🎟️'),
             ...pending.asMap().entries.map(
               (entry) => _buildLoungeCard(context, ref, entry.value, entry.key),
             ),
@@ -114,11 +110,7 @@ class LoungesScreen extends ConsumerWidget {
           ],
 
           if (joined.isNotEmpty) ...[
-            _buildSectionHeader(
-              context,
-              'My Lounges',
-              emoji: '🏠',
-            ),
+            _buildSectionHeader(context, 'My Lounges', emoji: '🏠'),
             ...joined.asMap().entries.map(
               (entry) => _buildLoungeCard(context, ref, entry.value, entry.key),
             ),

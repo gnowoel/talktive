@@ -60,7 +60,7 @@ class Auth extends _$Auth {
             );
             await sessionManager.updateSignedInUser(authResponse);
             return await _refreshAuthState();
-                    }
+          }
         } catch (e) {
           debugPrint(
             'Auth: Auto-login to Serverpod failed (expected if token expired): $e',

@@ -287,10 +287,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                     label: 'Experience',
                     value: '${resident.xp}',
                     emoji: '🌟',
-                    gradientColors: [
-                      AppTheme.duoYellow,
-                      AppTheme.duoOrange,
-                    ],
+                    gradientColors: [AppTheme.duoYellow, AppTheme.duoOrange],
                   ),
                 ),
               ],
@@ -426,7 +423,10 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     WidgetRef ref,
     UserNotification notification,
   ) {
-    final iconWidget = _getIconWidgetForType(notification.type, notification.read);
+    final iconWidget = _getIconWidgetForType(
+      notification.type,
+      notification.read,
+    );
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppTheme.duoSpacingMedium),
@@ -495,9 +495,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                       ),
                     ],
                   ),
-                  child: Center(
-                    child: iconWidget,
-                  ),
+                  child: Center(child: iconWidget),
                 ),
                 const SizedBox(width: AppTheme.duoSpacingMedium),
                 Expanded(

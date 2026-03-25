@@ -328,14 +328,14 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                 ),
               ),
             ),
-  
+
             // Main content
             SafeArea(
               child: DuoKeyboardDismissible(
                 child: Column(
                   children: [
                     _buildProgressIndicator(),
-  
+
                     Expanded(
                       child: PageView(
                         controller: _pageController,
@@ -352,35 +352,35 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                         ],
                       ),
                     ),
-  
+
                     _buildNavigationButtons(),
                   ],
                 ),
               ),
             ),
 
-          // Confetti overlay
-          Align(
-            alignment: Alignment.topCenter,
-            child: ConfettiWidget(
-              confettiController: _confettiController,
-              blastDirectionality: BlastDirectionality.explosive,
-              shouldLoop: false,
-              colors: const [
-                AppTheme.primaryColor,
-                AppTheme.secondaryColor,
-                AppTheme.accentColor,
-                Colors.yellow,
-                Colors.green,
-              ],
-              numberOfParticles: 30,
+            // Confetti overlay
+            Align(
+              alignment: Alignment.topCenter,
+              child: ConfettiWidget(
+                confettiController: _confettiController,
+                blastDirectionality: BlastDirectionality.explosive,
+                shouldLoop: false,
+                colors: const [
+                  AppTheme.primaryColor,
+                  AppTheme.secondaryColor,
+                  AppTheme.accentColor,
+                  Colors.yellow,
+                  Colors.green,
+                ],
+                numberOfParticles: 30,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildProgressIndicator() {
     final isEditing = widget.initialResident != null;
@@ -1532,7 +1532,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
       '25-34',
       '35-44',
       '45-54',
-      '55+'
+      '55+',
     ];
 
     return SingleChildScrollView(
@@ -1580,10 +1580,12 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                     boxShadow: isSelected
                         ? [
                             BoxShadow(
-                              color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                              color: AppTheme.primaryColor.withValues(
+                                alpha: 0.3,
+                              ),
                               blurRadius: 8,
                               offset: const Offset(0, 4),
-                            )
+                            ),
                           ]
                         : null,
                   ),

@@ -73,7 +73,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     HapticFeedback.lightImpact();
                     widget.navigationShell.goBranch(
                       index,
-                      initialLocation: index == widget.navigationShell.currentIndex,
+                      initialLocation:
+                          index == widget.navigationShell.currentIndex,
                     );
 
                     // Refresh target list when switching to a dynamic tab

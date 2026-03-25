@@ -14,9 +14,9 @@ class DuoUpgradeHelper {
             Text(
               'Premium Feature',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Poppins',
-                  ),
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
+              ),
             ),
           ],
         ),

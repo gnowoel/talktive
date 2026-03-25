@@ -151,7 +151,9 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
       if (uploadResult == null) {
         throw Exception('Failed to upload image. Result was null.');
       }
-      debugPrint('Moments: [UI] Image uploaded successfully. URL: ${uploadResult.url}');
+      debugPrint(
+        'Moments: [UI] Image uploaded successfully. URL: ${uploadResult.url}',
+      );
 
       // 2. Post moment to backend
       debugPrint('Moments: [UI] Sending post request to Serverpod...');

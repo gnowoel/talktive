@@ -66,7 +66,10 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     try {
       final uploadResult = await mediaService.uploadFile(image, 'chats');
       if (uploadResult != null) {
-        await _sendMessage(imageUrl: uploadResult.url, fileSize: uploadResult.sizeInBytes);
+        await _sendMessage(
+          imageUrl: uploadResult.url,
+          fileSize: uploadResult.sizeInBytes,
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -81,7 +84,13 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     }
   }
 
-  Future<void> _sendMessage({String? imageUrl, String? mediaUrl, String? mediaType, int? duration, int? fileSize}) async {
+  Future<void> _sendMessage({
+    String? imageUrl,
+    String? mediaUrl,
+    String? mediaType,
+    int? duration,
+    int? fileSize,
+  }) async {
     final content = _messageController.text.trim();
     if (content.isEmpty && imageUrl == null) return;
 
@@ -271,7 +280,10 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
         }
 
         if (!currentResident.showVoiceMessages) {
-          DuoSnackBarHelper.showWarning(context, 'Enable voice messages in Settings! 🎙️');
+          DuoSnackBarHelper.showWarning(
+            context,
+            'Enable voice messages in Settings! 🎙️',
+          );
           return false;
         }
         return true;
@@ -289,7 +301,10 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
         }
 
         if (currentResident?.showImagesInPlaza != true) {
-          DuoSnackBarHelper.showWarning(context, 'Enable image sharing in Settings! 📸');
+          DuoSnackBarHelper.showWarning(
+            context,
+            'Enable image sharing in Settings! 📸',
+          );
           return;
         }
 

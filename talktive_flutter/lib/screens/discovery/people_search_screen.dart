@@ -17,7 +17,6 @@ import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../helpers/duo_snackbar_helper.dart';
 
-
 class PeopleSearchScreen extends ConsumerStatefulWidget {
   const PeopleSearchScreen({super.key});
 
@@ -55,7 +54,14 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
     {'label': 'Arabic', 'value': 'ar'},
     {'label': 'Portuguese', 'value': 'pt'},
   ];
-  final List<String> _ageRanges = ['Under 18', '18-24', '25-34', '35-44', '45-54', '55+'];
+  final List<String> _ageRanges = [
+    'Under 18',
+    '18-24',
+    '25-34',
+    '35-44',
+    '45-54',
+    '55+',
+  ];
 
   @override
   void initState() {
@@ -144,8 +150,9 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
                       hintText: hasSearchFeature
                           ? 'Search Neighbors...'
                           : 'Advanced Search (Plus)',
-                      prefixIcon:
-                          hasSearchFeature ? Icons.search : Icons.lock_outline,
+                      prefixIcon: hasSearchFeature
+                          ? Icons.search
+                          : Icons.lock_outline,
                       iconColor: AppTheme.duoOrange,
                       enabled: hasSearchFeature,
                       onChanged: (val) => _performSearch(val),
@@ -180,7 +187,9 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
                           }
                         },
                   icon: Icon(
-                    hasSearchFeature ? Icons.filter_list_rounded : Icons.lock_outline,
+                    hasSearchFeature
+                        ? Icons.filter_list_rounded
+                        : Icons.lock_outline,
                     color: _hasActiveFilters
                         ? AppTheme.primaryColor
                         : Colors.grey[600],
@@ -217,7 +226,9 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
         children: [
           if (_selectedGender != null)
             _buildFilterPill(
-              _genderOptions.firstWhere((e) => e['value'] == _selectedGender)['label']!,
+              _genderOptions.firstWhere(
+                (e) => e['value'] == _selectedGender,
+              )['label']!,
               () => setState(() {
                 _selectedGender = null;
                 _performSearch(_searchController.text);
@@ -233,7 +244,9 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
             ),
           if (_selectedLanguage != null)
             _buildFilterPill(
-              _languageOptions.firstWhere((e) => e['value'] == _selectedLanguage)['label']!,
+              _languageOptions.firstWhere(
+                (e) => e['value'] == _selectedLanguage,
+              )['label']!,
               () => setState(() {
                 _selectedLanguage = null;
                 _performSearch(_searchController.text);
@@ -294,7 +307,12 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
     );
   }
 
-  Widget _buildFilterPill(String label, VoidCallback onRemove, {IconData? icon, Color? color}) {
+  Widget _buildFilterPill(
+    String label,
+    VoidCallback onRemove, {
+    IconData? icon,
+    Color? color,
+  }) {
     final pillColor = color ?? AppTheme.primaryColor;
     return Material(
       color: pillColor.withValues(alpha: 0.08),
@@ -306,7 +324,10 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: pillColor.withValues(alpha: 0.2), width: 1),
+            border: Border.all(
+              color: pillColor.withValues(alpha: 0.2),
+              width: 1,
+            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -324,7 +345,11 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
                 ),
               ),
               const SizedBox(width: 4),
-              Icon(Icons.close, size: 12, color: pillColor.withValues(alpha: 0.5)),
+              Icon(
+                Icons.close,
+                size: 12,
+                color: pillColor.withValues(alpha: 0.5),
+              ),
             ],
           ),
         ),
@@ -386,7 +411,7 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
 
     if (list.isEmpty) {
       if (_isLoading) return const Center(child: DuoLoadingIndicator());
-      
+
       return const DuoEmptyState(
         emoji: '👥',
         title: 'No neighbors found',
@@ -428,7 +453,10 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 8,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -451,7 +479,7 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
                             _onlyPremium = false;
                           });
                           setState(() {
-                             _selectedGender = null;
+                            _selectedGender = null;
                             _selectedAgeRange = null;
                             _selectedLanguage = null;
                             _selectedInterest = null;
@@ -473,9 +501,16 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
                       _buildFilterSection(
                         'Gender',
                         _genderOptions.map((e) => e['label']!).toList(),
-                        _genderOptions.firstWhere((e) => e['value'] == _selectedGender, orElse: () => {'label': ''})['label'],
+                        _genderOptions.firstWhere(
+                          (e) => e['value'] == _selectedGender,
+                          orElse: () => {'label': ''},
+                        )['label'],
                         (label) => setSheetState(() {
-                          _selectedGender = label == null ? null : _genderOptions.firstWhere((e) => e['label'] == label)['value'];
+                          _selectedGender = label == null
+                              ? null
+                              : _genderOptions.firstWhere(
+                                  (e) => e['label'] == label,
+                                )['value'];
                           setState(() {});
                         }),
                       ),
@@ -493,9 +528,16 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
                       _buildFilterSection(
                         'Language',
                         _languageOptions.map((e) => e['label']!).toList(),
-                        _languageOptions.firstWhere((e) => e['value'] == _selectedLanguage, orElse: () => {'label': ''})['label'],
+                        _languageOptions.firstWhere(
+                          (e) => e['value'] == _selectedLanguage,
+                          orElse: () => {'label': ''},
+                        )['label'],
                         (label) => setSheetState(() {
-                          _selectedLanguage = label == null ? null : _languageOptions.firstWhere((e) => e['label'] == label)['value'];
+                          _selectedLanguage = label == null
+                              ? null
+                              : _languageOptions.firstWhere(
+                                  (e) => e['label'] == label,
+                                )['value'];
                           setState(() {});
                         }),
                       ),
@@ -600,11 +642,16 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
                   onSelected(isSelected ? null : option);
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: isSelected ? AppTheme.primaryColor : Colors.grey[300]!,
+                      color: isSelected
+                          ? AppTheme.primaryColor
+                          : Colors.grey[300]!,
                       width: 2,
                     ),
                   ),
@@ -612,7 +659,9 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
                     option,
                     style: TextStyle(
                       color: isSelected ? Colors.white : AppTheme.textPrimary,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                       fontSize: 14,
                     ),
                   ),

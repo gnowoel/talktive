@@ -378,7 +378,10 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
                 _buildInfoRow(emoji: '👤', text: _formatGender(gender)),
               if (country != null) _buildInfoRow(emoji: '🚩', text: country),
               if (mutualLounges > 0)
-                _buildInfoRow(emoji: '🏢', text: '$mutualLounges mutual lounges'),
+                _buildInfoRow(
+                  emoji: '🏢',
+                  text: '$mutualLounges mutual lounges',
+                ),
             ]),
 
           if (interests.isNotEmpty) ...[

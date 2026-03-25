@@ -381,10 +381,7 @@ class ChatsScreen extends ConsumerWidget {
                 shape: BoxShape.circle,
               ),
               child: const Center(
-                child: Text(
-                  '👁️',
-                  style: TextStyle(fontSize: 20),
-                ),
+                child: Text('👁️', style: TextStyle(fontSize: 20)),
               ),
             ),
           ],

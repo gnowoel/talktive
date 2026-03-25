@@ -136,8 +136,13 @@ class DuoSnackBarHelper {
       ),
     );
   }
+
   /// Shows an actionRequired SnackBar with a blue background.
-  static void showActionRequired(BuildContext context, String message, {String? emoji}) {
+  static void showActionRequired(
+    BuildContext context,
+    String message, {
+    String? emoji,
+  }) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(

@@ -261,7 +261,10 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
     try {
       final uploadResult = await mediaService.uploadFile(image, 'chats');
       if (uploadResult != null) {
-        await _sendMessage(imageUrl: uploadResult.url, fileSize: uploadResult.sizeInBytes);
+        await _sendMessage(
+          imageUrl: uploadResult.url,
+          fileSize: uploadResult.sizeInBytes,
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -621,7 +624,10 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
         }
 
         if (!currentResident.showVoiceMessages) {
-          DuoSnackBarHelper.showWarning(context, 'Enable voice messages in Settings! 🎙️');
+          DuoSnackBarHelper.showWarning(
+            context,
+            'Enable voice messages in Settings! 🎙️',
+          );
           return false;
         }
         return true;
@@ -641,7 +647,10 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
         }
 
         if (currentResident?.showImagesInLounges != true) {
-          DuoSnackBarHelper.showWarning(context, 'Enable image sharing in Settings! 📸');
+          DuoSnackBarHelper.showWarning(
+            context,
+            'Enable image sharing in Settings! 📸',
+          );
           return;
         }
 

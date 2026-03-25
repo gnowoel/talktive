@@ -62,20 +62,29 @@ class _VersionSelectorState extends State<VersionSelector> {
       // New logic: Check the current Firebase user and their provider.
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser != null) {
-        debugPrint('VersionSelector: Current Firebase user found: ${currentUser.uid}');
+        debugPrint(
+          'VersionSelector: Current Firebase user found: ${currentUser.uid}',
+        );
         final isGoogleUser = currentUser.providerData.any(
           (info) => info.providerId == 'google.com',
         );
 
         if (isGoogleUser) {
-          debugPrint('VersionSelector: Google user detected, defaulting to Serverpod');
+          debugPrint(
+            'VersionSelector: Google user detected, defaulting to Serverpod',
+          );
           // If signed in with Google, default to the new Serverpod version.
-          await prefs.setString('active_app_version', AppVersion.serverpod.name);
+          await prefs.setString(
+            'active_app_version',
+            AppVersion.serverpod.name,
+          );
           if (mounted) {
             setState(() => _state = SelectorState.runAppServerpod);
           }
         } else {
-          debugPrint('VersionSelector: Non-Google user detected, allowing version choice');
+          debugPrint(
+            'VersionSelector: Non-Google user detected, allowing version choice',
+          );
           // If signed in anonymously or with email (Existing User), offer to choose version.
           if (mounted) {
             setState(() => _state = SelectorState.chooseVersion);
@@ -89,7 +98,9 @@ class _VersionSelectorState extends State<VersionSelector> {
     }
 
     if (mounted) setState(() => _state = SelectorState.chooseUserType);
-    debugPrint('VersionSelector: _checkInitialState finished. Current state: $_state');
+    debugPrint(
+      'VersionSelector: _checkInitialState finished. Current state: $_state',
+    );
   }
 
   void _selectNewUser() async {

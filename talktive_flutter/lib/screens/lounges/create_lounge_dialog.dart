@@ -351,7 +351,9 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
                         );
                       },
                       child: Container(
-                        padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+                        padding: const EdgeInsets.all(
+                          AppTheme.duoSpacingMedium,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.grey[50],
                           borderRadius: BorderRadius.circular(

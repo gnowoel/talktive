@@ -287,11 +287,7 @@ class LoungeProfileScreen extends ConsumerWidget {
           Container(width: 1, height: 40, color: Colors.grey[200]),
           _buildStatItem(context, lounge.maxMembers.toString(), 'Capacity'),
           Container(width: 1, height: 40, color: Colors.grey[200]),
-          _buildStatItem(
-            context,
-            lounge.isPublic ? '🔓' : '🔒',
-            'Access',
-          ),
+          _buildStatItem(context, lounge.isPublic ? '🔓' : '🔒', 'Access'),
         ],
       ),
     );
@@ -427,10 +423,7 @@ class LoungeProfileScreen extends ConsumerWidget {
               children: [
                 const Row(
                   children: [
-                    Text(
-                      '🔕',
-                      style: TextStyle(fontSize: 24),
-                    ),
+                    Text('🔕', style: TextStyle(fontSize: 24)),
                     SizedBox(width: 12),
                     Text(
                       'Mute Notifications',

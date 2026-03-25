@@ -59,14 +59,8 @@ GoRouter router(Ref ref) {
       ),
 
       // Redirect root to plaza
-      GoRoute(
-        path: '/',
-        redirect: (context, state) => '/plaza',
-      ),
-      GoRoute(
-        path: '/discovery',
-        redirect: (context, state) => '/plaza',
-      ),
+      GoRoute(path: '/', redirect: (context, state) => '/plaza'),
+      GoRoute(path: '/discovery', redirect: (context, state) => '/plaza'),
 
       // Main Navigation using StatefulShellRoute
       StatefulShellRoute.indexedStack(
@@ -121,7 +115,7 @@ GoRouter router(Ref ref) {
           ),
         ],
       ),
- 
+
       // Utility/Detail Screens (Outer routes to hide bottom nav)
       GoRoute(
         path: '/plaza/chat',
@@ -161,10 +155,7 @@ GoRouter router(Ref ref) {
         builder: (context, state) {
           final loungeId = int.parse(state.pathParameters['loungeId']!);
           final lounge = state.extra as Lounge?;
-          return LoungeProfileScreen(
-            loungeId: loungeId,
-            initialLounge: lounge,
-          );
+          return LoungeProfileScreen(loungeId: loungeId, initialLounge: lounge);
         },
       ),
       GoRoute(
@@ -184,10 +175,7 @@ GoRouter router(Ref ref) {
         builder: (context, state) {
           final loungeId = int.parse(state.pathParameters['loungeId']!);
           final lounge = state.extra as Lounge?;
-          return LoungeMembersScreen(
-            loungeId: loungeId,
-            initialLounge: lounge,
-          );
+          return LoungeMembersScreen(loungeId: loungeId, initialLounge: lounge);
         },
       ),
       GoRoute(

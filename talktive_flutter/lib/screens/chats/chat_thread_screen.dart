@@ -103,7 +103,14 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     }
   }
 
-  Future<void> _sendMessageInternal({String? content, String? imageUrl, String? mediaUrl, String? mediaType, int? duration, int? fileSize}) async {
+  Future<void> _sendMessageInternal({
+    String? content,
+    String? imageUrl,
+    String? mediaUrl,
+    String? mediaType,
+    int? duration,
+    int? fileSize,
+  }) async {
     try {
       await ref
           .read(realtimeChatProvider(widget.channelId).notifier)
@@ -159,7 +166,10 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     try {
       final uploadResult = await mediaService.uploadFile(image, 'chats');
       if (uploadResult != null) {
-        await _sendMessageInternal(imageUrl: uploadResult.url, fileSize: uploadResult.sizeInBytes);
+        await _sendMessageInternal(
+          imageUrl: uploadResult.url,
+          fileSize: uploadResult.sizeInBytes,
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -365,7 +375,8 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                         );
                         // Invalidate to refresh the Details (specifically the channel object)
                         ref.invalidate(
-                            privateChatDetailsProvider(widget.channelId));
+                          privateChatDetailsProvider(widget.channelId),
+                        );
                       }
                     } catch (e) {
                       if (context.mounted) {
@@ -500,7 +511,10 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
             }
 
             if (!currentResident.showVoiceMessages) {
-              DuoSnackBarHelper.showWarning(context, 'Enable voice messages in Settings! 🎙️');
+              DuoSnackBarHelper.showWarning(
+                context,
+                'Enable voice messages in Settings! 🎙️',
+              );
               return false;
             }
             return true;
@@ -519,7 +533,10 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
             }
 
             if (currentResident?.showImagesInPrivateChats != true) {
-              DuoSnackBarHelper.showWarning(context, 'Enable image sharing in Settings! 📸');
+              DuoSnackBarHelper.showWarning(
+                context,
+                'Enable image sharing in Settings! 📸',
+              );
               return;
             }
 

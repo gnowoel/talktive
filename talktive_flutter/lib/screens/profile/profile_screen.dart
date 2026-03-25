@@ -208,7 +208,6 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-
   Widget _buildMomentsButton(
     BuildContext context,
     WidgetRef ref,

@@ -28,7 +28,7 @@ class PlazaScreen extends ConsumerWidget {
           children: [
             // Welcome Header
             _buildWelcomeBanner(context, ref),
-            
+
             // Feature Cards
             Padding(
               padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
@@ -42,7 +42,7 @@ class PlazaScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            
+
             // Padding for FAB if needed
             const SizedBox(height: AppTheme.contentBottomPadding),
           ],
@@ -96,31 +96,38 @@ class PlazaScreen extends ConsumerWidget {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Text(
-                      '👋',
-                      style: TextStyle(fontSize: 32),
-                    ),
-                  ).animate(onPlay: (c) => c.repeat(reverse: true))
-                   .shake(duration: 1500.ms, hz: 4),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Text('👋', style: TextStyle(fontSize: 32)),
+                      )
+                      .animate(onPlay: (c) => c.repeat(reverse: true))
+                      .shake(duration: 1500.ms, hz: 4),
                 ],
               ),
               const SizedBox(height: AppTheme.duoSpacingLarge),
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: AppTheme.duoBlue.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(AppTheme.duoRadiusSmall),
+                      borderRadius: BorderRadius.circular(
+                        AppTheme.duoRadiusSmall,
+                      ),
                     ),
                     child: const Row(
                       children: [
-                        Icon(Icons.lightbulb_outline, size: 14, color: AppTheme.duoBlue),
+                        Icon(
+                          Icons.lightbulb_outline,
+                          size: 14,
+                          color: AppTheme.duoBlue,
+                        ),
                         SizedBox(width: 4),
                         Text(
                           'PRO TIP',
@@ -179,7 +186,8 @@ class PlazaScreen extends ConsumerWidget {
                 child: _buildActionCard(
                   context,
                   title: 'Global Lounge',
-                  subtitle: 'Join the main public chat to talk with everyone in the building.',
+                  subtitle:
+                      'Join the main public chat to talk with everyone in the building.',
                   emoji: '🌏',
                   color: AppTheme.primaryColor,
                   backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),

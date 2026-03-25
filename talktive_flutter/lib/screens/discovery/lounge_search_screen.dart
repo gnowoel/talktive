@@ -17,7 +17,6 @@ import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_lounge_card.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
 
-
 class LoungeSearchScreen extends ConsumerStatefulWidget {
   const LoungeSearchScreen({super.key});
 
@@ -62,7 +61,6 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
     super.dispose();
   }
 
-
   Future<void> _performSearch(String query) async {
     setState(() {
       _isLoading = true;
@@ -71,7 +69,7 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
 
     try {
       final client = ref.read(clientProvider);
-      
+
       if (query.trim().isEmpty) {
         // No query, fetch filtered discovery feed
         final feed = await client.search.getDiscoveryFeed(
@@ -154,8 +152,9 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
                       hintText: hasSearchFeature
                           ? 'Search Lounges...'
                           : 'Advanced Search (Plus)',
-                      prefixIcon:
-                          hasSearchFeature ? Icons.search : Icons.lock_outline,
+                      prefixIcon: hasSearchFeature
+                          ? Icons.search
+                          : Icons.lock_outline,
                       iconColor: AppTheme.duoBlue,
                       enabled: hasSearchFeature,
                       onChanged: (val) => _performSearch(val),
@@ -190,10 +189,10 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
                           }
                         },
                   icon: Icon(
-                    hasSearchFeature ? Icons.filter_list_rounded : Icons.lock_outline,
-                    color: _hasActiveFilters
-                        ? AppTheme.duoBlue
-                        : Colors.grey,
+                    hasSearchFeature
+                        ? Icons.filter_list_rounded
+                        : Icons.lock_outline,
+                    color: _hasActiveFilters ? AppTheme.duoBlue : Colors.grey,
                   ),
                 ),
               ],
@@ -224,7 +223,9 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
         children: [
           if (_selectedLanguage != null)
             _buildFilterPill(
-              _languageOptions.firstWhere((e) => e['value'] == _selectedLanguage)['label']!,
+              _languageOptions.firstWhere(
+                (e) => e['value'] == _selectedLanguage,
+              )['label']!,
               () => setState(() {
                 _selectedLanguage = null;
                 _performSearch(_searchController.text);
@@ -284,7 +285,10 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: pillColor.withValues(alpha: 0.2), width: 1),
+            border: Border.all(
+              color: pillColor.withValues(alpha: 0.2),
+              width: 1,
+            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -298,7 +302,11 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
                 ),
               ),
               const SizedBox(width: 4),
-              Icon(Icons.close, size: 12, color: pillColor.withValues(alpha: 0.5)),
+              Icon(
+                Icons.close,
+                size: 12,
+                color: pillColor.withValues(alpha: 0.5),
+              ),
             ],
           ),
         ),
@@ -309,7 +317,9 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
   Widget _buildContent() {
     if (_isLoading &&
         (_searchQuery == null ||
-            (_recommendedLounges == null && _popularLounges == null && _searchResults == null))) {
+            (_recommendedLounges == null &&
+                _popularLounges == null &&
+                _searchResults == null))) {
       return const Center(child: DuoLoadingIndicator());
     }
 
@@ -448,7 +458,10 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 8,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -487,9 +500,16 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
                       _buildFilterSection(
                         'Language',
                         _languageOptions.map((e) => e['label']!).toList(),
-                        _languageOptions.firstWhere((e) => e['value'] == _selectedLanguage, orElse: () => {'label': ''})['label'],
+                        _languageOptions.firstWhere(
+                          (e) => e['value'] == _selectedLanguage,
+                          orElse: () => {'label': ''},
+                        )['label'],
                         (label) => setSheetState(() {
-                          _selectedLanguage = label == null ? null : _languageOptions.firstWhere((e) => e['label'] == label)['value'];
+                          _selectedLanguage = label == null
+                              ? null
+                              : _languageOptions.firstWhere(
+                                  (e) => e['label'] == label,
+                                )['value'];
                           setState(() {});
                         }),
                       ),
@@ -558,7 +578,10 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
                   onSelected(isSelected ? null : option);
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
@@ -569,7 +592,9 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
                     option,
                     style: TextStyle(
                       color: isSelected ? Colors.white : AppTheme.textPrimary,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                       fontSize: 14,
                     ),
                   ),
@@ -581,6 +606,7 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
       ],
     );
   }
+
   void _showUpgradePrompt() {
     showModalBottomSheet(
       context: context,

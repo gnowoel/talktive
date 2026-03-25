@@ -16,10 +16,7 @@ class HelpCenterScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'Help Center',
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -39,7 +36,7 @@ class HelpCenterScreen extends StatelessWidget {
             // Story Section: The Building Metaphor
             _buildStoryCard(),
             const SizedBox(height: AppTheme.duoSpacingLarge),
-            
+
             // FAQ Sections
             _buildHelpCard(
               emoji: '👤',
@@ -73,11 +70,13 @@ class HelpCenterScreen extends StatelessWidget {
               color: AppTheme.duoBlue,
             ),
             const SizedBox(height: AppTheme.duoSpacingXXLarge),
-            
+
             // Footer: Contact Info
             Column(
               children: [
-                const Text('🛎️', style: TextStyle(fontSize: 48)).animate(onPlay: (c) => c.repeat(reverse: true)).shake(duration: 2500.ms, hz: 1.5),
+                const Text('🛎️', style: TextStyle(fontSize: 48))
+                    .animate(onPlay: (c) => c.repeat(reverse: true))
+                    .shake(duration: 2500.ms, hz: 1.5),
                 const SizedBox(height: 16),
                 const Text(
                   'Still need a hand?',
@@ -90,11 +89,19 @@ class HelpCenterScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   'The building manager is always on duty!',
-                  style: TextStyle(color: Colors.grey[600], fontSize: 14, fontFamily: 'Rubik'),
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 14,
+                    fontFamily: 'Rubik',
+                  ),
                 ),
                 const SizedBox(height: 4),
                 TextSelectionTheme(
-                  data: TextSelectionThemeData(selectionColor: AppTheme.primaryColor.withValues(alpha: 0.3)),
+                  data: TextSelectionThemeData(
+                    selectionColor: AppTheme.primaryColor.withValues(
+                      alpha: 0.3,
+                    ),
+                  ),
                   child: const SelectableText(
                     'gnowoel@gmail.com',
                     style: TextStyle(

@@ -512,65 +512,73 @@ class SettingsScreen extends ConsumerWidget {
     bool? value,
     Function(bool)? onChanged,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: isLocked
-                  ? Colors.grey[200]
-                  : AppTheme.primaryColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(
-              child: Icon(
-                icon,
-                size: 24,
-                color: isLocked ? Colors.grey[400] : AppTheme.primaryColor,
+    return InkWell(
+      onTap: isLocked
+          ? () {
+              HapticFeedback.lightImpact();
+              DuoUpgradeHelper.showUpgradePrompt(context, title);
+            }
+          : null,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: isLocked
+                    ? Colors.grey[200]
+                    : AppTheme.primaryColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(
+                child: Icon(
+                  icon,
+                  size: 24,
+                  color: isLocked ? Colors.grey[400] : AppTheme.primaryColor,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: isLocked ? Colors.grey[600] : Colors.black,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: isLocked ? Colors.grey[600] : Colors.black,
+                        ),
                       ),
-                    ),
-                    if (isLocked) ...[
-                      const SizedBox(width: 8),
-                      Icon(Icons.lock, size: 14, color: Colors.grey[400]),
+                      if (isLocked) ...[
+                        const SizedBox(width: 8),
+                        Icon(Icons.lock, size: 14, color: Colors.grey[400]),
+                      ],
                     ],
-                  ],
-                ),
-                Text(
-                  description,
-                  style: TextStyle(fontSize: 13, color: Colors.grey[500]),
-                ),
-              ],
+                  ),
+                  Text(
+                    description,
+                    style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+                  ),
+                ],
+              ),
             ),
-          ),
-          if (!isLocked && onChanged != null && value != null)
-            Switch(
-              value: value,
-              activeThumbColor: AppTheme.primaryColor,
-              onChanged: (val) {
-                HapticFeedback.selectionClick();
-                onChanged(val);
-              },
-            ),
-        ],
+            if (!isLocked && onChanged != null && value != null)
+              Switch(
+                value: value,
+                activeThumbColor: AppTheme.primaryColor,
+                onChanged: (val) {
+                  HapticFeedback.selectionClick();
+                  onChanged(val);
+                },
+              ),
+          ],
+        ),
       ),
     );
   }

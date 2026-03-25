@@ -7,8 +7,6 @@ import '../utils/endpoint_auth_mixin.dart';
 class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
   /// Creates or retrieves a private chat between two users.
   /// Returns the channel ID for the private chat.
-  /// Creates or retrieves a private chat between two users.
-  /// Returns the channel ID for the private chat.
   Future<protocol.PrivateChat> getOrCreatePrivateChat(
     Session session,
     String otherUserId, {
@@ -26,7 +24,6 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Lists all private chats for the current user.
-  /// Lists all private chats for the current user.
   Future<List<protocol.PrivateChatWithProfile>> listPrivateChats(
     Session session,
   ) async {
@@ -34,7 +31,6 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
     return await ChatService.listPrivateChats(session, currentUserId);
   }
 
-  /// Gets details about a private chat including the other participant's info.
   /// Gets details about a private chat including the other participant's info.
   Future<protocol.PrivateChatWithProfile?> getPrivateChatDetails(
     Session session,
@@ -46,7 +42,6 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Accepts or declines a private chat invitation
-  /// Accepts or declines a private chat invitation
   Future<void> respondToChatInvite(
     Session session,
     int channelId,
@@ -57,7 +52,6 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
     await ChatService.respondToChatInvite(session, channelId, currentUserId, accept);
   }
 
-  /// Leaves a private chat.
   /// Leaves a private chat.
   Future<void> leaveChat(
     Session session,

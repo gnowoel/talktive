@@ -4,7 +4,6 @@ import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import '../services/notification_service.dart';
 import '../services/gamification_service.dart';
 import '../services/apartment_service.dart';
-import '../utils/endpoint_auth_mixin.dart';
 
 /// Service for managing Resident profiles and synchronization with AuthUser.
 class ResidentService {
@@ -121,6 +120,7 @@ class ResidentService {
     required String gender,
     required String country,
     required String bio,
+    String? ageRange,
     List<String>? interests,
     List<String>? languages,
     String? mood,
@@ -155,6 +155,7 @@ class ResidentService {
       gender: gender,
       country: country,
       bio: bio,
+      ageRange: ageRange,
       mood: mood,
       avatar: avatar,
       interests: interests ?? [],
@@ -350,76 +351,22 @@ class ResidentService {
     );
   }
 
-  /// Updates a user's suspension status.
-  static Future<void> setSuspensionStatus(
+  /// Unregisters a device token.
+  static Future<void> unregisterDeviceToken(
     Session session,
-    UuidValue userId, {
-    required bool suspended,
-  }) async {
-    final resident = await protocol.Resident.db.findFirstRow(
+    String token,
+  ) async {
+    final existing = await protocol.DeviceToken.db.findFirstRow(
       session,
-      where: (t) => t.userInfoId.equals(userId),
+      where: (t) => t.token.equals(token),
     );
-    if (resident == null) throw protocol.TalktiveException(message: 'User not found');
 
-    resident.suspended = suspended;
-    if (suspended) {
-      resident.trustScore = 0;
-    } else {
-      resident.trustScore = 50; // Restore partial trust
+    if (existing != null) {
+      await protocol.DeviceToken.db.deleteRow(session, existing);
     }
-    await protocol.Resident.db.updateRow(session, resident);
   }
 
-  /// Sets a user's mute status.
-  static Future<void> setMuteStatus(
-    Session session,
-    UuidValue userId, {
-    required DateTime? until,
-  }) async {
-    final resident = await protocol.Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(userId),
-    );
-    if (resident == null) throw protocol.TalktiveException(message: 'User not found');
-
-    resident.mutedUntil = until;
-    await protocol.Resident.db.updateRow(session, resident);
-  }
-
-  /// Updates a user's role.
-  static Future<void> setRole(
-    Session session,
-    UuidValue userId,
-    protocol.ResidentRole role,
-  ) async {
-    final resident = await protocol.Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(userId),
-    );
-    if (resident == null) throw protocol.TalktiveException(message: 'User not found');
-
-    resident.role = role;
-    await protocol.Resident.db.updateRow(session, resident);
-  }
-
-  /// Resets a user's reputation and clears mutes.
-  static Future<void> resetReputation(
-    Session session,
-    UuidValue userId,
-  ) async {
-    final resident = await protocol.Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(userId),
-    );
-    if (resident == null) throw protocol.TalktiveException(message: 'User not found');
-
-    resident.trustScore = 100;
-    resident.mutedUntil = null;
-    await protocol.Resident.db.updateRow(session, resident);
-  }
-
-  /// Batch retrieve message, moment, and report counts for multiple users.
+  /// Vouches for a resident, increasing their trust score and awarding XP.
   static Future<Map<String, Map<String, int>>> getBatchUserCounts(
     Session session,
     List<UuidValue> userIds,

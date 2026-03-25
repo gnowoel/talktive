@@ -1,15 +1,8 @@
 import 'package:serverpod/serverpod.dart';
-import 'package:collection/collection.dart';
-import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
-import '../services/gamification_service.dart';
-import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
-import '../services/resident_service.dart';
 import '../services/chat_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
-import '../services/notification_service.dart';
-import 'message_endpoint.dart';
 
 class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
   /// Creates or retrieves a private chat between two users.

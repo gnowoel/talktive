@@ -113,7 +113,15 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 - `FloorUtils` (`lib/utils/floor_utils.dart`): Client-side hybrid floor formula + mute helpers.
 - `BlockedUsersProvider`: Block/unblock users; used in Plaza, Moments, and UserProfileViewScreen.
 
+
 ## Recent Fixes
+
+- **Advanced Search & Demographic Discovery (Mar 2026)**:
+  - **Enhanced Discovery**: Implemented a comprehensive search system for both People and Lounges, enabling granular filtering by Age Range, Gender, Country, Language, and Interests.
+  - **Search Recommendations**: Updated the `SearchEndpoint` to return curated "zero-state" recommendations (active users/popular lounges) for empty search queries.
+  - **Onboarding Expansion**: Added a dedicated "Age Range" selection step to the `ProfileSetupScreen` wizard to capture demographic data from the start.
+  - **Advanced Filtering UI**: Integrated a `DraggableScrollableSheet` with advanced controls in both `PeopleSearchScreen` and `LoungeSearchScreen`, following the `Duo` design system.
+  - **Protocol Alignment**: Standardized on positional search arguments for robust API interactions and applied migrations for the new `ageRange` field.
 
 - **Service Refinement & Stability Verification (Mar 2026)**:
   - **Server**: Successfully verified the delegated service architecture in `MessageEndpoint` and `MomentEndpoint`. Confirmed that all side effects (broadcasting, Notifications, Gamification) correctly execute in the background via `runBackground`, improving endpoint responsiveness.

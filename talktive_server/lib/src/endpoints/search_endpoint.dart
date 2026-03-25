@@ -7,30 +7,100 @@ import '../utils/endpoint_auth_mixin.dart';
 import 'dart:convert';
 
 class SearchEndpoint extends Endpoint with EndpointAuthMixin {
-  /// Search for users by name (optimized with early limit)
+  /// Search for users with advanced filtering
   Future<List<protocol.UserSummary>> searchUsers(
     Session session,
-    String query, {
+    String? query, {
+    String? gender,
+    String? country,
+    String? language,
+    String? interest,
+    String? ageRange,
     int limit = 20,
   }) async {
-    if (query.trim().isEmpty) return [];
+    final hasQuery = query != null && query.trim().isNotEmpty;
+    final hasFilters = gender != null || country != null || language != null || interest != null || ageRange != null;
+
+    if (!hasQuery && !hasFilters) {
+      return await getActiveUsers(session, limit: limit);
+    }
 
     final residents = await protocol.Resident.db.find(
       session,
-      where: (t) => t.userName.ilike('%${query.trim()}%'),
-      limit: limit,
+      where: (t) {
+        var expr = t.suspended.equals(false);
+        if (hasQuery) {
+          expr &= t.userName.ilike('%${query!.trim()}%');
+        }
+        if (gender != null) {
+          expr &= t.gender.equals(gender);
+        }
+        if (country != null) {
+          expr &= t.country.equals(country);
+        }
+        if (ageRange != null) {
+          expr &= t.ageRange.equals(ageRange);
+        }
+        return expr;
+      },
+      orderBy: (t) => t.lastSeen,
+      orderDescending: true,
+      limit: limit * 2, // Fetch more to filter languages/interests in memory
     );
 
-    return residents.map((r) => ResidentService.toUserSummary(r)).toList();
+    var results = residents;
+    if (language != null) {
+      results = results.where((r) => r.languages?.contains(language) ?? false).toList();
+    }
+    if (interest != null) {
+      results = results.where((r) => r.interests?.contains(interest) ?? false).toList();
+    }
+
+    return results.take(limit).map((r) => ResidentService.toUserSummary(r)).toList();
   }
 
-  /// Search for lounges by name or description
+  /// Search for lounges with advanced filtering
   Future<List<protocol.Lounge>> searchLounges(
     Session session,
-    String query, {
+    String? query, {
+    String? interest,
+    String? language,
+    String? country,
     int limit = 20,
   }) async {
-    return await LoungeService.searchLounges(session, query, limit: limit);
+    final hasQuery = query != null && query.trim().isNotEmpty;
+    final hasFilters = interest != null || language != null || country != null;
+
+    if (!hasQuery && !hasFilters) {
+      return await getPopularLounges(session, limit: limit);
+    }
+
+    final lounges = await protocol.Lounge.db.find(
+      session,
+      where: (t) {
+        var expr = t.isPublic.equals(true);
+        if (hasQuery) {
+          expr &= (t.name.ilike('%${query!.trim()}%') | t.description.ilike('%${query.trim()}%'));
+        }
+        if (country != null) {
+          expr &= t.country.equals(country);
+        }
+        return expr;
+      },
+      orderBy: (t) => t.memberCount,
+      orderDescending: true,
+      limit: limit * 2,
+    );
+
+    var results = lounges;
+    if (interest != null) {
+      results = results.where((l) => l.interests?.contains(interest) ?? false).toList();
+    }
+    if (language != null) {
+      results = results.where((l) => l.languages?.contains(language) ?? false).toList();
+    }
+
+    return results.take(limit).toList();
   }
 
   /// Get trending moments (most liked in last 7 days) - CACHED

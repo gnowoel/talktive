@@ -36,6 +36,7 @@ abstract class Resident implements _i1.SerializableModel {
     this.bio,
     this.mood,
     this.avatar,
+    this.ageRange,
     this.interests,
     this.languages,
     _i2.ResidentRole? role,
@@ -95,6 +96,7 @@ abstract class Resident implements _i1.SerializableModel {
     String? bio,
     String? mood,
     String? avatar,
+    String? ageRange,
     List<String>? interests,
     List<String>? languages,
     _i2.ResidentRole? role,
@@ -158,6 +160,7 @@ abstract class Resident implements _i1.SerializableModel {
       bio: jsonSerialization['bio'] as String?,
       mood: jsonSerialization['mood'] as String?,
       avatar: jsonSerialization['avatar'] as String?,
+      ageRange: jsonSerialization['ageRange'] as String?,
       interests: jsonSerialization['interests'] == null
           ? null
           : _i3.Protocol().deserialize<List<String>>(
@@ -283,6 +286,8 @@ abstract class Resident implements _i1.SerializableModel {
 
   String? avatar;
 
+  String? ageRange;
+
   List<String>? interests;
 
   List<String>? languages;
@@ -341,6 +346,7 @@ abstract class Resident implements _i1.SerializableModel {
     String? bio,
     String? mood,
     String? avatar,
+    String? ageRange,
     List<String>? interests,
     List<String>? languages,
     _i2.ResidentRole? role,
@@ -384,6 +390,7 @@ abstract class Resident implements _i1.SerializableModel {
       if (bio != null) 'bio': bio,
       if (mood != null) 'mood': mood,
       if (avatar != null) 'avatar': avatar,
+      if (ageRange != null) 'ageRange': ageRange,
       if (interests != null) 'interests': interests?.toJson(),
       if (languages != null) 'languages': languages?.toJson(),
       'role': role.toJson(),
@@ -434,6 +441,7 @@ class _ResidentImpl extends Resident {
     String? bio,
     String? mood,
     String? avatar,
+    String? ageRange,
     List<String>? interests,
     List<String>? languages,
     _i2.ResidentRole? role,
@@ -472,6 +480,7 @@ class _ResidentImpl extends Resident {
          bio: bio,
          mood: mood,
          avatar: avatar,
+         ageRange: ageRange,
          interests: interests,
          languages: languages,
          role: role,
@@ -516,6 +525,7 @@ class _ResidentImpl extends Resident {
     Object? bio = _Undefined,
     Object? mood = _Undefined,
     Object? avatar = _Undefined,
+    Object? ageRange = _Undefined,
     Object? interests = _Undefined,
     Object? languages = _Undefined,
     _i2.ResidentRole? role,
@@ -562,6 +572,7 @@ class _ResidentImpl extends Resident {
       bio: bio is String? ? bio : this.bio,
       mood: mood is String? ? mood : this.mood,
       avatar: avatar is String? ? avatar : this.avatar,
+      ageRange: ageRange is String? ? ageRange : this.ageRange,
       interests: interests is List<String>?
           ? interests
           : this.interests?.map((e0) => e0).toList(),

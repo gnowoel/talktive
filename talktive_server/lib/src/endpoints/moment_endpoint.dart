@@ -36,8 +36,8 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
 
     // 4. Handle side effects (async) - DON'T AWAIT (Run in background)
     runBackground(session, (backgroundSession) async {
-       // Track achievements
-       GamificationService.trackMultipleProgress(
+      // Track achievements
+      await GamificationService.trackMultipleProgress(
         backgroundSession,
         resident.userInfoId,
         ['first_moment', 'photographer', 'influencer'],

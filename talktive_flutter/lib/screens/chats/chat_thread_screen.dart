@@ -469,9 +469,9 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                       value: 'leave',
                       child: Row(
                         children: [
-                          const Text('🚪', style: TextStyle(fontSize: 20)),
-                          const SizedBox(width: 8),
-                          const Text(
+                          Text('🚪', style: TextStyle(fontSize: 20)),
+                          SizedBox(width: 8),
+                          Text(
                             'Leave Chat',
                             style: TextStyle(
                               color: AppTheme.duoRed,

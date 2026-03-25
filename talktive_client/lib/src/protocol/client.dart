@@ -442,8 +442,8 @@ class EndpointAdmin extends _i2.EndpointRef {
   /// Searches for users by name or specific ID.
   _i3.Future<List<_i8.AdminUserSummary>> searchUsers({
     String? query,
-    int? limit,
-    int? offset,
+    required int limit,
+    required int offset,
   }) => caller.callServerEndpoint<List<_i8.AdminUserSummary>>(
     'admin',
     'searchUsers',
@@ -1304,6 +1304,7 @@ class EndpointResident extends _i2.EndpointRef {
     required String gender,
     required String country,
     required String bio,
+    String? ageRange,
     List<String>? interests,
     List<String>? languages,
     String? mood,
@@ -1317,6 +1318,7 @@ class EndpointResident extends _i2.EndpointRef {
       'gender': gender,
       'country': country,
       'bio': bio,
+      'ageRange': ageRange,
       'interests': interests,
       'languages': languages,
       'mood': mood,
@@ -1331,6 +1333,7 @@ class EndpointResident extends _i2.EndpointRef {
     required String gender,
     required String country,
     required String bio,
+    String? ageRange,
     List<String>? interests,
     List<String>? languages,
     String? mood,
@@ -1344,6 +1347,7 @@ class EndpointResident extends _i2.EndpointRef {
       'gender': gender,
       'country': country,
       'bio': bio,
+      'ageRange': ageRange,
       'interests': interests,
       'languages': languages,
       'mood': mood,
@@ -1485,28 +1489,44 @@ class EndpointSearch extends _i2.EndpointRef {
   @override
   String get name => 'search';
 
-  /// Search for users by name (optimized with early limit)
+  /// Search for users with advanced filtering
   _i3.Future<List<_i27.UserSummary>> searchUsers(
-    String query, {
+    String? query, {
+    String? gender,
+    String? country,
+    String? language,
+    String? interest,
+    String? ageRange,
     required int limit,
   }) => caller.callServerEndpoint<List<_i27.UserSummary>>(
     'search',
     'searchUsers',
     {
       'query': query,
+      'gender': gender,
+      'country': country,
+      'language': language,
+      'interest': interest,
+      'ageRange': ageRange,
       'limit': limit,
     },
   );
 
-  /// Search for lounges by name or description
+  /// Search for lounges with advanced filtering
   _i3.Future<List<_i14.Lounge>> searchLounges(
-    String query, {
+    String? query, {
+    String? interest,
+    String? language,
+    String? country,
     required int limit,
   }) => caller.callServerEndpoint<List<_i14.Lounge>>(
     'search',
     'searchLounges',
     {
       'query': query,
+      'interest': interest,
+      'language': language,
+      'country': country,
       'limit': limit,
     },
   );

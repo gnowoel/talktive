@@ -652,13 +652,13 @@ class Endpoints extends _i1.EndpointDispatch {
             ),
             'limit': _i1.ParameterDescription(
               name: 'limit',
-              type: _i1.getType<int?>(),
-              nullable: true,
+              type: _i1.getType<int>(),
+              nullable: false,
             ),
             'offset': _i1.ParameterDescription(
               name: 'offset',
-              type: _i1.getType<int?>(),
-              nullable: true,
+              type: _i1.getType<int>(),
+              nullable: false,
             ),
           },
           call:
@@ -2258,6 +2258,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<String>(),
               nullable: false,
             ),
+            'ageRange': _i1.ParameterDescription(
+              name: 'ageRange',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
             'interests': _i1.ParameterDescription(
               name: 'interests',
               type: _i1.getType<List<String>?>(),
@@ -2291,6 +2296,7 @@ class Endpoints extends _i1.EndpointDispatch {
                     gender: params['gender'],
                     country: params['country'],
                     bio: params['bio'],
+                    ageRange: params['ageRange'],
                     interests: params['interests'],
                     languages: params['languages'],
                     mood: params['mood'],
@@ -2325,6 +2331,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<String>(),
               nullable: false,
             ),
+            'ageRange': _i1.ParameterDescription(
+              name: 'ageRange',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
             'interests': _i1.ParameterDescription(
               name: 'interests',
               type: _i1.getType<List<String>?>(),
@@ -2358,6 +2369,7 @@ class Endpoints extends _i1.EndpointDispatch {
                     gender: params['gender'],
                     country: params['country'],
                     bio: params['bio'],
+                    ageRange: params['ageRange'],
                     interests: params['interests'],
                     languages: params['languages'],
                     mood: params['mood'],
@@ -2647,8 +2659,33 @@ class Endpoints extends _i1.EndpointDispatch {
           params: {
             'query': _i1.ParameterDescription(
               name: 'query',
-              type: _i1.getType<String>(),
-              nullable: false,
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'gender': _i1.ParameterDescription(
+              name: 'gender',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'country': _i1.ParameterDescription(
+              name: 'country',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'language': _i1.ParameterDescription(
+              name: 'language',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'interest': _i1.ParameterDescription(
+              name: 'interest',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'ageRange': _i1.ParameterDescription(
+              name: 'ageRange',
+              type: _i1.getType<String?>(),
+              nullable: true,
             ),
             'limit': _i1.ParameterDescription(
               name: 'limit',
@@ -2664,6 +2701,11 @@ class Endpoints extends _i1.EndpointDispatch {
                   (endpoints['search'] as _i15.SearchEndpoint).searchUsers(
                     session,
                     params['query'],
+                    gender: params['gender'],
+                    country: params['country'],
+                    language: params['language'],
+                    interest: params['interest'],
+                    ageRange: params['ageRange'],
                     limit: params['limit'],
                   ),
         ),
@@ -2672,8 +2714,23 @@ class Endpoints extends _i1.EndpointDispatch {
           params: {
             'query': _i1.ParameterDescription(
               name: 'query',
-              type: _i1.getType<String>(),
-              nullable: false,
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'interest': _i1.ParameterDescription(
+              name: 'interest',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'language': _i1.ParameterDescription(
+              name: 'language',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'country': _i1.ParameterDescription(
+              name: 'country',
+              type: _i1.getType<String?>(),
+              nullable: true,
             ),
             'limit': _i1.ParameterDescription(
               name: 'limit',
@@ -2689,6 +2746,9 @@ class Endpoints extends _i1.EndpointDispatch {
                   (endpoints['search'] as _i15.SearchEndpoint).searchLounges(
                     session,
                     params['query'],
+                    interest: params['interest'],
+                    language: params['language'],
+                    country: params['country'],
                     limit: params['limit'],
                   ),
         ),

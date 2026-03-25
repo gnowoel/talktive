@@ -1,7 +1,5 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
-import '../services/resident_service.dart';
-import '../utils/task_utils.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
@@ -28,10 +26,10 @@ class FCMService {
       final credentialsFile = File('config/firebase_service_account_key.json');
 
       if (!credentialsFile.existsSync()) {
-        print(
+        stdout.writeln(
           '⚠️  FCM Service not initialized: firebase_service_account_key.json not found',
         );
-        print(
+        stdout.writeln(
           '   Place service account JSON at config/firebase_service_account_key.json',
         );
         return;
@@ -43,17 +41,17 @@ class FCMService {
       _projectId = jsonContent['project_id'] as String?;
 
       if (_projectId == null) {
-        print(
+        stdout.writeln(
           '❌ FCM Service initialization failed: project_id not found in credentials',
         );
         return;
       }
 
       _initialized = true;
-      print('✅ FCM Service initialized successfully for project: $_projectId');
+      stdout.writeln('✅ FCM Service initialized successfully for project: $_projectId');
     } catch (e, stack) {
-      print('❌ FCM Service initialization failed: $e');
-      print(stack);
+      stdout.writeln('❌ FCM Service initialization failed: $e');
+      stdout.writeln(stack);
       _initialized = false;
     }
   }
@@ -80,7 +78,7 @@ class FCMService {
 
       return _cachedToken;
     } catch (e) {
-      print('Failed to get FCM access token: $e');
+      stdout.writeln('Failed to get FCM access token: $e');
       return null;
     }
   }
@@ -117,9 +115,9 @@ class FCMService {
           'notification': {
             'title': title,
             'body': body,
-            if (imageUrl != null) 'image': imageUrl,
+            'image': ?imageUrl,
           },
-          if (data != null) 'data': data,
+          'data': ?data,
           'android': {
             'priority': 'high',
             'notification': {
@@ -135,7 +133,7 @@ class FCMService {
                   'body': body,
                 },
                 'sound': sound ?? 'default',
-                if (badge != null) 'badge': badge,
+                'badge': ?badge,
               },
             },
           },
@@ -307,7 +305,7 @@ class FCMService {
             'title': title,
             'body': body,
           },
-          if (data != null) 'data': data,
+          'data': ?data,
         },
       };
 

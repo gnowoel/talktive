@@ -58,11 +58,9 @@ class Auth extends _$Auth {
             final authResponse = await client.firebaseIdp.login(
               idToken: idToken,
             );
-            if (authResponse != null) {
-              await sessionManager.updateSignedInUser(authResponse);
-              return await _refreshAuthState();
-            }
-          }
+            await sessionManager.updateSignedInUser(authResponse);
+            return await _refreshAuthState();
+                    }
         } catch (e) {
           debugPrint(
             'Auth: Auto-login to Serverpod failed (expected if token expired): $e',
@@ -209,6 +207,7 @@ class Auth extends _$Auth {
     List<String> interests = const [],
     List<String> languages = const ['en'],
     String mood = '😊',
+    String? ageRange,
     String? customAvatarUrl,
   }) async {
     state = const AsyncValue.loading();
@@ -221,6 +220,7 @@ class Auth extends _$Auth {
         country: country,
         bio: bio,
         mood: mood,
+        ageRange: ageRange,
         interests: interests,
         languages: languages,
         customAvatarUrl: customAvatarUrl,
@@ -252,6 +252,7 @@ class Auth extends _$Auth {
     List<String> interests = const [],
     List<String> languages = const ['en'],
     String mood = '😊',
+    String? ageRange,
     String? customAvatarUrl,
   }) async {
     try {
@@ -262,6 +263,7 @@ class Auth extends _$Auth {
         country: country,
         bio: bio,
         mood: mood,
+        ageRange: ageRange,
         interests: interests,
         languages: languages,
         customAvatarUrl: customAvatarUrl,

@@ -208,26 +208,6 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildInfoRow(String emoji, String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(emoji, style: const TextStyle(fontSize: 20)),
-          const SizedBox(width: 8),
-          Text(
-            text,
-            style: const TextStyle(
-              fontSize: 16,
-              color: AppTheme.textPrimary,
-              fontFamily: 'Rubik',
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildMomentsButton(
     BuildContext context,

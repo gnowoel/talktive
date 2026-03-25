@@ -743,12 +743,6 @@ class ChatService {
         ? privateChat.participant2Id
         : privateChat.participant1Id;
 
-    final otherResident = await ResidentService.getResidentProfileView(
-      session,
-      otherUserId,
-      viewerId: currentUserId,
-    );
-
     final members = await protocol.ChannelMember.db.find(
       session,
       where: (t) => t.channelId.equals(channelId),
@@ -758,8 +752,12 @@ class ChatService {
     final otherMember = members.firstWhereOrNull((m) => m.userInfoId == otherUserId);
     final channel = await protocol.Channel.db.findById(session, channelId);
 
-    // Note: getResidentProfileView returns a different type, but we extract what we need
-    final resident = await protocol.Resident.db.findFirstRow(session, where: (t) => t.userInfoId.equals(otherUserId));
+    // Note: getResidentProfileView was not used, so we just fetch the resident directly
+    final resident = await protocol.Resident.db.findFirstRow(
+      session, 
+      where: (t) => t.userInfoId.equals(otherUserId),
+    );
+    
     if (resident == null) {
       throw protocol.TalktiveException(
         message: 'Other resident profile not found.',
@@ -770,12 +768,12 @@ class ChatService {
     return protocol.PrivateChatWithProfile(
       chat: privateChat,
       otherResident: resident,
-      otherUserName: resident?.userName,
-      otherUserAvatar: resident?.customAvatarUrl ?? resident?.avatar,
-      otherUserMood: resident?.mood,
+      otherUserName: resident.userName,
+      otherUserAvatar: resident.customAvatarUrl ?? resident.avatar,
+      otherUserMood: resident.mood,
       currentMemberStatus: currentMember?.status,
       otherMemberStatus: otherMember?.status,
-      otherUserLastReadAt: (resident?.showReadReceipts ?? true) ? otherMember?.lastReadAt : null,
+      otherUserLastReadAt: (resident.showReadReceipts) ? otherMember?.lastReadAt : null,
       unreadCount: await getUnreadCount(session, channelId, currentUserId),
       channel: channel,
     );
@@ -853,7 +851,7 @@ class ChatService {
   ) async {
     final message = protocol.Message(
       channelId: channelId,
-      senderId: UuidValue.nil, // System ID
+      senderId: UuidValue.fromString('00000000-0000-0000-0000-000000000000'), // System ID
       senderName: 'System',
       senderFloor: 0,
       senderTrustScore: 100,

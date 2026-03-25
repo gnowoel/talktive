@@ -28,6 +28,8 @@ abstract class Lounge implements _i1.SerializableModel {
     this.lastMessageAt,
     this.lastMessage,
     this.interests,
+    this.languages,
+    this.country,
     bool? isStaffLocked,
   }) : memberCount = memberCount ?? 1,
        isPublic = isPublic ?? false,
@@ -48,6 +50,8 @@ abstract class Lounge implements _i1.SerializableModel {
     DateTime? lastMessageAt,
     String? lastMessage,
     List<String>? interests,
+    List<String>? languages,
+    String? country,
     bool? isStaffLocked,
   }) = _LoungeImpl;
 
@@ -80,6 +84,12 @@ abstract class Lounge implements _i1.SerializableModel {
           : _i2.Protocol().deserialize<List<String>>(
               jsonSerialization['interests'],
             ),
+      languages: jsonSerialization['languages'] == null
+          ? null
+          : _i2.Protocol().deserialize<List<String>>(
+              jsonSerialization['languages'],
+            ),
+      country: jsonSerialization['country'] as String?,
       isStaffLocked: jsonSerialization['isStaffLocked'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(jsonSerialization['isStaffLocked']),
@@ -115,6 +125,10 @@ abstract class Lounge implements _i1.SerializableModel {
 
   List<String>? interests;
 
+  List<String>? languages;
+
+  String? country;
+
   bool isStaffLocked;
 
   /// Returns a shallow copy of this [Lounge]
@@ -134,6 +148,8 @@ abstract class Lounge implements _i1.SerializableModel {
     DateTime? lastMessageAt,
     String? lastMessage,
     List<String>? interests,
+    List<String>? languages,
+    String? country,
     bool? isStaffLocked,
   });
   @override
@@ -153,6 +169,8 @@ abstract class Lounge implements _i1.SerializableModel {
       if (lastMessageAt != null) 'lastMessageAt': lastMessageAt?.toJson(),
       if (lastMessage != null) 'lastMessage': lastMessage,
       if (interests != null) 'interests': interests?.toJson(),
+      if (languages != null) 'languages': languages?.toJson(),
+      if (country != null) 'country': country,
       'isStaffLocked': isStaffLocked,
     };
   }
@@ -180,6 +198,8 @@ class _LoungeImpl extends Lounge {
     DateTime? lastMessageAt,
     String? lastMessage,
     List<String>? interests,
+    List<String>? languages,
+    String? country,
     bool? isStaffLocked,
   }) : super._(
          id: id,
@@ -195,6 +215,8 @@ class _LoungeImpl extends Lounge {
          lastMessageAt: lastMessageAt,
          lastMessage: lastMessage,
          interests: interests,
+         languages: languages,
+         country: country,
          isStaffLocked: isStaffLocked,
        );
 
@@ -216,6 +238,8 @@ class _LoungeImpl extends Lounge {
     Object? lastMessageAt = _Undefined,
     Object? lastMessage = _Undefined,
     Object? interests = _Undefined,
+    Object? languages = _Undefined,
+    Object? country = _Undefined,
     bool? isStaffLocked,
   }) {
     return Lounge(
@@ -236,6 +260,10 @@ class _LoungeImpl extends Lounge {
       interests: interests is List<String>?
           ? interests
           : this.interests?.map((e0) => e0).toList(),
+      languages: languages is List<String>?
+          ? languages
+          : this.languages?.map((e0) => e0).toList(),
+      country: country is String? ? country : this.country,
       isStaffLocked: isStaffLocked ?? this.isStaffLocked,
     );
   }

@@ -5,6 +5,23 @@ This document tracks the major development milestones and changes made during th
 
 
 
+
+## March 30, 2026 - Advanced Search & Demographic Discovery (Phase 8.48) 🕵️‍♂️🔍
+
+### Enhanced Search & Filtering
+- **Multi-Parameter Discovery**: Implemented a robust filtering system for both **People** and **Lounges**, allowing residents to discover neighbors and clubhouses based on Age Range, Gender, Country, Language, and Interests.
+- **Search Recommendations**: Updated the `SearchEndpoint` to intelligently return recently active users and popular lounges when the search query is empty, providing a better "zero-state" experience.
+- **Advanced UI Sheet**: Developed a `DraggableScrollableSheet` for filters in both `PeopleSearchScreen` and `LoungeSearchScreen`, featuring "Clear All" functionality and real-time result counts.
+
+### Onboarding & Demographics
+- **Age Range Integration**: Expanded the `ProfileSetupScreen` wizard to 8 steps, adding a dedicated demographic selection step for **Age Range**.
+- **Data Persistence**: Updated `AuthProvider` and `ResidentEndpoint` to securely capture and persist age range data during account initialization and profile updates.
+- **Protocol Standardization**: Added `ageRange` to the `Resident` model and synchronized the frontend to handle new positional search arguments correctly.
+
+### Technical & Maintenance
+- **Schema Synchronization**: Applied database migration `20260330120000000` to add the `ageRange` column and verified stable operation across Web and Android targets.
+- **Theme Alignment**: Eliminated deprecated color aliases in search screens, standardizing on the global `Duo` design system palette.
+
 ## March 29, 2026 - Voice Messaging UX & Waveform Visualization (Phase 8.47) 🎙️🎨✨
 
 ### Voice Recording Reliability

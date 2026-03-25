@@ -41,6 +41,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
   String _selectedCountry = 'Unknown';
   String _selectedCountryFlag = '🌍';
   String _selectedMood = '😊';
+  String? _selectedAgeRange;
   List<String> _selectedInterests = [];
   List<String> _selectedLanguages = ['en'];
   String? _customAvatarUrl;
@@ -132,6 +133,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
 
       _selectedInterests = List<String>.from(resident.interests ?? []);
       _selectedLanguages = List<String>.from(resident.languages ?? ['en']);
+      _selectedAgeRange = resident.ageRange;
       _customAvatarUrl = resident.customAvatarUrl;
 
       final bioText = resident.bio ?? '';
@@ -157,8 +159,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
 
   void _nextStep() {
     if (_validateCurrentStep()) {
-      if (_currentStep < 6) {
-        // Updated for 7 steps (0-6)
+      if (_currentStep < 7) {
+        // Updated for 8 steps (0-7)
         setState(() {
           _currentStep++;
         });
@@ -210,15 +212,21 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
           return false;
         }
         return true;
-      case 4: // Bio
+      case 4: // Age Range (New)
+        if (_selectedAgeRange == null) {
+          _showError('Please select your age range');
+          return false;
+        }
+        return true;
+      case 5: // Bio
         return true; // Optional
-      case 5: // Interests
+      case 6: // Interests
         if (_selectedInterests.isEmpty) {
           _showError('Please select at least one interest');
           return false;
         }
         return true;
-      case 6: // Mood
+      case 7: // Mood
         return true; // Has default
       default:
         return true;
@@ -250,6 +258,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               interests: _selectedInterests,
               languages: _selectedLanguages,
               mood: _selectedMood,
+              ageRange: _selectedAgeRange,
               customAvatarUrl: _customAvatarUrl,
             );
       } else {
@@ -264,6 +273,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               interests: _selectedInterests,
               languages: _selectedLanguages,
               mood: _selectedMood,
+              ageRange: _selectedAgeRange,
               customAvatarUrl: _customAvatarUrl,
             );
       }
@@ -335,6 +345,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                           _buildNameStep(),
                           _buildGenderCountryStep(),
                           _buildLanguagesStep(), // New Step
+                          _buildAgeRangeStep(), // New Step
                           _buildBioStep(),
                           _buildInterestsStep(),
                           _buildMoodStep(),
@@ -391,7 +402,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
 
               // Step counter
               Text(
-                'Step ${_currentStep + 1} of 7',
+                'Step ${_currentStep + 1} of 8',
                 style: const TextStyle(
                   color: AppTheme.textSecondary,
                   fontSize: 14,
@@ -1512,5 +1523,86 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
         });
       }
     }
+  }
+
+  Widget _buildAgeRangeStep() {
+    final List<String> ageRanges = [
+      'Under 18',
+      '18-24',
+      '25-34',
+      '35-44',
+      '45-54',
+      '55+'
+    ];
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'How old are you? 🎂',
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
+            ),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'This helps us find neighbors in your peer group. This stays private!',
+            style: TextStyle(fontSize: 16, color: AppTheme.textSecondary),
+          ),
+          const SizedBox(height: 32),
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: ageRanges.map((range) {
+              final isSelected = _selectedAgeRange == range;
+              return InkWell(
+                onTap: () {
+                  setState(() => _selectedAgeRange = range);
+                  HapticFeedback.selectionClick();
+                },
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  width: (MediaQuery.of(context).size.width - 60) / 2,
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  decoration: BoxDecoration(
+                    color: isSelected ? AppTheme.primaryColor : Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: isSelected
+                          ? AppTheme.primaryColor
+                          : Colors.grey[300]!,
+                      width: 2,
+                    ),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            )
+                          ]
+                        : null,
+                  ),
+                  child: Center(
+                    child: Text(
+                      range,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: isSelected ? Colors.white : AppTheme.textPrimary,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ).animate().fadeIn().slideX(begin: 0.1, end: 0),
+    );
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talktive_client/talktive_client.dart' as protocol;
+import '../../config/interests.dart';
 
 import '../../config/theme.dart';
 import '../../providers/client_provider.dart';
@@ -30,6 +31,13 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
   List<protocol.Lounge>? _popularLounges;
   bool _isLoading = false;
   String? _searchQuery;
+
+  // Search Filters
+  String? _selectedLanguage;
+  String? _selectedInterest;
+  String? _selectedCountry;
+
+  final List<String> _commonLanguages = ['English', 'Spanish', 'French', 'German', 'Chinese', 'Japanese', 'Arabic', 'Portuguese'];
 
   @override
   void initState() {
@@ -61,7 +69,11 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
   }
 
   Future<void> _performSearch(String query) async {
-    if (query.trim().length < 2) {
+    final hasFilters = _selectedLanguage != null || 
+                      _selectedInterest != null || 
+                      _selectedCountry != null;
+
+    if (query.trim().isEmpty && !hasFilters) {
       setState(() {
         _searchResults = null;
         _searchQuery = null;
@@ -76,10 +88,16 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
 
     try {
       final client = ref.read(clientProvider);
-      final results = await client.search.searchAll(query, limit: 20);
+      final results = await client.search.searchLounges(
+        query.isEmpty ? null : query,
+        interest: _selectedInterest,
+        language: _selectedLanguage,
+        country: _selectedCountry,
+        limit: 20,
+      );
       if (mounted) {
         setState(() {
-          _searchResults = results.lounges;
+          _searchResults = results;
           _isLoading = false;
         });
       }
@@ -105,26 +123,44 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
           preferredSize: const Size.fromHeight(80),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: DuoInput(
-              controller: _searchController,
-              hintText: 'Search interest-based community lounges...',
-              prefixIcon: Icons.search,
-              iconColor: AppTheme.duoBlue,
-              enabled: true,
-              onChanged: (val) => _performSearch(val),
-              suffixIcon: _searchController.text.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(
-                        Icons.close,
-                        size: 20,
-                        color: Colors.grey,
-                      ),
-                      onPressed: () {
-                        _searchController.clear();
-                        _performSearch('');
-                      },
-                    )
-                  : null,
+            child: Row(
+              children: [
+                Expanded(
+                  child: DuoInput(
+                    controller: _searchController,
+                    hintText: 'Search Lounges...',
+                    prefixIcon: Icons.search,
+                    iconColor: AppTheme.duoBlue,
+                    enabled: true,
+                    onChanged: (val) => _performSearch(val),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(
+                              Icons.close,
+                              size: 20,
+                              color: Colors.grey,
+                            ),
+                            onPressed: () {
+                              _searchController.clear();
+                              _performSearch('');
+                            },
+                          )
+                        : null,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  onPressed: _showFilterSheet,
+                  icon: Icon(
+                    Icons.filter_list_rounded,
+                    color: (_selectedLanguage != null || 
+                            _selectedInterest != null || 
+                            _selectedCountry != null)
+                        ? AppTheme.duoBlue
+                        : Colors.grey,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -242,5 +278,149 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
         ),
       ],
     ).animate().fadeIn(delay: (index * 50).ms).slideY(begin: 0.1, end: 0);
+  }
+
+  void _showFilterSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.4,
+        maxChildSize: 0.9,
+        builder: (context, scrollController) => Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+          ),
+          child: Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Lounge Filters',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _selectedLanguage = null;
+                          _selectedInterest = null;
+                          _selectedCountry = null;
+                        });
+                        Navigator.pop(context);
+                        _performSearch(_searchController.text);
+                      },
+                      child: const Text('Clear All'),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(),
+              Expanded(
+                child: ListView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.all(24),
+                  children: [
+                    _buildFilterSection(
+                      'Language',
+                      _commonLanguages,
+                      _selectedLanguage,
+                      (val) => setState(() => _selectedLanguage = val),
+                    ),
+                    const SizedBox(height: 24),
+                    _buildFilterSection(
+                      'Primary Interest',
+                      AppInterests.all,
+                      _selectedInterest,
+                      (val) => setState(() => _selectedInterest = val),
+                    ),
+                    const SizedBox(height: 40),
+                    DuoButton(
+                      text: 'Apply Filters',
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _performSearch(_searchController.text);
+                      },
+                      width: double.infinity,
+                      color: AppTheme.duoBlue,
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterSection(
+    String title,
+    List<String> options,
+    String? selectedValue,
+    Function(String?) onSelected,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: options.map((option) {
+            final isSelected = selectedValue == option;
+            return InkWell(
+              onTap: () => onSelected(isSelected ? null : option),
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isSelected ? AppTheme.duoBlue : Colors.grey[100],
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isSelected ? AppTheme.duoBlue : Colors.grey[300]!,
+                  ),
+                ),
+                child: Text(
+                  option,
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : AppTheme.textPrimary,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
   }
 }

@@ -40,7 +40,6 @@ class GamificationNotifier extends _$GamificationNotifier {
     final client = ref.read(clientProvider);
     try {
       final status = await client.gamification.getGamificationStatus();
-      if (status == null) return null;
 
       return GamificationData(
         resident: status.resident,

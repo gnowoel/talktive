@@ -153,7 +153,7 @@ class PlazaScreen extends ConsumerWidget {
         ).animate().fadeIn().slideY(begin: 0.2);
       },
       loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 

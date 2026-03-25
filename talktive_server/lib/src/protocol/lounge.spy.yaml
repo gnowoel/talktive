@@ -13,6 +13,8 @@ fields:
   lastMessageAt: DateTime?
   lastMessage: String?
   interests: List<String>?
+  languages: List<String>?
+  country: String?
   isStaffLocked: bool, default=false
 indexes:
   lounge_channel_idx:

@@ -310,8 +310,9 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
   ) {
     return gamificationAsync.when(
       data: (data) {
-        if (data == null || data.achievements.isEmpty)
+        if (data == null || data.achievements.isEmpty) {
           return const SizedBox.shrink();
+        }
 
         final achievements = data.achievements;
         final unlocked = achievements.where((a) => a.unlocked).toList();

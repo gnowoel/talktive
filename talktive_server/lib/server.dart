@@ -147,6 +147,6 @@ void run(List<String> args) async {
   try {
     await pod.futureCalls.callAtTime(DailyCleanupCall.getNextCleanupTime()).dailyCleanupCall.invoke(null);
   } catch (e) {
-    print('Notification: Daily cleanup already scheduled or failed to schedule: $e');
+    stdout.writeln('Notification: Daily cleanup already scheduled or failed to schedule: $e');
   }
 }

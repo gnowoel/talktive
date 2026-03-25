@@ -650,6 +650,18 @@ class Protocol extends _i1.SerializationManagerServer {
           dartType: 'List<String>?',
         ),
         _i2.ColumnDefinition(
+          name: 'languages',
+          columnType: _i2.ColumnType.json,
+          isNullable: true,
+          dartType: 'List<String>?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'country',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _i2.ColumnDefinition(
           name: 'isStaffLocked',
           columnType: _i2.ColumnType.boolean,
           isNullable: false,
@@ -1612,6 +1624,12 @@ class Protocol extends _i1.SerializationManagerServer {
         ),
         _i2.ColumnDefinition(
           name: 'avatar',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'ageRange',
           columnType: _i2.ColumnType.text,
           isNullable: true,
           dartType: 'String?',

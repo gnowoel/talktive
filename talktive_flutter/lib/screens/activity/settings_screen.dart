@@ -250,7 +250,7 @@ class SettingsScreen extends ConsumerWidget {
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text('Manage users and community safety'),
-                    trailing: const Icon(
+                    trailing: Icon(
                       Icons.chevron_right,
                       size: 24,
                       color: AppTheme.textSecondary,

@@ -4,9 +4,6 @@ import 'package:serverpod/serverpod.dart';
 // Added UUID import
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
-import '../services/gamification_service.dart';
-import '../services/rate_limit_service.dart';
-import '../services/content_filter_service.dart';
 
 import '../services/input_validation_service.dart';
 import '../services/chat_service.dart';
@@ -45,7 +42,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       }
 
       if (hasContent) {
-        InputValidationService.validateMessageContent(content!).throwIfInvalid();
+        InputValidationService.validateMessageContent(content).throwIfInvalid();
       }
 
       // Media & Voice Validation
@@ -355,7 +352,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     // Run all notifications in parallel
     await Future.wait([
       ...mentionFutures,
-      if (bulkMemberFuture != null) bulkMemberFuture,
+      ?bulkMemberFuture,
     ]);
   }
 

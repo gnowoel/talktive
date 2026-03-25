@@ -28,6 +28,8 @@ abstract class Lounge implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     this.lastMessageAt,
     this.lastMessage,
     this.interests,
+    this.languages,
+    this.country,
     bool? isStaffLocked,
   }) : memberCount = memberCount ?? 1,
        isPublic = isPublic ?? false,
@@ -48,6 +50,8 @@ abstract class Lounge implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     DateTime? lastMessageAt,
     String? lastMessage,
     List<String>? interests,
+    List<String>? languages,
+    String? country,
     bool? isStaffLocked,
   }) = _LoungeImpl;
 
@@ -80,6 +84,12 @@ abstract class Lounge implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
           : _i2.Protocol().deserialize<List<String>>(
               jsonSerialization['interests'],
             ),
+      languages: jsonSerialization['languages'] == null
+          ? null
+          : _i2.Protocol().deserialize<List<String>>(
+              jsonSerialization['languages'],
+            ),
+      country: jsonSerialization['country'] as String?,
       isStaffLocked: jsonSerialization['isStaffLocked'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(jsonSerialization['isStaffLocked']),
@@ -117,6 +127,10 @@ abstract class Lounge implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
 
   List<String>? interests;
 
+  List<String>? languages;
+
+  String? country;
+
   bool isStaffLocked;
 
   @override
@@ -139,6 +153,8 @@ abstract class Lounge implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     DateTime? lastMessageAt,
     String? lastMessage,
     List<String>? interests,
+    List<String>? languages,
+    String? country,
     bool? isStaffLocked,
   });
   @override
@@ -158,6 +174,8 @@ abstract class Lounge implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       if (lastMessageAt != null) 'lastMessageAt': lastMessageAt?.toJson(),
       if (lastMessage != null) 'lastMessage': lastMessage,
       if (interests != null) 'interests': interests?.toJson(),
+      if (languages != null) 'languages': languages?.toJson(),
+      if (country != null) 'country': country,
       'isStaffLocked': isStaffLocked,
     };
   }
@@ -179,6 +197,8 @@ abstract class Lounge implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       if (lastMessageAt != null) 'lastMessageAt': lastMessageAt?.toJson(),
       if (lastMessage != null) 'lastMessage': lastMessage,
       if (interests != null) 'interests': interests?.toJson(),
+      if (languages != null) 'languages': languages?.toJson(),
+      if (country != null) 'country': country,
       'isStaffLocked': isStaffLocked,
     };
   }
@@ -230,6 +250,8 @@ class _LoungeImpl extends Lounge {
     DateTime? lastMessageAt,
     String? lastMessage,
     List<String>? interests,
+    List<String>? languages,
+    String? country,
     bool? isStaffLocked,
   }) : super._(
          id: id,
@@ -245,6 +267,8 @@ class _LoungeImpl extends Lounge {
          lastMessageAt: lastMessageAt,
          lastMessage: lastMessage,
          interests: interests,
+         languages: languages,
+         country: country,
          isStaffLocked: isStaffLocked,
        );
 
@@ -266,6 +290,8 @@ class _LoungeImpl extends Lounge {
     Object? lastMessageAt = _Undefined,
     Object? lastMessage = _Undefined,
     Object? interests = _Undefined,
+    Object? languages = _Undefined,
+    Object? country = _Undefined,
     bool? isStaffLocked,
   }) {
     return Lounge(
@@ -286,6 +312,10 @@ class _LoungeImpl extends Lounge {
       interests: interests is List<String>?
           ? interests
           : this.interests?.map((e0) => e0).toList(),
+      languages: languages is List<String>?
+          ? languages
+          : this.languages?.map((e0) => e0).toList(),
+      country: country is String? ? country : this.country,
       isStaffLocked: isStaffLocked ?? this.isStaffLocked,
     );
   }
@@ -359,6 +389,17 @@ class LoungeUpdateTable extends _i1.UpdateTable<LoungeTable> {
         value,
       );
 
+  _i1.ColumnValue<List<String>, List<String>> languages(List<String>? value) =>
+      _i1.ColumnValue(
+        table.languages,
+        value,
+      );
+
+  _i1.ColumnValue<String, String> country(String? value) => _i1.ColumnValue(
+    table.country,
+    value,
+  );
+
   _i1.ColumnValue<bool, bool> isStaffLocked(bool value) => _i1.ColumnValue(
     table.isStaffLocked,
     value,
@@ -419,6 +460,14 @@ class LoungeTable extends _i1.Table<int?> {
       'interests',
       this,
     );
+    languages = _i1.ColumnSerializable<List<String>>(
+      'languages',
+      this,
+    );
+    country = _i1.ColumnString(
+      'country',
+      this,
+    );
     isStaffLocked = _i1.ColumnBool(
       'isStaffLocked',
       this,
@@ -452,6 +501,10 @@ class LoungeTable extends _i1.Table<int?> {
 
   late final _i1.ColumnSerializable<List<String>> interests;
 
+  late final _i1.ColumnSerializable<List<String>> languages;
+
+  late final _i1.ColumnString country;
+
   late final _i1.ColumnBool isStaffLocked;
 
   @override
@@ -469,6 +522,8 @@ class LoungeTable extends _i1.Table<int?> {
     lastMessageAt,
     lastMessage,
     interests,
+    languages,
+    country,
     isStaffLocked,
   ];
 }

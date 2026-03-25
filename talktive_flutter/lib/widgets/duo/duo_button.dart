@@ -48,12 +48,6 @@ class DuoButton extends StatefulWidget {
 class _DuoButtonState extends State<DuoButton> {
   bool _isPressed = false;
 
-  Color _lightenColor(Color color, double amount) {
-    final hsl = HSLColor.fromColor(color);
-    return hsl
-        .withLightness((hsl.lightness + amount).clamp(0.0, 1.0))
-        .toColor();
-  }
 
   Color _darkenColor(Color color, double amount) {
     final hsl = HSLColor.fromColor(color);

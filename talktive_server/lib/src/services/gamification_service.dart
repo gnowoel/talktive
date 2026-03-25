@@ -1,6 +1,6 @@
 // ignore_for_file: constant_identifier_names
 import 'dart:math';
-import 'package:serverpod/serverpod.dart' hide protocol;
+import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import 'apartment_service.dart';
 import 'notification_service.dart';

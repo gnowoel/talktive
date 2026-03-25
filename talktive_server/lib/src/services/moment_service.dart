@@ -5,7 +5,6 @@ import 'apartment_service.dart';
 import 'gamification_service.dart';
 import 'notification_service.dart';
 import '../utils/task_utils.dart';
-import 'resident_service.dart';
 
 class MomentService {
   /// Posts a new moment to the feed.

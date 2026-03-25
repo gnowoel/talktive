@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talktive_client/talktive_client.dart' as protocol;
+import '../../config/interests.dart';
 
 import '../../config/theme.dart';
 import '../../providers/client_provider.dart';
@@ -30,6 +31,17 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
   bool _isLoading = false;
   String? _searchQuery;
 
+  // Search Filters
+  String? _selectedGender;
+  String? _selectedAgeRange;
+  String? _selectedLanguage;
+  String? _selectedInterest;
+  String? _selectedCountry;
+
+  final List<String> _genders = ['Male', 'Female', 'Non-binary', 'Other'];
+  final List<String> _ageRanges = ['Under 18', '18-24', '25-34', '35-44', '45-54', '55+'];
+  final List<String> _commonLanguages = ['English', 'Spanish', 'French', 'German', 'Chinese', 'Japanese', 'Arabic', 'Portuguese'];
+
   @override
   void initState() {
     super.initState();
@@ -50,13 +62,11 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
     setState(() => _isLoading = true);
     try {
       final client = ref.read(clientProvider);
-      final feed = await client.search.getDiscoveryFeed(limit: 10);
+      // Fetch recommendations (empty search)
+      final results = await client.search.searchUsers(null, limit: 20);
       if (mounted) {
         setState(() {
-          _suggestedUsers = [
-            ...feed.usersByInterests,
-            ...feed.usersByLanguages,
-          ];
+          _suggestedUsers = results;
           _isLoading = false;
         });
       }
@@ -66,7 +76,13 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
   }
 
   Future<void> _performSearch(String query) async {
-    if (query.trim().length < 2) {
+    final hasFilters = _selectedGender != null || 
+                      _selectedAgeRange != null || 
+                      _selectedLanguage != null || 
+                      _selectedInterest != null || 
+                      _selectedCountry != null;
+
+    if (query.trim().isEmpty && !hasFilters) {
       setState(() {
         _searchResults = null;
         _searchQuery = null;
@@ -81,10 +97,18 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
 
     try {
       final client = ref.read(clientProvider);
-      final results = await client.search.searchAll(query, limit: 20);
+      final results = await client.search.searchUsers(
+        query.isEmpty ? null : query,
+        gender: _selectedGender,
+        ageRange: _selectedAgeRange,
+        language: _selectedLanguage,
+        interest: _selectedInterest,
+        country: _selectedCountry,
+        limit: 20,
+      );
       if (mounted) {
         setState(() {
-          _searchResults = results.users;
+          _searchResults = results;
           _isLoading = false;
         });
       }
@@ -113,26 +137,46 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
           preferredSize: const Size.fromHeight(80),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: DuoInput(
-              controller: _searchController,
-              hintText: 'Search by name or interests...',
-              prefixIcon: Icons.search,
-              iconColor: AppTheme.duoOrange,
-              enabled: isPremium,
-              onChanged: (val) => _performSearch(val),
-              suffixIcon: _searchController.text.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(
-                        Icons.close,
-                        size: 20,
-                        color: Colors.grey,
-                      ),
-                      onPressed: () {
-                        _searchController.clear();
-                        _performSearch('');
-                      },
-                    )
-                  : null,
+            child: Row(
+              children: [
+                Expanded(
+                  child: DuoInput(
+                    controller: _searchController,
+                    hintText: 'Search Neighbors...',
+                    prefixIcon: Icons.search,
+                    iconColor: AppTheme.duoOrange,
+                    enabled: isPremium,
+                    onChanged: (val) => _performSearch(val),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(
+                              Icons.close,
+                              size: 20,
+                              color: Colors.grey,
+                            ),
+                            onPressed: () {
+                              _searchController.clear();
+                              _performSearch('');
+                            },
+                          )
+                        : null,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  onPressed: isPremium ? _showFilterSheet : null,
+                  icon: Icon(
+                    Icons.filter_list_rounded,
+                    color: (_selectedGender != null || 
+                            _selectedAgeRange != null || 
+                            _selectedLanguage != null || 
+                            _selectedInterest != null || 
+                            _selectedCountry != null)
+                        ? AppTheme.primaryColor
+                        : Colors.grey[600],
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -200,6 +244,166 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
       padding: const EdgeInsets.all(16),
       itemCount: list.length,
       itemBuilder: (context, index) => _buildUserCard(list[index], index),
+    );
+  }
+
+  void _showFilterSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        minChildSize: 0.5,
+        maxChildSize: 0.9,
+        builder: (context, scrollController) => Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+          ),
+          child: Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Search Filters',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _selectedGender = null;
+                          _selectedAgeRange = null;
+                          _selectedLanguage = null;
+                          _selectedInterest = null;
+                          _selectedCountry = null;
+                        });
+                        Navigator.pop(context);
+                        _performSearch(_searchController.text);
+                      },
+                      child: const Text('Clear All'),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(),
+              Expanded(
+                child: ListView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.all(24),
+                  children: [
+                    _buildFilterSection(
+                      'Gender',
+                      _genders,
+                      _selectedGender,
+                      (val) => setState(() => _selectedGender = val),
+                    ),
+                    const SizedBox(height: 24),
+                    _buildFilterSection(
+                      'Age Range',
+                      _ageRanges,
+                      _selectedAgeRange,
+                      (val) => setState(() => _selectedAgeRange = val),
+                    ),
+                    const SizedBox(height: 24),
+                    _buildFilterSection(
+                      'Language',
+                      _commonLanguages,
+                      _selectedLanguage,
+                      (val) => setState(() => _selectedLanguage = val),
+                    ),
+                    const SizedBox(height: 24),
+                    _buildFilterSection(
+                      'Interests',
+                      AppInterests.all,
+                      _selectedInterest,
+                      (val) => setState(() => _selectedInterest = val),
+                    ),
+                    const SizedBox(height: 40),
+                    DuoButton(
+                      text: 'Apply Filters',
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _performSearch(_searchController.text);
+                      },
+                      width: double.infinity,
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterSection(
+    String title,
+    List<String> options,
+    String? selectedValue,
+    Function(String?) onSelected,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: options.map((option) {
+            final isSelected = selectedValue == option;
+            return InkWell(
+              onTap: () => onSelected(isSelected ? null : option),
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isSelected ? AppTheme.primaryColor : Colors.grey[100],
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isSelected ? AppTheme.primaryColor : Colors.grey[300]!,
+                    width: 2,
+                  ),
+                ),
+                child: Text(
+                  option,
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : AppTheme.textPrimary,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 

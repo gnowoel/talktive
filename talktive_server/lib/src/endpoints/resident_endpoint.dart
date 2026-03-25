@@ -29,6 +29,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     required String gender,
     required String country,
     required String bio,
+    String? ageRange,
     List<String>? interests,
     List<String>? languages,
     String? mood,
@@ -56,6 +57,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
       gender: gender,
       country: country,
       bio: bio,
+      ageRange: ageRange,
       interests: interests,
       languages: languages,
       mood: mood,
@@ -71,6 +73,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     required String gender,
     required String country,
     required String bio,
+    String? ageRange,
     List<String>? interests,
     List<String>? languages,
     String? mood,
@@ -94,6 +97,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     resident.gender = gender;
     resident.country = country;
     resident.bio = bio;
+    resident.ageRange = ageRange ?? resident.ageRange;
     resident.mood = mood ?? resident.mood;
     resident.interests = interests ?? resident.interests;
     resident.languages = languages ?? resident.languages;

@@ -1041,8 +1041,8 @@ class _AdminEndpoint {
   _i3.Future<List<_i8.AdminUserSummary>> searchUsers(
     _i1.TestSessionBuilder sessionBuilder, {
     String? query,
-    int? limit,
-    int? offset,
+    required int limit,
+    required int offset,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -3490,6 +3490,7 @@ class _ResidentEndpoint {
     required String gender,
     required String country,
     required String bio,
+    String? ageRange,
     List<String>? interests,
     List<String>? languages,
     String? mood,
@@ -3512,6 +3513,7 @@ class _ResidentEndpoint {
             'gender': gender,
             'country': country,
             'bio': bio,
+            'ageRange': ageRange,
             'interests': interests,
             'languages': languages,
             'mood': mood,
@@ -3539,6 +3541,7 @@ class _ResidentEndpoint {
     required String gender,
     required String country,
     required String bio,
+    String? ageRange,
     List<String>? interests,
     List<String>? languages,
     String? mood,
@@ -3561,6 +3564,7 @@ class _ResidentEndpoint {
             'gender': gender,
             'country': country,
             'bio': bio,
+            'ageRange': ageRange,
             'interests': interests,
             'languages': languages,
             'mood': mood,
@@ -4019,7 +4023,12 @@ class _SearchEndpoint {
 
   _i3.Future<List<_i28.UserSummary>> searchUsers(
     _i1.TestSessionBuilder sessionBuilder,
-    String query, {
+    String? query, {
+    String? gender,
+    String? country,
+    String? language,
+    String? interest,
+    String? ageRange,
     required int limit,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -4035,6 +4044,11 @@ class _SearchEndpoint {
           methodName: 'searchUsers',
           parameters: _i1.testObjectToJson({
             'query': query,
+            'gender': gender,
+            'country': country,
+            'language': language,
+            'interest': interest,
+            'ageRange': ageRange,
             'limit': limit,
           }),
           serializationManager: _serializationManager,
@@ -4054,7 +4068,10 @@ class _SearchEndpoint {
 
   _i3.Future<List<_i14.Lounge>> searchLounges(
     _i1.TestSessionBuilder sessionBuilder,
-    String query, {
+    String? query, {
+    String? interest,
+    String? language,
+    String? country,
     required int limit,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -4070,6 +4087,9 @@ class _SearchEndpoint {
           methodName: 'searchLounges',
           parameters: _i1.testObjectToJson({
             'query': query,
+            'interest': interest,
+            'language': language,
+            'country': country,
             'limit': limit,
           }),
           serializationManager: _serializationManager,

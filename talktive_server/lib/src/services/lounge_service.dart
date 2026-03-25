@@ -18,6 +18,8 @@ class LoungeService {
     bool isPublic = false,
     int maxMembers = 50,
     List<String>? interests,
+    List<String>? languages,
+    String? country,
   }) async {
     // 1. Create a new channel for this lounge
     final channel = protocol.Channel(
@@ -41,6 +43,8 @@ class LoungeService {
       isStaffLocked: false,
       maxMembers: maxMembers,
       interests: interests,
+      languages: languages,
+      country: country,
     );
 
     final savedLounge = await protocol.Lounge.db.insertRow(session, lounge);
@@ -466,6 +470,8 @@ class LoungeService {
     bool? isPublic,
     int? maxMembers,
     List<String>? interests,
+    List<String>? languages,
+    String? country,
   }) async {
     if (name != null && name.trim().isNotEmpty) lounge.name = name;
     if (description != null) lounge.description = description;
@@ -473,6 +479,8 @@ class LoungeService {
     if (isPublic != null) lounge.isPublic = isPublic;
     if (maxMembers != null) lounge.maxMembers = maxMembers;
     if (interests != null) lounge.interests = interests;
+    if (languages != null) lounge.languages = languages;
+    if (country != null) lounge.country = country;
 
     return await protocol.Lounge.db.updateRow(session, lounge);
   }

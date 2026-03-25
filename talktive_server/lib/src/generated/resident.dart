@@ -37,7 +37,7 @@ abstract class Resident
     this.bio,
     this.mood,
     this.avatar,
-    this.ageRange,
+    String? ageRange,
     this.interests,
     this.languages,
     _i2.ResidentRole? role,
@@ -62,6 +62,7 @@ abstract class Resident
        currentStreak = currentStreak ?? 0,
        longestStreak = longestStreak ?? 0,
        experienceMessageCount = experienceMessageCount ?? 0,
+       ageRange = ageRange ?? '18-24',
        role = role ?? _i2.ResidentRole.user,
        isPremium = isPremium ?? false,
        showOnlineStatus = showOnlineStatus ?? true,
@@ -977,6 +978,7 @@ class ResidentTable extends _i1.Table<int?> {
     ageRange = _i1.ColumnString(
       'ageRange',
       this,
+      hasDefault: true,
     );
     interests = _i1.ColumnSerializable<List<String>>(
       'interests',

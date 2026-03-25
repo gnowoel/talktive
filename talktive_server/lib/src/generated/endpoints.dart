@@ -1020,6 +1020,16 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<List<String>?>(),
               nullable: true,
             ),
+            'languages': _i1.ParameterDescription(
+              name: 'languages',
+              type: _i1.getType<List<String>?>(),
+              nullable: true,
+            ),
+            'country': _i1.ParameterDescription(
+              name: 'country',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -1034,6 +1044,8 @@ class Endpoints extends _i1.EndpointDispatch {
                     isPublic: params['isPublic'],
                     maxMembers: params['maxMembers'],
                     interests: params['interests'],
+                    languages: params['languages'],
+                    country: params['country'],
                   ),
         ),
         'listMyLounges': _i1.MethodConnector(
@@ -1336,6 +1348,16 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<List<String>?>(),
               nullable: true,
             ),
+            'languages': _i1.ParameterDescription(
+              name: 'languages',
+              type: _i1.getType<List<String>?>(),
+              nullable: true,
+            ),
+            'country': _i1.ParameterDescription(
+              name: 'country',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -1351,6 +1373,8 @@ class Endpoints extends _i1.EndpointDispatch {
                     isPublic: params['isPublic'],
                     maxMembers: params['maxMembers'],
                     interests: params['interests'],
+                    languages: params['languages'],
+                    country: params['country'],
                   ),
         ),
         'deleteLounge': _i1.MethodConnector(
@@ -2687,6 +2711,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<String?>(),
               nullable: true,
             ),
+            'isPremium': _i1.ParameterDescription(
+              name: 'isPremium',
+              type: _i1.getType<bool?>(),
+              nullable: true,
+            ),
             'limit': _i1.ParameterDescription(
               name: 'limit',
               type: _i1.getType<int>(),
@@ -2706,6 +2735,7 @@ class Endpoints extends _i1.EndpointDispatch {
                     language: params['language'],
                     interest: params['interest'],
                     ageRange: params['ageRange'],
+                    isPremium: params['isPremium'],
                     limit: params['limit'],
                   ),
         ),

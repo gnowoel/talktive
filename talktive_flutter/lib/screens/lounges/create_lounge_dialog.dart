@@ -6,6 +6,8 @@ import 'package:talktive_client/talktive_client.dart';
 import '../../providers/lounge_provider.dart';
 import '../../config/theme.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
+import 'package:country_picker/country_picker.dart';
+import '../../config/languages.dart';
 import '../../config/interests.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_input.dart';
@@ -27,6 +29,9 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
   bool _isPublic = false;
   int _maxMembers = 50;
   List<String> _selectedInterests = [];
+  List<String> _selectedLanguages = ['en'];
+  String _selectedCountry = 'Unknown';
+  String _selectedCountryFlag = '🌍';
   bool _isCreating = false;
 
   final List<String> _emojiOptions = [
@@ -55,6 +60,17 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
       _isPublic = g.isPublic;
       _maxMembers = g.maxMembers;
       _selectedInterests = List<String>.from(g.interests ?? []);
+      _selectedLanguages = List<String>.from(g.languages ?? ['en']);
+      _selectedCountry = g.country ?? 'Unknown';
+      // Attempt to find flag if country is known
+      if (_selectedCountry != 'Unknown') {
+        try {
+          final c = CountryParser.parseCountryCode(_selectedCountry);
+          _selectedCountryFlag = c.flagEmoji;
+        } catch (_) {
+          _selectedCountryFlag = '🌍';
+        }
+      }
     }
   }
 
@@ -92,6 +108,8 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
               isPublic: _isPublic,
               maxMembers: _maxMembers,
               interests: _selectedInterests.isEmpty ? null : _selectedInterests,
+              languages: _selectedLanguages,
+              country: _selectedCountry == 'Unknown' ? null : _selectedCountry,
             );
       } else {
         await ref
@@ -105,6 +123,8 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
               isPublic: _isPublic,
               maxMembers: _maxMembers,
               interests: _selectedInterests.isEmpty ? null : _selectedInterests,
+              languages: _selectedLanguages,
+              country: _selectedCountry == 'Unknown' ? null : _selectedCountry,
             );
       }
 
@@ -297,6 +317,109 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
                                       }
                                     } else {
                                       _selectedInterests.remove(interest);
+                                    }
+                                  });
+                                },
+                          selectedColor: AppTheme.duoBlue,
+                          checkmarkColor: Colors.white,
+                          backgroundColor: Colors.grey[100],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          side: BorderSide.none,
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: AppTheme.duoSpacingLarge),
+
+                    // Country Section
+                    _buildSectionHeader(
+                      'Region',
+                      'Specify the country for this lounge',
+                    ),
+                    const SizedBox(height: AppTheme.duoSpacingSmall),
+                    InkWell(
+                      onTap: () {
+                        showCountryPicker(
+                          context: context,
+                          onSelect: (Country country) {
+                            setState(() {
+                              _selectedCountry = country.countryCode;
+                              _selectedCountryFlag = country.flagEmoji;
+                            });
+                          },
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[50],
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.duoRadiusMedium,
+                          ),
+                          border: Border.all(color: Colors.grey[200]!),
+                        ),
+                        child: Row(
+                          children: [
+                            Text(
+                              _selectedCountryFlag,
+                              style: const TextStyle(fontSize: 22),
+                            ),
+                            const SizedBox(width: AppTheme.duoSpacingMedium),
+                            Expanded(
+                              child: Text(
+                                _selectedCountry == 'Unknown'
+                                    ? 'Select Country'
+                                    : _selectedCountry,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            const Icon(Icons.arrow_drop_down),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppTheme.duoSpacingLarge),
+
+                    // Languages Section
+                    _buildSectionHeader(
+                      'Languages',
+                      'Which languages are spoken here?',
+                    ),
+                    const SizedBox(height: AppTheme.duoSpacingSmall),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: AppLanguages.all.map((lang) {
+                        final code = lang['code']!;
+                        final name = lang['name']!;
+                        final flag = lang['flag']!;
+                        final isSelected = _selectedLanguages.contains(code);
+                        return FilterChip(
+                          label: Text(
+                            '$flag $name',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isSelected ? Colors.white : Colors.black,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                          ),
+                          selected: isSelected,
+                          onSelected: _isCreating
+                              ? null
+                              : (selected) {
+                                  HapticFeedback.selectionClick();
+                                  setState(() {
+                                    if (selected) {
+                                      _selectedLanguages.add(code);
+                                    } else {
+                                      if (_selectedLanguages.length > 1) {
+                                        _selectedLanguages.remove(code);
+                                      }
                                     }
                                   });
                                 },

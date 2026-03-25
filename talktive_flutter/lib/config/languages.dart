@@ -16,6 +16,19 @@ class AppLanguages {
     {'code': 'tr', 'name': 'Turkish', 'flag': '🇹🇷'},
     {'code': 'vi', 'name': 'Vietnamese', 'flag': '🇻🇳'},
     {'code': 'id', 'name': 'Indonesian', 'flag': '🇮🇩'},
+    {'code': 'th', 'name': 'Thai', 'flag': '🇹🇭'},
+    {'code': 'nl', 'name': 'Dutch', 'flag': '🇳🇱'},
+    {'code': 'pl', 'name': 'Polish', 'flag': '🇵🇱'},
+    {'code': 'sv', 'name': 'Swedish', 'flag': '🇸🇪'},
+    {'code': 'no', 'name': 'Norwegian', 'flag': '🇳🇴'},
+    {'code': 'fi', 'name': 'Finnish', 'flag': '🇫🇮'},
+    {'code': 'da', 'name': 'Danish', 'flag': '🇩🇰'},
+    {'code': 'el', 'name': 'Greek', 'flag': '🇬🇷'},
+    {'code': 'uk', 'name': 'Ukrainian', 'flag': '🇺🇦'},
+    {'code': 'he', 'name': 'Hebrew', 'flag': '🇮🇱'},
+    {'code': 'fa', 'name': 'Persian', 'flag': '🇮🇷'},
+    {'code': 'ms', 'name': 'Malay', 'flag': '🇲🇾'},
+    {'code': 'tl', 'name': 'Tagalog', 'flag': '🇵🇭'},
   ];
 
   static String getFlag(String code) {

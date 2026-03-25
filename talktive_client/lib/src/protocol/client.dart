@@ -659,6 +659,8 @@ class EndpointLounge extends _i2.EndpointRef {
     required bool isPublic,
     required int maxMembers,
     List<String>? interests,
+    List<String>? languages,
+    String? country,
   }) => caller.callServerEndpoint<_i14.Lounge>(
     'lounge',
     'createLounge',
@@ -669,6 +671,8 @@ class EndpointLounge extends _i2.EndpointRef {
       'isPublic': isPublic,
       'maxMembers': maxMembers,
       'interests': interests,
+      'languages': languages,
+      'country': country,
     },
   );
 
@@ -810,6 +814,8 @@ class EndpointLounge extends _i2.EndpointRef {
     bool? isPublic,
     int? maxMembers,
     List<String>? interests,
+    List<String>? languages,
+    String? country,
   }) => caller.callServerEndpoint<_i14.Lounge>(
     'lounge',
     'updateLounge',
@@ -821,6 +827,8 @@ class EndpointLounge extends _i2.EndpointRef {
       'isPublic': isPublic,
       'maxMembers': maxMembers,
       'interests': interests,
+      'languages': languages,
+      'country': country,
     },
   );
 
@@ -1497,6 +1505,7 @@ class EndpointSearch extends _i2.EndpointRef {
     String? language,
     String? interest,
     String? ageRange,
+    bool? isPremium,
     required int limit,
   }) => caller.callServerEndpoint<List<_i27.UserSummary>>(
     'search',
@@ -1508,6 +1517,7 @@ class EndpointSearch extends _i2.EndpointRef {
       'language': language,
       'interest': interest,
       'ageRange': ageRange,
+      'isPremium': isPremium,
       'limit': limit,
     },
   );

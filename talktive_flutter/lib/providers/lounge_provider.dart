@@ -31,6 +31,8 @@ class LoungeList extends _$LoungeList {
     bool isPublic = false,
     int maxMembers = 50,
     List<String>? interests,
+    List<String>? languages,
+    String? country,
   }) async {
     final client = ref.read(clientProvider);
     try {
@@ -41,6 +43,8 @@ class LoungeList extends _$LoungeList {
         isPublic: isPublic,
         maxMembers: maxMembers,
         interests: interests,
+        languages: languages,
+        country: country,
       );
 
       // Refresh the list to include the new lounge
@@ -62,6 +66,8 @@ class LoungeList extends _$LoungeList {
     bool? isPublic,
     int? maxMembers,
     List<String>? interests,
+    List<String>? languages,
+    String? country,
   }) async {
     final client = ref.read(clientProvider);
     try {
@@ -73,6 +79,8 @@ class LoungeList extends _$LoungeList {
         isPublic: isPublic,
         maxMembers: maxMembers,
         interests: interests,
+        languages: languages,
+        country: country,
       );
 
       // Refresh the list to include the updated lounge

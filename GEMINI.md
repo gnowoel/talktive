@@ -120,8 +120,10 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
   - **Enhanced Discovery**: Implemented a comprehensive search system for both People and Lounges, enabling granular filtering by Age Range, Gender, Country, Language, and Interests.
   - **Search Recommendations**: Updated the `SearchEndpoint` to return curated "zero-state" recommendations (active users/popular lounges) for empty search queries.
   - **Onboarding Expansion**: Added a dedicated "Age Range" selection step to the `ProfileSetupScreen` wizard to capture demographic data from the start.
-  - **Advanced Filtering UI**: Integrated a `DraggableScrollableSheet` with advanced controls in both `PeopleSearchScreen` and `LoungeSearchScreen`, following the `Duo` design system.
+  - **Advanced UI Sheet**: Developed a `DraggableScrollableSheet` for filters in both `PeopleSearchScreen` and `LoungeSearchScreen`, featuring "Clear All" functionality and real-time result counts.
+- **Polished Discovery UX & Consistency**: Standardized language filters to use database-native codes (e.g., 'en') instead of names, resolving broken search results. Upgraded filter sheets with `InkWell` tactile feedback and consistent highlighting for a premium feel.
   - **Protocol Alignment**: Standardized on positional search arguments for robust API interactions and applied migrations for the new `ageRange` field.
+  - **Polished UX & Consistency**: Standardized language filtering using codes (e.g., 'en') and implemented tactile `InkWell` feedback for all filter selections.
 
 - **Service Refinement & Stability Verification (Mar 2026)**:
   - **Server**: Successfully verified the delegated service architecture in `MessageEndpoint` and `MomentEndpoint`. Confirmed that all side effects (broadcasting, Notifications, Gamification) correctly execute in the background via `runBackground`, improving endpoint responsiveness.

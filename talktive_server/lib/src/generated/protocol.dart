@@ -1633,6 +1633,7 @@ class Protocol extends _i1.SerializationManagerServer {
           columnType: _i2.ColumnType.text,
           isNullable: true,
           dartType: 'String?',
+          columnDefault: '\'18-24\'::text',
         ),
         _i2.ColumnDefinition(
           name: 'interests',

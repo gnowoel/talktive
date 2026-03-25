@@ -1757,6 +1757,8 @@ class _LoungeEndpoint {
     required bool isPublic,
     required int maxMembers,
     List<String>? interests,
+    List<String>? languages,
+    String? country,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1776,6 +1778,8 @@ class _LoungeEndpoint {
             'isPublic': isPublic,
             'maxMembers': maxMembers,
             'interests': interests,
+            'languages': languages,
+            'country': country,
           }),
           serializationManager: _serializationManager,
         );
@@ -2174,6 +2178,8 @@ class _LoungeEndpoint {
     bool? isPublic,
     int? maxMembers,
     List<String>? interests,
+    List<String>? languages,
+    String? country,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -2194,6 +2200,8 @@ class _LoungeEndpoint {
             'isPublic': isPublic,
             'maxMembers': maxMembers,
             'interests': interests,
+            'languages': languages,
+            'country': country,
           }),
           serializationManager: _serializationManager,
         );
@@ -4029,6 +4037,7 @@ class _SearchEndpoint {
     String? language,
     String? interest,
     String? ageRange,
+    bool? isPremium,
     required int limit,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -4049,6 +4058,7 @@ class _SearchEndpoint {
             'language': language,
             'interest': interest,
             'ageRange': ageRange,
+            'isPremium': isPremium,
             'limit': limit,
           }),
           serializationManager: _serializationManager,

@@ -31,7 +31,7 @@ fields:
   bio: String?
   mood: String?
   avatar: String?
-  ageRange: String?
+  ageRange: String?, default='18-24'
   interests: List<String>?
   languages: List<String>?
   

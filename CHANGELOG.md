@@ -6,6 +6,17 @@ This document tracks the major development milestones and changes made during th
 
 
 
+## March 30, 2026 - Polished Discovery UX & UI Refinement (Phase 8.49) 🕵️‍♂️🎨✨
+
+### Enhanced Discovery & Filtering
+- **Language Code Standardization**: Fixed a bug where search filters used display names instead of database-native codes, resolving broken language discovery results.
+- **Improved Filter Feedback**: Upgraded search filter sheets with `InkWell` tactile feedback and consistent highlighting, ensuring a high-quality "Duo" aesthetic.
+- **Gender Value Standardization**: Fixed a mismatch between onboarding gender values and search filter values, ensuring correct profile matching.
+
+### Integrity & Stability
+- **Data Integrity**: Enforced a default `ageRange` of `18-24` across the existing database via schema-synced migrations (`20260325082725959`).
+- **Reactive Updates**: Fixed a race condition where "Clear All" in filter sheets would not immediately update the search state on both platforms.
+
 ## March 30, 2026 - Advanced Search & Demographic Discovery (Phase 8.48) 🕵️‍♂️🔍
 
 ### Enhanced Search & Filtering

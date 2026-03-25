@@ -20,12 +20,16 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     bool isPublic = false,
     int maxMembers = 50,
     List<String>? interests,
+    List<String>? languages,
+    String? country,
   }) async {
     // 1. Validation
     InputValidationService.validateLoungeName(name).throwIfInvalid();
     InputValidationService.validateLoungeDescription(description).throwIfInvalid();
     InputValidationService.validateLoungeMemberLimit(maxMembers).throwIfInvalid();
     InputValidationService.validateStringList(interests, 'Interests').throwIfInvalid();
+    InputValidationService.validateStringList(languages, 'Languages').throwIfInvalid();
+    InputValidationService.validateCountry(country).throwIfInvalid();
 
     final currentUserId = await getUserId(session);
     final currentResident = await getAuthenticatedResident(session);
@@ -55,6 +59,8 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
       isPublic: isPublic,
       maxMembers: maxMembers,
       interests: interests,
+      languages: languages,
+      country: country,
     );
   }
 
@@ -287,6 +293,8 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     bool? isPublic,
     int? maxMembers,
     List<String>? interests,
+    List<String>? languages,
+    String? country,
   }) async {
     final currentUserId = await getUserId(session);
     final lounge = await getLounge(session, loungeId);
@@ -309,6 +317,8 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     if (description != null) InputValidationService.validateLoungeDescription(description).throwIfInvalid();
     if (maxMembers != null) InputValidationService.validateLoungeMemberLimit(maxMembers).throwIfInvalid();
     if (interests != null) InputValidationService.validateStringList(interests, 'Interests').throwIfInvalid();
+    if (languages != null) InputValidationService.validateStringList(languages, 'Languages').throwIfInvalid();
+    if (country != null) InputValidationService.validateCountry(country).throwIfInvalid();
 
     if (isPublic != null && isPublic && lounge.isStaffLocked) {
       throw protocol.TalktiveException(message: 'This lounge is locked to private by staff.');
@@ -323,6 +333,8 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
       isPublic: isPublic,
       maxMembers: maxMembers,
       interests: interests,
+      languages: languages,
+      country: country,
     );
   }
 

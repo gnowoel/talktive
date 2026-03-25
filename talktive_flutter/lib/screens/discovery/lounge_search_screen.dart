@@ -37,7 +37,16 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
   String? _selectedInterest;
   String? _selectedCountry;
 
-  final List<String> _commonLanguages = ['English', 'Spanish', 'French', 'German', 'Chinese', 'Japanese', 'Arabic', 'Portuguese'];
+  final List<Map<String, String>> _languageOptions = [
+    {'label': 'English', 'value': 'en'},
+    {'label': 'Spanish', 'value': 'es'},
+    {'label': 'French', 'value': 'fr'},
+    {'label': 'German', 'value': 'de'},
+    {'label': 'Chinese', 'value': 'zh'},
+    {'label': 'Japanese', 'value': 'ja'},
+    {'label': 'Arabic', 'value': 'ar'},
+    {'label': 'Portuguese', 'value': 'pt'},
+  ];
 
   @override
   void initState() {
@@ -285,88 +294,99 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.6,
-        minChildSize: 0.4,
-        maxChildSize: 0.9,
-        builder: (context, scrollController) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-          ),
-          child: Column(
-            children: [
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 12),
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setSheetState) => DraggableScrollableSheet(
+          initialChildSize: 0.6,
+          minChildSize: 0.4,
+          maxChildSize: 0.9,
+          builder: (context, scrollController) => Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 12),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Lounge Filters',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Poppins',
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Lounge Filters',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
+                        ),
                       ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          _selectedLanguage = null;
-                          _selectedInterest = null;
-                          _selectedCountry = null;
-                        });
-                        Navigator.pop(context);
-                        _performSearch(_searchController.text);
-                      },
-                      child: const Text('Clear All'),
-                    ),
-                  ],
+                      TextButton(
+                        onPressed: () {
+                          setSheetState(() {
+                            _selectedLanguage = null;
+                            _selectedInterest = null;
+                            _selectedCountry = null;
+                          });
+                          setState(() {
+                            _selectedLanguage = null;
+                            _selectedInterest = null;
+                            _selectedCountry = null;
+                          });
+                        },
+                        child: const Text('Clear All'),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const Divider(),
-              Expanded(
-                child: ListView(
-                  controller: scrollController,
-                  padding: const EdgeInsets.all(24),
-                  children: [
-                    _buildFilterSection(
-                      'Language',
-                      _commonLanguages,
-                      _selectedLanguage,
-                      (val) => setState(() => _selectedLanguage = val),
-                    ),
-                    const SizedBox(height: 24),
-                    _buildFilterSection(
-                      'Primary Interest',
-                      AppInterests.all,
-                      _selectedInterest,
-                      (val) => setState(() => _selectedInterest = val),
-                    ),
-                    const SizedBox(height: 40),
-                    DuoButton(
-                      text: 'Apply Filters',
-                      onPressed: () {
-                        Navigator.pop(context);
-                        _performSearch(_searchController.text);
-                      },
-                      width: double.infinity,
-                      color: AppTheme.duoBlue,
-                    ),
-                    const SizedBox(height: 24),
-                  ],
+                const Divider(),
+                Expanded(
+                  child: ListView(
+                    controller: scrollController,
+                    padding: const EdgeInsets.all(24),
+                    children: [
+                      _buildFilterSection(
+                        'Language',
+                        _languageOptions.map((e) => e['label']!).toList(),
+                        _languageOptions.firstWhere((e) => e['value'] == _selectedLanguage, orElse: () => {'label': ''})['label'],
+                        (label) => setSheetState(() {
+                          _selectedLanguage = label == null ? null : _languageOptions.firstWhere((e) => e['label'] == label)['value'];
+                          setState(() {});
+                        }),
+                      ),
+                      const SizedBox(height: 24),
+                      _buildFilterSection(
+                        'Primary Interest',
+                        AppInterests.all,
+                        _selectedInterest,
+                        (val) => setSheetState(() {
+                          _selectedInterest = val;
+                          setState(() {});
+                        }),
+                      ),
+                      const SizedBox(height: 40),
+                      DuoButton(
+                        text: 'Apply Filters',
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _performSearch(_searchController.text);
+                        },
+                        width: double.infinity,
+                        color: AppTheme.duoBlue,
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -396,24 +416,30 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
           runSpacing: 8,
           children: options.map((option) {
             final isSelected = selectedValue == option;
-            return InkWell(
-              onTap: () => onSelected(isSelected ? null : option),
+            return Material(
+              color: isSelected ? AppTheme.duoBlue : Colors.grey[100],
               borderRadius: BorderRadius.circular(16),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: isSelected ? AppTheme.duoBlue : Colors.grey[100],
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: isSelected ? AppTheme.duoBlue : Colors.grey[300]!,
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  onSelected(isSelected ? null : option);
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: isSelected ? AppTheme.duoBlue : Colors.grey[300]!,
+                    ),
                   ),
-                ),
-                child: Text(
-                  option,
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : AppTheme.textPrimary,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    fontSize: 14,
+                  child: Text(
+                    option,
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : AppTheme.textPrimary,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
               ),

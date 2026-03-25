@@ -326,6 +326,28 @@ class InputValidationService {
     }
     return ValidationResult(isValid: true);
   }
+
+  /// Validates a country string.
+  static ValidationResult validateCountry(String? country) {
+    if (country != null && country.length > 50) {
+      return ValidationResult(
+        isValid: false,
+        error: 'Country name must be 50 characters or less',
+      );
+    }
+    return ValidationResult(isValid: true);
+  }
+
+  /// Validates an age range string.
+  static ValidationResult validateAgeRange(String? ageRange) {
+    if (ageRange != null && ageRange.length > 20) {
+      return ValidationResult(
+        isValid: false,
+        error: 'Age range must be 20 characters or less',
+      );
+    }
+    return ValidationResult(isValid: true);
+  }
 }
 
 /// Result of a validation check.

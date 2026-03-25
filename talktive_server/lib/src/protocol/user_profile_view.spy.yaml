@@ -24,6 +24,7 @@ fields:
   gender: String?
   country: String?
   bio: String?
+  ageRange: String?
   lastSeen: DateTime?
   isOnline: bool, default=false
   role: ResidentRole

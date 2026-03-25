@@ -41,6 +41,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
     this.gender,
     this.country,
     this.bio,
+    this.ageRange,
     this.lastSeen,
     bool? isOnline,
     required this.role,
@@ -70,6 +71,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
     String? gender,
     String? country,
     String? bio,
+    String? ageRange,
     DateTime? lastSeen,
     bool? isOnline,
     required _i3.ResidentRole role,
@@ -114,6 +116,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
       gender: jsonSerialization['gender'] as String?,
       country: jsonSerialization['country'] as String?,
       bio: jsonSerialization['bio'] as String?,
+      ageRange: jsonSerialization['ageRange'] as String?,
       lastSeen: jsonSerialization['lastSeen'] == null
           ? null
           : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['lastSeen']),
@@ -170,6 +173,8 @@ abstract class UserProfileView implements _i1.SerializableModel {
 
   String? bio;
 
+  String? ageRange;
+
   DateTime? lastSeen;
 
   bool isOnline;
@@ -203,6 +208,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
     String? gender,
     String? country,
     String? bio,
+    String? ageRange,
     DateTime? lastSeen,
     bool? isOnline,
     _i3.ResidentRole? role,
@@ -235,6 +241,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
       if (gender != null) 'gender': gender,
       if (country != null) 'country': country,
       if (bio != null) 'bio': bio,
+      if (ageRange != null) 'ageRange': ageRange,
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isOnline': isOnline,
       'role': role.toJson(),
@@ -274,6 +281,7 @@ class _UserProfileViewImpl extends UserProfileView {
     String? gender,
     String? country,
     String? bio,
+    String? ageRange,
     DateTime? lastSeen,
     bool? isOnline,
     required _i3.ResidentRole role,
@@ -301,6 +309,7 @@ class _UserProfileViewImpl extends UserProfileView {
          gender: gender,
          country: country,
          bio: bio,
+         ageRange: ageRange,
          lastSeen: lastSeen,
          isOnline: isOnline,
          role: role,
@@ -334,6 +343,7 @@ class _UserProfileViewImpl extends UserProfileView {
     Object? gender = _Undefined,
     Object? country = _Undefined,
     Object? bio = _Undefined,
+    Object? ageRange = _Undefined,
     Object? lastSeen = _Undefined,
     bool? isOnline,
     _i3.ResidentRole? role,
@@ -368,6 +378,7 @@ class _UserProfileViewImpl extends UserProfileView {
       gender: gender is String? ? gender : this.gender,
       country: country is String? ? country : this.country,
       bio: bio is String? ? bio : this.bio,
+      ageRange: ageRange is String? ? ageRange : this.ageRange,
       lastSeen: lastSeen is DateTime? ? lastSeen : this.lastSeen,
       isOnline: isOnline ?? this.isOnline,
       role: role ?? this.role,

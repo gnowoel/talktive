@@ -11,5 +11,6 @@ fields:
   sharedLanguages: List<String>?
   matchScore: int?
   messageCount: int?
+  ageRange: String?
   isOnline: bool, default=false
   role: ResidentRole?

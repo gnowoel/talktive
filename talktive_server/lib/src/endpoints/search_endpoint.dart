@@ -16,10 +16,16 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
     String? language,
     String? interest,
     String? ageRange,
+    bool? isPremium,
     int limit = 20,
   }) async {
     final hasQuery = query != null && query.trim().isNotEmpty;
-    final hasFilters = gender != null || country != null || language != null || interest != null || ageRange != null;
+    final hasFilters = gender != null ||
+        country != null ||
+        language != null ||
+        interest != null ||
+        ageRange != null ||
+        isPremium != null;
 
     if (!hasQuery && !hasFilters) {
       return await getActiveUsers(session, limit: limit);
@@ -40,6 +46,9 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
         }
         if (ageRange != null) {
           expr &= t.ageRange.equals(ageRange);
+        }
+        if (isPremium != null) {
+          expr &= t.isPremium.equals(isPremium);
         }
         return expr;
       },

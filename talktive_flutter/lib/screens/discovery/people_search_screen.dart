@@ -184,12 +184,7 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
                   onPressed: isPremium ? _showFilterSheet : null,
                   icon: Icon(
                     Icons.filter_list_rounded,
-                    color: (_selectedGender != null || 
-                            _selectedAgeRange != null || 
-                            _selectedLanguage != null || 
-                            _selectedInterest != null || 
-                            _selectedCountry != null ||
-                            _onlyPremium)
+                    color: _hasActiveFilters
                         ? AppTheme.primaryColor
                         : Colors.grey[600],
                   ),
@@ -199,8 +194,147 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
           ),
         ),
       ),
-      body: !isPremium ? _buildLockedState() : _buildContent(),
+      body: !isPremium 
+          ? _buildLockedState() 
+          : Column(
+              children: [
+                if (_hasActiveFilters) _buildActiveFilters(),
+                Expanded(child: _buildContent()),
+              ],
+            ),
     );
+  }
+
+  bool get _hasActiveFilters =>
+      _selectedGender != null ||
+      _selectedAgeRange != null ||
+      _selectedLanguage != null ||
+      _selectedInterest != null ||
+      _selectedCountry != null ||
+      _onlyPremium;
+
+  Widget _buildActiveFilters() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: Wrap(
+        spacing: 6,
+        runSpacing: 6,
+        children: [
+          if (_selectedGender != null)
+            _buildFilterPill(
+              _genderOptions.firstWhere((e) => e['value'] == _selectedGender)['label']!,
+              () => setState(() {
+                _selectedGender = null;
+                _performSearch(_searchController.text);
+              }),
+            ),
+          if (_selectedAgeRange != null)
+            _buildFilterPill(
+              _selectedAgeRange!,
+              () => setState(() {
+                _selectedAgeRange = null;
+                _performSearch(_searchController.text);
+              }),
+            ),
+          if (_selectedLanguage != null)
+            _buildFilterPill(
+              _languageOptions.firstWhere((e) => e['value'] == _selectedLanguage)['label']!,
+              () => setState(() {
+                _selectedLanguage = null;
+                _performSearch(_searchController.text);
+              }),
+            ),
+          if (_selectedInterest != null)
+            _buildFilterPill(
+              _selectedInterest!,
+              () => setState(() {
+                _selectedInterest = null;
+                _performSearch(_searchController.text);
+              }),
+            ),
+          if (_selectedCountry != null)
+            _buildFilterPill(
+              _selectedCountry!,
+              () => setState(() {
+                _selectedCountry = null;
+                _performSearch(_searchController.text);
+              }),
+            ),
+          if (_onlyPremium)
+            _buildFilterPill(
+              'Plus Only',
+              () => setState(() {
+                _onlyPremium = false;
+                _performSearch(_searchController.text);
+              }),
+              icon: Icons.star_rounded,
+              color: AppTheme.duoOrange,
+            ),
+          // Clear All link
+          GestureDetector(
+            onTap: () => setState(() {
+              _selectedGender = null;
+              _selectedAgeRange = null;
+              _selectedLanguage = null;
+              _selectedInterest = null;
+              _selectedCountry = null;
+              _onlyPremium = false;
+              _performSearch(_searchController.text);
+            }),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+              child: Text(
+                'Clear All',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterPill(String label, VoidCallback onRemove, {IconData? icon, Color? color}) {
+    final pillColor = color ?? AppTheme.primaryColor;
+    return Material(
+      color: pillColor.withOpacity(0.08),
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onRemove,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: pillColor.withOpacity(0.2), width: 1),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 14, color: pillColor),
+                const SizedBox(width: 3),
+              ],
+              Text(
+                label,
+                style: TextStyle(
+                  color: pillColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 11,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(Icons.close, size: 12, color: pillColor.withOpacity(0.5)),
+            ],
+          ),
+        ),
+      ),
+    ).animate().fadeIn().scale(begin: const Offset(0.9, 0.9));
   }
 
   Widget _buildLockedState() {

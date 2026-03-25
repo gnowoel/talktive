@@ -162,9 +162,7 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
                   onPressed: _showFilterSheet,
                   icon: Icon(
                     Icons.filter_list_rounded,
-                    color: (_selectedLanguage != null || 
-                            _selectedInterest != null || 
-                            _selectedCountry != null)
+                    color: _hasActiveFilters
                         ? AppTheme.duoBlue
                         : Colors.grey,
                   ),
@@ -174,8 +172,109 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
           ),
         ),
       ),
-      body: _buildContent(),
+      body: Column(
+        children: [
+          if (_hasActiveFilters) _buildActiveFilters(),
+          Expanded(child: _buildContent()),
+        ],
+      ),
     );
+  }
+
+  bool get _hasActiveFilters =>
+      _selectedLanguage != null ||
+      _selectedInterest != null ||
+      _selectedCountry != null;
+
+  Widget _buildActiveFilters() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: Wrap(
+        spacing: 6,
+        runSpacing: 6,
+        children: [
+          if (_selectedLanguage != null)
+            _buildFilterPill(
+              _languageOptions.firstWhere((e) => e['value'] == _selectedLanguage)['label']!,
+              () => setState(() {
+                _selectedLanguage = null;
+                _performSearch(_searchController.text);
+              }),
+            ),
+          if (_selectedInterest != null)
+            _buildFilterPill(
+              _selectedInterest!,
+              () => setState(() {
+                _selectedInterest = null;
+                _performSearch(_searchController.text);
+              }),
+            ),
+          if (_selectedCountry != null)
+            _buildFilterPill(
+              _selectedCountry!,
+              () => setState(() {
+                _selectedCountry = null;
+                _performSearch(_searchController.text);
+              }),
+            ),
+          // Clear All link
+          GestureDetector(
+            onTap: () => setState(() {
+              _selectedLanguage = null;
+              _selectedInterest = null;
+              _selectedCountry = null;
+              _performSearch(_searchController.text);
+            }),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+              child: Text(
+                'Clear All',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterPill(String label, VoidCallback onRemove) {
+    const pillColor = AppTheme.duoBlue;
+    return Material(
+      color: pillColor.withOpacity(0.08),
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onRemove,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: pillColor.withOpacity(0.2), width: 1),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  color: pillColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 11,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(Icons.close, size: 12, color: pillColor.withOpacity(0.5)),
+            ],
+          ),
+        ),
+      ),
+    ).animate().fadeIn().scale(begin: const Offset(0.9, 0.9));
   }
 
   Widget _buildContent() {

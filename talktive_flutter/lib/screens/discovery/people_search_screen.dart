@@ -15,6 +15,8 @@ import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_avatar.dart';
+import '../../helpers/duo_snackbar_helper.dart';
+import '../../helpers/duo_upgrade_helper.dart';
 
 class PeopleSearchScreen extends ConsumerStatefulWidget {
   const PeopleSearchScreen({super.key});

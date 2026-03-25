@@ -16,6 +16,7 @@ import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_lounge_card.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
+import '../../helpers/duo_upgrade_helper.dart';
 
 class LoungeSearchScreen extends ConsumerStatefulWidget {
   const LoungeSearchScreen({super.key});

@@ -136,4 +136,31 @@ class DuoSnackBarHelper {
       ),
     );
   }
+  /// Shows an actionRequired SnackBar with a blue background.
+  static void showActionRequired(BuildContext context, String message, {String? emoji}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Text(emoji ?? '💡 ', style: const TextStyle(fontSize: 18)),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: AppTheme.duoBlue,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
+  }
 }

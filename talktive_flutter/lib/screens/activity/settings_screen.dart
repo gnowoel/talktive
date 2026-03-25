@@ -8,6 +8,7 @@ import '../../providers/auth_provider.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../helpers/duo_snackbar_helper.dart';
+import '../../helpers/duo_upgrade_helper.dart';
 import '../../helpers/resident_ext.dart';
 import '../../serverpod_client.dart';
 

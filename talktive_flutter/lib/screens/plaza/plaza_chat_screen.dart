@@ -178,6 +178,12 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     }
   }
 
+  void _showUpgradePrompt(String featureName) {
+    if (mounted) {
+      DuoUpgradeHelper.showUpgradePrompt(context, featureName);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final chatState = ref.watch(realtimeChatProvider(1));

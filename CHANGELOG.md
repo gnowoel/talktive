@@ -6,6 +6,20 @@ This document tracks the major development milestones and changes made during th
 
 
 
+## March 31, 2026 - Lounge Discovery Fixes & SQL Robustness (Phase 8.51) 🛋️🔍✨
+
+### Discovery & Default Visibility
+- **Public by Default**: Updated the `Lounge` model and `CreateLoungeDialog` to set `isPublic` to `true` by default, ensuring all new community clubhouses are immediately discoverable in the building.
+- **Instant Discovery Updates**: Implemented proactive discovery cache invalidation in `LoungeService.createLounge`, ensuring new public lounges appear in the recommended feed without waiting for the 30-minute background TTL.
+
+### Backend Search Robustness
+- **Alias-Free SQL Expressions**: Standardized all JSONB search and discovery queries in `SearchEndpoint` and `LoungeService` by removing brittle table aliases (e.g., `"lounge"."interests"`).
+- **Universal JSONB Filtering**: Standardized on the PostgreSQL `?` (JSON exists) and `?|` (JSON any) operators for all interests and languages filtering, ensuring high-reliability and robust error handling across People and Lounge search surfaces.
+
+### Technical & Maintenance
+- **Schema Alignment**: Applied non-destructive database migration `20260325142018122` to update the default `isPublic` column value, resolving a startup schema mismatch warning.
+- **Verification**: Validated real-time discovery and filtered search results across Serverpod, Web (Port 8083), and Android Emulator.
+
 ## March 31, 2026 - Discovery Feed Refinement & Filter Integration (Phase 8.50) 🕵️‍♂️🔍✨
 
 ### Discovery-First Search

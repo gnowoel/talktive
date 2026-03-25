@@ -4,6 +4,7 @@ import 'gamification_service.dart';
 import 'notification_service.dart';
 import 'resident_service.dart';
 import 'chat_service.dart';
+import 'cache_service.dart';
 import '../utils/task_utils.dart';
 
 /// Service for managing Lounge logic and discovery.

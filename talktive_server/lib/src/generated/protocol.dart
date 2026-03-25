@@ -622,7 +622,7 @@ class Protocol extends _i1.SerializationManagerServer {
           columnType: _i2.ColumnType.boolean,
           isNullable: false,
           dartType: 'bool',
-          columnDefault: 'false',
+          columnDefault: 'true',
         ),
         _i2.ColumnDefinition(
           name: 'maxMembers',

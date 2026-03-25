@@ -32,7 +32,7 @@ abstract class Lounge implements _i1.SerializableModel {
     this.country,
     bool? isStaffLocked,
   }) : memberCount = memberCount ?? 1,
-       isPublic = isPublic ?? false,
+       isPublic = isPublic ?? true,
        maxMembers = maxMembers ?? 50,
        isStaffLocked = isStaffLocked ?? false;
 

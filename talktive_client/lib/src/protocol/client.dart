@@ -1550,20 +1550,44 @@ class EndpointSearch extends _i2.EndpointRef {
       );
 
   /// Get popular lounges (most members) - CACHED
-  _i3.Future<List<_i14.Lounge>> getPopularLounges({required int limit}) =>
-      caller.callServerEndpoint<List<_i14.Lounge>>(
-        'search',
-        'getPopularLounges',
-        {'limit': limit},
-      );
+  _i3.Future<List<_i14.Lounge>> getPopularLounges({
+    String? interest,
+    String? language,
+    String? country,
+    required int limit,
+  }) => caller.callServerEndpoint<List<_i14.Lounge>>(
+    'search',
+    'getPopularLounges',
+    {
+      'interest': interest,
+      'language': language,
+      'country': country,
+      'limit': limit,
+    },
+  );
 
   /// Get active users (most messages in last 7 days) - OPTIMIZED
-  _i3.Future<List<_i27.UserSummary>> getActiveUsers({required int limit}) =>
-      caller.callServerEndpoint<List<_i27.UserSummary>>(
-        'search',
-        'getActiveUsers',
-        {'limit': limit},
-      );
+  _i3.Future<List<_i27.UserSummary>> getActiveUsers({
+    String? gender,
+    String? country,
+    String? language,
+    String? interest,
+    String? ageRange,
+    bool? isPremium,
+    required int limit,
+  }) => caller.callServerEndpoint<List<_i27.UserSummary>>(
+    'search',
+    'getActiveUsers',
+    {
+      'gender': gender,
+      'country': country,
+      'language': language,
+      'interest': interest,
+      'ageRange': ageRange,
+      'isPremium': isPremium,
+      'limit': limit,
+    },
+  );
 
   /// Search all content (users, lounges, moments)
   _i3.Future<_i28.SearchAllResults> searchAll(
@@ -1597,12 +1621,21 @@ class EndpointSearch extends _i2.EndpointRef {
   );
 
   /// Get personalized discovery feed
-  _i3.Future<_i29.DiscoveryFeed> getDiscoveryFeed({required int limit}) =>
-      caller.callServerEndpoint<_i29.DiscoveryFeed>(
-        'search',
-        'getDiscoveryFeed',
-        {'limit': limit},
-      );
+  _i3.Future<_i29.DiscoveryFeed> getDiscoveryFeed({
+    String? interest,
+    String? language,
+    String? country,
+    required int limit,
+  }) => caller.callServerEndpoint<_i29.DiscoveryFeed>(
+    'search',
+    'getDiscoveryFeed',
+    {
+      'interest': interest,
+      'language': language,
+      'country': country,
+      'limit': limit,
+    },
+  );
 }
 
 /// This is an example endpoint that returns a greeting message through

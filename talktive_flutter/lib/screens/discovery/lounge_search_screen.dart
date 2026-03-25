@@ -51,7 +51,7 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchLounges();
+    _performSearch('');
   }
 
   @override
@@ -60,36 +60,8 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
     super.dispose();
   }
 
-  Future<void> _fetchLounges() async {
-    setState(() => _isLoading = true);
-    try {
-      final client = ref.read(clientProvider);
-      final feed = await client.search.getDiscoveryFeed(limit: 20);
-      if (mounted) {
-        setState(() {
-          _recommendedLounges = feed.recommendedLounges;
-          _popularLounges = feed.popularLounges;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
 
   Future<void> _performSearch(String query) async {
-    final hasFilters = _selectedLanguage != null || 
-                      _selectedInterest != null || 
-                      _selectedCountry != null;
-
-    if (query.trim().isEmpty && !hasFilters) {
-      setState(() {
-        _searchResults = null;
-        _searchQuery = null;
-      });
-      return;
-    }
-
     setState(() {
       _isLoading = true;
       _searchQuery = query;
@@ -97,18 +69,40 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
 
     try {
       final client = ref.read(clientProvider);
-      final results = await client.search.searchLounges(
-        query.isEmpty ? null : query,
-        interest: _selectedInterest,
-        language: _selectedLanguage,
-        country: _selectedCountry,
-        limit: 20,
-      );
-      if (mounted) {
-        setState(() {
-          _searchResults = results;
-          _isLoading = false;
-        });
+      
+      if (query.trim().isEmpty) {
+        // No query, fetch filtered discovery feed
+        final feed = await client.search.getDiscoveryFeed(
+          interest: _selectedInterest,
+          language: _selectedLanguage,
+          country: _selectedCountry,
+          limit: 20,
+        );
+        if (mounted) {
+          setState(() {
+            _recommendedLounges = feed.recommendedLounges;
+            _popularLounges = feed.popularLounges;
+            _searchResults = null;
+            _isLoading = false;
+          });
+        }
+      } else {
+        // Query provided, perform search with filters
+        final results = await client.search.searchLounges(
+          query.trim(),
+          interest: _selectedInterest,
+          language: _selectedLanguage,
+          country: _selectedCountry,
+          limit: 20,
+        );
+        if (mounted) {
+          setState(() {
+            _searchResults = results;
+            _recommendedLounges = null;
+            _popularLounges = null;
+            _isLoading = false;
+          });
+        }
       }
     } catch (e) {
       if (mounted) setState(() => _isLoading = false);
@@ -279,14 +273,15 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
 
   Widget _buildContent() {
     if (_isLoading &&
-        (_searchQuery != null ||
-            (_recommendedLounges == null && _popularLounges == null))) {
+        (_searchQuery == null ||
+            (_recommendedLounges == null && _popularLounges == null && _searchResults == null))) {
       return const Center(child: DuoLoadingIndicator());
     }
 
-    if (_searchQuery != null && _searchQuery!.isNotEmpty) {
+    if (_searchQuery != null && _searchQuery!.trim().isNotEmpty) {
       final lounges = _searchResults ?? [];
       if (lounges.isEmpty) {
+        if (_isLoading) return const Center(child: DuoLoadingIndicator());
         return const DuoEmptyState(
           emoji: '🏘️',
           title: 'No lounges found',
@@ -298,6 +293,15 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
 
     final recommended = _recommendedLounges ?? [];
     final popular = _popularLounges ?? [];
+
+    if (recommended.isEmpty && popular.isEmpty) {
+      if (_isLoading) return const Center(child: DuoLoadingIndicator());
+      return const DuoEmptyState(
+        emoji: '🔍',
+        title: 'No lounges found',
+        subtitle: 'Try adjusting your filters!',
+      );
+    }
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -315,12 +319,6 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
             (e) => _buildLoungeCard(e.value, e.key + 10),
           ),
         ],
-        if (recommended.isEmpty && popular.isEmpty)
-          const DuoEmptyState(
-            emoji: '🔍',
-            title: 'Waiting for recommendation',
-            subtitle: 'Update your interests to find best lounges!',
-          ),
       ],
     );
   }

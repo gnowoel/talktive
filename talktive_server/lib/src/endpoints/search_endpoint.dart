@@ -27,17 +27,27 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
         ageRange != null ||
         isPremium != null;
 
-    if (!hasQuery && !hasFilters) {
-      return await getActiveUsers(session, limit: limit);
+    if (!hasQuery) {
+      // If no search term, return filtered recommendations (active users)
+      return await getActiveUsers(
+        session,
+        gender: gender,
+        country: country,
+        language: language,
+        interest: interest,
+        ageRange: ageRange,
+        isPremium: isPremium,
+        limit: limit,
+      );
     }
 
     final residents = await protocol.Resident.db.find(
       session,
       where: (t) {
         var expr = t.suspended.equals(false);
-        if (hasQuery) {
-          expr &= t.userName.ilike('%${query!.trim()}%');
-        }
+        // Only search by name if query is provided
+        expr &= t.userName.ilike('%${query!.trim()}%');
+        
         if (gender != null) {
           expr &= t.gender.equals(gender);
         }
@@ -54,7 +64,7 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
       },
       orderBy: (t) => t.lastSeen,
       orderDescending: true,
-      limit: limit * 2, // Fetch more to filter languages/interests in memory
+      limit: limit * 2,
     );
 
     var results = residents;
@@ -78,19 +88,25 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
     int limit = 20,
   }) async {
     final hasQuery = query != null && query.trim().isNotEmpty;
-    final hasFilters = interest != null || language != null || country != null;
 
-    if (!hasQuery && !hasFilters) {
-      return await getPopularLounges(session, limit: limit);
+    if (!hasQuery) {
+      // If no search term, return popular lounges with filters
+      return await getPopularLounges(
+        session,
+        interest: interest,
+        language: language,
+        country: country,
+        limit: limit,
+      );
     }
 
     final lounges = await protocol.Lounge.db.find(
       session,
       where: (t) {
         var expr = t.isPublic.equals(true);
-        if (hasQuery) {
-          expr &= (t.name.ilike('%${query!.trim()}%') | t.description.ilike('%${query.trim()}%'));
-        }
+        // Only search by name/description if query is provided
+        expr &= (t.name.ilike('%${query!.trim()}%') | t.description.ilike('%${query.trim()}%'));
+        
         if (country != null) {
           expr &= t.country.equals(country);
         }
@@ -141,18 +157,32 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
   /// Get popular lounges (most members) - CACHED
   Future<List<protocol.Lounge>> getPopularLounges(
     Session session, {
+    String? interest,
+    String? language,
+    String? country,
     int limit = 10,
   }) async {
-    final cached = await CacheService.getPopularLounges(session);
-    if (cached != null) {
-      final List<dynamic> decoded = jsonDecode(cached);
-      return decoded.map((g) => protocol.Lounge.fromJson(g)).toList();
+    // Basic caching only for non-filtered popular lounges
+    if (interest == null && language == null && country == null) {
+      final cached = await CacheService.getPopularLounges(session);
+      if (cached != null) {
+        final List<dynamic> decoded = jsonDecode(cached);
+        return decoded.map((g) => protocol.Lounge.fromJson(g)).toList();
+      }
     }
 
-    final lounges = await LoungeService.getPopularLounges(session, limit: limit);
+    final lounges = await LoungeService.getPopularLounges(
+      session,
+      interest: interest,
+      language: language,
+      country: country,
+      limit: limit,
+    );
 
-    final encoded = jsonEncode(lounges.map((g) => g.toJson()).toList());
-    await CacheService.setPopularLounges(session, encoded);
+    if (interest == null && language == null && country == null) {
+      final encoded = jsonEncode(lounges.map((g) => g.toJson()).toList());
+      await CacheService.setPopularLounges(session, encoded);
+    }
 
     return lounges;
   }
@@ -160,6 +190,12 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
   /// Get active users (most messages in last 7 days) - OPTIMIZED
   Future<List<protocol.UserSummary>> getActiveUsers(
     Session session, {
+    String? gender,
+    String? country,
+    String? language,
+    String? interest,
+    String? ageRange,
+    bool? isPremium,
     int limit = 10,
   }) async {
     final sevenDaysAgo = DateTime.now().subtract(const Duration(days: 7));
@@ -170,7 +206,7 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
       where: (t) => t.createdAt >= sevenDaysAgo,
       orderBy: (t) => t.createdAt,
       orderDescending: true,
-      limit: 1000,
+      limit: 2000, // Fetch more to have enough candidates after filtering
     );
 
     final messageCounts = <UuidValue, int>{};
@@ -181,11 +217,30 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
     final sortedSenderIds = messageCounts.keys.toList()
       ..sort((a, b) => messageCounts[b]!.compareTo(messageCounts[a]!));
 
-    final topSenderIds = sortedSenderIds.take(limit).toList();
+    final topSenderIds = sortedSenderIds.take(limit * 5).toList();
     if (topSenderIds.isEmpty) return [];
 
-    final residents = await ResidentService.getResidents(session, topSenderIds);
-    final residentMap = {for (final r in residents) r.userInfoId: r};
+    final residents = await protocol.Resident.db.find(
+      session,
+      where: (t) {
+        var expr = t.userInfoId.inSet(topSenderIds.toSet()) & t.suspended.equals(false);
+        if (gender != null) expr &= t.gender.equals(gender);
+        if (country != null) expr &= t.country.equals(country);
+        if (ageRange != null) expr &= t.ageRange.equals(ageRange);
+        if (isPremium != null) expr &= t.isPremium.equals(isPremium);
+        return expr;
+      },
+    );
+
+    var filtered = residents;
+    if (language != null) {
+      filtered = filtered.where((r) => r.languages?.contains(language) ?? false).toList();
+    }
+    if (interest != null) {
+      filtered = filtered.where((r) => r.interests?.contains(interest) ?? false).toList();
+    }
+
+    final residentMap = {for (final r in filtered) r.userInfoId: r};
 
     return topSenderIds
         .map((id) {
@@ -194,6 +249,7 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
           return ResidentService.toUserSummary(resident, messageCount: messageCounts[id]);
         })
         .whereType<protocol.UserSummary>()
+        .take(limit)
         .toList();
   }
 
@@ -301,6 +357,9 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
   /// Get personalized discovery feed
   Future<protocol.DiscoveryFeed> getDiscoveryFeed(
     Session session, {
+    String? interest,
+    String? language,
+    String? country,
     int limit = 10,
   }) async {
     final currentUser = await getResidentOptional(session);
@@ -309,10 +368,29 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
       discoverUsersByInterests(session, limit: limit),
       discoverUsersByLanguages(session, limit: limit),
       getTrendingMoments(session, limit: limit),
-      getPopularLounges(session, limit: limit),
+      getPopularLounges(
+        session,
+        interest: interest,
+        language: language,
+        country: country,
+        limit: limit,
+      ),
       currentUser != null
-          ? LoungeService.getRecommendedLounges(session, currentUser, limit: limit)
-          : LoungeService.getPopularLounges(session, limit: limit),
+          ? LoungeService.getRecommendedLounges(
+              session,
+              currentUser,
+              interest: interest,
+              language: language,
+              country: country,
+              limit: limit,
+            )
+          : LoungeService.getPopularLounges(
+              session,
+              interest: interest,
+              language: language,
+              country: country,
+              limit: limit,
+            ),
     ]);
 
     return protocol.DiscoveryFeed(

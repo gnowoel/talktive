@@ -4150,6 +4150,9 @@ class _SearchEndpoint {
 
   _i3.Future<List<_i14.Lounge>> getPopularLounges(
     _i1.TestSessionBuilder sessionBuilder, {
+    String? interest,
+    String? language,
+    String? country,
     required int limit,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -4163,7 +4166,12 @@ class _SearchEndpoint {
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'search',
           methodName: 'getPopularLounges',
-          parameters: _i1.testObjectToJson({'limit': limit}),
+          parameters: _i1.testObjectToJson({
+            'interest': interest,
+            'language': language,
+            'country': country,
+            'limit': limit,
+          }),
           serializationManager: _serializationManager,
         );
         var _localReturnValue =
@@ -4181,6 +4189,12 @@ class _SearchEndpoint {
 
   _i3.Future<List<_i28.UserSummary>> getActiveUsers(
     _i1.TestSessionBuilder sessionBuilder, {
+    String? gender,
+    String? country,
+    String? language,
+    String? interest,
+    String? ageRange,
+    bool? isPremium,
     required int limit,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -4194,7 +4208,15 @@ class _SearchEndpoint {
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'search',
           methodName: 'getActiveUsers',
-          parameters: _i1.testObjectToJson({'limit': limit}),
+          parameters: _i1.testObjectToJson({
+            'gender': gender,
+            'country': country,
+            'language': language,
+            'interest': interest,
+            'ageRange': ageRange,
+            'isPremium': isPremium,
+            'limit': limit,
+          }),
           serializationManager: _serializationManager,
         );
         var _localReturnValue =
@@ -4309,6 +4331,9 @@ class _SearchEndpoint {
 
   _i3.Future<_i30.DiscoveryFeed> getDiscoveryFeed(
     _i1.TestSessionBuilder sessionBuilder, {
+    String? interest,
+    String? language,
+    String? country,
     required int limit,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -4322,7 +4347,12 @@ class _SearchEndpoint {
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'search',
           methodName: 'getDiscoveryFeed',
-          parameters: _i1.testObjectToJson({'limit': limit}),
+          parameters: _i1.testObjectToJson({
+            'interest': interest,
+            'language': language,
+            'country': country,
+            'limit': limit,
+          }),
           serializationManager: _serializationManager,
         );
         var _localReturnValue =

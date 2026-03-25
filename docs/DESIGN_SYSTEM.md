@@ -135,9 +135,15 @@ The `DuoRefreshButton` provides manual state synchronization. It must be consist
 
 ### 2. Search & Discovery
 Community discovery is a primary action.
-*   **Icon**: `Icons.search` (Outline or Rounded).
-*   **Action**: Consistently navigates to `/discovery/lounges`.
-*   **Placement**: Positioned as a primary header action, typically preceding the Refresh button.
+* **Icon**: `Icons.search` (Outline or Rounded).
+* **Action**: Consistently navigates to `/discovery/lounges` or `/discovery/people`.
+* **Placement**: Positioned as a primary header action, typically preceding the Refresh button.
+
+### 3. Discovery-First & Filter Integration
+Discovery is active from the moment you open a search screen, encouraging exploration without typing.
+* **Initial Feed**: Search screens provide a dynamic, filtered feed of active neighbors or popular lounges even before a search term is entered.
+* **Filter-First Interaction**: Selected filters (Gender, Interest, Language, etc.) immediately refine the discovery feed, allowing for zero-typing discovery.
+* **Unified Criteria**: All filtering is additive (`default + options + terms`), ensuring search terms further narrow down the already filtered discovery feed.
 
 ---
 

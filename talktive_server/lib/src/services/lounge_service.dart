@@ -143,46 +143,84 @@ class LoungeService {
   /// Gets popular lounges (most members).
   static Future<List<protocol.Lounge>> getPopularLounges(
     Session session, {
+    String? interest,
+    String? language,
+    String? country,
     int limit = 10,
   }) async {
-    return await protocol.Lounge.db.find(
+    final lounges = await protocol.Lounge.db.find(
       session,
-      where: (t) => t.isPublic.equals(true),
+      where: (t) {
+        var expr = t.isPublic.equals(true);
+        if (country != null) {
+          expr &= t.country.equals(country);
+        }
+        return expr;
+      },
       orderBy: (t) => t.memberCount,
       orderDescending: true,
-      limit: limit,
+      limit: limit * 2, // Fetch more for in-memory filtering
     );
+
+    var results = lounges;
+    if (interest != null) {
+      results = results.where((l) => l.interests?.contains(interest) ?? false).toList();
+    }
+    if (language != null) {
+      results = results.where((l) => l.languages?.contains(language) ?? false).toList();
+    }
+
+    return results.take(limit).toList();
   }
 
   /// Gets personalized lounge recommendations based on resident interests.
   static Future<List<protocol.Lounge>> getRecommendedLounges(
     Session session,
     protocol.Resident resident, {
+    String? interest,
+    String? language,
+    String? country,
     int limit = 10,
     int offset = 0,
   }) async {
-    if (resident.interests == null || resident.interests!.isEmpty) {
+    final searchInterests = interest != null ? [interest] : resident.interests;
+
+    if ((searchInterests == null || searchInterests.isEmpty) && language == null && country == null) {
       return await getPopularLounges(session, limit: limit);
     }
 
     final allPublicLounges = await protocol.Lounge.db.find(
       session,
-      where: (t) => t.isPublic.equals(true),
+      where: (t) {
+        var expr = t.isPublic.equals(true);
+        if (country != null) {
+          expr &= t.country.equals(country);
+        }
+        return expr;
+      },
       limit: 100,
     );
 
-    allPublicLounges.sort((a, b) {
+    var filtered = allPublicLounges;
+    if (language != null) {
+      filtered = filtered.where((l) => l.languages?.contains(language) ?? false).toList();
+    }
+    if (interest != null) {
+      filtered = filtered.where((l) => l.interests?.contains(interest) ?? false).toList();
+    }
+
+    filtered.sort((a, b) {
       final aMatch =
-          a.interests?.where((i) => resident.interests!.contains(i)).length ??
+          a.interests?.where((i) => (resident.interests ?? []).contains(i)).length ??
           0;
       final bMatch =
-          b.interests?.where((i) => resident.interests!.contains(i)).length ??
+          b.interests?.where((i) => (resident.interests ?? []).contains(i)).length ??
           0;
       if (aMatch != bMatch) return bMatch.compareTo(aMatch);
       return b.memberCount.compareTo(a.memberCount);
     });
 
-    return allPublicLounges.skip(offset).take(limit).toList();
+    return filtered.skip(offset).take(limit).toList();
   }
 
   /// Applies to join a public lounge.

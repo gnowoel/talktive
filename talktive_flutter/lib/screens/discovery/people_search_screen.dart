@@ -26,8 +26,7 @@ class PeopleSearchScreen extends ConsumerStatefulWidget {
 class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
   final TextEditingController _searchController = TextEditingController();
 
-  List<protocol.UserSummary>? _searchResults;
-  List<protocol.UserSummary>? _suggestedUsers;
+  List<protocol.UserSummary>? _users;
   bool _isLoading = false;
   String? _searchQuery;
 
@@ -60,7 +59,7 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchSuggestions();
+    _fetchInitialData();
   }
 
   @override
@@ -69,43 +68,15 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
     super.dispose();
   }
 
-  Future<void> _fetchSuggestions() async {
+  Future<void> _fetchInitialData() async {
     final isPremium =
         ref.read(currentResidentProvider).value?.isPremium ?? false;
     if (!isPremium) return;
 
-    setState(() => _isLoading = true);
-    try {
-      final client = ref.read(clientProvider);
-      // Fetch recommendations (empty search)
-      final results = await client.search.searchUsers(null, limit: 20);
-      if (mounted) {
-        setState(() {
-          _suggestedUsers = results;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) setState(() => _isLoading = false);
-    }
+    _performSearch('');
   }
 
   Future<void> _performSearch(String query) async {
-    final hasFilters = _selectedGender != null || 
-                      _selectedAgeRange != null || 
-                      _selectedLanguage != null || 
-                      _selectedInterest != null || 
-                      _selectedCountry != null ||
-                      _onlyPremium;
-
-    if (query.trim().isEmpty && !hasFilters) {
-      setState(() {
-        _searchResults = null;
-        _searchQuery = null;
-      });
-      return;
-    }
-
     setState(() {
       _isLoading = true;
       _searchQuery = query;
@@ -114,7 +85,7 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
     try {
       final client = ref.read(clientProvider);
       final results = await client.search.searchUsers(
-        query.isEmpty ? null : query,
+        query.trim().isEmpty ? null : query.trim(),
         gender: _selectedGender,
         ageRange: _selectedAgeRange,
         language: _selectedLanguage,
@@ -125,7 +96,7 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
       );
       if (mounted) {
         setState(() {
-          _searchResults = results;
+          _users = results;
           _isLoading = false;
         });
       }
@@ -373,23 +344,20 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
   }
 
   Widget _buildContent() {
-    if (_isLoading && (_searchQuery != null)) {
+    if (_isLoading && _users == null) {
       return const Center(child: DuoLoadingIndicator());
     }
 
-    final list = (_searchQuery != null && _searchQuery!.isNotEmpty)
-        ? _searchResults
-        : _suggestedUsers;
+    final list = _users ?? [];
 
-    if (list == null || list.isEmpty) {
-      if (_searchQuery != null && _searchQuery!.isNotEmpty) {
-        return const DuoEmptyState(
-          emoji: '👥',
-          title: 'No neighbors found',
-          subtitle: 'Try a different name or interest',
-        );
-      }
-      return const Center(child: DuoLoadingIndicator());
+    if (list.isEmpty) {
+      if (_isLoading) return const Center(child: DuoLoadingIndicator());
+      
+      return const DuoEmptyState(
+        emoji: '👥',
+        title: 'No neighbors found',
+        subtitle: 'Try a different name or interest',
+      );
     }
 
     return ListView.builder(

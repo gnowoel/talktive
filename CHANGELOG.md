@@ -6,6 +6,17 @@ This document tracks the major development milestones and changes made during th
 
 
 
+## March 31, 2026 - Discovery Feed Refinement & Filter Integration (Phase 8.50) 🕵️‍♂️🔍✨
+
+### Discovery-First Search
+- **Default Discovery Feed**: Refactored the search screens to provide a dynamic, filtered list of recommended items (active users/popular lounges) immediately upon opening, even before a search term is entered.
+- **Filter-First Interaction**: Integrated selected filter options (Gender, Interest, Language, Country, etc.) directly into the discovery feed's "default criteria," ensuring that narrowing down results doesn't require keyboard input.
+- **Unified Query Logic**: Implemented a `default + options + terms` search model, where selected filters and search terms work together to refine the discovery feed.
+
+### Frontend Search Polish
+- **Real-Time Feed Updates**: Updated `PeopleSearchScreen` and `LoungeSearchScreen` to call `_performSearch('')` on initialization, applying any active filters to the initial "suggested" list.
+- **Improved UX Feedback**: Standardized loading indicators and empty states for both filtered discovery and text-based searching, ensuring a smooth transition between browsing and querying.
+
 ## March 30, 2026 - Polished Discovery UX & UI Refinement (Phase 8.49) 🕵️‍♂️🎨✨
 
 ### Enhanced Discovery & Filtering

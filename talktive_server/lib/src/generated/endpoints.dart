@@ -2804,6 +2804,21 @@ class Endpoints extends _i1.EndpointDispatch {
         'getPopularLounges': _i1.MethodConnector(
           name: 'getPopularLounges',
           params: {
+            'interest': _i1.ParameterDescription(
+              name: 'interest',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'language': _i1.ParameterDescription(
+              name: 'language',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'country': _i1.ParameterDescription(
+              name: 'country',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
             'limit': _i1.ParameterDescription(
               name: 'limit',
               type: _i1.getType<int>(),
@@ -2817,12 +2832,45 @@ class Endpoints extends _i1.EndpointDispatch {
               ) async => (endpoints['search'] as _i15.SearchEndpoint)
                   .getPopularLounges(
                     session,
+                    interest: params['interest'],
+                    language: params['language'],
+                    country: params['country'],
                     limit: params['limit'],
                   ),
         ),
         'getActiveUsers': _i1.MethodConnector(
           name: 'getActiveUsers',
           params: {
+            'gender': _i1.ParameterDescription(
+              name: 'gender',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'country': _i1.ParameterDescription(
+              name: 'country',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'language': _i1.ParameterDescription(
+              name: 'language',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'interest': _i1.ParameterDescription(
+              name: 'interest',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'ageRange': _i1.ParameterDescription(
+              name: 'ageRange',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'isPremium': _i1.ParameterDescription(
+              name: 'isPremium',
+              type: _i1.getType<bool?>(),
+              nullable: true,
+            ),
             'limit': _i1.ParameterDescription(
               name: 'limit',
               type: _i1.getType<int>(),
@@ -2836,6 +2884,12 @@ class Endpoints extends _i1.EndpointDispatch {
               ) async =>
                   (endpoints['search'] as _i15.SearchEndpoint).getActiveUsers(
                     session,
+                    gender: params['gender'],
+                    country: params['country'],
+                    language: params['language'],
+                    interest: params['interest'],
+                    ageRange: params['ageRange'],
+                    isPremium: params['isPremium'],
                     limit: params['limit'],
                   ),
         ),
@@ -2904,6 +2958,21 @@ class Endpoints extends _i1.EndpointDispatch {
         'getDiscoveryFeed': _i1.MethodConnector(
           name: 'getDiscoveryFeed',
           params: {
+            'interest': _i1.ParameterDescription(
+              name: 'interest',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'language': _i1.ParameterDescription(
+              name: 'language',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'country': _i1.ParameterDescription(
+              name: 'country',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
             'limit': _i1.ParameterDescription(
               name: 'limit',
               type: _i1.getType<int>(),
@@ -2917,6 +2986,9 @@ class Endpoints extends _i1.EndpointDispatch {
               ) async =>
                   (endpoints['search'] as _i15.SearchEndpoint).getDiscoveryFeed(
                     session,
+                    interest: params['interest'],
+                    language: params['language'],
+                    country: params['country'],
                     limit: params['limit'],
                   ),
         ),

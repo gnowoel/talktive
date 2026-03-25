@@ -45,9 +45,12 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
       session,
       where: (t) {
         var expr = t.suspended.equals(false);
-        // Only search by name if query is provided
-        expr &= t.userName.ilike('%${query!.trim()}%');
-        
+        final q = query!.trim();
+        // Standardize search to include name, bio, and interests (as text)
+        expr &= (t.userName.ilike('%$q%') |
+            t.bio.ilike('%$q%') |
+            Expression('interests::text ilike \'%$q%\''));
+
         if (gender != null) {
           expr &= t.gender.equals(gender);
         }
@@ -60,22 +63,24 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
         if (isPremium != null) {
           expr &= t.isPremium.equals(isPremium);
         }
+        if (language != null) {
+          expr &= Expression(
+              'languages::jsonb ? \'${language.replaceAll("'", "''")}\'');
+        }
+        if (interest != null) {
+          expr &= Expression(
+              'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'');
+        }
         return expr;
       },
       orderBy: (t) => t.lastSeen,
       orderDescending: true,
-      limit: limit * 2,
+      limit: limit,
     );
 
-    var results = residents;
-    if (language != null) {
-      results = results.where((r) => r.languages?.contains(language) ?? false).toList();
-    }
-    if (interest != null) {
-      results = results.where((r) => r.interests?.contains(interest) ?? false).toList();
-    }
-
-    return results.take(limit).map((r) => ResidentService.toUserSummary(r)).toList();
+    return residents
+        .map((r) => ResidentService.toUserSummary(r))
+        .toList();
   }
 
   /// Search for lounges with advanced filtering
@@ -104,28 +109,31 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
       session,
       where: (t) {
         var expr = t.isPublic.equals(true);
-        // Only search by name/description if query is provided
-        expr &= (t.name.ilike('%${query!.trim()}%') | t.description.ilike('%${query.trim()}%'));
-        
+        final q = query!.trim();
+        // Search by name, description, and interests
+        expr &= (t.name.ilike('%$q%') |
+            t.description.ilike('%$q%') |
+            Expression('interests::text ilike \'%$q%\''));
+
         if (country != null) {
           expr &= t.country.equals(country);
+        }
+        if (interest != null) {
+          expr &= Expression(
+              'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'');
+        }
+        if (language != null) {
+          expr &= Expression(
+              'languages::jsonb ? \'${language.replaceAll("'", "''")}\'');
         }
         return expr;
       },
       orderBy: (t) => t.memberCount,
       orderDescending: true,
-      limit: limit * 2,
+      limit: limit,
     );
 
-    var results = lounges;
-    if (interest != null) {
-      results = results.where((l) => l.interests?.contains(interest) ?? false).toList();
-    }
-    if (language != null) {
-      results = results.where((l) => l.languages?.contains(language) ?? false).toList();
-    }
-
-    return results.take(limit).toList();
+    return lounges;
   }
 
   /// Get trending moments (most liked in last 7 days) - CACHED
@@ -200,56 +208,61 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
   }) async {
     final sevenDaysAgo = DateTime.now().subtract(const Duration(days: 7));
 
-    // Get a sample of recent messages to identify active senders
-    final messages = await protocol.Message.db.find(
-      session,
-      where: (t) => t.createdAt >= sevenDaysAgo,
-      orderBy: (t) => t.createdAt,
-      orderDescending: true,
-      limit: 2000, // Fetch more to have enough candidates after filtering
-    );
-
-    final messageCounts = <UuidValue, int>{};
-    for (final message in messages) {
-      messageCounts[message.senderId] = (messageCounts[message.senderId] ?? 0) + 1;
-    }
-
-    final sortedSenderIds = messageCounts.keys.toList()
-      ..sort((a, b) => messageCounts[b]!.compareTo(messageCounts[a]!));
-
-    final topSenderIds = sortedSenderIds.take(limit * 5).toList();
-    if (topSenderIds.isEmpty) return [];
-
+    // Refactored: Query Residents directly using DB-level filters and order by activity.
+    // This avoids the 'fetch then filter' bottleneck.
     final residents = await protocol.Resident.db.find(
       session,
       where: (t) {
-        var expr = t.userInfoId.inSet(topSenderIds.toSet()) & t.suspended.equals(false);
+        var expr = t.suspended.equals(false) & (t.lastMessageDate >= sevenDaysAgo);
+        
         if (gender != null) expr &= t.gender.equals(gender);
         if (country != null) expr &= t.country.equals(country);
         if (ageRange != null) expr &= t.ageRange.equals(ageRange);
         if (isPremium != null) expr &= t.isPremium.equals(isPremium);
+        
+        if (language != null) {
+          expr &= Expression(
+              'languages::jsonb ? \'${language.replaceAll("'", "''")}\'');
+        }
+        if (interest != null) {
+          expr &= Expression(
+              'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'');
+        }
         return expr;
       },
+      orderBy: (t) => t.lastMessageDate,
+      orderDescending: true,
+      limit: limit,
     );
 
-    var filtered = residents;
-    if (language != null) {
-      filtered = filtered.where((r) => r.languages?.contains(language) ?? false).toList();
-    }
-    if (interest != null) {
-      filtered = filtered.where((r) => r.interests?.contains(interest) ?? false).toList();
+    // Fallback: if no active users in 7 days, get latest seen users with same filters
+    if (residents.isEmpty) {
+      return await protocol.Resident.db.find(
+        session,
+        where: (t) {
+          var expr = t.suspended.equals(false);
+          if (gender != null) expr &= t.gender.equals(gender);
+          if (country != null) expr &= t.country.equals(country);
+          if (ageRange != null) expr &= t.ageRange.equals(ageRange);
+          if (isPremium != null) expr &= t.isPremium.equals(isPremium);
+          if (language != null) {
+            expr &= Expression(
+                'languages::jsonb ? \'${language.replaceAll("'", "''")}\'');
+          }
+          if (interest != null) {
+            expr &= Expression(
+                'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'');
+          }
+          return expr;
+        },
+        orderBy: (t) => t.lastSeen,
+        orderDescending: true,
+        limit: limit,
+      ).then((list) => list.map((r) => ResidentService.toUserSummary(r)).toList());
     }
 
-    final residentMap = {for (final r in filtered) r.userInfoId: r};
-
-    return topSenderIds
-        .map((id) {
-          final resident = residentMap[id];
-          if (resident == null) return null;
-          return ResidentService.toUserSummary(resident, messageCount: messageCounts[id]);
-        })
-        .whereType<protocol.UserSummary>()
-        .take(limit)
+    return residents
+        .map((r) => ResidentService.toUserSummary(r))
         .toList();
   }
 
@@ -287,21 +300,27 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
     if (currentUser.interests?.isEmpty != false) return [];
 
     final userId = currentUser.userInfoId;
-    final allResidents = await protocol.Resident.db.find(
+    final interestList = currentUser.interests!
+        .map((e) => "'${e.replaceAll("'", "''")}'")
+        .join(",");
+
+    // Find residents who share AT LEAST ONE interest using Postgres ?| operator
+    final matchingResidents = await protocol.Resident.db.find(
       session,
-      where: (t) => t.userInfoId.notEquals(userId),
-      limit: limit * 5,
+      where: (t) =>
+          t.userInfoId.notEquals(userId) &
+          t.suspended.equals(false) &
+          Expression('interests::jsonb ?| array[$interestList]'),
+      orderBy: (t) => t.lastSeen,
+      orderDescending: true,
+      limit: limit * 2,
     );
 
-    final results = allResidents
+    final results = matchingResidents
         .map((resident) {
-          if (resident.interests == null || resident.interests!.isEmpty) return null;
-
           final sharedInterests = currentUser.interests!
               .where((interest) => resident.interests!.contains(interest))
               .toList();
-
-          if (sharedInterests.isEmpty) return null;
 
           return ResidentService.toUserSummary(
             resident,
@@ -309,7 +328,6 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
             matchScore: sharedInterests.length,
           );
         })
-        .whereType<protocol.UserSummary>()
         .toList();
 
     results.sort((a, b) => (b.matchScore ?? 0).compareTo(a.matchScore ?? 0));
@@ -325,21 +343,27 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
     if (currentUser.languages?.isEmpty != false) return [];
 
     final userId = currentUser.userInfoId;
-    final allResidents = await protocol.Resident.db.find(
+    final languageList = currentUser.languages!
+        .map((e) => "'${e.replaceAll("'", "''")}'")
+        .join(",");
+
+    // Find residents who share AT LEAST ONE language using Postgres ?| operator
+    final matchingResidents = await protocol.Resident.db.find(
       session,
-      where: (t) => t.userInfoId.notEquals(userId),
-      limit: limit * 5,
+      where: (t) =>
+          t.userInfoId.notEquals(userId) &
+          t.suspended.equals(false) &
+          Expression('languages::jsonb ?| array[$languageList]'),
+      orderBy: (t) => t.lastSeen,
+      orderDescending: true,
+      limit: limit * 2,
     );
 
-    final results = allResidents
+    final results = matchingResidents
         .map((resident) {
-          if (resident.languages == null || resident.languages!.isEmpty) return null;
-
           final sharedLanguages = currentUser.languages!
               .where((language) => resident.languages!.contains(language))
               .toList();
-
-          if (sharedLanguages.isEmpty) return null;
 
           return ResidentService.toUserSummary(
             resident,
@@ -347,7 +371,6 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
             matchScore: sharedLanguages.length,
           );
         })
-        .whereType<protocol.UserSummary>()
         .toList();
 
     results.sort((a, b) => (b.matchScore ?? 0).compareTo(a.matchScore ?? 0));

@@ -8,7 +8,7 @@ fields:
   creatorId: UuidValue
   createdAt: DateTime
   memberCount: int, default=1
-  isPublic: bool, default=false
+  isPublic: bool, default=true
   maxMembers: int, default=50
   lastMessageAt: DateTime?
   lastMessage: String?

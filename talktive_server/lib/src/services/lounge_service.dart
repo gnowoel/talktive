@@ -15,7 +15,7 @@ class LoungeService {
     required UuidValue creatorId,
     String? description,
     String? emoji,
-    bool isPublic = false,
+    bool isPublic = true,
     int maxMembers = 50,
     List<String>? interests,
     List<String>? languages,
@@ -48,8 +48,9 @@ class LoungeService {
     );
 
     final savedLounge = await protocol.Lounge.db.insertRow(session, lounge);
-
-    // 3. Add creator as first member with admin role
+    
+    // 3. Invalidate discovery cache so new lounge appears immediately
+    await CacheService.invalidateDiscoveryCache(session);
     await protocol.ChannelMember.db.insertRow(
       session,
       protocol.ChannelMember(
@@ -148,29 +149,27 @@ class LoungeService {
     String? country,
     int limit = 10,
   }) async {
-    final lounges = await protocol.Lounge.db.find(
+    return await protocol.Lounge.db.find(
       session,
       where: (t) {
         var expr = t.isPublic.equals(true);
         if (country != null) {
           expr &= t.country.equals(country);
         }
+        if (interest != null) {
+          expr &= Expression(
+              'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'');
+        }
+        if (language != null) {
+          expr &= Expression(
+              'languages::jsonb ? \'${language.replaceAll("'", "''")}\'');
+        }
         return expr;
       },
       orderBy: (t) => t.memberCount,
       orderDescending: true,
-      limit: limit * 2, // Fetch more for in-memory filtering
+      limit: limit,
     );
-
-    var results = lounges;
-    if (interest != null) {
-      results = results.where((l) => l.interests?.contains(interest) ?? false).toList();
-    }
-    if (language != null) {
-      results = results.where((l) => l.languages?.contains(language) ?? false).toList();
-    }
-
-    return results.take(limit).toList();
   }
 
   /// Gets personalized lounge recommendations based on resident interests.
@@ -184,30 +183,39 @@ class LoungeService {
     int offset = 0,
   }) async {
     final searchInterests = interest != null ? [interest] : resident.interests;
+    final interestArray = searchInterests?.isNotEmpty == true
+        ? searchInterests!.map((e) => "'${e.replaceAll("'", "''")}'").join(",")
+        : null;
 
-    if ((searchInterests == null || searchInterests.isEmpty) && language == null && country == null) {
-      return await getPopularLounges(session, limit: limit);
-    }
-
-    final allPublicLounges = await protocol.Lounge.db.find(
+    final lounges = await protocol.Lounge.db.find(
       session,
       where: (t) {
         var expr = t.isPublic.equals(true);
         if (country != null) {
           expr &= t.country.equals(country);
         }
+        if (language != null) {
+          expr &= Expression(
+              'languages::jsonb ? \'${language.replaceAll("'", "''")}\'');
+        }
+        if (interestArray != null) {
+          // If a specific interest was requested, use strict containment.
+          // Otherwise, if using resident interests, use 'any of' (?| operator)
+          if (interest != null) {
+            expr &= Expression(
+                'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'');
+          } else {
+            expr &= Expression('interests::jsonb ?| array[$interestArray]');
+          }
+        }
         return expr;
       },
-      limit: 100,
+      orderBy: (t) => t.memberCount,
+      orderDescending: true,
+      limit: 100, // Fetch candidates for matching score sorting
     );
 
-    var filtered = allPublicLounges;
-    if (language != null) {
-      filtered = filtered.where((l) => l.languages?.contains(language) ?? false).toList();
-    }
-    if (interest != null) {
-      filtered = filtered.where((l) => l.interests?.contains(interest) ?? false).toList();
-    }
+    var filtered = lounges;
 
     filtered.sort((a, b) {
       final aMatch =

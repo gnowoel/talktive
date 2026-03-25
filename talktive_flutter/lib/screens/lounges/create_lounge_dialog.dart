@@ -26,7 +26,7 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   String _selectedEmoji = '👥';
-  bool _isPublic = false;
+  bool _isPublic = true;
   int _maxMembers = 50;
   List<String> _selectedInterests = [];
   List<String> _selectedLanguages = ['en'];

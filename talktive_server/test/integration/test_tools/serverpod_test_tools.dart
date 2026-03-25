@@ -2038,9 +2038,8 @@ class _LoungeEndpoint {
 
   _i3.Future<void> leaveLounge(
     _i1.TestSessionBuilder sessionBuilder,
-    int loungeId, {
-    String? targetUserIdString,
-  }) async {
+    int loungeId,
+  ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
           (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
@@ -2052,10 +2051,7 @@ class _LoungeEndpoint {
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'lounge',
           methodName: 'leaveLounge',
-          parameters: _i1.testObjectToJson({
-            'loungeId': loungeId,
-            'targetUserIdString': targetUserIdString,
-          }),
+          parameters: _i1.testObjectToJson({'loungeId': loungeId}),
           serializationManager: _serializationManager,
         );
         var _localReturnValue =

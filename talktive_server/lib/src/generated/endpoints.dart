@@ -1230,11 +1230,6 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<int>(),
               nullable: false,
             ),
-            'targetUserIdString': _i1.ParameterDescription(
-              name: 'targetUserIdString',
-              type: _i1.getType<String?>(),
-              nullable: true,
-            ),
           },
           call:
               (
@@ -1244,7 +1239,6 @@ class Endpoints extends _i1.EndpointDispatch {
                   (endpoints['lounge'] as _i8.LoungeEndpoint).leaveLounge(
                     session,
                     params['loungeId'],
-                    targetUserIdString: params['targetUserIdString'],
                   ),
         ),
         'toggleMuteLounge': _i1.MethodConnector(

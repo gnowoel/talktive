@@ -760,17 +760,11 @@ class EndpointLounge extends _i2.EndpointRef {
     },
   );
 
-  /// Leaves a lounge or kicks a member.
-  _i3.Future<void> leaveLounge(
-    int loungeId, {
-    String? targetUserIdString,
-  }) => caller.callServerEndpoint<void>(
+  /// Leaves a lounge.
+  _i3.Future<void> leaveLounge(int loungeId) => caller.callServerEndpoint<void>(
     'lounge',
     'leaveLounge',
-    {
-      'loungeId': loungeId,
-      'targetUserIdString': targetUserIdString,
-    },
+    {'loungeId': loungeId},
   );
 
   /// Toggles mute status for lounge notifications.

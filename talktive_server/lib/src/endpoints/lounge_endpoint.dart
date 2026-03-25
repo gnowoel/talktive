@@ -214,30 +214,17 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     );
   }
 
-  /// Leaves a lounge or kicks a member.
+  /// Leaves a lounge.
   Future<void> leaveLounge(
     Session session,
-    int loungeId, {
-    String? targetUserIdString,
-  }) async {
+    int loungeId,
+  ) async {
     final currentUserId = await getUserId(session);
-    UuidValue targetId = currentUserId;
-
-    if (targetUserIdString != null) {
-      targetId = UuidValue.fromString(targetUserIdString);
-      if (targetId != currentUserId) {
-        // Kick logic: verify requester is creator
-        final lounge = await getLounge(session, loungeId);
-        if (lounge.creatorId != currentUserId) {
-          throw protocol.TalktiveException(message: 'Only the creator can kick members');
-        }
-      }
-    }
-
+    
     await LoungeService.leaveLounge(
       session,
       loungeId: loungeId,
-      userId: targetId,
+      userId: currentUserId,
     );
   }
 

@@ -97,10 +97,6 @@ privateChat:
   - leaveChat:
 report:
   - reportUser:
-  - getReportCount:
-  - listReports:
-  - resolveReport:
-  - getReportDetails:
 resident:
   - getResident:
   - getResidentById:

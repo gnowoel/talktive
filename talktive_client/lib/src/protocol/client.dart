@@ -40,14 +40,13 @@ import 'package:talktive_client/src/protocol/user_notification.dart' as _i22;
 import 'package:talktive_client/src/protocol/private_chat.dart' as _i23;
 import 'package:talktive_client/src/protocol/private_chat_with_profile.dart'
     as _i24;
-import 'package:talktive_client/src/protocol/report.dart' as _i25;
-import 'package:talktive_client/src/protocol/user_profile_view.dart' as _i26;
-import 'package:talktive_client/src/protocol/user_summary.dart' as _i27;
-import 'package:talktive_client/src/protocol/search_all_results.dart' as _i28;
-import 'package:talktive_client/src/protocol/discovery_feed.dart' as _i29;
-import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i30;
-import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i31;
-import 'protocol.dart' as _i32;
+import 'package:talktive_client/src/protocol/user_profile_view.dart' as _i25;
+import 'package:talktive_client/src/protocol/user_summary.dart' as _i26;
+import 'package:talktive_client/src/protocol/search_all_results.dart' as _i27;
+import 'package:talktive_client/src/protocol/discovery_feed.dart' as _i28;
+import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i29;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i30;
+import 'protocol.dart' as _i31;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -957,8 +956,6 @@ class EndpointMoment extends _i2.EndpointRef {
 
   /// Posts a new moment to the feed.
   /// Only residents on Floor 2+ can post moments (to prevent spam).
-  /// Posts a new moment to the feed.
-  /// Only residents on Floor 2+ can post moments (to prevent spam).
   _i3.Future<_i19.Moment> postMoment({
     required String imageUrl,
     required String caption,
@@ -974,7 +971,6 @@ class EndpointMoment extends _i2.EndpointRef {
   );
 
   /// Lists the latest moments.
-  /// Lists the latest moments.
   _i3.Future<List<_i19.Moment>> listMoments({
     required int limit,
     int? lastId,
@@ -987,7 +983,6 @@ class EndpointMoment extends _i2.EndpointRef {
     },
   );
 
-  /// Lists the moments for a specific user.
   /// Lists the moments for a specific user.
   _i3.Future<List<_i19.Moment>> listUserMoments({
     required _i2.UuidValue userId,
@@ -1004,14 +999,12 @@ class EndpointMoment extends _i2.EndpointRef {
   );
 
   /// Likes a moment.
-  /// Likes a moment.
   _i3.Future<void> likeMoment(int momentId) => caller.callServerEndpoint<void>(
     'moment',
     'likeMoment',
     {'momentId': momentId},
   );
 
-  /// Unlikes a moment.
   /// Unlikes a moment.
   _i3.Future<void> unlikeMoment(int momentId) =>
       caller.callServerEndpoint<void>(
@@ -1039,8 +1032,6 @@ class EndpointMoment extends _i2.EndpointRef {
   /// Batch checks if the current user has liked multiple moments.
   /// This solves the N+1 query problem when loading a feed of moments.
   /// Returns a Map of momentId -> isLiked.
-  /// Batch checks if the current user has liked multiple moments.
-  /// Returns a Map of momentId -> isLiked.
   _i3.Future<Map<int, bool>> hasLikedMoments(List<int> momentIds) =>
       caller.callServerEndpoint<Map<int, bool>>(
         'moment',
@@ -1048,7 +1039,6 @@ class EndpointMoment extends _i2.EndpointRef {
         {'momentIds': momentIds},
       );
 
-  /// Adds a comment to a moment.
   /// Adds a comment to a moment.
   _i3.Future<_i21.MomentComment> addComment(
     int momentId,
@@ -1075,7 +1065,6 @@ class EndpointMoment extends _i2.EndpointRef {
     },
   );
 
-  /// Deletes a comment (only by author).
   /// Deletes a comment (only by author).
   _i3.Future<void> deleteComment(int commentId) =>
       caller.callServerEndpoint<void>(
@@ -1237,48 +1226,6 @@ class EndpointReport extends _i2.EndpointRef {
       'messageId': messageId,
     },
   );
-
-  /// Gets the number of reports a user has received (for moderation).
-  _i3.Future<int> getReportCount(String userId) =>
-      caller.callServerEndpoint<int>(
-        'report',
-        'getReportCount',
-        {'userId': userId},
-      );
-
-  /// Lists recent reports for moderation (admin only).
-  _i3.Future<List<_i25.Report>> listReports({
-    required int limit,
-    required bool onlyUnresolved,
-  }) => caller.callServerEndpoint<List<_i25.Report>>(
-    'report',
-    'listReports',
-    {
-      'limit': limit,
-      'onlyUnresolved': onlyUnresolved,
-    },
-  );
-
-  /// Marks a report as resolved (admin only).
-  _i3.Future<void> resolveReport(
-    int reportId,
-    bool approved,
-  ) => caller.callServerEndpoint<void>(
-    'report',
-    'resolveReport',
-    {
-      'reportId': reportId,
-      'approved': approved,
-    },
-  );
-
-  /// Gets detailed report information with user context (admin only).
-  _i3.Future<Map<String, dynamic>> getReportDetails(int reportId) =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
-        'report',
-        'getReportDetails',
-        {'reportId': reportId},
-      );
 }
 
 /// {@category Endpoint}
@@ -1377,8 +1324,8 @@ class EndpointResident extends _i2.EndpointRef {
   );
 
   /// Get a user's profile view (with stats)
-  _i3.Future<_i26.UserProfileView?> getUserProfile(String userId) =>
-      caller.callServerEndpoint<_i26.UserProfileView?>(
+  _i3.Future<_i25.UserProfileView?> getUserProfile(String userId) =>
+      caller.callServerEndpoint<_i25.UserProfileView?>(
         'resident',
         'getUserProfile',
         {'userId': userId},
@@ -1508,7 +1455,7 @@ class EndpointSearch extends _i2.EndpointRef {
   String get name => 'search';
 
   /// Search for users with advanced filtering
-  _i3.Future<List<_i27.UserSummary>> searchUsers(
+  _i3.Future<List<_i26.UserSummary>> searchUsers(
     String? query, {
     String? gender,
     String? country,
@@ -1517,7 +1464,7 @@ class EndpointSearch extends _i2.EndpointRef {
     String? ageRange,
     bool? isPremium,
     required int limit,
-  }) => caller.callServerEndpoint<List<_i27.UserSummary>>(
+  }) => caller.callServerEndpoint<List<_i26.UserSummary>>(
     'search',
     'searchUsers',
     {
@@ -1577,7 +1524,7 @@ class EndpointSearch extends _i2.EndpointRef {
   );
 
   /// Get active users (most messages in last 7 days) - OPTIMIZED
-  _i3.Future<List<_i27.UserSummary>> getActiveUsers({
+  _i3.Future<List<_i26.UserSummary>> getActiveUsers({
     String? gender,
     String? country,
     String? language,
@@ -1585,7 +1532,7 @@ class EndpointSearch extends _i2.EndpointRef {
     String? ageRange,
     bool? isPremium,
     required int limit,
-  }) => caller.callServerEndpoint<List<_i27.UserSummary>>(
+  }) => caller.callServerEndpoint<List<_i26.UserSummary>>(
     'search',
     'getActiveUsers',
     {
@@ -1600,10 +1547,10 @@ class EndpointSearch extends _i2.EndpointRef {
   );
 
   /// Search all content (users, lounges, moments)
-  _i3.Future<_i28.SearchAllResults> searchAll(
+  _i3.Future<_i27.SearchAllResults> searchAll(
     String query, {
     required int limit,
-  }) => caller.callServerEndpoint<_i28.SearchAllResults>(
+  }) => caller.callServerEndpoint<_i27.SearchAllResults>(
     'search',
     'searchAll',
     {
@@ -1613,30 +1560,30 @@ class EndpointSearch extends _i2.EndpointRef {
   );
 
   /// Discover users by shared interests
-  _i3.Future<List<_i27.UserSummary>> discoverUsersByInterests({
+  _i3.Future<List<_i26.UserSummary>> discoverUsersByInterests({
     required int limit,
-  }) => caller.callServerEndpoint<List<_i27.UserSummary>>(
+  }) => caller.callServerEndpoint<List<_i26.UserSummary>>(
     'search',
     'discoverUsersByInterests',
     {'limit': limit},
   );
 
   /// Discover users by shared languages
-  _i3.Future<List<_i27.UserSummary>> discoverUsersByLanguages({
+  _i3.Future<List<_i26.UserSummary>> discoverUsersByLanguages({
     required int limit,
-  }) => caller.callServerEndpoint<List<_i27.UserSummary>>(
+  }) => caller.callServerEndpoint<List<_i26.UserSummary>>(
     'search',
     'discoverUsersByLanguages',
     {'limit': limit},
   );
 
   /// Get personalized discovery feed
-  _i3.Future<_i29.DiscoveryFeed> getDiscoveryFeed({
+  _i3.Future<_i28.DiscoveryFeed> getDiscoveryFeed({
     String? interest,
     String? language,
     String? country,
     required int limit,
-  }) => caller.callServerEndpoint<_i29.DiscoveryFeed>(
+  }) => caller.callServerEndpoint<_i28.DiscoveryFeed>(
     'search',
     'getDiscoveryFeed',
     {
@@ -1658,8 +1605,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i30.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i30.Greeting>(
+  _i3.Future<_i29.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i29.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -1670,14 +1617,14 @@ class Modules {
   Modules(Client client) {
     serverpod_auth_idp = _i1.Caller(client);
     serverpod_auth_core = _i4.Caller(client);
-    auth = _i31.Caller(client);
+    auth = _i30.Caller(client);
   }
 
   late final _i1.Caller serverpod_auth_idp;
 
   late final _i4.Caller serverpod_auth_core;
 
-  late final _i31.Caller auth;
+  late final _i30.Caller auth;
 }
 
 class Client extends _i2.ServerpodClientShared {
@@ -1700,7 +1647,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i32.Protocol(),
+         _i31.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,

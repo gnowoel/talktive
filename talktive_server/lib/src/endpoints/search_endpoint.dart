@@ -7,6 +7,40 @@ import '../utils/endpoint_auth_mixin.dart';
 import 'dart:convert';
 
 class SearchEndpoint extends Endpoint with EndpointAuthMixin {
+  Expression _buildResidentFilters(
+    protocol.ResidentTable t, {
+    String? query,
+    String? gender,
+    String? country,
+    String? language,
+    String? interest,
+    String? ageRange,
+    bool? isPremium,
+  }) {
+    var expr = t.suspended.equals(false) & t.allowDiscovery.equals(true);
+
+    if (query != null && query.trim().isNotEmpty) {
+      final q = query.trim();
+      expr &= (t.userName.ilike('%$q%') |
+          t.bio.ilike('%$q%') |
+          Expression('interests::text ilike \'%$q%\''));
+    }
+
+    if (gender != null) expr &= t.gender.equals(gender);
+    if (country != null) expr &= t.country.equals(country);
+    if (ageRange != null) expr &= t.ageRange.equals(ageRange);
+    if (isPremium != null) expr &= t.isPremium.equals(isPremium);
+
+    if (language != null) {
+      expr &= Expression('languages::jsonb ? \'${language.replaceAll("'", "''")}\'');
+    }
+    if (interest != null) {
+      expr &= Expression('interests::jsonb ? \'${interest.replaceAll("'", "''")}\'');
+    }
+    
+    return expr;
+  }
+
   /// Search for users with advanced filtering
   Future<List<protocol.UserSummary>> searchUsers(
     Session session,
@@ -60,36 +94,16 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
 
     final residents = await protocol.Resident.db.find(
       session,
-      where: (t) {
-        var expr = t.suspended.equals(false) & t.allowDiscovery.equals(true);
-        final q = query!.trim();
-        // Standardize search to include name, bio, and interests (as text)
-        expr &= (t.userName.ilike('%$q%') |
-            t.bio.ilike('%$q%') |
-            Expression('interests::text ilike \'%$q%\''));
-
-        if (gender != null) {
-          expr &= t.gender.equals(gender);
-        }
-        if (country != null) {
-          expr &= t.country.equals(country);
-        }
-        if (ageRange != null) {
-          expr &= t.ageRange.equals(ageRange);
-        }
-        if (isPremium != null) {
-          expr &= t.isPremium.equals(isPremium);
-        }
-        if (language != null) {
-          expr &= Expression(
-              'languages::jsonb ? \'${language.replaceAll("'", "''")}\'');
-        }
-        if (interest != null) {
-          expr &= Expression(
-              'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'');
-        }
-        return expr;
-      },
+      where: (t) => _buildResidentFilters(
+        t,
+        query: query,
+        gender: gender,
+        country: country,
+        language: language,
+        interest: interest,
+        ageRange: ageRange,
+        isPremium: isPremium,
+      ),
       orderBy: (t) => t.lastSeen,
       orderDescending: true,
       limit: limit,
@@ -98,6 +112,33 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
     return residents
         .map((r) => ResidentService.toUserSummary(r))
         .toList();
+  }
+
+  Expression _buildLoungeFilters(
+    protocol.LoungeTable t, {
+    String? query,
+    String? interest,
+    String? language,
+    String? country,
+  }) {
+    var expr = t.isPublic.equals(true);
+
+    if (query != null && query.trim().isNotEmpty) {
+      final q = query.trim();
+      expr &= (t.name.ilike('%$q%') |
+          t.description.ilike('%$q%') |
+          Expression('interests::text ilike \'%$q%\''));
+    }
+
+    if (country != null) expr &= t.country.equals(country);
+    
+    if (interest != null) {
+      expr &= Expression('interests::jsonb ? \'${interest.replaceAll("'", "''")}\'');
+    }
+    if (language != null) {
+      expr &= Expression('languages::jsonb ? \'${language.replaceAll("'", "''")}\'');
+    }
+    return expr;
   }
 
   /// Search for lounges with advanced filtering
@@ -136,27 +177,13 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
 
     final lounges = await protocol.Lounge.db.find(
       session,
-      where: (t) {
-        var expr = t.isPublic.equals(true);
-        final q = query!.trim();
-        // Search by name, description, and interests
-        expr &= (t.name.ilike('%$q%') |
-            t.description.ilike('%$q%') |
-            Expression('interests::text ilike \'%$q%\''));
-
-        if (country != null) {
-          expr &= t.country.equals(country);
-        }
-        if (interest != null) {
-          expr &= Expression(
-              'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'');
-        }
-        if (language != null) {
-          expr &= Expression(
-              'languages::jsonb ? \'${language.replaceAll("'", "''")}\'');
-        }
-        return expr;
-      },
+      where: (t) => _buildLoungeFilters(
+        t,
+        query: query,
+        interest: interest,
+        language: language,
+        country: country,
+      ),
       orderBy: (t) => t.memberCount,
       orderDescending: true,
       limit: limit,
@@ -241,26 +268,15 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
     // This avoids the 'fetch then filter' bottleneck.
     final residents = await protocol.Resident.db.find(
       session,
-      where: (t) {
-        var expr = t.suspended.equals(false) & 
-                   t.allowDiscovery.equals(true) & 
-                   (t.lastMessageDate >= sevenDaysAgo);
-        
-        if (gender != null) expr &= t.gender.equals(gender);
-        if (country != null) expr &= t.country.equals(country);
-        if (ageRange != null) expr &= t.ageRange.equals(ageRange);
-        if (isPremium != null) expr &= t.isPremium.equals(isPremium);
-        
-        if (language != null) {
-          expr &= Expression(
-              'languages::jsonb ? \'${language.replaceAll("'", "''")}\'');
-        }
-        if (interest != null) {
-          expr &= Expression(
-              'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'');
-        }
-        return expr;
-      },
+      where: (t) => _buildResidentFilters(
+        t,
+        gender: gender,
+        country: country,
+        language: language,
+        interest: interest,
+        ageRange: ageRange,
+        isPremium: isPremium,
+      ) & (t.lastMessageDate >= sevenDaysAgo),
       orderBy: (t) => t.lastMessageDate,
       orderDescending: true,
       limit: limit,
@@ -268,28 +284,22 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
 
     // Fallback: if no active users in 7 days, get latest seen users with same filters
     if (residents.isEmpty) {
-      return await protocol.Resident.db.find(
+      final fallbackResidents = await protocol.Resident.db.find(
         session,
-        where: (t) {
-          var expr = t.suspended.equals(false) & t.allowDiscovery.equals(true);
-          if (gender != null) expr &= t.gender.equals(gender);
-          if (country != null) expr &= t.country.equals(country);
-          if (ageRange != null) expr &= t.ageRange.equals(ageRange);
-          if (isPremium != null) expr &= t.isPremium.equals(isPremium);
-          if (language != null) {
-            expr &= Expression(
-                'languages::jsonb ? \'${language.replaceAll("'", "''")}\'');
-          }
-          if (interest != null) {
-            expr &= Expression(
-                'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'');
-          }
-          return expr;
-        },
+        where: (t) => _buildResidentFilters(
+          t,
+          gender: gender,
+          country: country,
+          language: language,
+          interest: interest,
+          ageRange: ageRange,
+          isPremium: isPremium,
+        ),
         orderBy: (t) => t.lastSeen,
         orderDescending: true,
         limit: limit,
-      ).then((list) => list.map((r) => ResidentService.toUserSummary(r)).toList());
+      );
+      return fallbackResidents.map((r) => ResidentService.toUserSummary(r)).toList();
     }
 
     return residents

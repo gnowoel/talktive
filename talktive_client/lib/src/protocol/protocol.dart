@@ -71,13 +71,12 @@ import 'package:talktive_client/src/protocol/moment_comment.dart' as _i55;
 import 'package:talktive_client/src/protocol/user_notification.dart' as _i56;
 import 'package:talktive_client/src/protocol/private_chat_with_profile.dart'
     as _i57;
-import 'package:talktive_client/src/protocol/report.dart' as _i58;
-import 'package:talktive_client/src/protocol/user_summary.dart' as _i59;
+import 'package:talktive_client/src/protocol/user_summary.dart' as _i58;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
-    as _i60;
+    as _i59;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
-    as _i61;
-import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i62;
+    as _i60;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i61;
 export 'achievement.dart';
 export 'admin_activity.dart';
 export 'admin_report_summary.dart';
@@ -568,24 +567,20 @@ class Protocol extends _i1.SerializationManager {
               .toList()
           as T;
     }
-    if (t == List<_i58.Report>) {
-      return (data as List).map((e) => deserialize<_i58.Report>(e)).toList()
-          as T;
-    }
-    if (t == List<_i59.UserSummary>) {
+    if (t == List<_i58.UserSummary>) {
       return (data as List)
-              .map((e) => deserialize<_i59.UserSummary>(e))
+              .map((e) => deserialize<_i58.UserSummary>(e))
               .toList()
           as T;
     }
+    try {
+      return _i59.Protocol().deserialize<T>(data, t);
+    } on _i1.DeserializationTypeNotFoundException catch (_) {}
     try {
       return _i60.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     try {
       return _i61.Protocol().deserialize<T>(data, t);
-    } on _i1.DeserializationTypeNotFoundException catch (_) {}
-    try {
-      return _i62.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     return super.deserialize<T>(data, t);
   }
@@ -736,15 +731,15 @@ class Protocol extends _i1.SerializationManager {
       case _i44.UserSummary():
         return 'UserSummary';
     }
-    className = _i60.Protocol().getClassNameForObject(data);
+    className = _i59.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_idp.$className';
     }
-    className = _i61.Protocol().getClassNameForObject(data);
+    className = _i60.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_core.$className';
     }
-    className = _i62.Protocol().getClassNameForObject(data);
+    className = _i61.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth.$className';
     }
@@ -888,15 +883,15 @@ class Protocol extends _i1.SerializationManager {
     }
     if (dataClassName.startsWith('serverpod_auth_idp.')) {
       data['className'] = dataClassName.substring(19);
-      return _i60.Protocol().deserializeByClassName(data);
+      return _i59.Protocol().deserializeByClassName(data);
     }
     if (dataClassName.startsWith('serverpod_auth_core.')) {
       data['className'] = dataClassName.substring(20);
-      return _i61.Protocol().deserializeByClassName(data);
+      return _i60.Protocol().deserializeByClassName(data);
     }
     if (dataClassName.startsWith('serverpod_auth.')) {
       data['className'] = dataClassName.substring(15);
-      return _i62.Protocol().deserializeByClassName(data);
+      return _i61.Protocol().deserializeByClassName(data);
     }
     return super.deserializeByClassName(data);
   }
@@ -911,13 +906,13 @@ class Protocol extends _i1.SerializationManager {
       return null;
     }
     try {
+      return _i59.Protocol().mapRecordToJson(record);
+    } catch (_) {}
+    try {
       return _i60.Protocol().mapRecordToJson(record);
     } catch (_) {}
     try {
       return _i61.Protocol().mapRecordToJson(record);
-    } catch (_) {}
-    try {
-      return _i62.Protocol().mapRecordToJson(record);
     } catch (_) {}
     throw Exception('Unsupported record type ${record.runtimeType}');
   }

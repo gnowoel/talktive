@@ -41,13 +41,12 @@ import 'package:talktive_server/src/generated/user_notification.dart' as _i23;
 import 'package:talktive_server/src/generated/private_chat.dart' as _i24;
 import 'package:talktive_server/src/generated/private_chat_with_profile.dart'
     as _i25;
-import 'package:talktive_server/src/generated/report.dart' as _i26;
-import 'package:talktive_server/src/generated/user_profile_view.dart' as _i27;
-import 'package:talktive_server/src/generated/user_summary.dart' as _i28;
-import 'package:talktive_server/src/generated/search_all_results.dart' as _i29;
-import 'package:talktive_server/src/generated/discovery_feed.dart' as _i30;
-import 'package:talktive_server/src/generated/greetings/greeting.dart' as _i31;
-import 'package:talktive_server/src/generated/future_calls.dart' as _i32;
+import 'package:talktive_server/src/generated/user_profile_view.dart' as _i26;
+import 'package:talktive_server/src/generated/user_summary.dart' as _i27;
+import 'package:talktive_server/src/generated/search_all_results.dart' as _i28;
+import 'package:talktive_server/src/generated/discovery_feed.dart' as _i29;
+import 'package:talktive_server/src/generated/greetings/greeting.dart' as _i30;
+import 'package:talktive_server/src/generated/future_calls.dart' as _i31;
 import 'package:talktive_server/src/generated/protocol.dart';
 import 'package:talktive_server/src/generated/endpoints.dart';
 export 'package:serverpod_test/serverpod_test_public_exports.dart';
@@ -3286,138 +3285,6 @@ class _ReportEndpoint {
       }
     });
   }
-
-  _i3.Future<int> getReportCount(
-    _i1.TestSessionBuilder sessionBuilder,
-    String userId,
-  ) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'report',
-            method: 'getReportCount',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'report',
-          methodName: 'getReportCount',
-          parameters: _i1.testObjectToJson({'userId': userId}),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<int>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Future<List<_i26.Report>> listReports(
-    _i1.TestSessionBuilder sessionBuilder, {
-    required int limit,
-    required bool onlyUnresolved,
-  }) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'report',
-            method: 'listReports',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'report',
-          methodName: 'listReports',
-          parameters: _i1.testObjectToJson({
-            'limit': limit,
-            'onlyUnresolved': onlyUnresolved,
-          }),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<List<_i26.Report>>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Future<void> resolveReport(
-    _i1.TestSessionBuilder sessionBuilder,
-    int reportId,
-    bool approved,
-  ) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'report',
-            method: 'resolveReport',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'report',
-          methodName: 'resolveReport',
-          parameters: _i1.testObjectToJson({
-            'reportId': reportId,
-            'approved': approved,
-          }),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<void>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Future<Map<String, dynamic>> getReportDetails(
-    _i1.TestSessionBuilder sessionBuilder,
-    int reportId,
-  ) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'report',
-            method: 'getReportDetails',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'report',
-          methodName: 'getReportDetails',
-          parameters: _i1.testObjectToJson({'reportId': reportId}),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<Map<String, dynamic>>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
 }
 
 class _ResidentEndpoint {
@@ -3628,7 +3495,7 @@ class _ResidentEndpoint {
     });
   }
 
-  _i3.Future<_i27.UserProfileView?> getUserProfile(
+  _i3.Future<_i26.UserProfileView?> getUserProfile(
     _i1.TestSessionBuilder sessionBuilder,
     String userId,
   ) async {
@@ -3651,7 +3518,7 @@ class _ResidentEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i27.UserProfileView?>);
+                as _i3.Future<_i26.UserProfileView?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -4039,7 +3906,7 @@ class _SearchEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<List<_i28.UserSummary>> searchUsers(
+  _i3.Future<List<_i27.UserSummary>> searchUsers(
     _i1.TestSessionBuilder sessionBuilder,
     String? query, {
     String? gender,
@@ -4078,7 +3945,7 @@ class _SearchEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i28.UserSummary>>);
+                as _i3.Future<List<_i27.UserSummary>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -4197,7 +4064,7 @@ class _SearchEndpoint {
     });
   }
 
-  _i3.Future<List<_i28.UserSummary>> getActiveUsers(
+  _i3.Future<List<_i27.UserSummary>> getActiveUsers(
     _i1.TestSessionBuilder sessionBuilder, {
     String? gender,
     String? country,
@@ -4234,7 +4101,7 @@ class _SearchEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i28.UserSummary>>);
+                as _i3.Future<List<_i27.UserSummary>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -4242,7 +4109,7 @@ class _SearchEndpoint {
     });
   }
 
-  _i3.Future<_i29.SearchAllResults> searchAll(
+  _i3.Future<_i28.SearchAllResults> searchAll(
     _i1.TestSessionBuilder sessionBuilder,
     String query, {
     required int limit,
@@ -4269,7 +4136,7 @@ class _SearchEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i29.SearchAllResults>);
+                as _i3.Future<_i28.SearchAllResults>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -4277,7 +4144,7 @@ class _SearchEndpoint {
     });
   }
 
-  _i3.Future<List<_i28.UserSummary>> discoverUsersByInterests(
+  _i3.Future<List<_i27.UserSummary>> discoverUsersByInterests(
     _i1.TestSessionBuilder sessionBuilder, {
     required int limit,
   }) async {
@@ -4300,7 +4167,7 @@ class _SearchEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i28.UserSummary>>);
+                as _i3.Future<List<_i27.UserSummary>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -4308,7 +4175,7 @@ class _SearchEndpoint {
     });
   }
 
-  _i3.Future<List<_i28.UserSummary>> discoverUsersByLanguages(
+  _i3.Future<List<_i27.UserSummary>> discoverUsersByLanguages(
     _i1.TestSessionBuilder sessionBuilder, {
     required int limit,
   }) async {
@@ -4331,7 +4198,7 @@ class _SearchEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i28.UserSummary>>);
+                as _i3.Future<List<_i27.UserSummary>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -4339,7 +4206,7 @@ class _SearchEndpoint {
     });
   }
 
-  _i3.Future<_i30.DiscoveryFeed> getDiscoveryFeed(
+  _i3.Future<_i29.DiscoveryFeed> getDiscoveryFeed(
     _i1.TestSessionBuilder sessionBuilder, {
     String? interest,
     String? language,
@@ -4370,7 +4237,7 @@ class _SearchEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i30.DiscoveryFeed>);
+                as _i3.Future<_i29.DiscoveryFeed>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -4389,7 +4256,7 @@ class _GreetingEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i31.Greeting> hello(
+  _i3.Future<_i30.Greeting> hello(
     _i1.TestSessionBuilder sessionBuilder,
     String name,
   ) async {
@@ -4412,7 +4279,7 @@ class _GreetingEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i31.Greeting>);
+                as _i3.Future<_i30.Greeting>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -4429,7 +4296,7 @@ class _DailyCleanupCallFutureCall {
     var _localUniqueSession = (sessionBuilder as _i1.InternalTestSessionBuilder)
         .internalBuild();
     try {
-      await _i32.DailyCleanupCallInvokeFutureCall().invoke(
+      await _i31.DailyCleanupCallInvokeFutureCall().invoke(
         _localUniqueSession,
         object,
       );

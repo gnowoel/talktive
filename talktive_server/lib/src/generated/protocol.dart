@@ -78,8 +78,7 @@ import 'package:talktive_server/src/generated/moment_comment.dart' as _i59;
 import 'package:talktive_server/src/generated/user_notification.dart' as _i60;
 import 'package:talktive_server/src/generated/private_chat_with_profile.dart'
     as _i61;
-import 'package:talktive_server/src/generated/report.dart' as _i62;
-import 'package:talktive_server/src/generated/user_summary.dart' as _i63;
+import 'package:talktive_server/src/generated/user_summary.dart' as _i62;
 export 'achievement.dart';
 export 'admin_activity.dart';
 export 'admin_report_summary.dart';
@@ -2595,13 +2594,9 @@ class Protocol extends _i1.SerializationManagerServer {
               .toList()
           as T;
     }
-    if (t == List<_i62.Report>) {
-      return (data as List).map((e) => deserialize<_i62.Report>(e)).toList()
-          as T;
-    }
-    if (t == List<_i63.UserSummary>) {
+    if (t == List<_i62.UserSummary>) {
       return (data as List)
-              .map((e) => deserialize<_i63.UserSummary>(e))
+              .map((e) => deserialize<_i62.UserSummary>(e))
               .toList()
           as T;
     }

@@ -9,8 +9,6 @@ import '../utils/endpoint_auth_mixin.dart';
 class MomentEndpoint extends Endpoint with EndpointAuthMixin {
   /// Posts a new moment to the feed.
   /// Only residents on Floor 2+ can post moments (to prevent spam).
-  /// Posts a new moment to the feed.
-  /// Only residents on Floor 2+ can post moments (to prevent spam).
   Future<Moment> postMoment(
     Session session, {
     required String imageUrl,
@@ -48,7 +46,6 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Lists the latest moments.
-  /// Lists the latest moments.
   Future<List<Moment>> listMoments(
     Session session, {
     int limit = 20,
@@ -71,7 +68,6 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Lists the moments for a specific user.
-  /// Lists the moments for a specific user.
   Future<List<Moment>> listUserMoments(
     Session session, {
     required UuidValue userId,
@@ -93,7 +89,6 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Likes a moment.
-  /// Likes a moment.
   Future<void> likeMoment(Session session, int momentId) async {
     // Validate inputs
     InputValidationService.validateId(momentId, 'Moment ID').throwIfInvalid();
@@ -106,7 +101,6 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
     );
   }
 
-  /// Unlikes a moment.
   /// Unlikes a moment.
   Future<void> unlikeMoment(Session session, int momentId) async {
     InputValidationService.validateId(momentId, 'Moment ID').throwIfInvalid();
@@ -154,8 +148,6 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
   /// Batch checks if the current user has liked multiple moments.
   /// This solves the N+1 query problem when loading a feed of moments.
   /// Returns a Map of momentId -> isLiked.
-  /// Batch checks if the current user has liked multiple moments.
-  /// Returns a Map of momentId -> isLiked.
   Future<Map<int, bool>> hasLikedMoments(
     Session session,
     List<int> momentIds,
@@ -172,7 +164,6 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
     );
   }
 
-  /// Adds a comment to a moment.
   /// Adds a comment to a moment.
   Future<MomentComment> addComment(
     Session session,
@@ -208,7 +199,6 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
     );
   }
 
-  /// Deletes a comment (only by author).
   /// Deletes a comment (only by author).
   Future<void> deleteComment(Session session, int commentId) async {
     final userId = await getUserId(session);

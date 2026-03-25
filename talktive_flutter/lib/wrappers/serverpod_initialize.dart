@@ -32,10 +32,12 @@ class _ServerpodInitializeState extends State<ServerpodInitialize> {
   @override
   void initState() {
     super.initState();
+    debugPrint('ServerpodInitialize: initState called');
     _init();
   }
 
   Future<void> _init() async {
+    debugPrint('ServerpodInitialize: _init started');
     try {
       // 1. Core Platform Services
       await EdgeToEdgeManager.initialize();
@@ -63,19 +65,22 @@ class _ServerpodInitializeState extends State<ServerpodInitialize> {
         debugPrint('ServerpodInitialize: Firebase Emulators are DISABLED');
       }
 
+      debugPrint('ServerpodInitialize: Marking as initialized');
       if (mounted) {
         setState(() => _initialized = true);
       }
     } catch (e, stack) {
-      debugPrint('Initialization error: $e\n$stack');
+      debugPrint('ServerpodInitialize: Initialization error: $e\n$stack');
       if (mounted) {
         setState(() => _error = e.toString());
       }
     }
+    debugPrint('ServerpodInitialize: _init finished');
   }
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('ServerpodInitialize: build called, _initialized=$_initialized, _error=$_error');
     if (_error != null) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,

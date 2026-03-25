@@ -69,10 +69,6 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
   }
 
   Future<void> _fetchInitialData() async {
-    final isPremium =
-        ref.read(currentResidentProvider).value?.isPremium ?? false;
-    if (!isPremium) return;
-
     _performSearch('');
   }
 
@@ -128,33 +124,36 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: DuoInput(
-                    controller: _searchController,
-                    hintText: 'Search Neighbors...',
-                    prefixIcon: Icons.search,
-                    iconColor: AppTheme.duoOrange,
-                    enabled: isPremium,
-                    onChanged: (val) => _performSearch(val),
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(
-                              Icons.close,
-                              size: 20,
-                              color: Colors.grey,
-                            ),
-                            onPressed: () {
-                              _searchController.clear();
-                              _performSearch('');
-                            },
-                          )
-                        : null,
+                  child: GestureDetector(
+                    onTap: isPremium ? null : _showUpgradePrompt,
+                    child: DuoInput(
+                      controller: _searchController,
+                      hintText: isPremium ? 'Search Neighbors...' : 'Advanced Search (Plus)',
+                      prefixIcon: isPremium ? Icons.search : Icons.lock_outline,
+                      iconColor: AppTheme.duoOrange,
+                      enabled: isPremium,
+                      onChanged: (val) => _performSearch(val),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(
+                                Icons.close,
+                                size: 20,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () {
+                                _searchController.clear();
+                                _performSearch('');
+                              },
+                            )
+                          : null,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 IconButton(
-                  onPressed: isPremium ? _showFilterSheet : null,
+                  onPressed: isPremium ? _showFilterSheet : _showUpgradePrompt,
                   icon: Icon(
-                    Icons.filter_list_rounded,
+                    isPremium ? Icons.filter_list_rounded : Icons.lock_outline,
                     color: _hasActiveFilters
                         ? AppTheme.primaryColor
                         : Colors.grey[600],
@@ -165,14 +164,12 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
           ),
         ),
       ),
-      body: !isPremium 
-          ? _buildLockedState() 
-          : Column(
-              children: [
-                if (_hasActiveFilters) _buildActiveFilters(),
-                Expanded(child: _buildContent()),
-              ],
-            ),
+      body: Column(
+        children: [
+          if (_hasActiveFilters) _buildActiveFilters(),
+          Expanded(child: _buildContent()),
+        ],
+      ),
     );
   }
 
@@ -308,38 +305,48 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
     ).animate().fadeIn().scale(begin: const Offset(0.9, 0.9));
   }
 
-  Widget _buildLockedState() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const SizedBox(height: 40),
-          const Text('🔒', style: TextStyle(fontSize: 80)),
-          const SizedBox(height: 24),
-          const Text(
-            'Neighbor Discovery',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Finding specific neighbors is a Talktive Plus feature. Unlock the building map to find people by name or shared interests!',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey[600], fontSize: 16),
-          ),
-          const SizedBox(height: 32),
-          DuoButton(
-            text: 'Upgrade to Plus',
-            onPressed: () => context.push('/activity/settings'),
-            width: double.infinity,
-          ),
-          const SizedBox(height: 16),
-          TextButton(
-            onPressed: () => context.pop(),
-            child: const Text('Maybe Later'),
-          ),
-        ],
-      ).animate().fadeIn().scale(begin: const Offset(0.9, 0.9)),
+  void _showUpgradePrompt() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('🔒', style: TextStyle(fontSize: 48)),
+            const SizedBox(height: 16),
+            const Text(
+              'Advanced Discovery',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Searching for specific neighbors and applying advanced filters is a Talktive Plus feature.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[600], fontSize: 16),
+            ),
+            const SizedBox(height: 24),
+            DuoButton(
+              text: 'Upgrade to Plus',
+              onPressed: () {
+                Navigator.pop(context);
+                context.push('/activity/settings');
+              },
+              width: double.infinity,
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Back to Neighbors'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

@@ -159,8 +159,8 @@ class SettingsScreen extends ConsumerWidget {
               _buildFeatureRow(
                 context,
                 icon: Icons.person_search,
-                title: 'Neighbors Discovery',
-                description: 'Search for any resident in the building.',
+                title: 'Advanced Discovery',
+                description: 'Search neighbors and lounges with terms and filters.',
                 isLocked: !resident.isPremium,
                 value: resident.showNeighborsDiscovery,
                 onChanged: resident.isPremium

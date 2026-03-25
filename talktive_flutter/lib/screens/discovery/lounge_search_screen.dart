@@ -9,6 +9,7 @@ import '../../config/interests.dart';
 import '../../config/theme.dart';
 import '../../providers/client_provider.dart';
 import '../../providers/lounge_provider.dart';
+import '../../providers/current_resident_provider.dart';
 import '../../widgets/duo/duo_input.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_empty_state.dart';
@@ -111,6 +112,8 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isPremium = ref.watch(currentResidentProvider).value?.isPremium ?? false;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -129,33 +132,36 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: DuoInput(
-                    controller: _searchController,
-                    hintText: 'Search Lounges...',
-                    prefixIcon: Icons.search,
-                    iconColor: AppTheme.duoBlue,
-                    enabled: true,
-                    onChanged: (val) => _performSearch(val),
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(
-                              Icons.close,
-                              size: 20,
-                              color: Colors.grey,
-                            ),
-                            onPressed: () {
-                              _searchController.clear();
-                              _performSearch('');
-                            },
-                          )
-                        : null,
+                  child: GestureDetector(
+                    onTap: isPremium ? null : _showUpgradePrompt,
+                    child: DuoInput(
+                      controller: _searchController,
+                      hintText: isPremium ? 'Search Lounges...' : 'Advanced Search (Plus)',
+                      prefixIcon: isPremium ? Icons.search : Icons.lock_outline,
+                      iconColor: AppTheme.duoBlue,
+                      enabled: isPremium,
+                      onChanged: (val) => _performSearch(val),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(
+                                Icons.close,
+                                size: 20,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () {
+                                _searchController.clear();
+                                _performSearch('');
+                              },
+                            )
+                          : null,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 IconButton(
-                  onPressed: _showFilterSheet,
+                  onPressed: isPremium ? _showFilterSheet : _showUpgradePrompt,
                   icon: Icon(
-                    Icons.filter_list_rounded,
+                    isPremium ? Icons.filter_list_rounded : Icons.lock_outline,
                     color: _hasActiveFilters
                         ? AppTheme.duoBlue
                         : Colors.grey,
@@ -544,6 +550,51 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
           }).toList(),
         ),
       ],
+    );
+  }
+  void _showUpgradePrompt() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('🔒', style: TextStyle(fontSize: 48)),
+            const SizedBox(height: 16),
+            const Text(
+              'Advanced Discovery',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Searching for specific lounges and applying advanced filters is a Talktive Plus feature.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[600], fontSize: 16),
+            ),
+            const SizedBox(height: 24),
+            DuoButton(
+              text: 'Upgrade to Plus',
+              onPressed: () {
+                Navigator.pop(context);
+                context.push('/activity/settings');
+              },
+              width: double.infinity,
+              color: AppTheme.duoBlue,
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Back to Lounges'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

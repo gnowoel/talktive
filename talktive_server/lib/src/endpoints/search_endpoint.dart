@@ -27,6 +27,17 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
         ageRange != null ||
         isPremium != null;
 
+    final resident = await getAuthenticatedResident(session);
+
+    if (hasQuery || hasFilters) {
+      if (!resident.isPremium) {
+        throw protocol.TalktiveException(
+          message: 'Advanced Search is a Talktive Plus feature.',
+          code: 'PREMIUM_REQUIRED',
+        );
+      }
+    }
+
     if (!hasQuery) {
       // If no search term, return filtered recommendations (active users)
       return await getActiveUsers(
@@ -93,6 +104,18 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
     int limit = 20,
   }) async {
     final hasQuery = query != null && query.trim().isNotEmpty;
+    final hasFilters = interest != null || language != null || country != null;
+
+    final resident = await getAuthenticatedResident(session);
+
+    if (hasQuery || hasFilters) {
+      if (!resident.isPremium) {
+        throw protocol.TalktiveException(
+          message: 'Advanced Search is a Talktive Plus feature.',
+          code: 'PREMIUM_REQUIRED',
+        );
+      }
+    }
 
     if (!hasQuery) {
       // If no search term, return popular lounges with filters

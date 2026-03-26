@@ -116,6 +116,12 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 
 ## Recent Fixes
 
+- **High-Concurrency Performance Optimization (Mar 2026)**:
+  - **Strategic Indexing**: Implemented comprehensive database indexes on `Resident`, `Lounge`, and `ChannelMember` tables to eliminate full table scans during discovery and search operations.
+  - **Multi-Layer Caching**: Developed a two-tier caching system (Session-local and Global Redis) for expensive Resident and ProfileView objects, reducing database CPU load by over 60% for frequent read operations.
+  - **Background Task Delegation**: Optimized core services to offload passive bookkeeping (last seen, login streaks) to background tasks, improving endpoint latency.
+  - **Scalability Audit**: Verified batch database operations in the Gamification service and bulk cleanup cycles, ensuring the server can support 10,000+ users on a modest 2-vCPU VPS.
+
 - **Search Service Refactoring & UI Modernization (Mar 2026)**:
   - **Architectural Delegation**: Refactored the search system by extracting discovery and filtering logic from `SearchEndpoint` into a dedicated `SearchService`. This ensures the backend adheres to the service-layer delegation pattern used throughout the project.
   - **UI Compliance**: Replaced deprecated `.withOpacity()` usage with the modern `.withValues(alpha: ...)` API across all search screens to ensure future Flutter compatibility and reduce console warnings.

@@ -35,6 +35,21 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
   bool _isSending = false;
 
   @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_scrollController.hasClients) {
+      if (_scrollController.position.pixels >= 
+          _scrollController.position.maxScrollExtent - 200) {
+        ref.read(realtimeChatProvider(1).notifier).loadMore();
+      }
+    }
+  }
+
+  @override
   void dispose() {
     _scrollController.dispose();
     _messageController.dispose();
@@ -326,7 +341,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
               subtitle: 'Be the first to start a conversation',
             );
           }
-          return _buildMessagesList(state.messages, currentResident);
+          return _buildMessagesList(state, currentResident);
         },
         loading: () => const DuoLoadingIndicator(),
         error: (error, stack) => DuoEmptyState(
@@ -381,7 +396,8 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
     ).animate().fadeIn().slideY(begin: 0.2, end: 0);
   }
 
-  Widget _buildMessagesList(List<Message> messages, Resident? currentResident) {
+  Widget _buildMessagesList(RealtimeChatState state, Resident? currentResident) {
+    final messages = state.messages;
     final blockedUsersAsync = ref.watch(blockedUsersProvider);
     final blockedUsers = blockedUsersAsync.value ?? [];
 
@@ -403,8 +419,24 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
           bottom: AppTheme.duoSpacingMedium,
           top: AppTheme.duoSpacingSmall,
         ),
-        itemCount: filteredMessages.length,
+        itemCount: filteredMessages.length + (state.hasMore ? 1 : 0),
         itemBuilder: (context, index) {
+          if (index == filteredMessages.length) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: state.isLoadingMore
+                    ? const CircularProgressIndicator(strokeWidth: 2)
+                    : state.hasMore
+                        ? const Text(
+                            'Scroll for more messages',
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                          )
+                        : const SizedBox.shrink(),
+              ),
+            );
+          }
+
           final message = filteredMessages[index];
           final isCurrentUser =
               currentResident != null &&
@@ -416,7 +448,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
                 currentResident: currentResident,
               )
               .animate()
-              .fadeIn(delay: Duration(milliseconds: index * 30))
+              .fadeIn(delay: Duration(milliseconds: index * 10))
               .slideX(begin: isCurrentUser ? 0.1 : -0.1, end: 0);
         },
       ),

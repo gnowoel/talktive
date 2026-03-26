@@ -22,3 +22,9 @@ indexes:
     unique: true
   lounge_creator_idx:
     fields: creatorId
+  lounge_active_idx:
+    fields: isPublic, isStaffLocked, lastMessageAt
+  lounge_member_idx:
+    fields: memberCount
+  lounge_lastmsg_idx:
+    fields: lastMessageAt

@@ -4,6 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'client_provider.dart';
 import 'private_chat_provider.dart';
+import '../services/local_chat_cache.dart';
 
 part 'realtime_chat_provider.g.dart';
 
@@ -14,22 +15,30 @@ class RealtimeChatState {
   final List<Message> messages;
   final Set<String> typingUsers; // usernames of people typing
   final Map<String, DateTime> lastReadStatus; // userId -> lastReadAt
+  final bool isLoadingMore;
+  final bool hasMore;
 
   RealtimeChatState({
     required this.messages,
     required this.typingUsers,
     required this.lastReadStatus,
+    this.isLoadingMore = false,
+    this.hasMore = true,
   });
 
   RealtimeChatState copyWith({
     List<Message>? messages,
     Set<String>? typingUsers,
     Map<String, DateTime>? lastReadStatus,
+    bool? isLoadingMore,
+    bool? hasMore,
   }) {
     return RealtimeChatState(
       messages: messages ?? this.messages,
       typingUsers: typingUsers ?? this.typingUsers,
       lastReadStatus: lastReadStatus ?? this.lastReadStatus,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      hasMore: hasMore ?? this.hasMore,
     );
   }
 }
@@ -53,14 +62,15 @@ class RealtimeChat extends _$RealtimeChat {
       _typingTimer?.cancel();
     });
 
-    // Fetch initial messages
-    final messages = await _fetchMessages();
+    // 1. Try to load from cache first for instant UI
+    final cachedMessages = await LocalChatCache.getCachedMessages(_channelId);
 
-    // Initial state
+    // Initial state (potentially from cache)
     final initialState = RealtimeChatState(
-      messages: messages,
+      messages: cachedMessages,
       typingUsers: {},
       lastReadStatus: {},
+      hasMore: true, // Optimistically assume there's more until fetch fails/finishes
     );
 
     // Try to get other user's last read from details (for private chats)
@@ -77,20 +87,48 @@ class RealtimeChat extends _$RealtimeChat {
       // Not a private chat or details not available
     }
 
+    // 2. Fetch fresh messages in background and update state
+    _fetchAndSyncMessages();
+
     // Subscribe to real-time updates
     _subscribe();
 
     return initialState;
   }
 
+  /// Fetches fresh messages and updates state/cache.
+  Future<void> _fetchAndSyncMessages() async {
+    try {
+      final freshMessages = await _fetchMessages();
+      
+      // Update state with fresh messages
+      if (state.value != null) {
+        state = AsyncValue.data(state.value!.copyWith(
+          messages: freshMessages,
+          hasMore: freshMessages.length >= 50,
+        ));
+      }
+      
+      // Update cache
+      await LocalChatCache.cacheMessages(_channelId, freshMessages);
+    } catch (e) {
+      debugPrint('RealtimeChat: Fetch/sync error: $e');
+      // If we already have cached data, don't show an error screen entirely
+      if (state.value?.messages.isEmpty ?? true) {
+        // Re-throw if no data at all
+        rethrow;
+      }
+    }
+  }
+
   /// Fetches message history from the server.
-  Future<List<Message>> _fetchMessages() async {
+  Future<List<Message>> _fetchMessages({int offset = 0}) async {
     final client = ref.read(clientProvider);
     try {
       return await client.message.listMessages(
         _channelId,
         limit: 50,
-        offset: 0,
+        offset: offset,
       );
     } catch (e) {
       debugPrint('RealtimeChat: Fetch error: $e');
@@ -252,44 +290,56 @@ class RealtimeChat extends _$RealtimeChat {
 
   /// Refreshes the message list.
   Future<void> refresh() async {
-    state = const AsyncValue.loading();
     try {
       final messages = await _fetchMessages();
       state = AsyncValue.data(
         RealtimeChatState(
           messages: messages,
-          typingUsers: {},
-          lastReadStatus: {},
+          typingUsers: state.value?.typingUsers ?? {},
+          lastReadStatus: state.value?.lastReadStatus ?? {},
+          hasMore: messages.length >= 50,
         ),
       );
+      // Update cache
+      await LocalChatCache.cacheMessages(_channelId, messages);
     } catch (e, stack) {
-      state = AsyncValue.error(e, stack);
+      if (state.value?.messages.isEmpty ?? true) {
+        state = AsyncValue.error(e, stack);
+      }
     }
   }
 
   /// Loads more messages (pagination).
   Future<void> loadMore() async {
-    if (state.value == null) return;
+    if (state.value == null || !state.value!.hasMore || state.value!.isLoadingMore) return;
+    
     final currentState = state.value!;
+    
+    // Set loading flag
+    state = AsyncValue.data(currentState.copyWith(isLoadingMore: true));
 
     final client = ref.read(clientProvider);
 
     try {
-      final olderMessages = await client.message.listMessages(
-        _channelId,
-        limit: 50,
+      final olderMessages = await _fetchMessages(
         offset: currentState.messages.length,
       );
 
-      if (olderMessages.isNotEmpty) {
+      if (ref.mounted) {
+        final newHasMore = olderMessages.length >= 50;
         state = AsyncValue.data(
           currentState.copyWith(
             messages: [...currentState.messages, ...olderMessages],
+            isLoadingMore: false,
+            hasMore: newHasMore,
           ),
         );
       }
     } catch (e) {
       debugPrint('RealtimeChat: Load more error: $e');
+      if (ref.mounted) {
+        state = AsyncValue.data(currentState.copyWith(isLoadingMore: false));
+      }
     }
   }
 }

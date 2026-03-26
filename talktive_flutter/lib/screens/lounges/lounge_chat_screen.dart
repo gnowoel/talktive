@@ -207,6 +207,16 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
   void initState() {
     super.initState();
     _markAsRead();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_scrollController.hasClients) {
+      if (_scrollController.position.pixels >= 
+          _scrollController.position.maxScrollExtent - 200) {
+        ref.read(realtimeChatProvider(widget.lounge.channelId).notifier).loadMore();
+      }
+    }
   }
 
   Future<void> _markAsRead() async {
@@ -667,7 +677,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
       content: chatState.when(
         data: (state) => state.messages.isEmpty
             ? _buildEmptyState()
-            : _buildMessagesList(state.messages, currentResident),
+            : _buildMessagesList(state, currentResident),
         loading: () => const Center(
           child: CircularProgressIndicator(color: AppTheme.primaryColor),
         ),
@@ -802,7 +812,8 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
     );
   }
 
-  Widget _buildMessagesList(List<Message> messages, Resident? currentResident) {
+  Widget _buildMessagesList(RealtimeChatState state, Resident? currentResident) {
+    final messages = state.messages;
     final blockedUsersAsync = ref.watch(blockedUsersProvider);
     final blockedUsers = blockedUsersAsync.value ?? [];
 
@@ -832,8 +843,24 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
         controller: _scrollController,
         reverse: true,
         padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
-        itemCount: filteredMessages.length,
+        itemCount: filteredMessages.length + (state.hasMore ? 1 : 0),
         itemBuilder: (context, index) {
+          if (index == filteredMessages.length) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: state.isLoadingMore
+                    ? const CircularProgressIndicator(strokeWidth: 2)
+                    : state.hasMore
+                        ? const Text(
+                            'Scroll for more messages',
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                          )
+                        : const SizedBox.shrink(),
+              ),
+            );
+          }
+
           final message = filteredMessages[index];
           final isCurrentUser =
               currentResident != null &&
@@ -846,9 +873,9 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
                 onMention: _addMention,
                 otherMemberNames: memberNames,
               )
-              .animate(delay: Duration(milliseconds: index * 30))
+              .animate(delay: Duration(milliseconds: index * 10))
               .fadeIn(duration: 200.ms)
-              .slideY(begin: 0.1, end: 0);
+              .slideX(begin: isCurrentUser ? 0.1 : -0.1, end: 0);
         },
       ),
     );

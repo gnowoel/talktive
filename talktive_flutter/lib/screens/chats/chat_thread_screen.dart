@@ -46,6 +46,16 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
   void initState() {
     super.initState();
     _markAsRead();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_scrollController.hasClients) {
+      if (_scrollController.position.pixels >= 
+          _scrollController.position.maxScrollExtent - 200) {
+        ref.read(realtimeChatProvider(widget.channelId).notifier).loadMore();
+      }
+    }
   }
 
   Future<void> _markAsRead() async {
@@ -727,8 +737,24 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
         controller: _scrollController,
         reverse: true,
         padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
-        itemCount: filteredMessages.length,
+        itemCount: filteredMessages.length + (state.hasMore ? 1 : 0),
         itemBuilder: (context, index) {
+          if (index == filteredMessages.length) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: state.isLoadingMore
+                    ? const CircularProgressIndicator(strokeWidth: 2)
+                    : state.hasMore
+                        ? const Text(
+                            'Scroll for more messages',
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                          )
+                        : const SizedBox.shrink(),
+              ),
+            );
+          }
+
           final message = filteredMessages[index];
           final isCurrentUser =
               currentResident != null &&
@@ -751,7 +777,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                 otherMemberNames: [otherName],
                 isRead: isRead,
               )
-              .animate(delay: Duration(milliseconds: index * 30))
+              .animate(delay: Duration(milliseconds: index * 10))
               .fadeIn(duration: 200.ms)
               .slideY(begin: 0.1, end: 0);
         },

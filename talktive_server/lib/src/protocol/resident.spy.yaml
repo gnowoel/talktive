@@ -62,3 +62,15 @@ indexes:
   resident_user_idx:
     fields: userInfoId
     unique: true
+  resident_search_idx:
+    fields: allowDiscovery, lastSeen
+  resident_geo_idx:
+    fields: country, gender, ageRange
+  resident_xp_idx:
+    fields: xp
+  resident_level_idx:
+    fields: level
+  resident_role_idx:
+    fields: role
+  resident_lastseen_idx:
+    fields: lastSeen

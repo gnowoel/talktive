@@ -4,6 +4,7 @@ import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import '../services/notification_service.dart';
 import '../services/gamification_service.dart';
 import '../services/apartment_service.dart';
+import '../utils/task_utils.dart';
 
 /// Service for managing Resident profiles and synchronization with AuthUser.
 class ResidentService {
@@ -12,10 +13,32 @@ class ResidentService {
     Session session,
     UuidValue userId,
   ) async {
-    return await protocol.Resident.db.findFirstRow(
+    final cacheKey = 'resident_$userId';
+    
+    // 1. Try Session Cache (Local to this request/session)
+    final cached = await session.caches.local.get<protocol.Resident>(cacheKey);
+    if (cached != null) return cached;
+
+    // 2. Try Global Cache (In-memory/Redis)
+    final globalCached = await session.caches.global.get<protocol.Resident>(cacheKey);
+    if (globalCached != null) {
+      // Put in local cache for next lookups in same session
+      await session.caches.local.put(cacheKey, globalCached);
+      return globalCached;
+    }
+
+    // 3. Database Fallback
+    final resident = await protocol.Resident.db.findFirstRow(
       session,
       where: (t) => t.userInfoId.equals(userId),
     );
+
+    if (resident != null) {
+      await session.caches.local.put(cacheKey, resident, lifetime: Duration(minutes: 5));
+      await session.caches.global.put(cacheKey, resident, lifetime: Duration(minutes: 5));
+    }
+
+    return resident;
   }
 
   /// Fetches multiple Residents by their userInfoIds.
@@ -38,7 +61,17 @@ class ResidentService {
     final resident = await getResident(session, userInfoId);
     if (resident == null) return null;
 
-    // Perform passive updates
+    // Perform passive updates in background if possible to avoid blocking response
+    // But we need to return the 'synced' resident if we want strict consistency.
+    // However, for performance, we'll run it in background if they were seen recently.
+    final now = DateTime.now();
+    if (resident.lastSeen != null && 
+        now.difference(resident.lastSeen!).inSeconds < 30) {
+      // Very recently seen, skip blocking update
+      TaskUtils.runBackground(session, (s) => ensureActiveState(s, resident));
+      return resident;
+    }
+
     await ensureActiveState(session, resident);
     return resident;
   }
@@ -77,6 +110,10 @@ class ResidentService {
 
     if (changed) {
       await protocol.Resident.db.updateRow(session, resident);
+      // Invalidate caches
+      final cacheKey = 'resident_${resident.userInfoId}';
+      await session.caches.local.invalidateKey(cacheKey);
+      await session.caches.global.invalidateKey(cacheKey);
     }
 
     return resident;
@@ -236,98 +273,104 @@ class ResidentService {
     UuidValue targetId, {
     UuidValue? viewerId,
   }) async {
-    final resident = await getResident(session, targetId);
-    if (resident == null) return null;
+    // 1. Try Global Cache for the view (excluding mutual lounges/likes which are viewer-specific)
+    final baseCacheKey = 'profile_view_$targetId';
+    final cachedView = await session.caches.global.get<protocol.UserProfileView>(baseCacheKey);
 
-    // Parallelize all data fetching for optimal performance
-    final socialStateFuture = viewerId != null
-        ? Future.wait([
-            ResidentService.isBlocked(session, blockerId: viewerId, blockedId: targetId),
-            ResidentService.isBlocked(session, blockerId: targetId, blockedId: viewerId),
-            protocol.UserLike.db.findFirstRow(session,
-                where: (t) => t.senderId.equals(viewerId) & t.receiverId.equals(targetId)),
-          ])
-        : Future.value([false, false, null]);
+    protocol.UserProfileView? profile;
+    
+    if (cachedView != null) {
+      profile = cachedView;
+    } else {
+      final resident = await getResident(session, targetId);
+      if (resident == null) return null;
 
-    final statsFuture = Future.wait([
-      protocol.Message.db.count(session, where: (t) => t.senderId.equals(targetId)),
-      protocol.Moment.db.count(session, where: (t) => t.authorId.equals(targetId)),
-      protocol.UserAchievement.db.count(session,
-          where: (t) => t.userId.equals(targetId) & t.unlockedAt.notEquals(null)),
-    ]);
+      // Parallelize base data fetching
+      final statsFuture = Future.wait([
+        protocol.Message.db.count(session, where: (t) => t.senderId.equals(targetId)),
+        protocol.Moment.db.count(session, where: (t) => t.authorId.equals(targetId)),
+        protocol.UserAchievement.db.count(session,
+            where: (t) => t.userId.equals(targetId) & t.unlockedAt.notEquals(null)),
+      ]);
 
-    final recentMomentsFuture = protocol.Moment.db.find(
-      session,
-      where: (t) => t.authorId.equals(targetId),
-      orderBy: (t) => t.createdAt,
-      orderDescending: true,
-      limit: 6,
-    );
+      final recentMomentsFuture = protocol.Moment.db.find(
+        session,
+        where: (t) => t.authorId.equals(targetId),
+        orderBy: (t) => t.createdAt,
+        orderDescending: true,
+        limit: 6,
+      );
 
-    final mutualLoungesFuture = viewerId != null
-        ? Future.wait([
-            protocol.ChannelMember.db.find(session, where: (t) => t.userInfoId.equals(viewerId)),
-            protocol.ChannelMember.db.find(session, where: (t) => t.userInfoId.equals(targetId)),
-          ])
-        : Future.value([<protocol.ChannelMember>[], <protocol.ChannelMember>[]]);
+      final results = await Future.wait([
+        statsFuture,
+        recentMomentsFuture,
+      ]);
 
-    // Await all results
-    final results = await Future.wait([
-      socialStateFuture,
-      statsFuture,
-      recentMomentsFuture,
-      mutualLoungesFuture,
-    ]);
+      final stats = results[0] as List<int>;
+      final recentMoments = results[1] as List<protocol.Moment>;
 
-    final socialState = results[0] as List<dynamic>;
-    final stats = results[1] as List<int>;
-    final recentMoments = results[2] as List<protocol.Moment>;
-    final loungeMemberships = results[3] as List<List<protocol.ChannelMember>>;
+      profile = protocol.UserProfileView(
+        userId: targetId,
+        userName: resident.userName ?? 'Resident',
+        userAvatar: resident.customAvatarUrl ?? resident.avatar ?? '👤',
+        userMood: resident.mood,
+        floor: ApartmentService.computeEffectiveFloor(resident),
+        trustScore: resident.trustScore,
+        level: resident.level,
+        xp: resident.xp,
+        totalMessages: stats[0],
+        totalMoments: stats[1],
+        achievementsUnlocked: stats[2],
+        currentStreak: resident.currentStreak,
+        longestStreak: resident.longestStreak,
+        isBlocked: false, // Default for cache
+        hasBlockedMe: false, // Default for cache
+        isLiked: false, // Default for cache
+        mutualLounges: 0, // Default for cache
+        recentMoments: recentMoments,
+        interests: resident.interests,
+        languages: resident.languages,
+        gender: resident.gender,
+        country: resident.country,
+        bio: resident.bio,
+        ageRange: resident.ageRange,
+        lastSeen: resident.lastSeen,
+        isOnline: isResidentOnline(resident),
+        role: resident.role,
+      );
 
-    final isBlocked = socialState[0] as bool;
-    final hasBlockedMe = socialState[1] as bool;
-    final isLiked = socialState[2] != null;
-
-    final messageCount = stats[0];
-    final momentCount = stats[1];
-    final achievements = stats[2];
-
-    int mutualLoungesCount = 0;
-    if (viewerId != null) {
-      final viewerLoungeIds = loungeMemberships[0].map((g) => g.channelId).toSet();
-      final targetLoungeIds = loungeMemberships[1].map((g) => g.channelId).toSet();
-      mutualLoungesCount = viewerLoungeIds.intersection(targetLoungeIds).length;
+      // Cache for 2 minutes
+      await session.caches.global.put(baseCacheKey, profile, lifetime: Duration(minutes: 2));
     }
 
-    return protocol.UserProfileView(
-      userId: targetId,
-      userName: resident.userName ?? 'Resident',
-      userAvatar: resident.customAvatarUrl ?? resident.avatar ?? '👤',
-      userMood: resident.mood,
-      floor: ApartmentService.computeEffectiveFloor(resident),
-      trustScore: resident.trustScore,
-      level: resident.level,
-      xp: resident.xp,
-      totalMessages: messageCount,
-      totalMoments: momentCount,
-      achievementsUnlocked: achievements,
-      currentStreak: resident.currentStreak,
-      longestStreak: resident.longestStreak,
-      isBlocked: isBlocked,
-      hasBlockedMe: hasBlockedMe,
-      isLiked: isLiked,
-      mutualLounges: mutualLoungesCount,
-      recentMoments: recentMoments,
-      interests: resident.interests,
-      languages: resident.languages,
-      gender: resident.gender,
-      country: resident.country,
-      bio: resident.bio,
-      ageRange: resident.ageRange,
-      lastSeen: resident.lastSeen,
-      isOnline: isResidentOnline(resident),
-      role: resident.role,
-    );
+    // 2. Supplement with viewer-specific state (NOT CACHED globally)
+    if (viewerId != null) {
+      final socialDetails = await Future.wait([
+        ResidentService.isBlocked(session, blockerId: viewerId, blockedId: targetId),
+        ResidentService.isBlocked(session, blockerId: targetId, blockedId: viewerId),
+        protocol.UserLike.db.findFirstRow(session,
+            where: (t) => t.senderId.equals(viewerId) & t.receiverId.equals(targetId)),
+        protocol.ChannelMember.db.find(session, where: (t) => t.userInfoId.equals(viewerId)),
+        protocol.ChannelMember.db.find(session, where: (t) => t.userInfoId.equals(targetId)),
+      ]);
+
+      final isBlocked = socialDetails[0] as bool;
+      final hasBlockedMe = socialDetails[1] as bool;
+      final isLiked = socialDetails[2] != null;
+      
+      final viewerLoungeIds = (socialDetails[3] as List<protocol.ChannelMember>).map((g) => g.channelId).toSet();
+      final targetLoungeIds = (socialDetails[4] as List<protocol.ChannelMember>).map((g) => g.channelId).toSet();
+      final mutualLoungesCount = viewerLoungeIds.intersection(targetLoungeIds).length;
+
+      return profile.copyWith(
+        isBlocked: isBlocked,
+        hasBlockedMe: hasBlockedMe,
+        isLiked: isLiked,
+        mutualLounges: mutualLoungesCount,
+      );
+    }
+
+    return profile;
   }
 
   /// Converts a Resident to an AdminUserSummary (for staff views).

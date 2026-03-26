@@ -13,3 +13,5 @@ indexes:
   channel_user_idx:
     fields: channelId, userInfoId
     unique: true
+  channel_member_user_idx:
+    fields: userInfoId

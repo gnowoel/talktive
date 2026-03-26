@@ -42,8 +42,8 @@ import 'package:talktive_client/src/protocol/private_chat_with_profile.dart'
     as _i24;
 import 'package:talktive_client/src/protocol/user_profile_view.dart' as _i25;
 import 'package:talktive_client/src/protocol/user_summary.dart' as _i26;
-import 'package:talktive_client/src/protocol/search_all_results.dart' as _i27;
-import 'package:talktive_client/src/protocol/discovery_feed.dart' as _i28;
+import 'package:talktive_client/src/protocol/discovery_feed.dart' as _i27;
+import 'package:talktive_client/src/protocol/search_all_results.dart' as _i28;
 import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i29;
 import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i30;
 import 'protocol.dart' as _i31;
@@ -1136,8 +1136,6 @@ class EndpointPrivateChat extends _i2.EndpointRef {
 
   /// Creates or retrieves a private chat between two users.
   /// Returns the channel ID for the private chat.
-  /// Creates or retrieves a private chat between two users.
-  /// Returns the channel ID for the private chat.
   _i3.Future<_i23.PrivateChat> getOrCreatePrivateChat(
     String otherUserId, {
     String? initialMessage,
@@ -1151,7 +1149,6 @@ class EndpointPrivateChat extends _i2.EndpointRef {
   );
 
   /// Lists all private chats for the current user.
-  /// Lists all private chats for the current user.
   _i3.Future<List<_i24.PrivateChatWithProfile>> listPrivateChats() =>
       caller.callServerEndpoint<List<_i24.PrivateChatWithProfile>>(
         'privateChat',
@@ -1159,7 +1156,6 @@ class EndpointPrivateChat extends _i2.EndpointRef {
         {},
       );
 
-  /// Gets details about a private chat including the other participant's info.
   /// Gets details about a private chat including the other participant's info.
   _i3.Future<_i24.PrivateChatWithProfile?> getPrivateChatDetails(
     int channelId,
@@ -1169,7 +1165,6 @@ class EndpointPrivateChat extends _i2.EndpointRef {
     {'channelId': channelId},
   );
 
-  /// Accepts or declines a private chat invitation
   /// Accepts or declines a private chat invitation
   _i3.Future<void> respondToChatInvite(
     int channelId,
@@ -1183,7 +1178,6 @@ class EndpointPrivateChat extends _i2.EndpointRef {
     },
   );
 
-  /// Leaves a private chat.
   /// Leaves a private chat.
   _i3.Future<void> leaveChat(int channelId) => caller.callServerEndpoint<void>(
     'privateChat',
@@ -1492,6 +1486,36 @@ class EndpointSearch extends _i2.EndpointRef {
     },
   );
 
+  /// Get personalized discovery feed
+  _i3.Future<_i27.DiscoveryFeed> getDiscoveryFeed({
+    String? interest,
+    String? language,
+    String? country,
+    required int limit,
+  }) => caller.callServerEndpoint<_i27.DiscoveryFeed>(
+    'search',
+    'getDiscoveryFeed',
+    {
+      'interest': interest,
+      'language': language,
+      'country': country,
+      'limit': limit,
+    },
+  );
+
+  /// Search all content (users, lounges, moments)
+  _i3.Future<_i28.SearchAllResults> searchAll(
+    String query, {
+    required int limit,
+  }) => caller.callServerEndpoint<_i28.SearchAllResults>(
+    'search',
+    'searchAll',
+    {
+      'query': query,
+      'limit': limit,
+    },
+  );
+
   /// Get trending moments (most liked in last 7 days) - CACHED
   _i3.Future<List<_i19.Moment>> getTrendingMoments({required int limit}) =>
       caller.callServerEndpoint<List<_i19.Moment>>(
@@ -1536,54 +1560,6 @@ class EndpointSearch extends _i2.EndpointRef {
       'interest': interest,
       'ageRange': ageRange,
       'isPremium': isPremium,
-      'limit': limit,
-    },
-  );
-
-  /// Search all content (users, lounges, moments)
-  _i3.Future<_i27.SearchAllResults> searchAll(
-    String query, {
-    required int limit,
-  }) => caller.callServerEndpoint<_i27.SearchAllResults>(
-    'search',
-    'searchAll',
-    {
-      'query': query,
-      'limit': limit,
-    },
-  );
-
-  /// Discover users by shared interests
-  _i3.Future<List<_i26.UserSummary>> discoverUsersByInterests({
-    required int limit,
-  }) => caller.callServerEndpoint<List<_i26.UserSummary>>(
-    'search',
-    'discoverUsersByInterests',
-    {'limit': limit},
-  );
-
-  /// Discover users by shared languages
-  _i3.Future<List<_i26.UserSummary>> discoverUsersByLanguages({
-    required int limit,
-  }) => caller.callServerEndpoint<List<_i26.UserSummary>>(
-    'search',
-    'discoverUsersByLanguages',
-    {'limit': limit},
-  );
-
-  /// Get personalized discovery feed
-  _i3.Future<_i28.DiscoveryFeed> getDiscoveryFeed({
-    String? interest,
-    String? language,
-    String? country,
-    required int limit,
-  }) => caller.callServerEndpoint<_i28.DiscoveryFeed>(
-    'search',
-    'getDiscoveryFeed',
-    {
-      'interest': interest,
-      'language': language,
-      'country': country,
       'limit': limit,
     },
   );

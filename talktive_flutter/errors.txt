@@ -1,0 +1,13 @@
+Analyzing talktive_flutter...
+
+warning - lib/screens/discovery/lounge_search_screen.dart:19:8 - Unused import: '../../helpers/duo_upgrade_helper.dart'. Try removing the import directive. - unused_import
+warning - lib/screens/discovery/people_search_screen.dart:19:8 - Unused import: '../../helpers/duo_upgrade_helper.dart'. Try removing the import directive. - unused_import
+warning - lib/screens/discovery/people_search_screen.dart:33:11 - The value of the field '_searchQuery' isn't used. Try removing the field, or using it. - unused_field
+   info - lib/screens/discovery/lounge_search_screen.dart:278:24 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib/screens/discovery/lounge_search_screen.dart:287:49 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib/screens/discovery/lounge_search_screen.dart:301:60 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib/screens/discovery/people_search_screen.dart:302:24 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib/screens/discovery/people_search_screen.dart:311:49 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - lib/screens/discovery/people_search_screen.dart:329:60 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+
+9 issues found.

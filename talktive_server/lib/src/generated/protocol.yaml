@@ -118,12 +118,10 @@ resident:
 search:
   - searchUsers:
   - searchLounges:
+  - getDiscoveryFeed:
+  - searchAll:
   - getTrendingMoments:
   - getPopularLounges:
   - getActiveUsers:
-  - searchAll:
-  - discoverUsersByInterests:
-  - discoverUsersByLanguages:
-  - getDiscoveryFeed:
 greeting:
   - hello:

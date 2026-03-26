@@ -116,6 +116,10 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 
 ## Recent Fixes
 
+- **Search Service Refactoring & UI Modernization (Mar 2026)**:
+  - **Architectural Delegation**: Refactored the search system by extracting discovery and filtering logic from `SearchEndpoint` into a dedicated `SearchService`. This ensures the backend adheres to the service-layer delegation pattern used throughout the project.
+  - **UI Compliance**: Replaced deprecated `.withOpacity()` usage with the modern `.withValues(alpha: ...)` API across all search screens to ensure future Flutter compatibility and reduce console warnings.
+  - **Codebase Sanitization**: Sanitized the codebase by removing obsolete testing artifacts and unused imports, achieving a clean analysis state.
 - **Advanced Search & Demographic Discovery (Mar 2026)**:
   - **Enhanced Discovery**: Implemented a comprehensive search system for both People and Lounges, enabling granular filtering by Age Range, Gender, Country, Language, and Interests.
   - **Search Recommendations**: Updated the `SearchEndpoint` to return curated "zero-state" recommendations (active users/popular lounges) for empty search queries.

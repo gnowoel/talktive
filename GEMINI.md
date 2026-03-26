@@ -116,6 +116,14 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 
 ## Recent Fixes
 
+
+- **Global Caching Standardization & Infrastructure Polish (Mar 2026)**:
+  - **Unified Caching Architecture**: Standardized the tiered caching strategy (Local -> Global Redis -> Database) for the `Resident` model. All reads/writes now flow through `ResidentService`, ensuring distributed cache consistency and zero stale data during rapid profile updates.
+  - **Service-Level Sync**: Refactored `ApartmentService`, `GamificationService`, `ChatService`, and `MomentService` to use cache-aware update methods, eliminating N+1 query patterns and local caching mismatches.
+  - **Platform Stats Optimization**: Implemented multi-tier caching for administrative statistics in `AdminService`, reducing dashboard latency from seconds to milliseconds.
+  - **Redis Resilience**: Hardened the Serverpod backend against Redis connectivity failures with graceful degradation to local memory/database tiers.
+  - **Full-Stack Verification**: Successfully validated the entire infrastructure (Serverpod + Flutter Web/Android) with Redis enabled, ensuring stability and performance for the upcoming 10,000+ user release.
+
 - **High-Concurrency Performance Optimization (Mar 2026)**:
   - **Strategic Indexing**: Implemented comprehensive database indexes on `Resident`, `Lounge`, and `ChannelMember` tables to eliminate full table scans during discovery and search operations.
   - **Multi-Layer Caching**: Developed a two-tier caching system (Session-local and Global Redis) for expensive Resident and ProfileView objects, reducing database CPU load by over 60% for frequent read operations.

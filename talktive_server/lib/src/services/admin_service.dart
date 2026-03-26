@@ -3,6 +3,7 @@ import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import 'resident_service.dart';
 import 'lounge_service.dart';
 import 'cache_service.dart';
+import 'file_storage_service.dart';
 
 /// Service for handling administrative tasks, reporting, and statistics.
 class AdminService {
@@ -299,10 +300,25 @@ class AdminService {
       reportsMade: reportsMade,
     );
   }
-  /// Deletes a message.
-  static Future<void> deleteMessage(Session session, int messageId) async {
-    final message = await protocol.Message.db.findById(session, messageId);
+  /// Deletes a message and its associated media files.
+  static Future<void> deleteMessage(Session session, dynamic messageOrId) async {
+    protocol.Message? message;
+    if (messageOrId is protocol.Message) {
+      message = messageOrId;
+    } else if (messageOrId is int) {
+      message = await protocol.Message.db.findById(session, messageOrId);
+    }
+
     if (message != null) {
+      // 1. Clean up associated media files
+      if (message.imageUrl != null) {
+        await FileStorageService.deleteMedia(session, message.imageUrl);
+      }
+      if (message.mediaUrl != null) {
+        await FileStorageService.deleteMedia(session, message.mediaUrl);
+      }
+      
+      // 2. Delete database row
       await protocol.Message.db.deleteRow(session, message);
     }
   }

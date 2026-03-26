@@ -5,6 +5,7 @@ import 'notification_service.dart';
 import 'resident_service.dart';
 import 'chat_service.dart';
 import 'cache_service.dart';
+import 'admin_service.dart';
 import '../utils/task_utils.dart';
 
 /// Service for managing Lounge logic and discovery.
@@ -532,16 +533,43 @@ class LoungeService {
     return await protocol.Lounge.db.updateRow(session, lounge);
   }
 
-  /// Deletes a lounge and all associated data.
+  /// Deletes a lounge and all associated data, including messages and media files.
   static Future<void> deleteLounge(Session session, protocol.Lounge lounge) async {
-    // 1. Delete members
-    await session.db.unsafeQuery('DELETE FROM channel_member WHERE "channelId" = ${lounge.channelId}');
+    final channelId = lounge.channelId;
 
-    // 2. Delete lounge
+    // 1. Delete all messages and their media files
+    // Use a batch fetch approach for media cleanup
+    const int batchSize = 100;
+    bool hasMore = true;
+    while (hasMore) {
+      final messages = await protocol.Message.db.find(
+        session,
+        where: (t) => t.channelId.equals(channelId),
+        limit: batchSize,
+      );
+
+      if (messages.isEmpty) {
+        hasMore = false;
+        break;
+      }
+
+      for (final message in messages) {
+        await AdminService.deleteMessage(session, message);
+      }
+
+      if (messages.length < batchSize) {
+        hasMore = false;
+      }
+    }
+
+    // 2. Delete members
+    await session.db.unsafeQuery('DELETE FROM "channel_member" WHERE "channelId" = $channelId');
+
+    // 3. Delete lounge
     await protocol.Lounge.db.deleteRow(session, lounge);
 
-    // 3. Delete channel
-    final channel = await protocol.Channel.db.findById(session, lounge.channelId);
+    // 4. Delete channel
+    final channel = await protocol.Channel.db.findById(session, channelId);
     if (channel != null) await protocol.Channel.db.deleteRow(session, channel);
   }
 

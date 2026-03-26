@@ -208,4 +208,14 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
       userId: userId,
     );
   }
+
+  /// Deletes a moment (only by author or admin).
+  Future<void> deleteMoment(Session session, int momentId) async {
+    final userId = await getUserId(session);
+    await MomentService.deleteMoment(
+      session,
+      momentId: momentId,
+      userId: userId,
+    );
+  }
 }

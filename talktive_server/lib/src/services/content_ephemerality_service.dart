@@ -1,5 +1,6 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
+import 'package:talktive_server/src/services/file_storage_service.dart';
 
 /// Service for implementing Talktive's ephemerality and content management solution.
 /// This service automates the deletion of old user-generated content (GGC)
@@ -58,10 +59,26 @@ class ContentEphemeralityService {
     );
     
     if (plazaChannel == null) return 0;
-
-    final deleted = await protocol.Message.db.deleteWhere(
+    
+    // 1. Fetch messages to get their media URLs
+    final oldMessages = await protocol.Message.db.find(
       session,
       where: (t) => (t.channelId.equals(plazaChannel.id!)) & (t.createdAt < cutoff),
+      limit: 1000, // Safe batch limit
+    );
+
+    if (oldMessages.isEmpty) return 0;
+
+    // 2. Clean up media for each message
+    for (final m in oldMessages) {
+      await _deleteMessageMedia(session, m);
+    }
+
+    // 3. Clear out the database rows
+    final ids = oldMessages.map((m) => m.id!).toSet();
+    final deleted = await protocol.Message.db.deleteWhere(
+      session,
+      where: (t) => t.id.inSet(ids),
     );
 
     return deleted.length;
@@ -78,10 +95,27 @@ class ContentEphemeralityService {
     
     if (loungeChannels.isEmpty) return 0;
     
-    final ids = loungeChannels.map((c) => c.id!).toSet();
+    final idsSet = loungeChannels.map((c) => c.id!).toSet();
+
+    // 1. Fetch messages to get their media URLs
+    final oldMessages = await protocol.Message.db.find(
+      session,
+      where: (t) => (t.channelId.inSet(idsSet)) & (t.createdAt < cutoff),
+      limit: 1000, // Safe batch limit
+    );
+
+    if (oldMessages.isEmpty) return 0;
+
+    // 2. Clean up media for each message
+    for (final m in oldMessages) {
+      await _deleteMessageMedia(session, m);
+    }
+
+    // 3. Clear out the database rows
+    final ids = oldMessages.map((m) => m.id!).toSet();
     final deleted = await protocol.Message.db.deleteWhere(
       session,
-      where: (t) => (t.channelId.inSet(ids)) & (t.createdAt < cutoff),
+      where: (t) => t.id.inSet(ids),
     );
 
     return deleted.length;
@@ -127,9 +161,25 @@ class ContentEphemeralityService {
 
     if (cleanupSet.isEmpty) return 0;
 
-    final deleted = await protocol.Message.db.deleteWhere(
+    // 1. Fetch messages to get their media URLs
+    final oldMessages = await protocol.Message.db.find(
       session,
       where: (t) => (t.channelId.inSet(cleanupSet)) & (t.createdAt < cutoff),
+      limit: 1000, // Safe batch limit
+    );
+
+    if (oldMessages.isEmpty) return 0;
+
+    // 2. Clean up media for each message
+    for (final m in oldMessages) {
+      await _deleteMessageMedia(session, m);
+    }
+
+    // 3. Clear out the database rows
+    final ids = oldMessages.map((m) => m.id!).toSet();
+    final deleted = await protocol.Message.db.deleteWhere(
+      session,
+      where: (t) => t.id.inSet(ids),
     );
 
     return deleted.length;
@@ -149,11 +199,16 @@ class ContentEphemeralityService {
     
     final ids = oldMoments.map((m) => m.id!).toSet();
     
-    // 1. Clean up likes and comments associated with these moments
+    // 1. Clean up media images for these moments
+    for (final m in oldMoments) {
+      await FileStorageService.deleteMedia(session, m.imageUrl);
+    }
+
+    // 2. Clean up likes and comments associated with these moments
     await protocol.MomentLike.db.deleteWhere(session, where: (t) => t.momentId.inSet(ids));
     await protocol.MomentComment.db.deleteWhere(session, where: (t) => t.momentId.inSet(ids));
     
-    // 2. Clear out the moments themselves
+    // 3. Clear out the moments themselves
     final deleted = await protocol.Moment.db.deleteWhere(session, where: (t) => t.id.inSet(ids));
     return deleted.length;
   }
@@ -233,5 +288,15 @@ class ContentEphemeralityService {
     );
 
     return stats;
+  }
+
+  // --- PRIVATE CLEANUP UTILS ---
+
+  /// Helper to delete all media associated with a message.
+  static Future<void> _deleteMessageMedia(Session session, protocol.Message message) async {
+    // 1. Delete image
+    await FileStorageService.deleteMedia(session, message.imageUrl);
+    // 2. Delete media (voice recordings, videos, etc.)
+    await FileStorageService.deleteMedia(session, message.mediaUrl);
   }
 }

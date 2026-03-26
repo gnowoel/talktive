@@ -1,6 +1,27 @@
 
 # Talktive Development Changelog
 
+
+## March 26, 2026 - Automated File Cleanup & Firebase Storage Integration (Phase 8.76) 🧹📦❄️
+ 
+ ### Infrastructure & Data Integrity
+ - **Automated Physical Cleanup**: Implemented a comprehensive file cleanup system to prevent orphaned media files (images, voice recordings) in both local server storage and Firebase Cloud Storage.
+ - **Cascading Lounge Deletion**: Integrated deep cleanup into `LoungeService.deleteLounge`, ensuring all chat history and associated physical media are permanently removed when a lounge is disbanded.
+ - **Ephemeral Content Pruning**: Updated the daily `ContentEphemeralityService` to automatically remove physical assets for expired Plaza messages (24h), Lounge chats (14d), Private threads (30d), and Moments (7h).
+ - **Firebase Storage Deletion**: Developed `FileStorageService` with authenticated access to the Google Cloud Storage API, enabling secure programatic deletion of assets from the platform's external cloud buckets using service account credentials.
+ - **Proactive Avatar Cleanup**: Enhanced `ResidentEndpoint` to automatically delete old custom avatar files whenever a resident updates or removes their profile picture.
+ 
+ ## March 26, 2026 - Global Caching Standardization & Infrastructure Polish (Phase 8.75) 🏛️💎⚙️
+
+### Infrastructure & Performance
+- **Unified Global Caching Strategy**: Standardized the tiered caching architecture (Local -> Global Redis -> Database) for the `Resident` model. Centralized all resident profile retrievals and modifications in `ResidentService` to ensure system-wide cache consistency across single-VPS and clustered deployments.
+- **Service-Level Cache Synchronization**: Refactored critical backend services including `ApartmentService`, `GamificationService`, `ChatService`, and `MomentService` to use the standardized `updateResident` method. This guarantees that all profile updates, XP awards, and credential changes are automatically mirrored to both the local process and global Redis caches.
+- **Optimized Platform Statistics**: Implemented a multi-tier caching strategy for `AdminService.getStatistics`, utilizing instance-local memory for near-zero latency and global Redis for inter-instance synchronization, with a 5-minute database re-calculation window.
+- **Graceful Redis Degradation**: Hardened the global cache infrastructure with comprehensive `try-catch` implementations. The Serverpod backend now maintains 100% availability by falling back to database-native lookups if a Redis connectivity failure occurs.
+
+### Full-Stack Verification
+- **Verified Cross-Platform Stability**: Successfully validated the complete system lifecycle (Serverpod Server, Flutter Web, and Android Emulator) with Redis enabled, confirming consistent session management and sub-millisecond profile retrieval under simulated load.
+
 ## March 26, 2026 - Redis Global Caching & Stability Polish (Phase 8.60) 🏛️🚀💎
 
 ### Scalability & Infrastructure

@@ -5,6 +5,7 @@ import 'resident_service.dart';
 import 'apartment_service.dart';
 import 'gamification_service.dart';
 import 'notification_service.dart';
+import 'file_storage_service.dart';
 import '../utils/task_utils.dart';
 
 class MomentService {
@@ -282,5 +283,35 @@ class MomentService {
       moment.commentsCount -= 1;
       await Moment.db.updateRow(session, moment);
     }
+  }
+
+  /// Deletes a moment and cleans up all its associations and media.
+  static Future<void> deleteMoment(
+    Session session, {
+    required int momentId,
+    UuidValue? userId, // Optional, if provided ensures ownership unless admin
+  }) async {
+    final moment = await Moment.db.findById(session, momentId);
+    if (moment == null) return;
+
+    // 1. Authorization check (if userId provided)
+    if (userId != null) {
+      final resident = await ResidentService.getResident(session, userId);
+      final isStaff = resident?.role == ResidentRole.admin || resident?.role == ResidentRole.moderator;
+      
+      if (moment.authorId != userId && !isStaff) {
+        throw TalktiveException(message: 'Permission denied: Not your moment');
+      }
+    }
+
+    // 2. Clean up associations
+    await MomentLike.db.deleteWhere(session, where: (t) => t.momentId.equals(momentId));
+    await MomentComment.db.deleteWhere(session, where: (t) => t.momentId.equals(momentId));
+
+    // 3. Clean up physical media
+    await FileStorageService.deleteMedia(session, moment.imageUrl);
+
+    // 4. Delete moment record
+    await Moment.db.deleteRow(session, moment);
   }
 }

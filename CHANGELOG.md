@@ -1,6 +1,15 @@
 
 # Talktive Development Changelog
 
+## March 31, 2026 - Intelligent Cache Management & Foreground Pre-warming (Phase 8.55) 🏛️🧠⚡
+
+### Stewardship & Resource Optimization
+- **LRU Cache Eviction Policy**: Implemented an automated Least Recently Used (LRU) eviction policy in `LocalChatCache`. The system now maintains a strict limit of 20 cached channels and automatically prunes entries older than 7 days, preventing `SharedPreferences` bloat on older devices.
+- **Intelligent Foreground Pre-warming**: Introduced the `TalktivePrewarmer` utility. The app now proactively "warms up" the message cache and WebSocket subscriptions for the top 3 most active private threads while the user is navigated within the app.
+- **Async Safety & Stability**: Integrated robust `ref.mounted` checks across the `RealtimeChat` provider to eliminate "Ref used after dispose" runtime exceptions during high-concurrency pre-warming and navigation.
+- **Web Scaling**: Verified cross-platform performance, ensuring that pre-warming logic is optimized for both mobile memory constraints and web browser socket limits.
+
+
 This document tracks the major development milestones and changes made during the Talktive rebuild from Firebase to Serverpod.
 
 

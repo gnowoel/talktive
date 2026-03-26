@@ -102,6 +102,7 @@ class RealtimeChat extends _$RealtimeChat {
       final freshMessages = await _fetchMessages();
       
       // Update state with fresh messages
+      if (!ref.mounted) return;
       if (state.value != null) {
         state = AsyncValue.data(state.value!.copyWith(
           messages: freshMessages,
@@ -111,7 +112,9 @@ class RealtimeChat extends _$RealtimeChat {
       
       // Update cache
       await LocalChatCache.cacheMessages(_channelId, freshMessages);
+      if (!ref.mounted) return;
     } catch (e) {
+      if (!ref.mounted) return;
       debugPrint('RealtimeChat: Fetch/sync error: $e');
       // If we already have cached data, don't show an error screen entirely
       if (state.value?.messages.isEmpty ?? true) {
@@ -261,6 +264,7 @@ class RealtimeChat extends _$RealtimeChat {
         isSystem: false,
       );
 
+      if (!ref.mounted) return;
       if (state.value != null) {
         final currentState = state.value!;
         final exists = currentState.messages.any(

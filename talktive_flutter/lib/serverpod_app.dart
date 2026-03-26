@@ -5,6 +5,7 @@ import 'wrappers/serverpod_initialize.dart';
 import 'widgets/duo/duo_notification_toast.dart';
 import 'providers/router_provider.dart';
 import 'providers/fcm_provider.dart';
+import 'widgets/prewarmer.dart';
 
 class ServerpodApp extends StatelessWidget {
   const ServerpodApp({super.key});
@@ -34,7 +35,7 @@ class _ServerpodAppContent extends ConsumerWidget {
         builder: (context, child) {
           return Stack(
             children: [
-              if (child != null) child,
+              if (child != null) TalktivePrewarmer(child: child),
               const Positioned(
                 top: 0,
                 left: 0,

@@ -53,7 +53,10 @@ class RealtimeChat extends _$RealtimeChat {
   Timer? _typingTimer;
 
   @override
-  FutureOr<RealtimeChatState> build(int channelId) async {
+  FutureOr<RealtimeChatState> build(
+    int channelId, {
+    bool prewarmOnly = false,
+  }) async {
     _channelId = channelId;
 
     // Cleanup when provider is disposed
@@ -70,7 +73,8 @@ class RealtimeChat extends _$RealtimeChat {
       messages: cachedMessages,
       typingUsers: {},
       lastReadStatus: {},
-      hasMore: true, // Optimistically assume there's more until fetch fails/finishes
+      hasMore:
+          true, // Optimistically assume there's more until fetch fails/finishes
     );
 
     // Try to get other user's last read from details (for private chats)
@@ -78,10 +82,28 @@ class RealtimeChat extends _$RealtimeChat {
       final details = await ref.read(
         privateChatDetailsProvider(_channelId).future,
       );
-      if (details != null && details.otherUserLastReadAt != null) {
-        initialState.lastReadStatus[details.otherResident.userInfoId
-                .toString()] =
-            details.otherUserLastReadAt!;
+
+      if (details != null) {
+        if (details.otherUserLastReadAt != null) {
+          initialState.lastReadStatus[details.otherResident.userInfoId
+                  .toString()] =
+              details.otherUserLastReadAt!;
+        }
+
+        // Optimization: If pre-warming, check if cache is already fresh
+        if (prewarmOnly && cachedMessages.isNotEmpty) {
+          final lastKnown = await LocalChatCache.getLastMessageAt(_channelId);
+          if (lastKnown != null && details.chat.lastMessageAt != null) {
+            // If the last message timestamp matches, skip the fetch
+            if (!details.chat.lastMessageAt!.isAfter(lastKnown)) {
+              debugPrint(
+                'RealtimeChat: Skipping pre-warm fetch for $_channelId (Cache Fresh)',
+              );
+              _subscribe(); // Still subscribe for real-time updates
+              return initialState;
+            }
+          }
+        }
       }
     } catch (_) {
       // Not a private chat or details not available
@@ -100,16 +122,18 @@ class RealtimeChat extends _$RealtimeChat {
   Future<void> _fetchAndSyncMessages() async {
     try {
       final freshMessages = await _fetchMessages();
-      
+
       // Update state with fresh messages
       if (!ref.mounted) return;
       if (state.value != null) {
-        state = AsyncValue.data(state.value!.copyWith(
-          messages: freshMessages,
-          hasMore: freshMessages.length >= 50,
-        ));
+        state = AsyncValue.data(
+          state.value!.copyWith(
+            messages: freshMessages,
+            hasMore: freshMessages.length >= 50,
+          ),
+        );
       }
-      
+
       // Update cache
       await LocalChatCache.cacheMessages(_channelId, freshMessages);
       if (!ref.mounted) return;
@@ -315,14 +339,16 @@ class RealtimeChat extends _$RealtimeChat {
 
   /// Loads more messages (pagination).
   Future<void> loadMore() async {
-    if (state.value == null || !state.value!.hasMore || state.value!.isLoadingMore) return;
-    
+    if (state.value == null ||
+        !state.value!.hasMore ||
+        state.value!.isLoadingMore) {
+      return;
+    }
+
     final currentState = state.value!;
-    
+
     // Set loading flag
     state = AsyncValue.data(currentState.copyWith(isLoadingMore: true));
-
-    final client = ref.read(clientProvider);
 
     try {
       final olderMessages = await _fetchMessages(

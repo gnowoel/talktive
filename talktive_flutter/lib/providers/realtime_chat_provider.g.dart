@@ -22,7 +22,7 @@ final class RealtimeChatProvider
   /// Automatically subscribes to channel updates and maintains message list.
   RealtimeChatProvider._({
     required RealtimeChatFamily super.from,
-    required int super.argument,
+    required (int, {bool prewarmOnly}) super.argument,
   }) : super(
          retry: null,
          name: r'realtimeChatProvider',
@@ -38,7 +38,7 @@ final class RealtimeChatProvider
   String toString() {
     return r'realtimeChatProvider'
         ''
-        '($argument)';
+        '$argument';
   }
 
   @$internal
@@ -56,7 +56,7 @@ final class RealtimeChatProvider
   }
 }
 
-String _$realtimeChatHash() => r'8c79495a95827db0651430fc228c73826a416e48';
+String _$realtimeChatHash() => r'81583ee21fc44b2fe8a7150c7905cd9cf6cc1fca';
 
 /// Provider for real-time chat with WebSocket streaming.
 /// Automatically subscribes to channel updates and maintains message list.
@@ -68,7 +68,7 @@ final class RealtimeChatFamily extends $Family
           AsyncValue<RealtimeChatState>,
           RealtimeChatState,
           FutureOr<RealtimeChatState>,
-          int
+          (int, {bool prewarmOnly})
         > {
   RealtimeChatFamily._()
     : super(
@@ -82,8 +82,11 @@ final class RealtimeChatFamily extends $Family
   /// Provider for real-time chat with WebSocket streaming.
   /// Automatically subscribes to channel updates and maintains message list.
 
-  RealtimeChatProvider call(int channelId) =>
-      RealtimeChatProvider._(argument: channelId, from: this);
+  RealtimeChatProvider call(int channelId, {bool prewarmOnly = false}) =>
+      RealtimeChatProvider._(
+        argument: (channelId, prewarmOnly: prewarmOnly),
+        from: this,
+      );
 
   @override
   String toString() => r'realtimeChatProvider';
@@ -93,10 +96,11 @@ final class RealtimeChatFamily extends $Family
 /// Automatically subscribes to channel updates and maintains message list.
 
 abstract class _$RealtimeChat extends $AsyncNotifier<RealtimeChatState> {
-  late final _$args = ref.$arg as int;
-  int get channelId => _$args;
+  late final _$args = ref.$arg as (int, {bool prewarmOnly});
+  int get channelId => _$args.$1;
+  bool get prewarmOnly => _$args.prewarmOnly;
 
-  FutureOr<RealtimeChatState> build(int channelId);
+  FutureOr<RealtimeChatState> build(int channelId, {bool prewarmOnly = false});
   @$mustCallSuper
   @override
   void runBuild() {
@@ -110,6 +114,9 @@ abstract class _$RealtimeChat extends $AsyncNotifier<RealtimeChatState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, () => build(_$args));
+    element.handleCreate(
+      ref,
+      () => build(_$args.$1, prewarmOnly: _$args.prewarmOnly),
+    );
   }
 }

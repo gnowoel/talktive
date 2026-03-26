@@ -36,7 +36,7 @@ final class LoungeListProvider
   LoungeList create() => LoungeList();
 }
 
-String _$loungeListHash() => r'843eff00a18fdf34fe60a9bd2f37220ccbbff218';
+String _$loungeListHash() => r'cc2a791361d4ab7e149eccfe4ac121d953f7bcff';
 
 /// Provider for listing all lounges.
 

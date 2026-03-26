@@ -4,6 +4,7 @@ import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import 'apartment_service.dart';
 import 'notification_service.dart';
+import 'resident_service.dart';
 
 /// Gamification Service
 /// Handles XP, levels, streaks, achievements, and daily rewards.
@@ -118,7 +119,7 @@ class GamificationService {
       );
 
       if (save) {
-        await protocol.Resident.db.updateRow(session, resident);
+        await ResidentService.updateResident(session, resident);
       }
       return true;
     }

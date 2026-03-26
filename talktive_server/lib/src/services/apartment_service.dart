@@ -2,6 +2,7 @@
 import 'package:serverpod/serverpod.dart';
 import 'dart:math';
 import 'package:talktive_server/src/generated/protocol.dart';
+import 'resident_service.dart';
 
 /// Apartment Service
 /// Handles trustScore (safety/moderation) system and the
@@ -65,7 +66,7 @@ class ApartmentService {
         Duration(hours: hoursPassed),
       );
       if (save) {
-        await Resident.db.updateRow(session, resident);
+        await ResidentService.updateResident(session, resident);
       }
       session.log(
         'Restored $points trustScore to ${resident.userInfoId}. '
@@ -75,7 +76,7 @@ class ApartmentService {
     } else if (resident.lastReputationIncrease == null) {
       resident.lastReputationIncrease = now;
       if (save) {
-        await Resident.db.updateRow(session, resident);
+        await ResidentService.updateResident(session, resident);
       }
       return true;
     }

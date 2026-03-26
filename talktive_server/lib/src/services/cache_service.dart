@@ -21,12 +21,12 @@ class CacheService {
     final key = '${_statsPrefix}platform';
 
     try {
-      final cached = await session.caches.local.get<CacheString>(key);
+      final cached = await session.caches.global.get<CacheString>(key);
       if (cached != null) {
         return AdminStatistics.fromJson(jsonDecode(cached.value));
       }
     } catch (e) {
-      session.log('Cache get error: $e', level: LogLevel.warning);
+      session.log('Cache get error (statistics): $e', level: LogLevel.warning);
     }
 
     return null;
@@ -40,13 +40,13 @@ class CacheService {
     final key = '${_statsPrefix}platform';
 
     try {
-      await session.caches.local.put(
+      await session.caches.global.put(
         key,
         CacheString(value: jsonEncode(stats.toJson())),
         lifetime: statisticsTTL,
       );
     } catch (e) {
-      session.log('Cache set error: $e', level: LogLevel.warning);
+      session.log('Cache set error (statistics): $e', level: LogLevel.warning);
     }
   }
 

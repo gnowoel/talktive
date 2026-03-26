@@ -2,6 +2,7 @@ import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import 'resident_service.dart';
 import 'lounge_service.dart';
+import 'cache_service.dart';
 
 /// Service for handling administrative tasks, reporting, and statistics.
 class AdminService {
@@ -94,13 +95,24 @@ class AdminService {
     }).toList();
   }
 
-  /// Computes platform-wide statistics.
+  /// Computes platform-wide statistics with multi-tier caching (Process -> Global/Redis -> DB).
   static Future<protocol.AdminStatistics> getStatistics(Session session) async {
+    // 1. Level 1 Cache: Memory (Process-local)
     if (_cachedStats != null &&
         _lastStatsUpdate != null &&
         DateTime.now().difference(_lastStatsUpdate!) < _statsCacheDuration) {
       return _cachedStats!;
     }
+
+    // 2. Level 2 Cache: Global (Redis) via CacheService
+    final globalCached = await CacheService.getStatistics(session);
+    if (globalCached != null) {
+      _cachedStats = globalCached;
+      _lastStatsUpdate = DateTime.now();
+      return globalCached;
+    }
+
+    // 3. Level 3: Database (Recompute)
 
     final now = DateTime.now();
     final dayAgo = now.subtract(const Duration(days: 1));
@@ -179,6 +191,9 @@ class AdminService {
 
     _cachedStats = stats;
     _lastStatsUpdate = now;
+
+    // Cache to Global tier
+    await CacheService.setStatistics(session, stats);
 
     return stats;
   }

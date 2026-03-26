@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart';
+import 'resident_service.dart';
 import 'apartment_service.dart';
 import 'gamification_service.dart';
 import 'notification_service.dart';
@@ -62,7 +63,7 @@ class MomentService {
       save: false,
     );
 
-    await Resident.db.updateRow(session, author);
+    await ResidentService.updateResident(session, author);
 
     return savedMoment;
   }
@@ -156,7 +157,7 @@ class MomentService {
             save: false,
           );
           ApartmentService.awardVouch(target: momentAuthor);
-          await Resident.db.updateRow(session, momentAuthor);
+          await ResidentService.updateResident(session, momentAuthor);
 
           // Notify author (background to prevent UI delay and session closure errors)
           TaskUtils.runBackground(session, (backgroundSession) async {

@@ -599,7 +599,7 @@ class ChatService {
       sender,
       save: false,
     );
-    await protocol.Resident.db.updateRow(session, sender);
+    await ResidentService.updateResident(session, sender);
 
     // Achievement Progress (Background to prevent message send delay)
     TaskUtils.runBackground(session, (backgroundSession) async {

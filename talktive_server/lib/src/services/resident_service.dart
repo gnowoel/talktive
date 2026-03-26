@@ -52,16 +52,68 @@ class ResidentService {
     return resident;
   }
 
-  /// Fetches multiple Residents by their userInfoIds.
+  /// Fetches multiple Residents by their userInfoIds with batch caching.
   static Future<List<protocol.Resident>> getResidents(
     Session session,
     List<UuidValue> userIds,
   ) async {
     if (userIds.isEmpty) return [];
-    return await protocol.Resident.db.find(
+
+    final result = <protocol.Resident>[];
+    final missingIds = <UuidValue>[];
+    final cacheKeyMap = {for (final id in userIds) id: 'resident_$id'};
+
+    // 1. Try Session Cache (Local)
+    for (final id in userIds) {
+      final cached = await session.caches.local.get<protocol.Resident>(cacheKeyMap[id]!);
+      if (cached != null) {
+        result.add(cached);
+      } else {
+        missingIds.add(id);
+      }
+    }
+
+    if (missingIds.isEmpty) return result;
+
+    // 2. Try Global Cache for remaining IDs
+    final stillMissingIds = <UuidValue>[];
+    for (final id in List<UuidValue>.from(missingIds)) {
+      protocol.Resident? globalCached;
+      try {
+        globalCached = await session.caches.global.get<protocol.Resident>(cacheKeyMap[id]!);
+      } catch (e) {
+        // Fallback to missing
+      }
+      
+      if (globalCached != null) {
+        result.add(globalCached);
+        await session.caches.local.put(cacheKeyMap[id]!, globalCached);
+        missingIds.remove(id);
+      } else {
+        stillMissingIds.add(id);
+      }
+    }
+
+    if (stillMissingIds.isEmpty) return result;
+
+    // 3. Database Fallback for remaining IDs
+    final residentsFromDb = await protocol.Resident.db.find(
       session,
-      where: (t) => t.userInfoId.inSet(userIds.toSet()),
+      where: (t) => t.userInfoId.inSet(stillMissingIds.toSet()),
     );
+
+    for (final resident in residentsFromDb) {
+      result.add(resident);
+      final key = cacheKeyMap[resident.userInfoId]!;
+      await session.caches.local.put(key, resident, lifetime: Duration(minutes: 5));
+      try {
+        await session.caches.global.put(key, resident, lifetime: Duration(minutes: 5));
+      } catch (e) {
+        // Silent
+      }
+    }
+
+    return result;
   }
 
   /// Fetches a Resident and performs passive updates (Trust Score, Daily Login, lastSeen).
@@ -85,6 +137,50 @@ class ResidentService {
 
     await ensureActiveState(session, resident);
     return resident;
+  }
+
+  /// Invalidates the cache for a specific resident across all tiers (Local & Global).
+  static Future<void> invalidateResidentCache(
+    Session session,
+    UuidValue userId,
+  ) async {
+    final residentKey = 'resident_$userId';
+    final viewKey = 'profile_view_$userId';
+
+    await session.caches.local.invalidateKey(residentKey);
+    await session.caches.local.invalidateKey(viewKey);
+    try {
+      await session.caches.global.invalidateKey(residentKey);
+      await session.caches.global.invalidateKey(viewKey);
+    } catch (e) {
+      session.log('Cache error (invalidate resident): $e', level: LogLevel.debug);
+    }
+  }
+
+  /// Updates a resident in the database and synchronizes the global cache.
+  static Future<protocol.Resident> updateResident(
+    Session session,
+    protocol.Resident resident,
+  ) async {
+    final updated = await protocol.Resident.db.updateRow(session, resident);
+
+    // Invalidate caches including Derived Profile View
+    await invalidateResidentCache(session, resident.userInfoId);
+
+    // Sync primary resident object back to caches
+    final cacheKey = 'resident_${resident.userInfoId}';
+    await session.caches.local.put(cacheKey, updated);
+    try {
+      await session.caches.global.put(
+        cacheKey,
+        updated,
+        lifetime: const Duration(minutes: 5),
+      );
+    } catch (e) {
+      session.log('Cache error (sync resident): $e', level: LogLevel.debug);
+    }
+
+    return updated;
   }
 
   /// Ensures the resident's temporal state is up to date (trust score, daily login, last seen).
@@ -120,15 +216,7 @@ class ResidentService {
     }
 
     if (changed) {
-      await protocol.Resident.db.updateRow(session, resident);
-      // Invalidate caches
-      final cacheKey = 'resident_${resident.userInfoId}';
-      await session.caches.local.invalidateKey(cacheKey);
-      try {
-        await session.caches.global.invalidateKey(cacheKey);
-      } catch (e) {
-        session.log('Cache error (invalidate resident): $e', level: LogLevel.debug);
-      }
+      return await updateResident(session, resident);
     }
 
     return resident;
@@ -547,7 +635,7 @@ class ResidentService {
       'Vouched by another resident',
       save: false,
     );
-    await protocol.Resident.db.updateRow(session, target);
+    await updateResident(session, target);
 
     // Send notification
     try {
@@ -579,7 +667,7 @@ class ResidentService {
     await protocol.UserLike.db.deleteRow(session, existingLike);
 
     ApartmentService.removeVouch(target: target);
-    await protocol.Resident.db.updateRow(session, target);
+    await updateResident(session, target);
   }
 
   /// Blocks or unblocks a resident.
@@ -648,7 +736,7 @@ class ResidentService {
     final bool oldKeepPrivateChats = resident.keepPrivateChats;
     if (keepPrivateChats != null) resident.keepPrivateChats = keepPrivateChats;
 
-    final updatedResident = await protocol.Resident.db.updateRow(session, resident);
+    final updatedResident = await updateResident(session, resident);
 
     // If transitioned from true to false, unkeep all private chats for this user.
     if (oldKeepPrivateChats && updatedResident.keepPrivateChats == false) {
@@ -702,7 +790,7 @@ class ResidentService {
       // We don't disable read receipts/typing/online status as they are standard privacy 
       // but premium lets you use them *while* staying hidden.
 
-      final updated = await protocol.Resident.db.updateRow(session, resident);
+      final updated = await updateResident(session, resident);
 
       // Perform cleanup for kept chats if they were previously enabled
       if (oldKeepPrivateChats) {
@@ -711,7 +799,7 @@ class ResidentService {
       return updated;
     }
 
-    return await protocol.Resident.db.updateRow(session, resident);
+    return await updateResident(session, resident);
   }
 
   /// Removes persistence for all private channels where the user is a member.

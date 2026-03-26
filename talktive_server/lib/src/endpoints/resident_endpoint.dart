@@ -111,7 +111,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     }
     resident.customAvatarUrl = customAvatarUrl;
 
-    return await protocol.Resident.db.updateRow(session, resident);
+    return await ResidentService.updateResident(session, resident);
   }
 
   /// Updates only the custom avatar URL (standalone method for overlay button).
@@ -134,7 +134,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     }
     
     resident.customAvatarUrl = customAvatarUrl;
-    return await protocol.Resident.db.updateRow(session, resident);
+    return await ResidentService.updateResident(session, resident);
   }
 
   /// Get a user's profile view (with stats)

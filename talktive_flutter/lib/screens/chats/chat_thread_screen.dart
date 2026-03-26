@@ -16,10 +16,11 @@ import '../../widgets/duo/duo_refresh_button.dart';
 import '../../helpers/duo_upgrade_helper.dart';
 import '../../services/media_service.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../providers/lounge_provider.dart';
 import '../../providers/private_chat_provider.dart';
 import '../../providers/client_provider.dart';
-import '../../providers/lounge_provider.dart';
 import 'package:go_router/go_router.dart';
+import '../../utils/ad_navigation_utils.dart';
 
 /// Chat thread screen for private 1-on-1 conversations
 class ChatThreadScreen extends ConsumerStatefulWidget {
@@ -32,6 +33,7 @@ class ChatThreadScreen extends ConsumerStatefulWidget {
 }
 
 class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
+  bool _isExiting = false;
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
@@ -254,8 +256,17 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     final currentResident = currentResidentAsync.value;
     final chatState = ref.watch(realtimeChatProvider(widget.channelId));
 
-    return chatDetailsAsync.when(
-      data: (details) {
+    return PopScope(
+      canPop: _isExiting,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        if (context.mounted) {
+          setState(() => _isExiting = true);
+          await context.popWithAd(ref);
+        }
+      },
+      child: chatDetailsAsync.when(
+        data: (details) {
         if (details == null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (context.mounted) {
@@ -311,7 +322,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
               icon: const Icon(Icons.arrow_back, color: Colors.black),
               onPressed: () {
                 HapticFeedback.lightImpact();
-                Navigator.pop(context);
+                context.popWithAd(ref);
               },
             ),
             title: Row(
@@ -576,42 +587,43 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
           ),
         );
       },
-      loading: () => Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: const Text('Loading Chat...'),
-          elevation: 0,
+        loading: () => Scaffold(
           backgroundColor: Colors.white,
+          appBar: AppBar(
+            title: const Text('Loading Chat...'),
+            elevation: 0,
+            backgroundColor: Colors.white,
+          ),
+          body: const Center(
+            child: CircularProgressIndicator(color: AppTheme.primaryColor),
+          ),
         ),
-        body: const Center(
-          child: CircularProgressIndicator(color: AppTheme.primaryColor),
-        ),
-      ),
-      error: (e, stack) => Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: const Text('Error'),
-          elevation: 0,
+        error: (e, stack) => Scaffold(
           backgroundColor: Colors.white,
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('⚠️', style: TextStyle(fontSize: 48)),
-              const SizedBox(height: 16),
-              Text(
-                'Failed to load chat: $e',
-                style: const TextStyle(color: Colors.grey),
-                textAlign: TextAlign.center,
-              ),
-              TextButton(
-                onPressed: () => ref.invalidate(
-                  privateChatDetailsProvider(widget.channelId),
+          appBar: AppBar(
+            title: const Text('Error'),
+            elevation: 0,
+            backgroundColor: Colors.white,
+          ),
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('⚠️', style: TextStyle(fontSize: 48)),
+                const SizedBox(height: 16),
+                Text(
+                  'Failed to load chat: $e',
+                  style: const TextStyle(color: Colors.grey),
+                  textAlign: TextAlign.center,
                 ),
-                child: const Text('Retry'),
-              ),
-            ],
+                TextButton(
+                  onPressed: () => ref.invalidate(
+                    privateChatDetailsProvider(widget.channelId),
+                  ),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

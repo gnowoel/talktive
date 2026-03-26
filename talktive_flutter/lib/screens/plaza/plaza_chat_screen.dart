@@ -19,6 +19,7 @@ import '../../widgets/duo/duo_chat_layout.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
 import '../../services/media_service.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../utils/ad_navigation_utils.dart';
 
 /// Duolingo-style Global Lounge screen - public chat
 class PlazaChatScreen extends ConsumerStatefulWidget {
@@ -33,6 +34,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   bool _isSending = false;
+  bool _isExiting = false;
 
   @override
   void initState() {
@@ -221,7 +223,16 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
         .where((u) => u != currentResident?.userName)
         .toList();
 
-    return DuoChatInputLayout(
+    return PopScope(
+      canPop: _isExiting,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        if (context.mounted) {
+          setState(() => _isExiting = true);
+          await context.popWithAd(ref);
+        }
+      },
+      child: DuoChatInputLayout(
       typingIndicator:
           (currentResident?.isPremium == true &&
               currentResident?.showOthersTypingIndicators == true &&
@@ -236,7 +247,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black, size: 24),
           onPressed: () {
             HapticFeedback.lightImpact();
-            Navigator.pop(context);
+            context.popWithAd(ref);
           },
         ),
         title: Row(
@@ -354,8 +365,9 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
           },
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildTypingIndicator(List<String> typingUsers) {
     if (typingUsers.isEmpty) return const SizedBox.shrink();

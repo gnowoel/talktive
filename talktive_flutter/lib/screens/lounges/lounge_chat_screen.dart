@@ -23,6 +23,7 @@ import '../../services/media_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'lounge_profile_screen.dart';
 import '../../providers/private_chat_provider.dart';
+import '../../utils/ad_navigation_utils.dart';
 
 /// Loader for deep linking into LoungeChatScreen without the Lounge model
 class LoungeChatLoader extends ConsumerStatefulWidget {
@@ -160,6 +161,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
   final FocusNode _focusNode = FocusNode();
   bool _isSending = false;
   bool _hasMarkedAsRead = false;
+  bool _isExiting = false;
 
   void _showUpgradePrompt(String feature) {
     DuoUpgradeHelper.showUpgradePrompt(context, feature);
@@ -380,7 +382,16 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
         .where((u) => u != currentResident?.userName)
         .toList();
 
-    return DuoChatInputLayout(
+    return PopScope(
+      canPop: _isExiting,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        if (context.mounted) {
+          setState(() => _isExiting = true);
+          await context.popWithAd(ref);
+        }
+      },
+      child: DuoChatInputLayout(
       typingIndicator:
           (currentResident?.isPremium == true && otherTypingUsers.isNotEmpty)
           ? _buildTypingIndicator(otherTypingUsers)
@@ -392,7 +403,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             HapticFeedback.lightImpact();
-            Navigator.pop(context);
+            context.popWithAd(ref);
           },
         ),
         title: InkWell(
@@ -683,8 +694,9 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
         ),
         error: (error, stack) => _buildErrorState(error),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildTypingIndicator(List<String> typingUsers) {
     if (typingUsers.isEmpty) return const SizedBox.shrink();

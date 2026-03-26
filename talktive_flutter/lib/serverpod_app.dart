@@ -6,6 +6,7 @@ import 'widgets/duo/duo_notification_toast.dart';
 import 'providers/router_provider.dart';
 import 'providers/fcm_provider.dart';
 import 'widgets/prewarmer.dart';
+import 'services/ad/ad_service.dart';
 
 class ServerpodApp extends StatelessWidget {
   const ServerpodApp({super.key});
@@ -16,11 +17,25 @@ class ServerpodApp extends StatelessWidget {
   }
 }
 
-class _ServerpodAppContent extends ConsumerWidget {
+class _ServerpodAppContent extends ConsumerStatefulWidget {
   const _ServerpodAppContent();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_ServerpodAppContent> createState() => _ServerpodAppContentState();
+}
+
+class _ServerpodAppContentState extends ConsumerState<_ServerpodAppContent> {
+  @override
+  void initState() {
+    super.initState();
+    // Initialize AdService for the Serverpod version
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(adServiceProvider).initialize();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
     // Keep FCMManager alive to handle background/foreground messages
     ref.watch(fCMManagerProvider);

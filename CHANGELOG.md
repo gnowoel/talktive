@@ -1,5 +1,22 @@
 # Talktive Development Changelog
 
+## March 26, 2026 - Interstitial Ad System & Monetization Infrastructure (Phase 8.77) 💰📺🚀
+
+### Monetization & User Experience
+
+- **Interstitial Ad Integration**: Implemented a robust, exit-triggered interstitial ad system for all chat surfaces (Plaza, Lounges, Private Chats).
+- **Compliance-First Architecture**: Developed `ConsentService` to manage Google UMP consent (GDPR/CCPA/ATT), ensuring full AdMob compliance and privacy protection for all residents.
+- **Intelligent Ad Scheduling**: Created `AdService` with a mandatory **2-minute cooldown** between interstitial displays to maintain a premium, non-intrusive community atmosphere.
+- **Premium Exemption**: Integrated Talktive Plus checks, automatically exempting premium residents (`isPremium`) from all interstitial ads for a seamless, ad-free experience.
+- **AdMob Unit ID Management**: Centralized test and production unit IDs in `AdConfig`, incorporating automatic "Staff" detection to ensure safe testing for the development team.
+
+### Navigation & Technical Implementation
+
+- **Navigation Flow Protection**: Developed `AdNavigationExtensions` to provide `context.popWithAd(ref)`, ensuring ads are consistently shown before screen pops regardless of trigger point.
+- **Gesture Interception**: Implemented `PopScope` across all chat screens to intercept hardware back buttons and swipe-to-dismiss gestures, guaranteeing that the ad policy is enforced before navigation.
+- **Cross-Version Parallelism**: Successfully verified that the new Serverpod ad system operates in parallel with the legacy Firebase version, ensuring monetization stability during the migration phase.
+- **Documentation**: Established `docs/MONETIZATION.md` to house the platform's monetization philosophy and technical implementation details.
+
 ## March 26, 2026 - Automated File Cleanup & Firebase Storage Integration (Phase 8.76) 🧹📦❄️
 
 ### Infrastructure & Data Integrity

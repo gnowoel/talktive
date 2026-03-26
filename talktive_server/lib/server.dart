@@ -66,17 +66,6 @@ void run(List<String> args) async {
   final root = Directory(Uri(path: 'web/static').toFilePath());
   pod.webServer.addRoute(StaticRoute.directory(root));
 
-  // Serve uploaded images from uploads directory
-  // When using Docker, mount this as a volume: -v ./uploads:/app/uploads
-  final uploadsDir = Directory('uploads');
-  if (!uploadsDir.existsSync()) {
-    uploadsDir.createSync(recursive: true);
-  }
-  pod.webServer.addRoute(
-    StaticRoute.directory(uploadsDir),
-    '/uploads',
-  );
-
   // Setup the app config route.
   // We build this configuration based on the servers api url and serve it to
   // the flutter app.

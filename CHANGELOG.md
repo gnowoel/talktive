@@ -5,10 +5,11 @@
 ## March 26, 2026 - Automated File Cleanup & Firebase Storage Integration (Phase 8.76) 🧹📦❄️
  
  ### Infrastructure & Data Integrity
- - **Automated Physical Cleanup**: Implemented a comprehensive file cleanup system to prevent orphaned media files (images, voice recordings) in both local server storage and Firebase Cloud Storage.
- - **Cascading Lounge Deletion**: Integrated deep cleanup into `LoungeService.deleteLounge`, ensuring all chat history and associated physical media are permanently removed when a lounge is disbanded.
- - **Ephemeral Content Pruning**: Updated the daily `ContentEphemeralityService` to automatically remove physical assets for expired Plaza messages (24h), Lounge chats (14d), Private threads (30d), and Moments (7h).
- - **Firebase Storage Deletion**: Developed `FileStorageService` with authenticated access to the Google Cloud Storage API, enabling secure programatic deletion of assets from the platform's external cloud buckets using service account credentials.
+ - **Automated Cloud Cleanup**: Implemented a comprehensive file cleanup system to prevent orphaned media files (images, voice recordings) in Firebase Cloud Storage.
+- **Cascading Lounge Deletion**: Integrated deep cleanup into `LoungeService.deleteLounge`, ensuring all chat history and associated cloud media are permanently removed when a lounge is disbanded.
+- **Ephemeral Content Pruning**: Updated the daily `ContentEphemeralityService` to automatically remove cloud assets for expired Plaza messages (24h), Lounge chats (14d), Private threads (30d), and Moments (7h).
+- **Stateless Server Architecture**: Removed the redundant local `/uploads` static route and associated local file system operations, fully standardizing on direct client-to-cloud uploads to maintain a lean, stateless backend.
+- **Firebase Storage Deletion**: Developed `FileStorageService` with authenticated access to the Google Cloud Storage API, enabling secure programatic deletion of assets from the platform's external cloud buckets using service account credentials.
  - **Proactive Avatar Cleanup**: Enhanced `ResidentEndpoint` to automatically delete old custom avatar files whenever a resident updates or removes their profile picture.
  
  ## March 26, 2026 - Global Caching Standardization & Infrastructure Polish (Phase 8.75) 🏛️💎⚙️

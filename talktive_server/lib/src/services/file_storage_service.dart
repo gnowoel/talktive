@@ -7,8 +7,6 @@ import 'package:googleapis_auth/auth_io.dart' as auth;
 /// Service for managing physical file storage on the server.
 /// Handles deletion of media files from the local storage or external providers.
 class FileStorageService {
-  /// Base directory for local uploads (should match StaticRoute in server.dart)
-  static const String _localUploadDir = 'uploads';
 
   static auth.ServiceAccountCredentials? _credentials;
   static bool _initialized = false;
@@ -29,36 +27,16 @@ class FileStorageService {
   }
 
   /// Deletes a piece of media from the server's storage based on its URL.
-  /// This handles both local paths and external Firebase Storage URLs.
+  /// This currently focuses on Firebase Storage URLs, as the platform has 
+  /// standardized on direct client-to-cloud uploads.
   static Future<void> deleteMedia(Session session, String? url) async {
     if (url == null || url.isEmpty) return;
 
-    // 1. Check for local storage (mapped to /uploads/)
-    if (url.contains('/uploads/')) {
-      await _deleteLocalFile(session, url);
-    } 
-    // 2. Check for Firebase Storage (GCS)
-    else if (url.contains('firebasestorage.googleapis.com')) {
+    // Check for Firebase Storage (GCS)
+    if (url.contains('firebasestorage.googleapis.com')) {
       await _deleteFirebaseFile(session, url);
-    }
-  }
-
-  /// Safely deletes a file from the local 'uploads' directory.
-  static Future<void> _deleteLocalFile(Session session, String url) async {
-    try {
-      final uri = Uri.parse(url);
-      final filename = uri.pathSegments.last;
-
-      if (filename.isEmpty) return;
-
-      final file = File('$_localUploadDir/$filename');
-      
-      if (await file.exists()) {
-        await file.delete();
-        session.log('TALKTIVE: Physically deleted local file: $filename', level: LogLevel.info);
-      }
-    } catch (e) {
-      session.log('TALKTIVE: Error deleting local file ($url): $e', level: LogLevel.error);
+    } else {
+      session.log('TALKTIVE: Unrecognized media provider for URL: $url', level: LogLevel.warning);
     }
   }
 

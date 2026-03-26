@@ -1,6 +1,15 @@
 
 # Talktive Development Changelog
 
+## March 26, 2026 - Redis Global Caching & Stability Polish (Phase 8.60) 🏛️🚀💎
+
+### Scalability & Infrastructure
+- **Redis Service Enablement**: Enabled the Redis global caching service across all environments (`development`, `staging`, `production`). This ensures the development environment accurately mirrors the production infrastructure and provides high-performance global caching for Resident sessions.
+- **Cache Resilience**: Implemented comprehensive `try-catch` guards across all `session.caches.global` operations in `ResidentService`. The server now gracefully falls back to the database if the Redis connection is lost or misconfigured, preventing internal server errors (500) and ensuring platform stability.
+
+### Backend Verification
+- **Full-Stack Stability**: Successfully verified the complete stack (Serverpod Server, Flutter Web, and Android Emulator) with Redis enabled, confirming zero regressions in profile retrieval and session management flows.
+
 ## March 31, 2026 - Intelligent Cache Management & Foreground Pre-warming (Phase 8.55) 🏛️🧠⚡
 
 ### Stewardship & Resource Optimization

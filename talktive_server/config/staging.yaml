@@ -47,7 +47,7 @@ database:
 # If you are connecting on a public IP (e.g. on AWS or Google Cloud Run), you
 # connect on the public IP of the database e.g. redis-staging.examplepod.com.
 redis:
-  enabled: false
+  enabled: true
   host: redis.private-staging.examplepod.com
   port: 6379
   #user: # defaults to empty

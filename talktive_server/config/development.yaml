@@ -40,7 +40,7 @@ database:
 
 # This is the setup for Redis.
 redis:
-  enabled: false
+  enabled: true
   host: localhost
   port: 8091
   #user: # defaults to empty

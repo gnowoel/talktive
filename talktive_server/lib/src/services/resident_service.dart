@@ -20,7 +20,14 @@ class ResidentService {
     if (cached != null) return cached;
 
     // 2. Try Global Cache (In-memory/Redis)
-    final globalCached = await session.caches.global.get<protocol.Resident>(cacheKey);
+    protocol.Resident? globalCached;
+    try {
+      globalCached = await session.caches.global.get<protocol.Resident>(cacheKey);
+    } catch (e) {
+      // Redis might be misconfigured or connection failed
+      session.log('Cache error (get resident): $e', level: LogLevel.debug);
+    }
+    
     if (globalCached != null) {
       // Put in local cache for next lookups in same session
       await session.caches.local.put(cacheKey, globalCached);
@@ -35,7 +42,11 @@ class ResidentService {
 
     if (resident != null) {
       await session.caches.local.put(cacheKey, resident, lifetime: Duration(minutes: 5));
-      await session.caches.global.put(cacheKey, resident, lifetime: Duration(minutes: 5));
+      try {
+        await session.caches.global.put(cacheKey, resident, lifetime: Duration(minutes: 5));
+      } catch (e) {
+        session.log('Cache error (put resident): $e', level: LogLevel.debug);
+      }
     }
 
     return resident;
@@ -113,7 +124,11 @@ class ResidentService {
       // Invalidate caches
       final cacheKey = 'resident_${resident.userInfoId}';
       await session.caches.local.invalidateKey(cacheKey);
-      await session.caches.global.invalidateKey(cacheKey);
+      try {
+        await session.caches.global.invalidateKey(cacheKey);
+      } catch (e) {
+        session.log('Cache error (invalidate resident): $e', level: LogLevel.debug);
+      }
     }
 
     return resident;
@@ -275,13 +290,15 @@ class ResidentService {
   }) async {
     // 1. Try Global Cache for the view (excluding mutual lounges/likes which are viewer-specific)
     final baseCacheKey = 'profile_view_$targetId';
-    final cachedView = await session.caches.global.get<protocol.UserProfileView>(baseCacheKey);
-
     protocol.UserProfileView? profile;
     
-    if (cachedView != null) {
-      profile = cachedView;
-    } else {
+    try {
+      profile = await session.caches.global.get<protocol.UserProfileView>(baseCacheKey);
+    } catch (e) {
+      session.log('Cache error (get profile view): $e', level: LogLevel.debug);
+    }
+
+    if (profile == null) {
       final resident = await getResident(session, targetId);
       if (resident == null) return null;
 
@@ -340,7 +357,11 @@ class ResidentService {
       );
 
       // Cache for 2 minutes
-      await session.caches.global.put(baseCacheKey, profile, lifetime: Duration(minutes: 2));
+      try {
+        await session.caches.global.put(baseCacheKey, profile, lifetime: Duration(minutes: 2));
+      } catch (e) {
+        session.log('Cache error (put profile): $e', level: LogLevel.debug);
+      }
     }
 
     // 2. Supplement with viewer-specific state (NOT CACHED globally)

@@ -44,7 +44,18 @@ Order of operations for Firebase + Serverpod Auth:
 
 ---
 
-## 🧹 Maintenance & Best Practices
-- **No `int` for User IDs**: All user identification must use UUIDs.
-- **Denormalization**: Always carry `senderName` and `senderAvatar` on message protocols to avoid expensive multi-table joins during feed rendering.
-- **Input Validation**: Never trust client input. Use `InputValidationService` on the server for all data mutation.
+## 🚀 Performance & Resource Optimization
+
+This project targets a **10,000 user capacity** on a single **2 vCPU / 4GB RAM VPS**. Additionally, the user base includes many **low-end mobile devices**.
+
+### 1. Server-Side (High Throughput)
+- **Zero N+1 Queries**: Every profile load or list view must be a single efficient query. Use `include` clauses in Serverpod models.
+- **Service-Level Caching**: All high-traffic data (Resident profiles, Lounge members) must flow through service methods that implement the **Redis-Database** caching pattern.
+- **Background Delegation**: All non-critical side effects (Gamification XP, Notifications, Statistics) MUST use `TaskUtils.runBackground`.
+
+### 2. Client-Side (Low-End Devices)
+- **Shallow Widget Trees**: Avoid deeply nested widgets. Use `Sliver` lists for discovery screens to ensure memory efficiency.
+- **Lightweight Animations**: Use `flutter_animate` judiciously. Disable heavy animations or simplify them for devices with low RAM.
+- **Denormalized Feed Data**: Always use the denormalized fields (`senderName`, `senderAvatar`) provided in the message protocol to avoid rendering delays caused by additional lookups.
+- **Asset Management**: Strictly adhere to the **5MB image** and **60s voice** limits recently implemented to prevent memory pressure on low-tier hardware.
+

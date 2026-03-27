@@ -583,26 +583,18 @@ sudo tail -f /var/log/postgresql/postgresql-16-main.log
 
 ## Scaling Considerations
 
+### Resource-Efficient Architecture
+The production environment is a **single-instance VPS (2 vCPUs, 4GB RAM)** hosting the web server, database, and cache. To support **10,000+ active users** on this hardware:
+- **Zero N+1 Queries**: Every endpoint must be audited for cascading database lookups.
+- **Aggressive Redis Caching**: Use the `ResidentService` and `LoungeService` patterns to avoid DB hits for profile and membership data.
+- **Background Jobs**: Offload all non-critical side effects (like stats and notifications) using `TaskUtils`.
+
 ### Horizontal Scaling
+If the 10,000 user limit is exceeded:
+- Move PostgreSQL to a dedicated managed instance.
+- Deploy multiple Serverpod nodes behind Nginx.
+- Shared Redis cluster for session and cache consistency.
 
-- Use load balancer (Nginx, HAProxy, or cloud LB)
-- Run multiple Serverpod instances
-- Shared PostgreSQL and Redis
-- Session affinity for WebSocket connections
-
-### Vertical Scaling
-
-- Increase server resources (CPU, RAM)
-- Optimize database queries
-- Increase Redis memory
-- Use connection pooling
-
-### Database Scaling
-
-- Read replicas for read-heavy workloads
-- Connection pooling (PgBouncer)
-- Partitioning for large tables
-- Regular VACUUM and ANALYZE
 
 ---
 

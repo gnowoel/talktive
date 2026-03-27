@@ -373,14 +373,6 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     final userUuid = await getUserId(session);
     final resident = await getResidentProfile(session, userUuid);
 
-    // 1. Role Check (Admin only)
-    if (resident.role != protocol.ResidentRole.admin) {
-      throw protocol.TalktiveException(
-        message: 'Access denied: Only admins can pin messages.',
-        code: 'ACCESS_DENIED',
-      );
-    }
-
     // 2. Fetch Message
     final message = await protocol.Message.db.findById(session, messageId);
     if (message == null) {
@@ -390,7 +382,52 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       );
     }
 
-    // 3. For Plaza (or other specific channels), unpin all others first
+    // 3. Authorization Check
+    final channel = await protocol.Channel.db.findById(session, message.channelId);
+    if (channel == null) {
+      throw protocol.TalktiveException(
+        message: 'Channel not found.',
+        code: 'CHANNEL_NOT_FOUND',
+      );
+    }
+
+    bool canPin = false;
+    if (resident.role == protocol.ResidentRole.admin || resident.role == protocol.ResidentRole.moderator) {
+      // Admins and Moderators can pin in Plaza and Lounges
+      if (channel.type != protocol.ChannelType.private) {
+        canPin = true;
+      }
+    }
+
+    if (!canPin) {
+      if (channel.type == protocol.ChannelType.lounge) {
+        final lounge = await protocol.Lounge.db.findFirstRow(
+          session,
+          where: (t) => t.channelId.equals(channel.id!),
+        );
+        if (lounge != null && lounge.creatorId == resident.userInfoId) {
+          canPin = true;
+        }
+      } else if (channel.type == protocol.ChannelType.private) {
+        final privateChat = await protocol.PrivateChat.db.findFirstRow(
+          session,
+          where: (t) => t.channelId.equals(channel.id!),
+        );
+        if (privateChat != null &&
+            (privateChat.participant1Id == resident.userInfoId || privateChat.participant2Id == resident.userInfoId)) {
+          canPin = true;
+        }
+      }
+    }
+
+    if (!canPin) {
+      throw protocol.TalktiveException(
+        message: 'Access denied: You do not have permission to pin messages in this channel.',
+        code: 'ACCESS_DENIED',
+      );
+    }
+
+    // 4. Unpin all others first
     // This maintains the "One Pinned Message" rule for simplicity.
     final existingPinned = await protocol.Message.db.find(
       session,
@@ -411,12 +448,12 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       }
     }
 
-    // 4. Pin this message
+    // 5. Pin this message
     message.isPinned = true;
     message.pinnedAt = DateTime.now();
     final updatedMessage = await protocol.Message.db.updateRow(session, message);
 
-    // 5. Broadcast Pin Event
+    // 6. Broadcast Pin Event
     // We broadcast the message itself as a way to update the client.
     await session.messages.postMessage('channel_${message.channelId}', updatedMessage);
 
@@ -428,14 +465,6 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     final userUuid = await getUserId(session);
     final resident = await getResidentProfile(session, userUuid);
 
-    // 1. Role Check (Admin only)
-    if (resident.role != protocol.ResidentRole.admin) {
-      throw protocol.TalktiveException(
-        message: 'Access denied: Only admins can unpin messages.',
-        code: 'ACCESS_DENIED',
-      );
-    }
-
     // 2. Fetch Message
     final message = await protocol.Message.db.findById(session, messageId);
     if (message == null) {
@@ -445,13 +474,55 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       );
     }
 
-    // 3. Unpin
+    // 3. Authorization Check
+    final channel = await protocol.Channel.db.findById(session, message.channelId);
+    if (channel == null) {
+      throw protocol.TalktiveException(
+        message: 'Channel not found.',
+        code: 'CHANNEL_NOT_FOUND',
+      );
+    }
+
+    bool canUnpin = false;
+    if (resident.role == protocol.ResidentRole.admin || resident.role == protocol.ResidentRole.moderator) {
+      if (channel.type != protocol.ChannelType.private) {
+        canUnpin = true;
+      }
+    }
+
+    if (!canUnpin) {
+      if (channel.type == protocol.ChannelType.lounge) {
+        final lounge = await protocol.Lounge.db.findFirstRow(
+          session,
+          where: (t) => t.channelId.equals(channel.id!),
+        );
+        if (lounge != null && lounge.creatorId == resident.userInfoId) {
+          canUnpin = true;
+        }
+      } else if (channel.type == protocol.ChannelType.private) {
+        final privateChat = await protocol.PrivateChat.db.findFirstRow(
+          session,
+          where: (t) => t.channelId.equals(channel.id!),
+        );
+        if (privateChat != null &&
+            (privateChat.participant1Id == resident.userInfoId || privateChat.participant2Id == resident.userInfoId)) {
+          canUnpin = true;
+        }
+      }
+    }
+
+    if (!canUnpin) {
+      throw protocol.TalktiveException(
+        message: 'Access denied: You do not have permission to unpin messages in this channel.',
+        code: 'ACCESS_DENIED',
+      );
+    }
+
+    // 4. Unpin
     message.isPinned = false;
     message.pinnedAt = null;
     final updatedMessage = await protocol.Message.db.updateRow(session, message);
 
-    // 4. Broadcast Unpin Event
-    await session.messages.postMessage('channel_${message.channelId}', updatedMessage);
 
     return updatedMessage;
   }

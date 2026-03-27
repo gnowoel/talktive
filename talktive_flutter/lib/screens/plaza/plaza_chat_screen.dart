@@ -10,6 +10,7 @@ import '../../config/theme.dart';
 import '../../helpers/duo_upgrade_helper.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
+import '../../helpers/resident_ext.dart';
 
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/chat/message_bubble.dart';
@@ -297,7 +298,14 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
                 : 'Text only. Floor 2+ residents can share images.',
           ),
           if (chatState.value?.pinnedMessage != null)
-            PinnedMessageBar(message: chatState.value!.pinnedMessage!),
+            PinnedMessageBar(
+              message: chatState.value!.pinnedMessage!,
+              onUnpin: (currentResident?.isStaff ?? false)
+                  ? () => ref
+                      .read(realtimeChatProvider(1).notifier)
+                      .unpinMessage(chatState.value!.pinnedMessage!.id!)
+                  : null,
+            ),
         ],
       ),
       controller: _messageController,
@@ -457,10 +465,12 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
               message.senderId == currentResident.userInfoId;
 
           return MessageBubble(
-                message: message,
-                isCurrentUser: isCurrentUser,
-                currentResident: currentResident,
-              )
+            key: ValueKey(message.id),
+            message: message,
+            isCurrentUser: isCurrentUser,
+            currentResident: currentResident,
+            canPin: currentResident?.isStaff ?? false,
+          )
               .animate()
               .fadeIn(delay: Duration(milliseconds: index * 10))
               .slideX(begin: isCurrentUser ? 0.1 : -0.1, end: 0);

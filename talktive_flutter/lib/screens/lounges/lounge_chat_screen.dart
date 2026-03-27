@@ -646,7 +646,15 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
         ],
       ),
       header: (chatState.value?.pinnedMessage != null)
-          ? PinnedMessageBar(message: chatState.value!.pinnedMessage!)
+          ? PinnedMessageBar(
+              message: chatState.value!.pinnedMessage!,
+              onUnpin: (currentResident?.isStaff ?? false) ||
+                      (currentResident?.userInfoId == widget.lounge.creatorId)
+                  ? () => ref
+                      .read(realtimeChatProvider(widget.lounge.channelId).notifier)
+                      .unpinMessage(chatState.value!.pinnedMessage!.id!)
+                  : null,
+            )
           : null,
       controller: _messageController,
       onSend: _sendMessage,
@@ -889,12 +897,15 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
               message.senderId == currentResident.userInfoId;
 
           return MessageBubble(
-                message: message,
-                isCurrentUser: isCurrentUser,
-                currentResident: currentResident,
-                onMention: _addMention,
-                otherMemberNames: memberNames,
-              )
+            key: ValueKey(message.id),
+            message: message,
+            isCurrentUser: isCurrentUser,
+            currentResident: currentResident,
+            onMention: _addMention,
+            otherMemberNames: memberNames,
+            canPin: (currentResident?.isStaff ?? false) ||
+                (currentResident?.userInfoId == widget.lounge.creatorId),
+          )
               .animate(delay: Duration(milliseconds: index * 10))
               .fadeIn(duration: 200.ms)
               .slideX(begin: isCurrentUser ? 0.1 : -0.1, end: 0);

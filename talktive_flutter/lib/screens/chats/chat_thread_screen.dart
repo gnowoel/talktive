@@ -565,7 +565,12 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
           focusNode: _focusNode,
           activeColor: AppTheme.duoOrange,
           header: (chatState.value?.pinnedMessage != null)
-              ? PinnedMessageBar(message: chatState.value!.pinnedMessage!)
+              ? PinnedMessageBar(
+                  message: chatState.value!.pinnedMessage!,
+                  onUnpin: () => ref
+                      .read(realtimeChatProvider(widget.channelId).notifier)
+                      .unpinMessage(chatState.value!.pinnedMessage!.id!),
+                )
               : null,
           hintText: canSend
               ? 'Type a message...'
@@ -781,13 +786,15 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
           }
 
           return MessageBubble(
-                message: message,
-                isCurrentUser: isCurrentUser,
-                currentResident: currentResident,
-                onMention: _addMention,
-                otherMemberNames: [otherName],
-                isRead: isRead,
-              )
+            key: ValueKey(message.id),
+            message: message,
+            isCurrentUser: isCurrentUser,
+            currentResident: currentResident,
+            onMention: _addMention,
+            otherMemberNames: [otherName],
+            isRead: isRead,
+            canPin: true, // Both participants can pin in private chats
+          )
               .animate(delay: Duration(milliseconds: index * 10))
               .fadeIn(duration: 200.ms)
               .slideY(begin: 0.1, end: 0);

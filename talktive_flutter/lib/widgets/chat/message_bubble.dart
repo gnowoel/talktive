@@ -24,12 +24,14 @@ class MessageBubble extends ConsumerWidget {
   final Function(String)? onMention;
   final List<String>? otherMemberNames;
   final bool isRead;
+  final bool canPin;
 
   const MessageBubble({
     super.key,
     required this.message,
     required this.isCurrentUser,
     required this.currentResident,
+    this.canPin = false,
     this.onMention,
     this.otherMemberNames,
     this.isRead = false,
@@ -408,7 +410,7 @@ class MessageBubble extends ConsumerWidget {
                 }
               },
             ),
-            if (currentResident?.isAdmin ?? false) ...[
+            if (canPin) ...[
               const Divider(),
               ListTile(
                 leading: Icon(

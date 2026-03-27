@@ -7,11 +7,13 @@ import '../../config/theme.dart';
 class PinnedMessageBar extends StatelessWidget {
   final Message message;
   final VoidCallback? onTap;
+  final VoidCallback? onUnpin;
 
   const PinnedMessageBar({
     super.key,
     required this.message,
     this.onTap,
+    this.onUnpin,
   });
 
   @override
@@ -74,6 +76,19 @@ class PinnedMessageBar extends StatelessWidget {
                 ],
               ),
             ),
+            if (onUnpin != null)
+              IconButton(
+                onPressed: () {
+                  HapticFeedback.heavyImpact();
+                  onUnpin!();
+                },
+                icon: const Icon(
+                  Icons.close,
+                  color: AppTheme.textSecondary,
+                  size: 20,
+                ),
+                tooltip: 'Unpin message',
+              ),
           ],
         ),
       ).animate().fadeIn().slideY(begin: -0.2, end: 0),

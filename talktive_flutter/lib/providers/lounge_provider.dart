@@ -33,6 +33,7 @@ class LoungeList extends _$LoungeList {
     List<String>? interests,
     List<String>? languages,
     String? country,
+    String? rules,
   }) async {
     final client = ref.read(clientProvider);
     try {
@@ -45,6 +46,7 @@ class LoungeList extends _$LoungeList {
         interests: interests,
         languages: languages,
         country: country,
+        rules: rules,
       );
 
       // Refresh the list to include the new lounge
@@ -68,6 +70,7 @@ class LoungeList extends _$LoungeList {
     List<String>? interests,
     List<String>? languages,
     String? country,
+    String? rules,
   }) async {
     final client = ref.read(clientProvider);
     try {
@@ -81,6 +84,7 @@ class LoungeList extends _$LoungeList {
         interests: interests,
         languages: languages,
         country: country,
+        rules: rules,
       );
 
       // Refresh the list to include the updated lounge

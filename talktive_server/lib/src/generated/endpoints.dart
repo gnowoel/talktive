@@ -1030,6 +1030,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<String?>(),
               nullable: true,
             ),
+            'rules': _i1.ParameterDescription(
+              name: 'rules',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -1046,6 +1051,7 @@ class Endpoints extends _i1.EndpointDispatch {
                     interests: params['interests'],
                     languages: params['languages'],
                     country: params['country'],
+                    rules: params['rules'],
                   ),
         ),
         'listMyLounges': _i1.MethodConnector(
@@ -1352,6 +1358,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<String?>(),
               nullable: true,
             ),
+            'rules': _i1.ParameterDescription(
+              name: 'rules',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -1369,6 +1380,7 @@ class Endpoints extends _i1.EndpointDispatch {
                     interests: params['interests'],
                     languages: params['languages'],
                     country: params['country'],
+                    rules: params['rules'],
                   ),
         ),
         'deleteLounge': _i1.MethodConnector(

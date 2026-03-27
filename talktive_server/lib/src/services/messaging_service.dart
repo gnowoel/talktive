@@ -7,6 +7,7 @@ import 'content_filter_service.dart';
 import 'input_validation_service.dart';
 import 'rate_limit_service.dart';
 import 'channel_service.dart';
+import 'lounge_service.dart';
 import '../utils/task_utils.dart';
 
 /// Service for handling message validation and post-save operations.
@@ -193,6 +194,16 @@ class MessagingService {
       save: false,
     );
     await ResidentService.updateResident(session, sender);
+
+    // 5. Award Lounge XP
+    if (channel.type == protocol.ChannelType.lounge) {
+      await LoungeService.awardLoungeXP(
+        session,
+        channelId,
+        1,
+        'Message sent',
+      );
+    }
 
     // Achievement Progress (Background)
     TaskUtils.runBackground(session, (backgroundSession) async {

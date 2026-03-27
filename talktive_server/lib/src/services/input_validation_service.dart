@@ -13,6 +13,7 @@ class InputValidationService {
   static const int maxLoungeDescriptionLength = 500;
   static const int maxReportReasonLength = 500;
   static const int maxBioLength = 500;
+  static const int maxLoungeRulesLength = 1000;
 
   // Numeric limits
   static const int minLoungeMembers = 2;
@@ -116,6 +117,18 @@ class InputValidationService {
         isValid: false,
         error:
             'Lounge description must be $maxLoungeDescriptionLength characters or less',
+      );
+    }
+
+    return ValidationResult(isValid: true);
+  }
+
+  /// Validates lounge rules.
+  static ValidationResult validateLoungeRules(String? rules) {
+    if (rules != null && rules.length > maxLoungeRulesLength) {
+      return ValidationResult(
+        isValid: false,
+        error: 'Lounge rules must be $maxLoungeRulesLength characters or less',
       );
     }
 

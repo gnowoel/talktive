@@ -22,6 +22,7 @@ class LoungeService {
     List<String>? interests,
     List<String>? languages,
     String? country,
+    String? rules,
   }) async {
     // 1. Create a new channel for this lounge
     final channel = protocol.Channel(
@@ -43,10 +44,13 @@ class LoungeService {
       memberCount: 1,
       isPublic: isPublic,
       isStaffLocked: false,
-      maxMembers: maxMembers,
+      maxMembers: 50, // All new lounges start at 50 capacity
       interests: interests,
       languages: languages,
       country: country,
+      rules: rules,
+      level: 1,
+      xp: 0,
     );
 
     final savedLounge = await protocol.Lounge.db.insertRow(session, lounge);
@@ -378,6 +382,9 @@ class LoungeService {
       await GamificationService.trackProgress(session, userId, 'social_butterfly');
       final resident = await ResidentService.getResident(session, userId);
       if (resident != null) await GamificationService.awardXP(session, resident, 25, 'Joined lounge');
+      
+      // Award Lounge XP
+      await awardLoungeXP(session, lounge.channelId, 5, 'Member joined');
     } else {
       member.status = protocol.ChannelMemberStatus.applied;
       await protocol.ChannelMember.db.updateRow(session, member);
@@ -423,6 +430,9 @@ class LoungeService {
     await GamificationService.trackProgress(session, targetId, 'social_butterfly');
     final resident = await ResidentService.getResident(session, targetId);
     if (resident != null) await GamificationService.awardXP(session, resident, 25, 'Application approved');
+
+    // Award Lounge XP
+    await awardLoungeXP(session, lounge.channelId, 5, 'Member joined');
   }
 
   /// Leaves or kicks from a lounge.
@@ -520,15 +530,16 @@ class LoungeService {
     List<String>? interests,
     List<String>? languages,
     String? country,
+    String? rules,
   }) async {
     if (name != null && name.trim().isNotEmpty) lounge.name = name;
     if (description != null) lounge.description = description;
     if (emoji != null) lounge.emoji = emoji;
     if (isPublic != null) lounge.isPublic = isPublic;
-    if (maxMembers != null) lounge.maxMembers = maxMembers;
     if (interests != null) lounge.interests = interests;
     if (languages != null) lounge.languages = languages;
     if (country != null) lounge.country = country;
+    if (rules != null) lounge.rules = rules;
 
     return await protocol.Lounge.db.updateRow(session, lounge);
   }
@@ -585,5 +596,101 @@ class LoungeService {
     if (lounge.creatorId != creatorId) throw protocol.TalktiveException(message: 'Only the creator can kick members');
 
     await leaveLounge(session, loungeId: loungeId, userId: targetId);
+  }
+
+  /// Awards XP to a lounge and handles leveling up.
+  static Future<void> awardLoungeXP(
+    Session session,
+    int channelId,
+    int amount,
+    String reason,
+  ) async {
+    final lounge = await protocol.Lounge.db.findFirstRow(
+      session,
+      where: (t) => t.channelId.equals(channelId),
+    );
+
+    if (lounge == null) return;
+
+    lounge.xp += amount;
+
+    // 3. Milestone Check: Award XP to creator for member growth (every 10 members)
+    if (reason == 'Member joined' && lounge.memberCount % 10 == 0) {
+      TaskUtils.runBackground(session, (backgroundSession) async {
+        try {
+          final creator = await ResidentService.getResident(backgroundSession, lounge.creatorId);
+          if (creator != null) {
+            // Milestone reward: 25 XP per 10 members
+            await GamificationService.awardXP(
+              backgroundSession,
+              creator,
+              25, 
+              'Milestone: ${lounge.memberCount} members in "${lounge.name}"! 🚀',
+            );
+
+            // Notify creator
+            await NotificationService.sendNotification(
+              backgroundSession,
+              lounge.creatorId,
+              'lounge_milestone',
+              '🎉 Lounge Milestone!',
+              'Your lounge "${lounge.name}" reached ${lounge.memberCount} members! You earned 25 XP.',
+              data: {
+                'loungeId': lounge.id.toString(),
+                'route': '/lounges/profile/${lounge.id}',
+              },
+            );
+          }
+        } catch (e) {
+          backgroundSession.log('Failed to reward lounge creator for milestone: $e');
+        }
+      });
+    }
+
+    // 4. Level Check: Did the lounge level up?
+    final nextLevel = (lounge.xp / 100).floor() + 1; // Simplistic: 100 XP per level
+    if (nextLevel > lounge.level) {
+      lounge.level = nextLevel; // Update lounge level
+      final xpRequiredForCurrentLevel = (nextLevel - 1) * 100; // XP required to reach the *previous* level
+      lounge.xp -= xpRequiredForCurrentLevel; // Subtract XP for the levels already passed
+
+      // Increase capacity on level up: base 50 + (level-1)*20
+      lounge.maxMembers = 50 + (lounge.level - 1) * 20;
+
+      session.log('Lounge "${lounge.name}" leveled up to ${lounge.level}! Capacity is now ${lounge.maxMembers}.');
+      
+      // Notify creator and award XP in background
+      TaskUtils.runBackground(session, (backgroundSession) async {
+        try {
+          // 1. Award XP to creator for lounge management success
+          final creator = await ResidentService.getResident(backgroundSession, lounge.creatorId);
+          if (creator != null) {
+            await GamificationService.awardXP(
+              backgroundSession,
+              creator,
+              50, // Reward creator with 50 XP for leveling up their lounge
+              'Lounge "${lounge.name}" leveled up to ${lounge.level}!',
+            );
+          }
+
+          // 2. Send real-time notification
+          await NotificationService.sendNotification(
+            backgroundSession,
+            lounge.creatorId,
+            'lounge_levelup',
+            '🏠 Lounge Level Up!',
+            'Your lounge "${lounge.name}" is now Level ${lounge.level}! Capacity increased to ${lounge.maxMembers}.',
+            data: {
+              'loungeId': lounge.id.toString(),
+              'route': '/lounges/profile/${lounge.id}',
+            },
+          );
+        } catch (e) {
+          backgroundSession.log('Failed to reward or notify lounge creator for level up: $e');
+        }
+      });
+    }
+
+    await protocol.Lounge.db.updateRow(session, lounge);
   }
 }

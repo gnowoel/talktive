@@ -660,6 +660,7 @@ class EndpointLounge extends _i2.EndpointRef {
     List<String>? interests,
     List<String>? languages,
     String? country,
+    String? rules,
   }) => caller.callServerEndpoint<_i14.Lounge>(
     'lounge',
     'createLounge',
@@ -672,6 +673,7 @@ class EndpointLounge extends _i2.EndpointRef {
       'interests': interests,
       'languages': languages,
       'country': country,
+      'rules': rules,
     },
   );
 
@@ -809,6 +811,7 @@ class EndpointLounge extends _i2.EndpointRef {
     List<String>? interests,
     List<String>? languages,
     String? country,
+    String? rules,
   }) => caller.callServerEndpoint<_i14.Lounge>(
     'lounge',
     'updateLounge',
@@ -822,6 +825,7 @@ class EndpointLounge extends _i2.EndpointRef {
       'interests': interests,
       'languages': languages,
       'country': country,
+      'rules': rules,
     },
   );
 

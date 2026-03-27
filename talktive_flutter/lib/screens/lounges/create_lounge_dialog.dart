@@ -25,6 +25,7 @@ class CreateLoungeDialog extends ConsumerStatefulWidget {
 class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _rulesController = TextEditingController();
   String _selectedEmoji = '👥';
   bool _isPublic = true;
   int _maxMembers = 50;
@@ -62,6 +63,7 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
       _selectedInterests = List<String>.from(g.interests ?? []);
       _selectedLanguages = List<String>.from(g.languages ?? ['en']);
       _selectedCountry = g.country ?? 'Unknown';
+      _rulesController.text = g.rules ?? '';
       // Attempt to find flag if country is known
       if (_selectedCountry != 'Unknown') {
         try {
@@ -78,6 +80,7 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
+    _rulesController.dispose();
     super.dispose();
   }
 
@@ -110,6 +113,9 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
               interests: _selectedInterests.isEmpty ? null : _selectedInterests,
               languages: _selectedLanguages,
               country: _selectedCountry == 'Unknown' ? null : _selectedCountry,
+              rules: _rulesController.text.trim().isEmpty
+                  ? null
+                  : _rulesController.text.trim(),
             );
       } else {
         await ref
@@ -125,6 +131,9 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
               interests: _selectedInterests.isEmpty ? null : _selectedInterests,
               languages: _selectedLanguages,
               country: _selectedCountry == 'Unknown' ? null : _selectedCountry,
+              rules: _rulesController.text.trim().isEmpty
+                  ? null
+                  : _rulesController.text.trim(),
             );
       }
 
@@ -151,7 +160,7 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
   Widget build(BuildContext context) {
     return DuoKeyboardDismissible(
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.9,
+        height: MediaQuery.of(context).size.height * 0.85,
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(
@@ -162,7 +171,10 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
           children: [
             // Header
             Container(
-              padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppTheme.duoSpacingLarge,
+                vertical: AppTheme.duoSpacingMedium,
+              ),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
@@ -232,8 +244,8 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
                             },
                             child: AnimatedContainer(
                               duration: 150.ms,
-                              width: 56,
-                              height: 56,
+                              width: 48,
+                              height: 48,
                               decoration: BoxDecoration(
                                 color: isSelected
                                     ? AppTheme.duoBlue.withValues(alpha: 0.2)
@@ -280,6 +292,21 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
                       hintText: 'Share what makes this lounge special...',
                       maxLines: 3,
                       maxLength: 200,
+                      enabled: !_isCreating,
+                    ),
+                    const SizedBox(height: AppTheme.duoSpacingLarge),
+
+                    // House Rules Section (NEW)
+                    _buildSectionHeader(
+                      'House Rules',
+                      'Behavioral guidelines ✋',
+                    ),
+                    const SizedBox(height: AppTheme.duoSpacingSmall),
+                    DuoInput(
+                      controller: _rulesController,
+                      hintText: 'e.g. Respect others, No SPAM, Have fun!',
+                      maxLines: 4,
+                      maxLength: 1000,
                       enabled: !_isCreating,
                     ),
                     const SizedBox(height: AppTheme.duoSpacingLarge),
@@ -517,22 +544,49 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
                       ),
                     const SizedBox(height: AppTheme.duoSpacingLarge),
 
-                    // Max Members Section
+                    // Max Members / Capacity Section (Redesigned)
                     _buildSectionHeader(
                       'Capacity',
-                      'Max members: $_maxMembers',
+                      'Total member limit for this lounge',
                     ),
-                    Slider(
-                      value: _maxMembers.toDouble(),
-                      min: 2,
-                      max: 500,
-                      divisions: 49,
-                      activeColor: AppTheme.duoBlue,
-                      onChanged: _isCreating
-                          ? null
-                          : (value) {
-                              setState(() => _maxMembers = value.toInt());
-                            },
+                    const SizedBox(height: AppTheme.duoSpacingSmall),
+                    Container(
+                      padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.duoRadiusMedium,
+                        ),
+                        border: Border.all(color: Colors.grey[200]!),
+                      ),
+                      child: Row(
+                        children: [
+                          const Text('📈', style: TextStyle(fontSize: 18)),
+                          const SizedBox(width: AppTheme.duoSpacingMedium),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Limit: $_maxMembers members',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  widget.existingLounge == null
+                                      ? 'New lounges start with 50 seats. Increase your Lounge Level for more!'
+                                      : 'Lounge Level ${widget.existingLounge?.level ?? 1}. Level up to expand!',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: AppTheme.duoSpacingLarge),
 
@@ -584,8 +638,8 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
             color: AppTheme.duoBlue,
           ),
         ),
-        Text(subtitle, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-        const SizedBox(height: 8),
+        Text(subtitle, style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+        const SizedBox(height: 4),
       ],
     );
   }

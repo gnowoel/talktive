@@ -15,6 +15,7 @@ import 'src/future_calls/daily_cleanup.dart';
 import 'src/future_calls/credit_restoration.dart';
 import 'src/services/fcm_service.dart';
 import 'src/services/emulator_auth_service.dart';
+import 'src/utils/seed_data.dart';
 
 /// The starting point of the Serverpod server.
 void run(List<String> args) async {
@@ -101,6 +102,9 @@ void run(List<String> args) async {
   // Seed Data
   final session = await pod.createSession(enableLogging: true);
   try {
+    // Seed Achievements
+    await SeedData.seedAchievements(session);
+
     final plaza = await Channel.db.findById(session, 1);
     if (plaza == null) {
       session.log('Seeding: Creating Plaza Channel (ID 1)');

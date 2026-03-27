@@ -30,10 +30,15 @@ abstract class Lounge implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     this.interests,
     this.languages,
     this.country,
+    this.rules,
+    int? level,
+    int? xp,
     bool? isStaffLocked,
   }) : memberCount = memberCount ?? 1,
        isPublic = isPublic ?? true,
        maxMembers = maxMembers ?? 50,
+       level = level ?? 1,
+       xp = xp ?? 0,
        isStaffLocked = isStaffLocked ?? false;
 
   factory Lounge({
@@ -52,6 +57,9 @@ abstract class Lounge implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     List<String>? interests,
     List<String>? languages,
     String? country,
+    String? rules,
+    int? level,
+    int? xp,
     bool? isStaffLocked,
   }) = _LoungeImpl;
 
@@ -90,6 +98,9 @@ abstract class Lounge implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
               jsonSerialization['languages'],
             ),
       country: jsonSerialization['country'] as String?,
+      rules: jsonSerialization['rules'] as String?,
+      level: jsonSerialization['level'] as int?,
+      xp: jsonSerialization['xp'] as int?,
       isStaffLocked: jsonSerialization['isStaffLocked'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(jsonSerialization['isStaffLocked']),
@@ -131,6 +142,12 @@ abstract class Lounge implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
 
   String? country;
 
+  String? rules;
+
+  int level;
+
+  int xp;
+
   bool isStaffLocked;
 
   @override
@@ -155,6 +172,9 @@ abstract class Lounge implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     List<String>? interests,
     List<String>? languages,
     String? country,
+    String? rules,
+    int? level,
+    int? xp,
     bool? isStaffLocked,
   });
   @override
@@ -176,6 +196,9 @@ abstract class Lounge implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       if (interests != null) 'interests': interests?.toJson(),
       if (languages != null) 'languages': languages?.toJson(),
       if (country != null) 'country': country,
+      if (rules != null) 'rules': rules,
+      'level': level,
+      'xp': xp,
       'isStaffLocked': isStaffLocked,
     };
   }
@@ -199,6 +222,9 @@ abstract class Lounge implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       if (interests != null) 'interests': interests?.toJson(),
       if (languages != null) 'languages': languages?.toJson(),
       if (country != null) 'country': country,
+      if (rules != null) 'rules': rules,
+      'level': level,
+      'xp': xp,
       'isStaffLocked': isStaffLocked,
     };
   }
@@ -252,6 +278,9 @@ class _LoungeImpl extends Lounge {
     List<String>? interests,
     List<String>? languages,
     String? country,
+    String? rules,
+    int? level,
+    int? xp,
     bool? isStaffLocked,
   }) : super._(
          id: id,
@@ -269,6 +298,9 @@ class _LoungeImpl extends Lounge {
          interests: interests,
          languages: languages,
          country: country,
+         rules: rules,
+         level: level,
+         xp: xp,
          isStaffLocked: isStaffLocked,
        );
 
@@ -292,6 +324,9 @@ class _LoungeImpl extends Lounge {
     Object? interests = _Undefined,
     Object? languages = _Undefined,
     Object? country = _Undefined,
+    Object? rules = _Undefined,
+    int? level,
+    int? xp,
     bool? isStaffLocked,
   }) {
     return Lounge(
@@ -316,6 +351,9 @@ class _LoungeImpl extends Lounge {
           ? languages
           : this.languages?.map((e0) => e0).toList(),
       country: country is String? ? country : this.country,
+      rules: rules is String? ? rules : this.rules,
+      level: level ?? this.level,
+      xp: xp ?? this.xp,
       isStaffLocked: isStaffLocked ?? this.isStaffLocked,
     );
   }
@@ -400,6 +438,21 @@ class LoungeUpdateTable extends _i1.UpdateTable<LoungeTable> {
     value,
   );
 
+  _i1.ColumnValue<String, String> rules(String? value) => _i1.ColumnValue(
+    table.rules,
+    value,
+  );
+
+  _i1.ColumnValue<int, int> level(int value) => _i1.ColumnValue(
+    table.level,
+    value,
+  );
+
+  _i1.ColumnValue<int, int> xp(int value) => _i1.ColumnValue(
+    table.xp,
+    value,
+  );
+
   _i1.ColumnValue<bool, bool> isStaffLocked(bool value) => _i1.ColumnValue(
     table.isStaffLocked,
     value,
@@ -468,6 +521,20 @@ class LoungeTable extends _i1.Table<int?> {
       'country',
       this,
     );
+    rules = _i1.ColumnString(
+      'rules',
+      this,
+    );
+    level = _i1.ColumnInt(
+      'level',
+      this,
+      hasDefault: true,
+    );
+    xp = _i1.ColumnInt(
+      'xp',
+      this,
+      hasDefault: true,
+    );
     isStaffLocked = _i1.ColumnBool(
       'isStaffLocked',
       this,
@@ -505,6 +572,12 @@ class LoungeTable extends _i1.Table<int?> {
 
   late final _i1.ColumnString country;
 
+  late final _i1.ColumnString rules;
+
+  late final _i1.ColumnInt level;
+
+  late final _i1.ColumnInt xp;
+
   late final _i1.ColumnBool isStaffLocked;
 
   @override
@@ -524,6 +597,9 @@ class LoungeTable extends _i1.Table<int?> {
     interests,
     languages,
     country,
+    rules,
+    level,
+    xp,
     isStaffLocked,
   ];
 }

@@ -15,6 +15,9 @@ fields:
   interests: List<String>?
   languages: List<String>?
   country: String?
+  rules: String?
+  level: int, default=1
+  xp: int, default=0
   isStaffLocked: bool, default=false
 indexes:
   lounge_channel_idx:

@@ -1758,6 +1758,7 @@ class _LoungeEndpoint {
     List<String>? interests,
     List<String>? languages,
     String? country,
+    String? rules,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1779,6 +1780,7 @@ class _LoungeEndpoint {
             'interests': interests,
             'languages': languages,
             'country': country,
+            'rules': rules,
           }),
           serializationManager: _serializationManager,
         );
@@ -2175,6 +2177,7 @@ class _LoungeEndpoint {
     List<String>? interests,
     List<String>? languages,
     String? country,
+    String? rules,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -2197,6 +2200,7 @@ class _LoungeEndpoint {
             'interests': interests,
             'languages': languages,
             'country': country,
+            'rules': rules,
           }),
           serializationManager: _serializationManager,
         );

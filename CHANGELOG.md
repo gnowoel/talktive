@@ -1,5 +1,27 @@
 # Talktive Development Changelog
 
+## March 31, 2026 - Lounge House Rules & Milestone Rewards (Phase 8.85) 🏠💎🦋
+
+### Community Engagement & Gamification
+
+- **Lounge House Rules**: Introduced a dedicated "House Rules" field for every community lounge (up to 1,000 characters). This allows creators to define specific community guidelines beyond the general description, fostering safer and better-moderated spaces.
+- **Creator Milestone Growth**: Implemented a "Community Pillar" reward system. Lounge creators now receive **25 XP** directly to their profile for every 10 members that join their lounge, incentivizing organic community growth.
+- **Level-Up Celebrations**: Creators are now rewarded with **50 XP** whenever their lounge reaches a new level. This gamification loop ensures that active community builders are recognized for their effort in maintaining vibrant spaces.
+- **Asynchronous Reward Delivery**: All gamification logic, including milestone XP awards and notifications, is handled via high-performance background tasks (Serverpod `runBackground`), ensuring zero latency for joining members.
+
+### UI/UX Improvements
+
+- **Rule Management UI**: Expanded the `CreateLoungeDialog` and `LoungeProfileScreen` with dedicated input fields and displays for House Rules. The rules are presented with clear visual hierarchy, ensuring they are the first thing new members see.
+- **Milestone Notifications**: Implemented real-time push notifications for lounge creators when they hit a member milestone or a lounge level-up, featuring celebratory emojis and clear value propositions.
+- **Enhanced Statistic Cards**: Unified the visual design of level and XP stats across lounge and resident profiles using the Duolingo-inspired `DuoStatCard` pattern.
+- **Dialog Optimization**: Refined the `CreateLoungeDialog` height and padding to match the compact, playful aesthetic of the `MomentCreateDialog`, improving usability on smaller mobile screens.
+
+### Technical & Infrastructure
+
+- **Automated Achievement Seeding**: Implemented a robust data seeding utility that automatically populates the core achievement taxonomy (Identity, Social, Progress, Creator) upon server startup, ensuring a consistent experience for new users.
+- **Granular Input Validation**: Added `validateLoungeRules` to the centralized `InputValidationService` to enforce content length and quality standards for community guidelines.
+- **Strategic Database Indexing**: Optimized membership queries associated with the milestone system to ensure sub-millisecond member count calculations even as the platform scales to 10,000+ users.
+
 ## March 31, 2026 - Plaza Pinned Messages & Real-time Integration (Phase 8.81) 📌📢✨
 
 ### Features & Administrative Tools

@@ -11,6 +11,7 @@ import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
+import '../../widgets/duo/duo_stat_card.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../helpers/resident_ext.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
@@ -158,6 +159,56 @@ class LoungeProfileScreen extends ConsumerWidget {
 
                 const SizedBox(height: 24),
 
+                // House Rules
+                if (lounge.rules != null && lounge.rules!.isNotEmpty) ...[
+                  Text(
+                    'House Rules',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  DuoCard(
+                    padding: const EdgeInsets.all(16),
+                    color: AppTheme.duoOrange.withValues(alpha: 0.05),
+                    borderColor: AppTheme.duoOrange.withValues(alpha: 0.3),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Text(
+                              '✋',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'Please follow these guidelines:',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                color: AppTheme.duoOrange,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          lounge.rules!,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.black87,
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+
+                const SizedBox(height: 24),
+
                 // Interests
                 if (lounge.interests != null &&
                     lounge.interests!.isNotEmpty) ...[
@@ -265,31 +316,103 @@ class LoungeProfileScreen extends ConsumerWidget {
   }
 
   Widget _buildStatusCard(BuildContext context, Lounge lounge, bool isJoined) {
-    return DuoCard(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildStatItem(
-            context,
-            lounge.memberCount.toString(),
-            'Members',
-            onTap: isJoined
-                ? () {
-                    HapticFeedback.lightImpact();
-                    context.push(
-                      '/lounges/members/${lounge.id!}',
-                      extra: lounge,
-                    );
-                  }
-                : null,
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: DuoStatCard(
+                emoji: '📈',
+                value: 'Lv. ${lounge.level}',
+                label: 'Lounge Level',
+                gradientColors: AppTheme.duoBlueGradient,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: DuoStatCard(
+                emoji: '👥',
+                value: '${lounge.memberCount}',
+                label: 'Members',
+                gradientColors: AppTheme.duoGreenGradient,
+                onTap: isJoined
+                    ? () {
+                        HapticFeedback.lightImpact();
+                        context.push(
+                          '/lounges/members/${lounge.id!}',
+                          extra: lounge,
+                        );
+                      }
+                    : null,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        DuoCard(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'EXPERIENCE POINTS',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.1,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                  Text(
+                    '${lounge.xp % 100}/100 XP',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.duoBlue,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: LinearProgressIndicator(
+                  value: (lounge.xp % 100) / 100,
+                  minHeight: 12,
+                  backgroundColor: Colors.grey[100],
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    AppTheme.duoBlue,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.info_outline,
+                    size: 14,
+                    color: AppTheme.textSecondary,
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      'This lounge can hold up to ${lounge.maxMembers} members. Level up to expand! 🚀',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey[600],
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          Container(width: 1, height: 40, color: Colors.grey[200]),
-          _buildStatItem(context, lounge.maxMembers.toString(), 'Capacity'),
-          Container(width: 1, height: 40, color: Colors.grey[200]),
-          _buildStatItem(context, lounge.isPublic ? '🔓' : '🔒', 'Access'),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

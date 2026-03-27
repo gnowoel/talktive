@@ -22,10 +22,12 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     List<String>? interests,
     List<String>? languages,
     String? country,
+    String? rules,
   }) async {
     // 1. Validation
     InputValidationService.validateLoungeName(name).throwIfInvalid();
     InputValidationService.validateLoungeDescription(description).throwIfInvalid();
+    InputValidationService.validateLoungeRules(rules).throwIfInvalid();
     InputValidationService.validateLoungeMemberLimit(maxMembers).throwIfInvalid();
     InputValidationService.validateStringList(interests, 'Interests').throwIfInvalid();
     InputValidationService.validateStringList(languages, 'Languages').throwIfInvalid();
@@ -61,6 +63,7 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
       interests: interests,
       languages: languages,
       country: country,
+      rules: rules,
     );
   }
 
@@ -282,6 +285,7 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     List<String>? interests,
     List<String>? languages,
     String? country,
+    String? rules,
   }) async {
     final currentUserId = await getUserId(session);
     final lounge = await getLounge(session, loungeId);
@@ -306,6 +310,7 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     if (interests != null) InputValidationService.validateStringList(interests, 'Interests').throwIfInvalid();
     if (languages != null) InputValidationService.validateStringList(languages, 'Languages').throwIfInvalid();
     if (country != null) InputValidationService.validateCountry(country).throwIfInvalid();
+    if (rules != null) InputValidationService.validateLoungeRules(rules).throwIfInvalid();
 
     if (isPublic != null && isPublic && lounge.isStaffLocked) {
       throw protocol.TalktiveException(message: 'This lounge is locked to private by staff.');
@@ -322,6 +327,7 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
       interests: interests,
       languages: languages,
       country: country,
+      rules: rules,
     );
   }
 

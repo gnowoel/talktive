@@ -30,10 +30,15 @@ abstract class Lounge implements _i1.SerializableModel {
     this.interests,
     this.languages,
     this.country,
+    this.rules,
+    int? level,
+    int? xp,
     bool? isStaffLocked,
   }) : memberCount = memberCount ?? 1,
        isPublic = isPublic ?? true,
        maxMembers = maxMembers ?? 50,
+       level = level ?? 1,
+       xp = xp ?? 0,
        isStaffLocked = isStaffLocked ?? false;
 
   factory Lounge({
@@ -52,6 +57,9 @@ abstract class Lounge implements _i1.SerializableModel {
     List<String>? interests,
     List<String>? languages,
     String? country,
+    String? rules,
+    int? level,
+    int? xp,
     bool? isStaffLocked,
   }) = _LoungeImpl;
 
@@ -90,6 +98,9 @@ abstract class Lounge implements _i1.SerializableModel {
               jsonSerialization['languages'],
             ),
       country: jsonSerialization['country'] as String?,
+      rules: jsonSerialization['rules'] as String?,
+      level: jsonSerialization['level'] as int?,
+      xp: jsonSerialization['xp'] as int?,
       isStaffLocked: jsonSerialization['isStaffLocked'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(jsonSerialization['isStaffLocked']),
@@ -129,6 +140,12 @@ abstract class Lounge implements _i1.SerializableModel {
 
   String? country;
 
+  String? rules;
+
+  int level;
+
+  int xp;
+
   bool isStaffLocked;
 
   /// Returns a shallow copy of this [Lounge]
@@ -150,6 +167,9 @@ abstract class Lounge implements _i1.SerializableModel {
     List<String>? interests,
     List<String>? languages,
     String? country,
+    String? rules,
+    int? level,
+    int? xp,
     bool? isStaffLocked,
   });
   @override
@@ -171,6 +191,9 @@ abstract class Lounge implements _i1.SerializableModel {
       if (interests != null) 'interests': interests?.toJson(),
       if (languages != null) 'languages': languages?.toJson(),
       if (country != null) 'country': country,
+      if (rules != null) 'rules': rules,
+      'level': level,
+      'xp': xp,
       'isStaffLocked': isStaffLocked,
     };
   }
@@ -200,6 +223,9 @@ class _LoungeImpl extends Lounge {
     List<String>? interests,
     List<String>? languages,
     String? country,
+    String? rules,
+    int? level,
+    int? xp,
     bool? isStaffLocked,
   }) : super._(
          id: id,
@@ -217,6 +243,9 @@ class _LoungeImpl extends Lounge {
          interests: interests,
          languages: languages,
          country: country,
+         rules: rules,
+         level: level,
+         xp: xp,
          isStaffLocked: isStaffLocked,
        );
 
@@ -240,6 +269,9 @@ class _LoungeImpl extends Lounge {
     Object? interests = _Undefined,
     Object? languages = _Undefined,
     Object? country = _Undefined,
+    Object? rules = _Undefined,
+    int? level,
+    int? xp,
     bool? isStaffLocked,
   }) {
     return Lounge(
@@ -264,6 +296,9 @@ class _LoungeImpl extends Lounge {
           ? languages
           : this.languages?.map((e0) => e0).toList(),
       country: country is String? ? country : this.country,
+      rules: rules is String? ? rules : this.rules,
+      level: level ?? this.level,
+      xp: xp ?? this.xp,
       isStaffLocked: isStaffLocked ?? this.isStaffLocked,
     );
   }

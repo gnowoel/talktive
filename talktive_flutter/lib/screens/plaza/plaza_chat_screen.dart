@@ -321,11 +321,6 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
         }
       },
       onImagePick: () async {
-        if (currentResident?.isPremium != true) {
-          _showUpgradePrompt('Image Sharing');
-          return;
-        }
-
         if (currentResident?.showImagesInPlaza != true) {
           DuoSnackBarHelper.showWarning(
             context,

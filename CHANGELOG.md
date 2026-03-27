@@ -1,5 +1,20 @@
 # Talktive Development Changelog
 
+## March 31, 2026 - Democratizing Media Sharing & Community Safety (Phase 8.80) 🖼️🔒🆓
+
+### Media Policy & Feature Access
+
+- **Image Sharing Unleashed**: Officially removed the "Talktive Plus" premium requirement for sharing images across the entire platform. Every resident can now share visual moments in Private Chats, Lounges, and the Plaza.
+- **Community Safety (Floor 2+ Requirement)**: To protect the building from spam and maintain a high-quality environment, media sharing in **public and community spaces** (Plaza and Lounges) now requires residents to reach **Floor 2**.
+- **Unrestricted Private Sharing**: Image sharing in Private Chats remains completely unrestricted by level, ensuring that one-on-one connections are always as expressive as possible.
+- **Monetization Focus**: Maintained **Voice Messages** and **Custom Avatars** as premium-only benefits, focusing the Talktive Plus value proposition on identity and advanced utility.
+
+### UI/UX & Redundancy Cleanup
+
+- **Settings Simplification**: Removed the redundant "Media Sharing" toggle from the Settings screen. Users can now simply choose not to send images if they prefer, reducing UI clutter and decision fatigue.
+- **Interactive Security Feedback**: Implemented real-time Floor 2+ validation within the image picker flow of the Plaza and Lounges, providing immediate, friendly instructions for residents who haven't yet reached the required level.
+- **Privacy Policy Alignment**: Updated platform documentation to reflect the new media sharing philosophy, emphasizing the balance between open expression and community moderation.
+
 ## March 26, 2026 - Interstitial Ad System & Monetization Infrastructure (Phase 8.77) 💰📺🚀
 
 ### Monetization & User Experience

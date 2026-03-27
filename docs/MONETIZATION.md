@@ -60,3 +60,9 @@ Ad unit IDs are managed in `lib/config/ad_config.dart`. Ensure these are updated
 - **Android App ID**: `ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX`
 - **iOS App ID**: `ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX`
 - **Interstitial ID**: `ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX`
+
+---
+
+## 💎 Features & Benefits
+
+For a complete breakdown of free vs. premium features, see [PLATFORM_FEATURES.md](./PLATFORM_FEATURES.md).

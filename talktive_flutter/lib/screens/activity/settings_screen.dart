@@ -249,25 +249,6 @@ class SettingsScreen extends ConsumerWidget {
                       )
                     : null,
               ),
-              _buildFeatureRow(
-                context,
-                icon: Icons.image_outlined,
-                title: 'Media Sharing',
-                description: 'Share colorful images in Global and Lounges.',
-                isLocked: !resident.isPremium,
-                value: resident
-                    .showImagesInPlaza, // Using plaza as proxy for main toggle
-                onChanged: resident.isPremium
-                    ? (val) => _updatePrivacySettings(
-                        context,
-                        ref,
-                        showImagesInPlaza: val,
-                        showImagesInLounges: val,
-                        showImagesInPrivateChats: val,
-                        showImagesInMoments: val,
-                      )
-                    : null,
-              ),
               if (resident.isStaff) ...[
                 const SizedBox(height: AppTheme.duoSpacingLarge),
                 _buildSectionHeader(context, 'Staff Tools'),

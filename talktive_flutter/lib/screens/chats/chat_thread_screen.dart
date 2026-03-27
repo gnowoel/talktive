@@ -548,11 +548,6 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
             }
           },
           onImagePick: () async {
-            if (currentResident?.isPremium != true) {
-              _showUpgradePrompt('Image Sharing');
-              return;
-            }
-
             if (currentResident?.showImagesInPrivateChats != true) {
               DuoSnackBarHelper.showWarning(
                 context,

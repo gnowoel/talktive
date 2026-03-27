@@ -99,11 +99,12 @@ class MessagingService {
         (mediaUrl != null && mediaUrl.isNotEmpty);
 
     if (hasMedia) {
-      // Plaza restrictions: images/media allowed only for Floor 2+
-      if (channel.type == protocol.ChannelType.plaza &&
+      // Plaza and Lounge restrictions: images/media allowed only for Floor 2+
+      if ((channel.type == protocol.ChannelType.plaza || 
+           channel.type == protocol.ChannelType.lounge) &&
           senderEffectiveFloor < 2) {
         throw protocol.TalktiveException(
-          message: 'You must reach Floor 2 to send media in the Plaza.',
+          message: 'You must reach Floor 2 to send media in public spaces. 🏢',
           code: 'FLOOR_RESTRICTION',
         );
       }

@@ -262,6 +262,18 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
   }
 
   Future<void> _pickAndSendImage() async {
+    final currentResident = ref.read(currentResidentProvider).value;
+    if (currentResident == null) return;
+
+    final floor = DuoFloorHelper.computeFloor(currentResident);
+    if (floor < 2) {
+      DuoSnackBarHelper.showError(
+        context,
+        'You need to be Floor 2+ to send images in Lounges! 🏢',
+      );
+      return;
+    }
+
     final mediaService = ref.read(mediaServiceProvider);
     final image = await mediaService.pickImage();
     if (image == null) return;
@@ -661,12 +673,6 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
         }
       },
       onImagePick: () async {
-        final currentResident = ref.read(currentResidentProvider).value;
-        if (currentResident?.isPremium != true) {
-          _showUpgradePrompt('Image Sharing');
-          return;
-        }
-
         if (currentResident?.showImagesInLounges != true) {
           DuoSnackBarHelper.showWarning(
             context,

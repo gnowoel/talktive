@@ -134,6 +134,11 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
   - **Architectural Delegation**: Refactored the search system by extracting discovery and filtering logic from `SearchEndpoint` into a dedicated `SearchService`. This ensures the backend adheres to the service-layer delegation pattern used throughout the project.
   - **UI Compliance**: Replaced deprecated `.withOpacity()` usage with the modern `.withValues(alpha: ...)` API across all search screens to ensure future Flutter compatibility and reduce console warnings.
   - **Codebase Sanitization**: Sanitized the codebase by removing obsolete testing artifacts and unused imports, achieving a clean analysis state.
+- **Full-Stack Architectural Simplification & Consolidation (Mar 2026)**:
+  - **Service-Level Consolidation**: Consolidated fragmented backend logic into three specialized services: `ChannelService` (generic membership and unread counts), `MessagingService` (unified message validation and post-save lifecycle), and `PrivateChatService` (dedicated private chat business rules).
+  - **Endpoint Thinning**: Refactored `MessageEndpoint` and `PrivateChatEndpoint` to be lean controllers that delegate all business logic to the service layer.
+  - **Redundancy Elimination**: Eliminated the bloated `ChatService`, migrating its generic functionality to core services and resolving code duplication across the messaging stack.
+  - **Stability & Performance**: Standardized unread count batching and last-message denormalization across lounges and private chats, improving database efficiency and maintainability.
 - **Advanced Search & Demographic Discovery (Mar 2026)**:
   - **Enhanced Discovery**: Implemented a comprehensive search system for both People and Lounges, enabling granular filtering by Age Range, Gender, Country, Language, and Interests.
   - **Search Recommendations**: Updated the `SearchEndpoint` to return curated "zero-state" recommendations (active users/popular lounges) for empty search queries.

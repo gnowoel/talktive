@@ -3,7 +3,7 @@ import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import 'gamification_service.dart';
 import 'notification_service.dart';
 import 'resident_service.dart';
-import 'chat_service.dart';
+import 'channel_service.dart';
 import 'cache_service.dart';
 import 'admin_service.dart';
 import '../utils/task_utils.dart';
@@ -104,7 +104,7 @@ class LoungeService {
       orderDescending: true,
     );
 
-    final unreadCounts = await ChatService.batchGetUnreadCounts(
+    final unreadCounts = await ChannelService.batchGetUnreadCounts(
       session,
       lounges.map((l) => l.channelId).toList(),
       userId,

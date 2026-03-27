@@ -1,7 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import '../services/input_validation_service.dart';
-import '../services/chat_service.dart';
+import '../services/private_chat_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 
 class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
@@ -15,7 +15,7 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
     InputValidationService.validateUuid(otherUserId).throwIfInvalid();
     final resident = await getAuthenticatedResident(session);
 
-    return await ChatService.getOrCreatePrivateChat(
+    return await PrivateChatService.getOrCreatePrivateChat(
       session,
       sender: resident,
       otherUserId: UuidValue.fromString(otherUserId),
@@ -28,7 +28,7 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
     Session session,
   ) async {
     final currentUserId = await getUserId(session);
-    return await ChatService.listPrivateChats(session, currentUserId);
+    return await PrivateChatService.listPrivateChats(session, currentUserId);
   }
 
   /// Gets details about a private chat including the other participant's info.
@@ -38,7 +38,7 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
   ) async {
     InputValidationService.validateId(channelId, 'Channel ID').throwIfInvalid();
     final currentUserId = await getUserId(session);
-    return await ChatService.getPrivateChatDetails(session, channelId, currentUserId);
+    return await PrivateChatService.getPrivateChatDetails(session, channelId, currentUserId);
   }
 
   /// Accepts or declines a private chat invitation
@@ -49,7 +49,7 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
   ) async {
     InputValidationService.validateId(channelId, 'Channel ID').throwIfInvalid();
     final currentUserId = await getUserId(session);
-    await ChatService.respondToChatInvite(session, channelId, currentUserId, accept);
+    await PrivateChatService.respondToChatInvite(session, channelId, currentUserId, accept);
   }
 
   /// Leaves a private chat.
@@ -59,6 +59,6 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
   ) async {
     InputValidationService.validateId(channelId, 'Channel ID').throwIfInvalid();
     final currentUserId = await getUserId(session);
-    await ChatService.leaveChat(session, channelId, currentUserId);
+    await PrivateChatService.leaveChat(session, channelId, currentUserId);
   }
 }

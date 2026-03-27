@@ -6,11 +6,13 @@ import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import '../services/apartment_service.dart';
 
 import '../services/input_validation_service.dart';
-import '../services/chat_service.dart';
 import '../services/mention_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
+import '../utils/task_utils.dart';
 import '../services/notification_service.dart';
 import '../services/resident_service.dart';
+import '../services/channel_service.dart';
+import '../services/messaging_service.dart';
 
 class MessageEndpoint extends Endpoint with EndpointAuthMixin {
   /// Sends a message to a channel (Plaza, Lounge, or Private).
@@ -68,7 +70,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       }
 
       // 4. Detailed Validation (Mute, Floor, Filter, Privacy)
-      final filteredContent = await ChatService.validateMessage(
+      final filteredContent = await MessagingService.validateMessage(
         session,
         sender: sender,
         channel: channel,
@@ -102,9 +104,9 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       final savedMessage = await protocol.Message.db.insertRow(session, message);
 
       // 6. Handle side effects (async) - DON'T AWAIT (Run in background)
-      runBackground(session, (backgroundSession) async {
+      TaskUtils.runBackground(session, (backgroundSession) async {
         // Send notifications (includes mentions, push, and lounge logic)
-        final channel = await protocol.Channel.db.findById(backgroundSession, savedMessage.channelId);
+        final channel = await ChannelService.getChannel(backgroundSession, savedMessage.channelId);
         if (channel != null) {
           await _triggerNotifications(
             backgroundSession,
@@ -114,7 +116,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
           );
 
           // Side effects: Broadcast, Recents, Gamification
-          await ChatService.onMessageSaved(
+          await MessagingService.onMessageSaved(
             backgroundSession,
             message: savedMessage,
             channel: channel,
@@ -204,33 +206,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
   /// Marks all messages in a channel as read for the current user.
   Future<void> markChannelAsRead(Session session, int channelId) async {
     final userUuid = await getUserId(session);
-
-    // Find the membership record
-    final membership = await protocol.ChannelMember.db.findFirstRow(
-      session,
-      where: (t) =>
-          t.channelId.equals(channelId) & t.userInfoId.equals(userUuid),
-    );
-
-    if (membership != null) {
-      final now = DateTime.now();
-      membership.lastReadAt = now;
-      await protocol.ChannelMember.db.updateRow(session, membership);
-
-      // Broadcast ReadReceiptEvent to other channel members
-      // Only broadcast if the user has opted in to sharing read receipts
-      final resident = await getResidentProfile(session, userUuid);
-      if (resident.showReadReceipts) {
-        await session.messages.postMessage(
-          'channel_$channelId',
-          protocol.ReadReceiptEvent(
-            channelId: channelId,
-            userId: userUuid,
-            lastReadAt: now,
-          ),
-        );
-      }
-    }
+    await ChannelService.markAsRead(session, channelId, userUuid);
   }
 
   /// Sends a typing indicator to a channel.
@@ -242,16 +218,13 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     final userUuid = await getUserId(session);
     final resident = await getResidentProfile(session, userUuid);
 
-    // Only broadcast if the user has opted in to sharing typing status
     if (resident.showTypingIndicator) {
-      await session.messages.postMessage(
-        'channel_$channelId',
-        protocol.TypingIndicator(
-          channelId: channelId,
-          senderId: userUuid,
-          userName: resident.userName ?? 'Resident',
-          isTyping: isTyping,
-        ),
+      await ChannelService.sendTypingIndicator(
+        session,
+        channelId,
+        userUuid,
+        resident.userName ?? 'Resident',
+        isTyping,
       );
     }
   }
@@ -350,10 +323,9 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     }
 
     // Run all notifications in parallel
-    await Future.wait([
-      ...mentionFutures,
-      ?bulkMemberFuture,
-    ]);
+    final List<Future> futures = [...mentionFutures];
+    if (bulkMemberFuture != null) futures.add(bulkMemberFuture);
+    await Future.wait(futures);
   }
 
   /// Updates the persistence setting of a channel.
@@ -362,14 +334,6 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     int channelId,
     bool isPersistent,
   ) async {
-    final channel = await protocol.Channel.db.findById(session, channelId);
-    if (channel == null) {
-      throw protocol.TalktiveException(
-        message: 'Channel not found.',
-        code: 'CHANNEL_NOT_FOUND',
-      );
-    }
-
     final userUuid = await getUserId(session);
     final resident = await getResidentProfile(session, userUuid);
 
@@ -381,11 +345,9 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     }
 
     // Verify membership for private/lounge channels
-    if (channel.type != protocol.ChannelType.plaza) {
-      final membership = await protocol.ChannelMember.db.findFirstRow(
-        session,
-        where: (t) => t.channelId.equals(channelId) & t.userInfoId.equals(userUuid),
-      );
+    final channel = await ChannelService.getChannel(session, channelId);
+    if (channel != null && channel.type != protocol.ChannelType.plaza) {
+      final membership = await ChannelService.getMember(session, channelId, userUuid);
       if (membership == null) {
         throw protocol.TalktiveException(
           message: 'Access denied: Not a member of this channel.',
@@ -394,7 +356,6 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       }
     }
 
-    channel.isPersistent = isPersistent;
-    return await protocol.Channel.db.updateRow(session, channel);
+    return await ChannelService.updatePersistence(session, channelId, isPersistent);
   }
 }

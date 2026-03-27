@@ -93,7 +93,7 @@ class DuoHeader extends StatelessWidget {
             ),
           ),
           // Optional trailing widget
-          if (trailing != null) trailing!,
+          ?trailing,
         ],
       ),
     );

@@ -12,13 +12,13 @@ dependencies:
   serverpod_auth_core_server: 3.4.5
   serverpod_auth_server: 3.4.5
   uuid: ^4.5.2
-  firebase_admin: ^0.3.0
-  googleapis_auth: ^1.6.0
+  firebase_admin: ^0.3.1
+  googleapis_auth: ^2.2.0
   http: ^1.2.0
   image: ^4.3.0
   path: ^1.9.0
   collection: ^1.18.0
-  dart_jsonwebtoken: ^3.3.2
+  dart_jsonwebtoken: ^3.4.0
 
 dev_dependencies:
   lints: '>=3.0.0 <7.0.0'

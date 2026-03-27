@@ -42,10 +42,10 @@ class DuoChatLayout extends StatelessWidget {
         appBar: appBar,
         body: Column(
           children: [
-            if (header != null) header!,
+            ?header,
             Expanded(child: content),
-            if (typingIndicator != null) typingIndicator!,
-            if (input != null) input!,
+            ?typingIndicator,
+            ?input,
           ],
         ),
       ),

@@ -416,42 +416,7 @@ class LoungeProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatItem(
-    BuildContext context,
-    dynamic value, // String or IconData
-    String label, {
-    VoidCallback? onTap,
-  }) {
-    final content = Column(
-      children: [
-        if (value is IconData)
-          Icon(value, size: 24, color: AppTheme.duoBlue)
-        else
-          Text(
-            value.toString(),
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.duoBlue,
-            ),
-          ),
-        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-      ],
-    );
 
-    if (onTap != null) {
-      return InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          child: content,
-        ),
-      );
-    }
-
-    return content;
-  }
 
   Widget _buildCreatorSection(
     BuildContext context,

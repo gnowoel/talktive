@@ -41,7 +41,7 @@ class LegacyMessaging {
       );
 
       await _flutterLocalNotificationsPlugin.initialize(
-        initializationSettings,
+        settings: initializationSettings,
         onDidReceiveNotificationResponse: (details) {
           _handleNotificationTap(details.payload);
         },
@@ -152,10 +152,10 @@ class LegacyMessaging {
 
     try {
       await _flutterLocalNotificationsPlugin.show(
-        0,
-        title,
-        body,
-        notificationDetails,
+        id: 0,
+        title: title,
+        body: body,
+        notificationDetails: notificationDetails,
         payload: jsonEncode(data),
       );
     } catch (e) {

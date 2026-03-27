@@ -27,7 +27,9 @@ class ServerpodNotificationService {
         android: initializationSettingsAndroid,
       );
 
-      await _notificationsPlugin.initialize(initializationSettings);
+      await _notificationsPlugin.initialize(
+        settings: initializationSettings,
+      );
 
       // Create high importance channel
       const androidNotificationChannel = AndroidNotificationChannel(
@@ -82,11 +84,10 @@ class ServerpodNotificationService {
 
     try {
       await _notificationsPlugin.show(
-        // Use a unique ID based on message ID hash or static for single
-        message.messageId.hashCode,
-        title,
-        body,
-        notificationDetails,
+        id: message.messageId.hashCode,
+        title: title,
+        body: body,
+        notificationDetails: notificationDetails,
         payload: jsonEncode(data),
       );
       debugPrint('ServerpodNotificationService: Notification displayed');

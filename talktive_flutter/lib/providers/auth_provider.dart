@@ -4,8 +4,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import '../config/auth_config.dart';
 import '../serverpod_client.dart';
 
 part 'auth_provider.g.dart';
@@ -109,22 +107,11 @@ class Auth extends _$Auth {
 
     try {
       // 1. Sign in with Google (Client Side)
-      final googleSignIn = GoogleSignIn(
-        clientId: kIsWeb ? AuthConfig.webClientId : null,
-        scopes: ['openid'],
-      );
-      final googleUser = await googleSignIn.signIn();
-
-      if (googleUser == null) {
-        // User cancelled
-        state = const AsyncValue.data(Unauthenticated());
-        return AuthStatus.cancelled;
-      }
+      final googleUser = await GoogleSignIn.instance.authenticate();
 
       // 2. Get Google Credentials
-      final googleAuth = await googleUser.authentication;
+      final googleAuth = googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
@@ -190,9 +177,16 @@ class Auth extends _$Auth {
       } else {
         return AuthStatus.error;
       }
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) {
+        state = const AsyncValue.data(Unauthenticated());
+        return AuthStatus.cancelled;
+      }
+      state = AsyncValue.error(e, StackTrace.current);
+      return AuthStatus.error;
     } catch (e) {
-      debugPrint('Google Sign-In error: $e');
-      state = AsyncValue.data(AuthFailure(e.toString()));
+      debugPrint("Sign in failed: $e");
+      state = AsyncValue.error(e, StackTrace.current);
       return AuthStatus.error;
     }
   }
@@ -288,10 +282,7 @@ class Auth extends _$Auth {
     try {
       await sessionManager.signOutDevice();
       await FirebaseAuth.instance.signOut();
-      final googleSignIn = GoogleSignIn(
-        clientId: kIsWeb ? AuthConfig.webClientId : null,
-      );
-      await googleSignIn.signOut();
+      await GoogleSignIn.instance.signOut();
     } catch (e) {
       debugPrint("SignOut error: $e");
     }

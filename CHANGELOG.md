@@ -1,6 +1,25 @@
 # Talktive Development Changelog
 
-## March 31, 2026 - Democratizing Media Sharing & Community Safety (Phase 8.80) 🖼️🔒🆓
+## March 31, 2026 - Plaza Pinned Messages & Real-time Integration (Phase 8.81) 📌📢✨
+
+### Features & Administrative Tools
+
+- **Plaza Pinned Messages**: Empowered administrators to pin critical community announcements to the top of the Global Lounge (Plaza). This ensures that important rules, events, or updates remain highly visible to all residents.
+- **Ubiquitous Pinning Support**: Extended the pinning infrastructure across the entire platform, including Lounges and Private Chats, allowing consistent information management across all chat types.
+- **Real-time Synchronization**: Implemented real-time broadcast of pin and unpin events. All active residents see the pinned message bar update instantly without needing to refresh or reconnect.
+- **Safety & Authorization**: Restricted pinning capabilities exclusively to **Admins**, preventing misuse of the broadcast channel while maintaining a clear hierarchy of community announcements.
+
+### UI/UX Improvements
+
+- **Pinned Message Bar**: Developed a sleek, Duolingo-inspired header widget that displays the pinned message content and sender. It features a dismissal button for admins to quickly unpin messages.
+- **Visual Indicators**: Added a subtle `push_pin` icon to messages in the chat stream that are currently pinned, providing clear visual feedback.
+- **Admin Context Menu**: Enhanced the `MessageBubble` long-press menu for admins to include intuitive "Pin Message" and "Unpin Message" actions.
+
+### Backend & Protocol
+
+- **Protocol Denormalization**: Updated the `Message` protocol and database schema to include `isPinned` and `pinnedAt` fields, ensuring efficient retrieval and sorting.
+- **Service Layer Integration**: Leveraged the delegated service architecture to handle pinning logic, including automatic unpinning of previous messages to ensure only one message is active at a time per channel.
+- **Ephemerality Compliance**: Integrated pinned messages with the platform's content lifespan policies. Pinned messages in the Plaza naturally expire after 24 hours (Lobby rules), maintaining the ephemeral "Plaza Soul" of the building.
 
 ### Media Policy & Feature Access
 

@@ -14,6 +14,7 @@ import '../../helpers/duo_mention_helper.dart';
 import '../../helpers/resident_ext.dart';
 import '../../helpers/duo_snackbar_helper.dart';
 import '../../providers/client_provider.dart';
+import '../../providers/realtime_chat_provider.dart';
 import 'voice_message_player.dart';
 
 class MessageBubble extends ConsumerWidget {
@@ -276,7 +277,7 @@ class MessageBubble extends ConsumerWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         if (message.isPinned) ...[
-                          const Icon(
+                          Icon(
                             Icons.push_pin,
                             size: 10,
                             color: isCurrentUser

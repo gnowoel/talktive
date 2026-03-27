@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'client_provider.dart';
-import 'private_chat_provider.dart';
 import '../services/local_chat_cache.dart';
 
 part 'realtime_chat_provider.g.dart';

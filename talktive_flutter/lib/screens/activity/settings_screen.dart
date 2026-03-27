@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
 import '../../providers/current_resident_provider.dart';
-import '../../providers/auth_provider.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../helpers/duo_snackbar_helper.dart';

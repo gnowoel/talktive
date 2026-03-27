@@ -1581,6 +1581,63 @@ class Endpoints extends _i1.EndpointDispatch {
                     params['isPersistent'],
                   ),
         ),
+        'getPinnedMessage': _i1.MethodConnector(
+          name: 'getPinnedMessage',
+          params: {
+            'channelId': _i1.ParameterDescription(
+              name: 'channelId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['message'] as _i9.MessageEndpoint)
+                  .getPinnedMessage(
+                    session,
+                    params['channelId'],
+                  ),
+        ),
+        'pinMessage': _i1.MethodConnector(
+          name: 'pinMessage',
+          params: {
+            'messageId': _i1.ParameterDescription(
+              name: 'messageId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['message'] as _i9.MessageEndpoint).pinMessage(
+                    session,
+                    params['messageId'],
+                  ),
+        ),
+        'unpinMessage': _i1.MethodConnector(
+          name: 'unpinMessage',
+          params: {
+            'messageId': _i1.ParameterDescription(
+              name: 'messageId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['message'] as _i9.MessageEndpoint).unpinMessage(
+                    session,
+                    params['messageId'],
+                  ),
+        ),
         'subscribe': _i1.MethodStreamConnector(
           name: 'subscribe',
           params: {
@@ -1861,6 +1918,25 @@ class Endpoints extends _i1.EndpointDispatch {
                   (endpoints['moment'] as _i10.MomentEndpoint).deleteComment(
                     session,
                     params['commentId'],
+                  ),
+        ),
+        'deleteMoment': _i1.MethodConnector(
+          name: 'deleteMoment',
+          params: {
+            'momentId': _i1.ParameterDescription(
+              name: 'momentId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['moment'] as _i10.MomentEndpoint).deleteMoment(
+                    session,
+                    params['momentId'],
                   ),
         ),
       },

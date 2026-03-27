@@ -23,6 +23,8 @@ abstract class Message
     this.mediaUrl,
     this.mediaType,
     required this.isSystem,
+    bool? isPinned,
+    this.pinnedAt,
     required this.createdAt,
     this.duration,
     this.fileSize,
@@ -31,7 +33,7 @@ abstract class Message
     this.senderMood,
     required this.senderFloor,
     required this.senderTrustScore,
-  });
+  }) : isPinned = isPinned ?? false;
 
   factory Message({
     int? id,
@@ -42,6 +44,8 @@ abstract class Message
     String? mediaUrl,
     String? mediaType,
     required bool isSystem,
+    bool? isPinned,
+    DateTime? pinnedAt,
     required DateTime createdAt,
     int? duration,
     int? fileSize,
@@ -64,6 +68,12 @@ abstract class Message
       mediaUrl: jsonSerialization['mediaUrl'] as String?,
       mediaType: jsonSerialization['mediaType'] as String?,
       isSystem: _i1.BoolJsonExtension.fromJson(jsonSerialization['isSystem']),
+      isPinned: jsonSerialization['isPinned'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isPinned']),
+      pinnedAt: jsonSerialization['pinnedAt'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['pinnedAt']),
       createdAt: _i1.DateTimeJsonExtension.fromJson(
         jsonSerialization['createdAt'],
       ),
@@ -98,6 +108,10 @@ abstract class Message
 
   bool isSystem;
 
+  bool isPinned;
+
+  DateTime? pinnedAt;
+
   DateTime createdAt;
 
   int? duration;
@@ -129,6 +143,8 @@ abstract class Message
     String? mediaUrl,
     String? mediaType,
     bool? isSystem,
+    bool? isPinned,
+    DateTime? pinnedAt,
     DateTime? createdAt,
     int? duration,
     int? fileSize,
@@ -150,6 +166,8 @@ abstract class Message
       if (mediaUrl != null) 'mediaUrl': mediaUrl,
       if (mediaType != null) 'mediaType': mediaType,
       'isSystem': isSystem,
+      'isPinned': isPinned,
+      if (pinnedAt != null) 'pinnedAt': pinnedAt?.toJson(),
       'createdAt': createdAt.toJson(),
       if (duration != null) 'duration': duration,
       if (fileSize != null) 'fileSize': fileSize,
@@ -173,6 +191,8 @@ abstract class Message
       if (mediaUrl != null) 'mediaUrl': mediaUrl,
       if (mediaType != null) 'mediaType': mediaType,
       'isSystem': isSystem,
+      'isPinned': isPinned,
+      if (pinnedAt != null) 'pinnedAt': pinnedAt?.toJson(),
       'createdAt': createdAt.toJson(),
       if (duration != null) 'duration': duration,
       if (fileSize != null) 'fileSize': fileSize,
@@ -226,6 +246,8 @@ class _MessageImpl extends Message {
     String? mediaUrl,
     String? mediaType,
     required bool isSystem,
+    bool? isPinned,
+    DateTime? pinnedAt,
     required DateTime createdAt,
     int? duration,
     int? fileSize,
@@ -243,6 +265,8 @@ class _MessageImpl extends Message {
          mediaUrl: mediaUrl,
          mediaType: mediaType,
          isSystem: isSystem,
+         isPinned: isPinned,
+         pinnedAt: pinnedAt,
          createdAt: createdAt,
          duration: duration,
          fileSize: fileSize,
@@ -266,6 +290,8 @@ class _MessageImpl extends Message {
     Object? mediaUrl = _Undefined,
     Object? mediaType = _Undefined,
     bool? isSystem,
+    bool? isPinned,
+    Object? pinnedAt = _Undefined,
     DateTime? createdAt,
     Object? duration = _Undefined,
     Object? fileSize = _Undefined,
@@ -284,6 +310,8 @@ class _MessageImpl extends Message {
       mediaUrl: mediaUrl is String? ? mediaUrl : this.mediaUrl,
       mediaType: mediaType is String? ? mediaType : this.mediaType,
       isSystem: isSystem ?? this.isSystem,
+      isPinned: isPinned ?? this.isPinned,
+      pinnedAt: pinnedAt is DateTime? ? pinnedAt : this.pinnedAt,
       createdAt: createdAt ?? this.createdAt,
       duration: duration is int? ? duration : this.duration,
       fileSize: fileSize is int? ? fileSize : this.fileSize,
@@ -334,6 +362,17 @@ class MessageUpdateTable extends _i1.UpdateTable<MessageTable> {
     table.isSystem,
     value,
   );
+
+  _i1.ColumnValue<bool, bool> isPinned(bool value) => _i1.ColumnValue(
+    table.isPinned,
+    value,
+  );
+
+  _i1.ColumnValue<DateTime, DateTime> pinnedAt(DateTime? value) =>
+      _i1.ColumnValue(
+        table.pinnedAt,
+        value,
+      );
 
   _i1.ColumnValue<DateTime, DateTime> createdAt(DateTime value) =>
       _i1.ColumnValue(
@@ -409,6 +448,15 @@ class MessageTable extends _i1.Table<int?> {
       'isSystem',
       this,
     );
+    isPinned = _i1.ColumnBool(
+      'isPinned',
+      this,
+      hasDefault: true,
+    );
+    pinnedAt = _i1.ColumnDateTime(
+      'pinnedAt',
+      this,
+    );
     createdAt = _i1.ColumnDateTime(
       'createdAt',
       this,
@@ -459,6 +507,10 @@ class MessageTable extends _i1.Table<int?> {
 
   late final _i1.ColumnBool isSystem;
 
+  late final _i1.ColumnBool isPinned;
+
+  late final _i1.ColumnDateTime pinnedAt;
+
   late final _i1.ColumnDateTime createdAt;
 
   late final _i1.ColumnInt duration;
@@ -485,6 +537,8 @@ class MessageTable extends _i1.Table<int?> {
     mediaUrl,
     mediaType,
     isSystem,
+    isPinned,
+    pinnedAt,
     createdAt,
     duration,
     fileSize,

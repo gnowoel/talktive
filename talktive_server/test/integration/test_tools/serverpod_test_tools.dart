@@ -2507,6 +2507,99 @@ class _MessageEndpoint {
       }
     });
   }
+
+  _i3.Future<_i17.Message?> getPinnedMessage(
+    _i1.TestSessionBuilder sessionBuilder,
+    int channelId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'message',
+            method: 'getPinnedMessage',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'message',
+          methodName: 'getPinnedMessage',
+          parameters: _i1.testObjectToJson({'channelId': channelId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i17.Message?>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i17.Message> pinMessage(
+    _i1.TestSessionBuilder sessionBuilder,
+    int messageId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'message',
+            method: 'pinMessage',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'message',
+          methodName: 'pinMessage',
+          parameters: _i1.testObjectToJson({'messageId': messageId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i17.Message>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i17.Message> unpinMessage(
+    _i1.TestSessionBuilder sessionBuilder,
+    int messageId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'message',
+            method: 'unpinMessage',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'message',
+          methodName: 'unpinMessage',
+          parameters: _i1.testObjectToJson({'messageId': messageId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i17.Message>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
 }
 
 class _MomentEndpoint {
@@ -2869,6 +2962,37 @@ class _MomentEndpoint {
           endpointPath: 'moment',
           methodName: 'deleteComment',
           parameters: _i1.testObjectToJson({'commentId': commentId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<void> deleteMoment(
+    _i1.TestSessionBuilder sessionBuilder,
+    int momentId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'moment',
+            method: 'deleteMoment',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'moment',
+          methodName: 'deleteMoment',
+          parameters: _i1.testObjectToJson({'momentId': momentId}),
           serializationManager: _serializationManager,
         );
         var _localReturnValue =

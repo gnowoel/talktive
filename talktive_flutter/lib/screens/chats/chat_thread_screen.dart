@@ -12,6 +12,7 @@ import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/chat/message_bubble.dart';
+import '../../widgets/chat/pinned_message_bar.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
 import '../../helpers/duo_upgrade_helper.dart';
 import '../../services/media_service.dart';
@@ -563,6 +564,9 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
           isLoading: currentResidentAsync.isLoading,
           focusNode: _focusNode,
           activeColor: AppTheme.duoOrange,
+          header: (chatState.value?.pinnedMessage != null)
+              ? PinnedMessageBar(message: chatState.value!.pinnedMessage!)
+              : null,
           hintText: canSend
               ? 'Type a message...'
               : DuoFloorHelper.getMuteInputHint(currentResident),

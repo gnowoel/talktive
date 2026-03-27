@@ -10,6 +10,7 @@ import '../../providers/blocked_users_provider.dart';
 import '../../config/theme.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
 import '../../widgets/chat/message_bubble.dart';
+import '../../widgets/chat/pinned_message_bar.dart';
 
 import '../../helpers/duo_upgrade_helper.dart';
 import '../../helpers/resident_ext.dart';
@@ -644,6 +645,9 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
           ),
         ],
       ),
+      header: (chatState.value?.pinnedMessage != null)
+          ? PinnedMessageBar(message: chatState.value!.pinnedMessage!)
+          : null,
       controller: _messageController,
       onSend: _sendMessage,
       onVoiceSend: _sendVoiceMessage,

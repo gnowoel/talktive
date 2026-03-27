@@ -13,6 +13,7 @@ part 'realtime_chat_provider.g.dart';
 /// State for the real-time chat provider.
 class RealtimeChatState {
   final List<Message> messages;
+  final Message? pinnedMessage;
   final Set<String> typingUsers; // usernames of people typing
   final Map<String, DateTime> lastReadStatus; // userId -> lastReadAt
   final bool isLoadingMore;
@@ -20,6 +21,7 @@ class RealtimeChatState {
 
   RealtimeChatState({
     required this.messages,
+    this.pinnedMessage,
     required this.typingUsers,
     required this.lastReadStatus,
     this.isLoadingMore = false,
@@ -28,6 +30,8 @@ class RealtimeChatState {
 
   RealtimeChatState copyWith({
     List<Message>? messages,
+    Message? pinnedMessage,
+    bool clearPinnedMessage = false,
     Set<String>? typingUsers,
     Map<String, DateTime>? lastReadStatus,
     bool? isLoadingMore,
@@ -35,6 +39,7 @@ class RealtimeChatState {
   }) {
     return RealtimeChatState(
       messages: messages ?? this.messages,
+      pinnedMessage: clearPinnedMessage ? null : (pinnedMessage ?? this.pinnedMessage),
       typingUsers: typingUsers ?? this.typingUsers,
       lastReadStatus: lastReadStatus ?? this.lastReadStatus,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
@@ -77,39 +82,9 @@ class RealtimeChat extends _$RealtimeChat {
           true, // Optimistically assume there's more until fetch fails/finishes
     );
 
-    // Try to get other user's last read from details (for private chats)
-    try {
-      final details = await ref.read(
-        privateChatDetailsProvider(_channelId).future,
-      );
+    // ... try to get other user's last read status ...
 
-      if (details != null) {
-        if (details.otherUserLastReadAt != null) {
-          initialState.lastReadStatus[details.otherResident.userInfoId
-                  .toString()] =
-              details.otherUserLastReadAt!;
-        }
-
-        // Optimization: If pre-warming, check if cache is already fresh
-        if (prewarmOnly && cachedMessages.isNotEmpty) {
-          final lastKnown = await LocalChatCache.getLastMessageAt(_channelId);
-          if (lastKnown != null && details.chat.lastMessageAt != null) {
-            // If the last message timestamp matches, skip the fetch
-            if (!details.chat.lastMessageAt!.isAfter(lastKnown)) {
-              debugPrint(
-                'RealtimeChat: Skipping pre-warm fetch for $_channelId (Cache Fresh)',
-              );
-              _subscribe(); // Still subscribe for real-time updates
-              return initialState;
-            }
-          }
-        }
-      }
-    } catch (_) {
-      // Not a private chat or details not available
-    }
-
-    // 2. Fetch fresh messages in background and update state
+    // 2. Fetch fresh messages and pinned message in background
     _fetchAndSyncMessages();
 
     // Subscribe to real-time updates
@@ -121,7 +96,13 @@ class RealtimeChat extends _$RealtimeChat {
   /// Fetches fresh messages and updates state/cache.
   Future<void> _fetchAndSyncMessages() async {
     try {
-      final freshMessages = await _fetchMessages();
+      final client = ref.read(clientProvider);
+      final freshMessagesFuture = _fetchMessages();
+      final pinnedMessageFuture = client.message.getPinnedMessage(_channelId);
+
+      final results = await Future.wait([freshMessagesFuture, pinnedMessageFuture]);
+      final freshMessages = results[0] as List<Message>;
+      final pinnedMessage = results[1] as Message?;
 
       // Update state with fresh messages
       if (!ref.mounted) return;
@@ -129,6 +110,8 @@ class RealtimeChat extends _$RealtimeChat {
         state = AsyncValue.data(
           state.value!.copyWith(
             messages: freshMessages,
+            pinnedMessage: pinnedMessage,
+            clearPinnedMessage: pinnedMessage == null,
             hasMore: freshMessages.length >= 50,
           ),
         );
@@ -205,11 +188,34 @@ class RealtimeChat extends _$RealtimeChat {
     if (state.value == null) return;
 
     final currentState = state.value!;
-    final exists = currentState.messages.any((m) => m.id == newMessage.id);
-    if (exists) return;
+    
+    // Check if this is a pinned message update
+    Message? updatedPinnedMessage = currentState.pinnedMessage;
+    if (newMessage.isPinned) {
+      updatedPinnedMessage = newMessage;
+    } else if (currentState.pinnedMessage?.id == newMessage.id && !newMessage.isPinned) {
+      // It was unpinned
+      updatedPinnedMessage = null;
+    }
+
+    final int index = currentState.messages.indexWhere((m) => m.id == newMessage.id);
+    
+    List<Message> updatedMessages;
+    if (index != -1) {
+      // Update existing message
+      updatedMessages = List.from(currentState.messages);
+      updatedMessages[index] = newMessage;
+    } else {
+      // Add new message
+      updatedMessages = [newMessage, ...currentState.messages];
+    }
 
     state = AsyncValue.data(
-      currentState.copyWith(messages: [newMessage, ...currentState.messages]),
+      currentState.copyWith(
+        messages: updatedMessages,
+        pinnedMessage: updatedPinnedMessage,
+        clearPinnedMessage: updatedPinnedMessage == null,
+      ),
     );
 
     // Clear typing indicator for this sender
@@ -304,6 +310,30 @@ class RealtimeChat extends _$RealtimeChat {
       }
     } catch (e) {
       debugPrint('RealtimeChat: Send error: $e');
+      rethrow;
+    }
+  }
+
+  /// Pins a message.
+  Future<void> pinMessage(int messageId) async {
+    final client = ref.read(clientProvider);
+    try {
+      await client.message.pinMessage(messageId);
+      // Pinned status will be updated via WebSocket broadcast
+    } catch (e) {
+      debugPrint('RealtimeChat: Pin error: $e');
+      rethrow;
+    }
+  }
+
+  /// Unpins a message.
+  Future<void> unpinMessage(int messageId) async {
+    final client = ref.read(clientProvider);
+    try {
+      await client.message.unpinMessage(messageId);
+      // Unpinned status will be updated via WebSocket broadcast
+    } catch (e) {
+      debugPrint('RealtimeChat: Unpin error: $e');
       rethrow;
     }
   }

@@ -939,6 +939,31 @@ class EndpointMessage extends _i2.EndpointRef {
       'isPersistent': isPersistent,
     },
   );
+
+  /// Gets the currently pinned message for a channel.
+  _i3.Future<_i17.Message?> getPinnedMessage(int channelId) =>
+      caller.callServerEndpoint<_i17.Message?>(
+        'message',
+        'getPinnedMessage',
+        {'channelId': channelId},
+      );
+
+  /// Pins a message to the top of its channel.
+  /// Only admins can pin messages.
+  _i3.Future<_i17.Message> pinMessage(int messageId) =>
+      caller.callServerEndpoint<_i17.Message>(
+        'message',
+        'pinMessage',
+        {'messageId': messageId},
+      );
+
+  /// Unpins a message.
+  _i3.Future<_i17.Message> unpinMessage(int messageId) =>
+      caller.callServerEndpoint<_i17.Message>(
+        'message',
+        'unpinMessage',
+        {'messageId': messageId},
+      );
 }
 
 /// {@category Endpoint}
@@ -1065,6 +1090,14 @@ class EndpointMoment extends _i2.EndpointRef {
         'moment',
         'deleteComment',
         {'commentId': commentId},
+      );
+
+  /// Deletes a moment (only by author or admin).
+  _i3.Future<void> deleteMoment(int momentId) =>
+      caller.callServerEndpoint<void>(
+        'moment',
+        'deleteMoment',
+        {'momentId': momentId},
       );
 }
 

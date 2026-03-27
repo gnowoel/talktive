@@ -71,6 +71,9 @@ message:
   - markChannelAsRead:
   - sendTypingIndicator:
   - updateChannelPersistence:
+  - getPinnedMessage:
+  - pinMessage:
+  - unpinMessage:
 moment:
   - postMoment:
   - listMoments:
@@ -83,6 +86,7 @@ moment:
   - addComment:
   - getMomentComments:
   - deleteComment:
+  - deleteMoment:
 notification:
   - getUserNotifications:
   - markAsRead:

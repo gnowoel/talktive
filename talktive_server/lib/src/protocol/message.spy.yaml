@@ -8,6 +8,8 @@ fields:
   mediaUrl: String?
   mediaType: String?
   isSystem: bool
+  isPinned: bool, default=false
+  pinnedAt: DateTime?
   createdAt: DateTime
   duration: int?
   fileSize: int?

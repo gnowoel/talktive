@@ -358,4 +358,101 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
 
     return await ChannelService.updatePersistence(session, channelId, isPersistent);
   }
+
+  /// Gets the currently pinned message for a channel.
+  Future<protocol.Message?> getPinnedMessage(Session session, int channelId) async {
+    return await protocol.Message.db.findFirstRow(
+      session,
+      where: (t) => t.channelId.equals(channelId) & t.isPinned.equals(true),
+    );
+  }
+
+  /// Pins a message to the top of its channel.
+  /// Only admins can pin messages.
+  Future<protocol.Message> pinMessage(Session session, int messageId) async {
+    final userUuid = await getUserId(session);
+    final resident = await getResidentProfile(session, userUuid);
+
+    // 1. Role Check (Admin only)
+    if (resident.role != protocol.ResidentRole.admin) {
+      throw protocol.TalktiveException(
+        message: 'Access denied: Only admins can pin messages.',
+        code: 'ACCESS_DENIED',
+      );
+    }
+
+    // 2. Fetch Message
+    final message = await protocol.Message.db.findById(session, messageId);
+    if (message == null) {
+      throw protocol.TalktiveException(
+        message: 'Message not found.',
+        code: 'MESSAGE_NOT_FOUND',
+      );
+    }
+
+    // 3. For Plaza (or other specific channels), unpin all others first
+    // This maintains the "One Pinned Message" rule for simplicity.
+    final existingPinned = await protocol.Message.db.find(
+      session,
+      where: (t) => t.channelId.equals(message.channelId) & t.isPinned.equals(true),
+    );
+
+    if (existingPinned.isNotEmpty) {
+      await protocol.Message.db.updateWhere(
+        session,
+        where: (t) => t.channelId.equals(message.channelId) & t.isPinned.equals(true),
+        columnValues: (t) => [t.isPinned(false)],
+      );
+
+      // Broadcast unpin events for the old ones
+      for (final oldMessage in existingPinned) {
+        oldMessage.isPinned = false;
+        await session.messages.postMessage('channel_${message.channelId}', oldMessage);
+      }
+    }
+
+    // 4. Pin this message
+    message.isPinned = true;
+    message.pinnedAt = DateTime.now();
+    final updatedMessage = await protocol.Message.db.updateRow(session, message);
+
+    // 5. Broadcast Pin Event
+    // We broadcast the message itself as a way to update the client.
+    await session.messages.postMessage('channel_${message.channelId}', updatedMessage);
+
+    return updatedMessage;
+  }
+
+  /// Unpins a message.
+  Future<protocol.Message> unpinMessage(Session session, int messageId) async {
+    final userUuid = await getUserId(session);
+    final resident = await getResidentProfile(session, userUuid);
+
+    // 1. Role Check (Admin only)
+    if (resident.role != protocol.ResidentRole.admin) {
+      throw protocol.TalktiveException(
+        message: 'Access denied: Only admins can unpin messages.',
+        code: 'ACCESS_DENIED',
+      );
+    }
+
+    // 2. Fetch Message
+    final message = await protocol.Message.db.findById(session, messageId);
+    if (message == null) {
+      throw protocol.TalktiveException(
+        message: 'Message not found.',
+        code: 'MESSAGE_NOT_FOUND',
+      );
+    }
+
+    // 3. Unpin
+    message.isPinned = false;
+    message.pinnedAt = null;
+    final updatedMessage = await protocol.Message.db.updateRow(session, message);
+
+    // 4. Broadcast Unpin Event
+    await session.messages.postMessage('channel_${message.channelId}', updatedMessage);
+
+    return updatedMessage;
+  }
 }

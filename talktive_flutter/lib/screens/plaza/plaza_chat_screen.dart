@@ -13,6 +13,7 @@ import 'package:talktive/helpers/duo_floor_helper.dart';
 
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/chat/message_bubble.dart';
+import '../../widgets/chat/pinned_message_bar.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_info_banner.dart';
 import '../../widgets/duo/duo_chat_layout.dart';
@@ -285,13 +286,19 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
           ),
         ],
       ),
-      header: DuoInfoBanner(
-        bannerId: 'plaza_image_rules',
-        text:
-            currentResident != null &&
-                DuoFloorHelper.computeFloor(currentResident) >= 2
-            ? '📸 You can now share images in the Global Lounge!'
-            : 'Text only. Floor 2+ residents can share images.',
+      header: Column(
+        children: [
+          DuoInfoBanner(
+            bannerId: 'plaza_image_rules',
+            text:
+                currentResident != null &&
+                    DuoFloorHelper.computeFloor(currentResident) >= 2
+                ? '📸 You can now share images in the Global Lounge!'
+                : 'Text only. Floor 2+ residents can share images.',
+          ),
+          if (chatState.value?.pinnedMessage != null)
+            PinnedMessageBar(message: chatState.value!.pinnedMessage!),
+        ],
       ),
       controller: _messageController,
       onSend: _sendMessage,

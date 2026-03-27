@@ -275,6 +275,16 @@ class MessageBubble extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        if (message.isPinned) ...[
+                          const Icon(
+                            Icons.push_pin,
+                            size: 10,
+                            color: isCurrentUser
+                                ? Colors.white
+                                : AppTheme.primaryColor,
+                          ),
+                          const SizedBox(width: 4),
+                        ],
                         Text(
                           formatTimestamp(message.createdAt),
                           style: TextStyle(
@@ -397,6 +407,44 @@ class MessageBubble extends ConsumerWidget {
                 }
               },
             ),
+            if (currentResident?.isAdmin ?? false) ...[
+              const Divider(),
+              ListTile(
+                leading: Icon(
+                  message.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                  color: AppTheme.primaryColor,
+                ),
+                title: Text(
+                  message.isPinned ? 'Unpin Message' : 'Pin Message',
+                  style: const TextStyle(
+                    color: AppTheme.primaryColor,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+                  try {
+                    final notifier = ref.read(realtimeChatProvider(message.channelId).notifier);
+                    if (message.isPinned) {
+                      await notifier.unpinMessage(message.id!);
+                      if (context.mounted) {
+                        DuoSnackBarHelper.showSuccess(context, 'Message unpinned.');
+                      }
+                    } else {
+                      await notifier.pinMessage(message.id!);
+                      if (context.mounted) {
+                        DuoSnackBarHelper.showSuccess(context, 'Message pinned to top! 📌');
+                      }
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      DuoSnackBarHelper.showError(context, e.toString());
+                    }
+                  }
+                },
+              ),
+            ],
             if (currentResident?.isStaff ?? false) ...[
               const Divider(),
               ListTile(

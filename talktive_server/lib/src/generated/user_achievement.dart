@@ -315,7 +315,7 @@ class UserAchievementRepository {
   /// );
   /// ```
   Future<List<UserAchievement>> find(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<UserAchievementTable>? where,
     int? limit,
     int? offset,
@@ -357,7 +357,7 @@ class UserAchievementRepository {
   /// );
   /// ```
   Future<UserAchievement?> findFirstRow(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<UserAchievementTable>? where,
     int? offset,
     _i1.OrderByBuilder<UserAchievementTable>? orderBy,
@@ -381,7 +381,7 @@ class UserAchievementRepository {
 
   /// Finds a single [UserAchievement] by its [id] or null if no such row exists.
   Future<UserAchievement?> findById(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     int id, {
     _i1.Transaction? transaction,
     _i1.LockMode? lockMode,
@@ -406,7 +406,7 @@ class UserAchievementRepository {
   /// rows are silently skipped, and only the successfully inserted rows are
   /// returned.
   Future<List<UserAchievement>> insert(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<UserAchievement> rows, {
     _i1.Transaction? transaction,
     bool ignoreConflicts = false,
@@ -422,7 +422,7 @@ class UserAchievementRepository {
   ///
   /// The returned [UserAchievement] will have its `id` field set.
   Future<UserAchievement> insertRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     UserAchievement row, {
     _i1.Transaction? transaction,
   }) async {
@@ -438,7 +438,7 @@ class UserAchievementRepository {
   /// This is an atomic operation, meaning that if one of the rows fails to
   /// update, none of the rows will be updated.
   Future<List<UserAchievement>> update(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<UserAchievement> rows, {
     _i1.ColumnSelections<UserAchievementTable>? columns,
     _i1.Transaction? transaction,
@@ -454,7 +454,7 @@ class UserAchievementRepository {
   /// Optionally, a list of [columns] can be provided to only update those
   /// columns. Defaults to all columns.
   Future<UserAchievement> updateRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     UserAchievement row, {
     _i1.ColumnSelections<UserAchievementTable>? columns,
     _i1.Transaction? transaction,
@@ -469,7 +469,7 @@ class UserAchievementRepository {
   /// Updates a single [UserAchievement] by its [id] with the specified [columnValues].
   /// Returns the updated row or null if no row with the given id exists.
   Future<UserAchievement?> updateById(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     int id, {
     required _i1.ColumnValueListBuilder<UserAchievementUpdateTable>
     columnValues,
@@ -485,7 +485,7 @@ class UserAchievementRepository {
   /// Updates all [UserAchievement]s matching the [where] expression with the specified [columnValues].
   /// Returns the list of updated rows.
   Future<List<UserAchievement>> updateWhere(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.ColumnValueListBuilder<UserAchievementUpdateTable>
     columnValues,
     required _i1.WhereExpressionBuilder<UserAchievementTable> where,
@@ -512,7 +512,7 @@ class UserAchievementRepository {
   /// This is an atomic operation, meaning that if one of the rows fail to
   /// be deleted, none of the rows will be deleted.
   Future<List<UserAchievement>> delete(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<UserAchievement> rows, {
     _i1.Transaction? transaction,
   }) async {
@@ -524,7 +524,7 @@ class UserAchievementRepository {
 
   /// Deletes a single [UserAchievement].
   Future<UserAchievement> deleteRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     UserAchievement row, {
     _i1.Transaction? transaction,
   }) async {
@@ -536,7 +536,7 @@ class UserAchievementRepository {
 
   /// Deletes all rows matching the [where] expression.
   Future<List<UserAchievement>> deleteWhere(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<UserAchievementTable> where,
     _i1.Transaction? transaction,
   }) async {
@@ -549,7 +549,7 @@ class UserAchievementRepository {
   /// Counts the number of rows matching the [where] expression. If omitted,
   /// will return the count of all rows in the table.
   Future<int> count(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<UserAchievementTable>? where,
     int? limit,
     _i1.Transaction? transaction,
@@ -563,7 +563,7 @@ class UserAchievementRepository {
 
   /// Acquires row-level locks on [UserAchievement] rows matching the [where] expression.
   Future<void> lockRows(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<UserAchievementTable> where,
     required _i1.LockMode lockMode,
     required _i1.Transaction transaction,

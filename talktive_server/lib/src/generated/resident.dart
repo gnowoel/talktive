@@ -1362,7 +1362,7 @@ class ResidentRepository {
   /// );
   /// ```
   Future<List<Resident>> find(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<ResidentTable>? where,
     int? limit,
     int? offset,
@@ -1404,7 +1404,7 @@ class ResidentRepository {
   /// );
   /// ```
   Future<Resident?> findFirstRow(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<ResidentTable>? where,
     int? offset,
     _i1.OrderByBuilder<ResidentTable>? orderBy,
@@ -1428,7 +1428,7 @@ class ResidentRepository {
 
   /// Finds a single [Resident] by its [id] or null if no such row exists.
   Future<Resident?> findById(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     int id, {
     _i1.Transaction? transaction,
     _i1.LockMode? lockMode,
@@ -1453,7 +1453,7 @@ class ResidentRepository {
   /// rows are silently skipped, and only the successfully inserted rows are
   /// returned.
   Future<List<Resident>> insert(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<Resident> rows, {
     _i1.Transaction? transaction,
     bool ignoreConflicts = false,
@@ -1469,7 +1469,7 @@ class ResidentRepository {
   ///
   /// The returned [Resident] will have its `id` field set.
   Future<Resident> insertRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     Resident row, {
     _i1.Transaction? transaction,
   }) async {
@@ -1485,7 +1485,7 @@ class ResidentRepository {
   /// This is an atomic operation, meaning that if one of the rows fails to
   /// update, none of the rows will be updated.
   Future<List<Resident>> update(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<Resident> rows, {
     _i1.ColumnSelections<ResidentTable>? columns,
     _i1.Transaction? transaction,
@@ -1501,7 +1501,7 @@ class ResidentRepository {
   /// Optionally, a list of [columns] can be provided to only update those
   /// columns. Defaults to all columns.
   Future<Resident> updateRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     Resident row, {
     _i1.ColumnSelections<ResidentTable>? columns,
     _i1.Transaction? transaction,
@@ -1516,7 +1516,7 @@ class ResidentRepository {
   /// Updates a single [Resident] by its [id] with the specified [columnValues].
   /// Returns the updated row or null if no row with the given id exists.
   Future<Resident?> updateById(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     int id, {
     required _i1.ColumnValueListBuilder<ResidentUpdateTable> columnValues,
     _i1.Transaction? transaction,
@@ -1531,7 +1531,7 @@ class ResidentRepository {
   /// Updates all [Resident]s matching the [where] expression with the specified [columnValues].
   /// Returns the list of updated rows.
   Future<List<Resident>> updateWhere(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.ColumnValueListBuilder<ResidentUpdateTable> columnValues,
     required _i1.WhereExpressionBuilder<ResidentTable> where,
     int? limit,
@@ -1557,7 +1557,7 @@ class ResidentRepository {
   /// This is an atomic operation, meaning that if one of the rows fail to
   /// be deleted, none of the rows will be deleted.
   Future<List<Resident>> delete(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<Resident> rows, {
     _i1.Transaction? transaction,
   }) async {
@@ -1569,7 +1569,7 @@ class ResidentRepository {
 
   /// Deletes a single [Resident].
   Future<Resident> deleteRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     Resident row, {
     _i1.Transaction? transaction,
   }) async {
@@ -1581,7 +1581,7 @@ class ResidentRepository {
 
   /// Deletes all rows matching the [where] expression.
   Future<List<Resident>> deleteWhere(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<ResidentTable> where,
     _i1.Transaction? transaction,
   }) async {
@@ -1594,7 +1594,7 @@ class ResidentRepository {
   /// Counts the number of rows matching the [where] expression. If omitted,
   /// will return the count of all rows in the table.
   Future<int> count(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<ResidentTable>? where,
     int? limit,
     _i1.Transaction? transaction,
@@ -1608,7 +1608,7 @@ class ResidentRepository {
 
   /// Acquires row-level locks on [Resident] rows matching the [where] expression.
   Future<void> lockRows(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<ResidentTable> where,
     required _i1.LockMode lockMode,
     required _i1.Transaction transaction,

@@ -312,7 +312,7 @@ class DeviceTokenRepository {
   /// );
   /// ```
   Future<List<DeviceToken>> find(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<DeviceTokenTable>? where,
     int? limit,
     int? offset,
@@ -354,7 +354,7 @@ class DeviceTokenRepository {
   /// );
   /// ```
   Future<DeviceToken?> findFirstRow(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<DeviceTokenTable>? where,
     int? offset,
     _i1.OrderByBuilder<DeviceTokenTable>? orderBy,
@@ -378,7 +378,7 @@ class DeviceTokenRepository {
 
   /// Finds a single [DeviceToken] by its [id] or null if no such row exists.
   Future<DeviceToken?> findById(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     int id, {
     _i1.Transaction? transaction,
     _i1.LockMode? lockMode,
@@ -403,7 +403,7 @@ class DeviceTokenRepository {
   /// rows are silently skipped, and only the successfully inserted rows are
   /// returned.
   Future<List<DeviceToken>> insert(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<DeviceToken> rows, {
     _i1.Transaction? transaction,
     bool ignoreConflicts = false,
@@ -419,7 +419,7 @@ class DeviceTokenRepository {
   ///
   /// The returned [DeviceToken] will have its `id` field set.
   Future<DeviceToken> insertRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     DeviceToken row, {
     _i1.Transaction? transaction,
   }) async {
@@ -435,7 +435,7 @@ class DeviceTokenRepository {
   /// This is an atomic operation, meaning that if one of the rows fails to
   /// update, none of the rows will be updated.
   Future<List<DeviceToken>> update(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<DeviceToken> rows, {
     _i1.ColumnSelections<DeviceTokenTable>? columns,
     _i1.Transaction? transaction,
@@ -451,7 +451,7 @@ class DeviceTokenRepository {
   /// Optionally, a list of [columns] can be provided to only update those
   /// columns. Defaults to all columns.
   Future<DeviceToken> updateRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     DeviceToken row, {
     _i1.ColumnSelections<DeviceTokenTable>? columns,
     _i1.Transaction? transaction,
@@ -466,7 +466,7 @@ class DeviceTokenRepository {
   /// Updates a single [DeviceToken] by its [id] with the specified [columnValues].
   /// Returns the updated row or null if no row with the given id exists.
   Future<DeviceToken?> updateById(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     int id, {
     required _i1.ColumnValueListBuilder<DeviceTokenUpdateTable> columnValues,
     _i1.Transaction? transaction,
@@ -481,7 +481,7 @@ class DeviceTokenRepository {
   /// Updates all [DeviceToken]s matching the [where] expression with the specified [columnValues].
   /// Returns the list of updated rows.
   Future<List<DeviceToken>> updateWhere(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.ColumnValueListBuilder<DeviceTokenUpdateTable> columnValues,
     required _i1.WhereExpressionBuilder<DeviceTokenTable> where,
     int? limit,
@@ -507,7 +507,7 @@ class DeviceTokenRepository {
   /// This is an atomic operation, meaning that if one of the rows fail to
   /// be deleted, none of the rows will be deleted.
   Future<List<DeviceToken>> delete(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<DeviceToken> rows, {
     _i1.Transaction? transaction,
   }) async {
@@ -519,7 +519,7 @@ class DeviceTokenRepository {
 
   /// Deletes a single [DeviceToken].
   Future<DeviceToken> deleteRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     DeviceToken row, {
     _i1.Transaction? transaction,
   }) async {
@@ -531,7 +531,7 @@ class DeviceTokenRepository {
 
   /// Deletes all rows matching the [where] expression.
   Future<List<DeviceToken>> deleteWhere(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<DeviceTokenTable> where,
     _i1.Transaction? transaction,
   }) async {
@@ -544,7 +544,7 @@ class DeviceTokenRepository {
   /// Counts the number of rows matching the [where] expression. If omitted,
   /// will return the count of all rows in the table.
   Future<int> count(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<DeviceTokenTable>? where,
     int? limit,
     _i1.Transaction? transaction,
@@ -558,7 +558,7 @@ class DeviceTokenRepository {
 
   /// Acquires row-level locks on [DeviceToken] rows matching the [where] expression.
   Future<void> lockRows(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<DeviceTokenTable> where,
     required _i1.LockMode lockMode,
     required _i1.Transaction transaction,

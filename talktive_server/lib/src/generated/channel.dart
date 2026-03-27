@@ -322,7 +322,7 @@ class ChannelRepository {
   /// );
   /// ```
   Future<List<Channel>> find(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<ChannelTable>? where,
     int? limit,
     int? offset,
@@ -364,7 +364,7 @@ class ChannelRepository {
   /// );
   /// ```
   Future<Channel?> findFirstRow(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<ChannelTable>? where,
     int? offset,
     _i1.OrderByBuilder<ChannelTable>? orderBy,
@@ -388,7 +388,7 @@ class ChannelRepository {
 
   /// Finds a single [Channel] by its [id] or null if no such row exists.
   Future<Channel?> findById(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     int id, {
     _i1.Transaction? transaction,
     _i1.LockMode? lockMode,
@@ -413,7 +413,7 @@ class ChannelRepository {
   /// rows are silently skipped, and only the successfully inserted rows are
   /// returned.
   Future<List<Channel>> insert(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<Channel> rows, {
     _i1.Transaction? transaction,
     bool ignoreConflicts = false,
@@ -429,7 +429,7 @@ class ChannelRepository {
   ///
   /// The returned [Channel] will have its `id` field set.
   Future<Channel> insertRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     Channel row, {
     _i1.Transaction? transaction,
   }) async {
@@ -445,7 +445,7 @@ class ChannelRepository {
   /// This is an atomic operation, meaning that if one of the rows fails to
   /// update, none of the rows will be updated.
   Future<List<Channel>> update(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<Channel> rows, {
     _i1.ColumnSelections<ChannelTable>? columns,
     _i1.Transaction? transaction,
@@ -461,7 +461,7 @@ class ChannelRepository {
   /// Optionally, a list of [columns] can be provided to only update those
   /// columns. Defaults to all columns.
   Future<Channel> updateRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     Channel row, {
     _i1.ColumnSelections<ChannelTable>? columns,
     _i1.Transaction? transaction,
@@ -476,7 +476,7 @@ class ChannelRepository {
   /// Updates a single [Channel] by its [id] with the specified [columnValues].
   /// Returns the updated row or null if no row with the given id exists.
   Future<Channel?> updateById(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     int id, {
     required _i1.ColumnValueListBuilder<ChannelUpdateTable> columnValues,
     _i1.Transaction? transaction,
@@ -491,7 +491,7 @@ class ChannelRepository {
   /// Updates all [Channel]s matching the [where] expression with the specified [columnValues].
   /// Returns the list of updated rows.
   Future<List<Channel>> updateWhere(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.ColumnValueListBuilder<ChannelUpdateTable> columnValues,
     required _i1.WhereExpressionBuilder<ChannelTable> where,
     int? limit,
@@ -517,7 +517,7 @@ class ChannelRepository {
   /// This is an atomic operation, meaning that if one of the rows fail to
   /// be deleted, none of the rows will be deleted.
   Future<List<Channel>> delete(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<Channel> rows, {
     _i1.Transaction? transaction,
   }) async {
@@ -529,7 +529,7 @@ class ChannelRepository {
 
   /// Deletes a single [Channel].
   Future<Channel> deleteRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     Channel row, {
     _i1.Transaction? transaction,
   }) async {
@@ -541,7 +541,7 @@ class ChannelRepository {
 
   /// Deletes all rows matching the [where] expression.
   Future<List<Channel>> deleteWhere(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<ChannelTable> where,
     _i1.Transaction? transaction,
   }) async {
@@ -554,7 +554,7 @@ class ChannelRepository {
   /// Counts the number of rows matching the [where] expression. If omitted,
   /// will return the count of all rows in the table.
   Future<int> count(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<ChannelTable>? where,
     int? limit,
     _i1.Transaction? transaction,
@@ -568,7 +568,7 @@ class ChannelRepository {
 
   /// Acquires row-level locks on [Channel] rows matching the [where] expression.
   Future<void> lockRows(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<ChannelTable> where,
     required _i1.LockMode lockMode,
     required _i1.Transaction transaction,

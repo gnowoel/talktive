@@ -606,7 +606,7 @@ class MessageRepository {
   /// );
   /// ```
   Future<List<Message>> find(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<MessageTable>? where,
     int? limit,
     int? offset,
@@ -648,7 +648,7 @@ class MessageRepository {
   /// );
   /// ```
   Future<Message?> findFirstRow(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<MessageTable>? where,
     int? offset,
     _i1.OrderByBuilder<MessageTable>? orderBy,
@@ -672,7 +672,7 @@ class MessageRepository {
 
   /// Finds a single [Message] by its [id] or null if no such row exists.
   Future<Message?> findById(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     int id, {
     _i1.Transaction? transaction,
     _i1.LockMode? lockMode,
@@ -697,7 +697,7 @@ class MessageRepository {
   /// rows are silently skipped, and only the successfully inserted rows are
   /// returned.
   Future<List<Message>> insert(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<Message> rows, {
     _i1.Transaction? transaction,
     bool ignoreConflicts = false,
@@ -713,7 +713,7 @@ class MessageRepository {
   ///
   /// The returned [Message] will have its `id` field set.
   Future<Message> insertRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     Message row, {
     _i1.Transaction? transaction,
   }) async {
@@ -729,7 +729,7 @@ class MessageRepository {
   /// This is an atomic operation, meaning that if one of the rows fails to
   /// update, none of the rows will be updated.
   Future<List<Message>> update(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<Message> rows, {
     _i1.ColumnSelections<MessageTable>? columns,
     _i1.Transaction? transaction,
@@ -745,7 +745,7 @@ class MessageRepository {
   /// Optionally, a list of [columns] can be provided to only update those
   /// columns. Defaults to all columns.
   Future<Message> updateRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     Message row, {
     _i1.ColumnSelections<MessageTable>? columns,
     _i1.Transaction? transaction,
@@ -760,7 +760,7 @@ class MessageRepository {
   /// Updates a single [Message] by its [id] with the specified [columnValues].
   /// Returns the updated row or null if no row with the given id exists.
   Future<Message?> updateById(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     int id, {
     required _i1.ColumnValueListBuilder<MessageUpdateTable> columnValues,
     _i1.Transaction? transaction,
@@ -775,7 +775,7 @@ class MessageRepository {
   /// Updates all [Message]s matching the [where] expression with the specified [columnValues].
   /// Returns the list of updated rows.
   Future<List<Message>> updateWhere(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.ColumnValueListBuilder<MessageUpdateTable> columnValues,
     required _i1.WhereExpressionBuilder<MessageTable> where,
     int? limit,
@@ -801,7 +801,7 @@ class MessageRepository {
   /// This is an atomic operation, meaning that if one of the rows fail to
   /// be deleted, none of the rows will be deleted.
   Future<List<Message>> delete(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<Message> rows, {
     _i1.Transaction? transaction,
   }) async {
@@ -813,7 +813,7 @@ class MessageRepository {
 
   /// Deletes a single [Message].
   Future<Message> deleteRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     Message row, {
     _i1.Transaction? transaction,
   }) async {
@@ -825,7 +825,7 @@ class MessageRepository {
 
   /// Deletes all rows matching the [where] expression.
   Future<List<Message>> deleteWhere(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<MessageTable> where,
     _i1.Transaction? transaction,
   }) async {
@@ -838,7 +838,7 @@ class MessageRepository {
   /// Counts the number of rows matching the [where] expression. If omitted,
   /// will return the count of all rows in the table.
   Future<int> count(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<MessageTable>? where,
     int? limit,
     _i1.Transaction? transaction,
@@ -852,7 +852,7 @@ class MessageRepository {
 
   /// Acquires row-level locks on [Message] rows matching the [where] expression.
   Future<void> lockRows(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<MessageTable> where,
     required _i1.LockMode lockMode,
     required _i1.Transaction transaction,

@@ -309,7 +309,7 @@ class DailyRewardRepository {
   /// );
   /// ```
   Future<List<DailyReward>> find(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<DailyRewardTable>? where,
     int? limit,
     int? offset,
@@ -351,7 +351,7 @@ class DailyRewardRepository {
   /// );
   /// ```
   Future<DailyReward?> findFirstRow(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<DailyRewardTable>? where,
     int? offset,
     _i1.OrderByBuilder<DailyRewardTable>? orderBy,
@@ -375,7 +375,7 @@ class DailyRewardRepository {
 
   /// Finds a single [DailyReward] by its [id] or null if no such row exists.
   Future<DailyReward?> findById(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     int id, {
     _i1.Transaction? transaction,
     _i1.LockMode? lockMode,
@@ -400,7 +400,7 @@ class DailyRewardRepository {
   /// rows are silently skipped, and only the successfully inserted rows are
   /// returned.
   Future<List<DailyReward>> insert(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<DailyReward> rows, {
     _i1.Transaction? transaction,
     bool ignoreConflicts = false,
@@ -416,7 +416,7 @@ class DailyRewardRepository {
   ///
   /// The returned [DailyReward] will have its `id` field set.
   Future<DailyReward> insertRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     DailyReward row, {
     _i1.Transaction? transaction,
   }) async {
@@ -432,7 +432,7 @@ class DailyRewardRepository {
   /// This is an atomic operation, meaning that if one of the rows fails to
   /// update, none of the rows will be updated.
   Future<List<DailyReward>> update(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<DailyReward> rows, {
     _i1.ColumnSelections<DailyRewardTable>? columns,
     _i1.Transaction? transaction,
@@ -448,7 +448,7 @@ class DailyRewardRepository {
   /// Optionally, a list of [columns] can be provided to only update those
   /// columns. Defaults to all columns.
   Future<DailyReward> updateRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     DailyReward row, {
     _i1.ColumnSelections<DailyRewardTable>? columns,
     _i1.Transaction? transaction,
@@ -463,7 +463,7 @@ class DailyRewardRepository {
   /// Updates a single [DailyReward] by its [id] with the specified [columnValues].
   /// Returns the updated row or null if no row with the given id exists.
   Future<DailyReward?> updateById(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     int id, {
     required _i1.ColumnValueListBuilder<DailyRewardUpdateTable> columnValues,
     _i1.Transaction? transaction,
@@ -478,7 +478,7 @@ class DailyRewardRepository {
   /// Updates all [DailyReward]s matching the [where] expression with the specified [columnValues].
   /// Returns the list of updated rows.
   Future<List<DailyReward>> updateWhere(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.ColumnValueListBuilder<DailyRewardUpdateTable> columnValues,
     required _i1.WhereExpressionBuilder<DailyRewardTable> where,
     int? limit,
@@ -504,7 +504,7 @@ class DailyRewardRepository {
   /// This is an atomic operation, meaning that if one of the rows fail to
   /// be deleted, none of the rows will be deleted.
   Future<List<DailyReward>> delete(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<DailyReward> rows, {
     _i1.Transaction? transaction,
   }) async {
@@ -516,7 +516,7 @@ class DailyRewardRepository {
 
   /// Deletes a single [DailyReward].
   Future<DailyReward> deleteRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     DailyReward row, {
     _i1.Transaction? transaction,
   }) async {
@@ -528,7 +528,7 @@ class DailyRewardRepository {
 
   /// Deletes all rows matching the [where] expression.
   Future<List<DailyReward>> deleteWhere(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<DailyRewardTable> where,
     _i1.Transaction? transaction,
   }) async {
@@ -541,7 +541,7 @@ class DailyRewardRepository {
   /// Counts the number of rows matching the [where] expression. If omitted,
   /// will return the count of all rows in the table.
   Future<int> count(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<DailyRewardTable>? where,
     int? limit,
     _i1.Transaction? transaction,
@@ -555,7 +555,7 @@ class DailyRewardRepository {
 
   /// Acquires row-level locks on [DailyReward] rows matching the [where] expression.
   Future<void> lockRows(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<DailyRewardTable> where,
     required _i1.LockMode lockMode,
     required _i1.Transaction transaction,

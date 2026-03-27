@@ -406,7 +406,7 @@ class MomentCommentRepository {
   /// );
   /// ```
   Future<List<MomentComment>> find(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<MomentCommentTable>? where,
     int? limit,
     int? offset,
@@ -448,7 +448,7 @@ class MomentCommentRepository {
   /// );
   /// ```
   Future<MomentComment?> findFirstRow(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<MomentCommentTable>? where,
     int? offset,
     _i1.OrderByBuilder<MomentCommentTable>? orderBy,
@@ -472,7 +472,7 @@ class MomentCommentRepository {
 
   /// Finds a single [MomentComment] by its [id] or null if no such row exists.
   Future<MomentComment?> findById(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     int id, {
     _i1.Transaction? transaction,
     _i1.LockMode? lockMode,
@@ -497,7 +497,7 @@ class MomentCommentRepository {
   /// rows are silently skipped, and only the successfully inserted rows are
   /// returned.
   Future<List<MomentComment>> insert(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<MomentComment> rows, {
     _i1.Transaction? transaction,
     bool ignoreConflicts = false,
@@ -513,7 +513,7 @@ class MomentCommentRepository {
   ///
   /// The returned [MomentComment] will have its `id` field set.
   Future<MomentComment> insertRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     MomentComment row, {
     _i1.Transaction? transaction,
   }) async {
@@ -529,7 +529,7 @@ class MomentCommentRepository {
   /// This is an atomic operation, meaning that if one of the rows fails to
   /// update, none of the rows will be updated.
   Future<List<MomentComment>> update(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<MomentComment> rows, {
     _i1.ColumnSelections<MomentCommentTable>? columns,
     _i1.Transaction? transaction,
@@ -545,7 +545,7 @@ class MomentCommentRepository {
   /// Optionally, a list of [columns] can be provided to only update those
   /// columns. Defaults to all columns.
   Future<MomentComment> updateRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     MomentComment row, {
     _i1.ColumnSelections<MomentCommentTable>? columns,
     _i1.Transaction? transaction,
@@ -560,7 +560,7 @@ class MomentCommentRepository {
   /// Updates a single [MomentComment] by its [id] with the specified [columnValues].
   /// Returns the updated row or null if no row with the given id exists.
   Future<MomentComment?> updateById(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     int id, {
     required _i1.ColumnValueListBuilder<MomentCommentUpdateTable> columnValues,
     _i1.Transaction? transaction,
@@ -575,7 +575,7 @@ class MomentCommentRepository {
   /// Updates all [MomentComment]s matching the [where] expression with the specified [columnValues].
   /// Returns the list of updated rows.
   Future<List<MomentComment>> updateWhere(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.ColumnValueListBuilder<MomentCommentUpdateTable> columnValues,
     required _i1.WhereExpressionBuilder<MomentCommentTable> where,
     int? limit,
@@ -601,7 +601,7 @@ class MomentCommentRepository {
   /// This is an atomic operation, meaning that if one of the rows fail to
   /// be deleted, none of the rows will be deleted.
   Future<List<MomentComment>> delete(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<MomentComment> rows, {
     _i1.Transaction? transaction,
   }) async {
@@ -613,7 +613,7 @@ class MomentCommentRepository {
 
   /// Deletes a single [MomentComment].
   Future<MomentComment> deleteRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     MomentComment row, {
     _i1.Transaction? transaction,
   }) async {
@@ -625,7 +625,7 @@ class MomentCommentRepository {
 
   /// Deletes all rows matching the [where] expression.
   Future<List<MomentComment>> deleteWhere(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<MomentCommentTable> where,
     _i1.Transaction? transaction,
   }) async {
@@ -638,7 +638,7 @@ class MomentCommentRepository {
   /// Counts the number of rows matching the [where] expression. If omitted,
   /// will return the count of all rows in the table.
   Future<int> count(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<MomentCommentTable>? where,
     int? limit,
     _i1.Transaction? transaction,
@@ -652,7 +652,7 @@ class MomentCommentRepository {
 
   /// Acquires row-level locks on [MomentComment] rows matching the [where] expression.
   Future<void> lockRows(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<MomentCommentTable> where,
     required _i1.LockMode lockMode,
     required _i1.Transaction transaction,

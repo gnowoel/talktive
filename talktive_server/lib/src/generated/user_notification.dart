@@ -362,7 +362,7 @@ class UserNotificationRepository {
   /// );
   /// ```
   Future<List<UserNotification>> find(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<UserNotificationTable>? where,
     int? limit,
     int? offset,
@@ -404,7 +404,7 @@ class UserNotificationRepository {
   /// );
   /// ```
   Future<UserNotification?> findFirstRow(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<UserNotificationTable>? where,
     int? offset,
     _i1.OrderByBuilder<UserNotificationTable>? orderBy,
@@ -428,7 +428,7 @@ class UserNotificationRepository {
 
   /// Finds a single [UserNotification] by its [id] or null if no such row exists.
   Future<UserNotification?> findById(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     int id, {
     _i1.Transaction? transaction,
     _i1.LockMode? lockMode,
@@ -453,7 +453,7 @@ class UserNotificationRepository {
   /// rows are silently skipped, and only the successfully inserted rows are
   /// returned.
   Future<List<UserNotification>> insert(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<UserNotification> rows, {
     _i1.Transaction? transaction,
     bool ignoreConflicts = false,
@@ -469,7 +469,7 @@ class UserNotificationRepository {
   ///
   /// The returned [UserNotification] will have its `id` field set.
   Future<UserNotification> insertRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     UserNotification row, {
     _i1.Transaction? transaction,
   }) async {
@@ -485,7 +485,7 @@ class UserNotificationRepository {
   /// This is an atomic operation, meaning that if one of the rows fails to
   /// update, none of the rows will be updated.
   Future<List<UserNotification>> update(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<UserNotification> rows, {
     _i1.ColumnSelections<UserNotificationTable>? columns,
     _i1.Transaction? transaction,
@@ -501,7 +501,7 @@ class UserNotificationRepository {
   /// Optionally, a list of [columns] can be provided to only update those
   /// columns. Defaults to all columns.
   Future<UserNotification> updateRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     UserNotification row, {
     _i1.ColumnSelections<UserNotificationTable>? columns,
     _i1.Transaction? transaction,
@@ -516,7 +516,7 @@ class UserNotificationRepository {
   /// Updates a single [UserNotification] by its [id] with the specified [columnValues].
   /// Returns the updated row or null if no row with the given id exists.
   Future<UserNotification?> updateById(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     int id, {
     required _i1.ColumnValueListBuilder<UserNotificationUpdateTable>
     columnValues,
@@ -532,7 +532,7 @@ class UserNotificationRepository {
   /// Updates all [UserNotification]s matching the [where] expression with the specified [columnValues].
   /// Returns the list of updated rows.
   Future<List<UserNotification>> updateWhere(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.ColumnValueListBuilder<UserNotificationUpdateTable>
     columnValues,
     required _i1.WhereExpressionBuilder<UserNotificationTable> where,
@@ -559,7 +559,7 @@ class UserNotificationRepository {
   /// This is an atomic operation, meaning that if one of the rows fail to
   /// be deleted, none of the rows will be deleted.
   Future<List<UserNotification>> delete(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<UserNotification> rows, {
     _i1.Transaction? transaction,
   }) async {
@@ -571,7 +571,7 @@ class UserNotificationRepository {
 
   /// Deletes a single [UserNotification].
   Future<UserNotification> deleteRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     UserNotification row, {
     _i1.Transaction? transaction,
   }) async {
@@ -583,7 +583,7 @@ class UserNotificationRepository {
 
   /// Deletes all rows matching the [where] expression.
   Future<List<UserNotification>> deleteWhere(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<UserNotificationTable> where,
     _i1.Transaction? transaction,
   }) async {
@@ -596,7 +596,7 @@ class UserNotificationRepository {
   /// Counts the number of rows matching the [where] expression. If omitted,
   /// will return the count of all rows in the table.
   Future<int> count(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<UserNotificationTable>? where,
     int? limit,
     _i1.Transaction? transaction,
@@ -610,7 +610,7 @@ class UserNotificationRepository {
 
   /// Acquires row-level locks on [UserNotification] rows matching the [where] expression.
   Future<void> lockRows(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<UserNotificationTable> where,
     required _i1.LockMode lockMode,
     required _i1.Transaction transaction,

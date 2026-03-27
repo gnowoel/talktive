@@ -660,7 +660,7 @@ class LoungeRepository {
   /// );
   /// ```
   Future<List<Lounge>> find(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<LoungeTable>? where,
     int? limit,
     int? offset,
@@ -702,7 +702,7 @@ class LoungeRepository {
   /// );
   /// ```
   Future<Lounge?> findFirstRow(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<LoungeTable>? where,
     int? offset,
     _i1.OrderByBuilder<LoungeTable>? orderBy,
@@ -726,7 +726,7 @@ class LoungeRepository {
 
   /// Finds a single [Lounge] by its [id] or null if no such row exists.
   Future<Lounge?> findById(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     int id, {
     _i1.Transaction? transaction,
     _i1.LockMode? lockMode,
@@ -751,7 +751,7 @@ class LoungeRepository {
   /// rows are silently skipped, and only the successfully inserted rows are
   /// returned.
   Future<List<Lounge>> insert(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<Lounge> rows, {
     _i1.Transaction? transaction,
     bool ignoreConflicts = false,
@@ -767,7 +767,7 @@ class LoungeRepository {
   ///
   /// The returned [Lounge] will have its `id` field set.
   Future<Lounge> insertRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     Lounge row, {
     _i1.Transaction? transaction,
   }) async {
@@ -783,7 +783,7 @@ class LoungeRepository {
   /// This is an atomic operation, meaning that if one of the rows fails to
   /// update, none of the rows will be updated.
   Future<List<Lounge>> update(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<Lounge> rows, {
     _i1.ColumnSelections<LoungeTable>? columns,
     _i1.Transaction? transaction,
@@ -799,7 +799,7 @@ class LoungeRepository {
   /// Optionally, a list of [columns] can be provided to only update those
   /// columns. Defaults to all columns.
   Future<Lounge> updateRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     Lounge row, {
     _i1.ColumnSelections<LoungeTable>? columns,
     _i1.Transaction? transaction,
@@ -814,7 +814,7 @@ class LoungeRepository {
   /// Updates a single [Lounge] by its [id] with the specified [columnValues].
   /// Returns the updated row or null if no row with the given id exists.
   Future<Lounge?> updateById(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     int id, {
     required _i1.ColumnValueListBuilder<LoungeUpdateTable> columnValues,
     _i1.Transaction? transaction,
@@ -829,7 +829,7 @@ class LoungeRepository {
   /// Updates all [Lounge]s matching the [where] expression with the specified [columnValues].
   /// Returns the list of updated rows.
   Future<List<Lounge>> updateWhere(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.ColumnValueListBuilder<LoungeUpdateTable> columnValues,
     required _i1.WhereExpressionBuilder<LoungeTable> where,
     int? limit,
@@ -855,7 +855,7 @@ class LoungeRepository {
   /// This is an atomic operation, meaning that if one of the rows fail to
   /// be deleted, none of the rows will be deleted.
   Future<List<Lounge>> delete(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<Lounge> rows, {
     _i1.Transaction? transaction,
   }) async {
@@ -867,7 +867,7 @@ class LoungeRepository {
 
   /// Deletes a single [Lounge].
   Future<Lounge> deleteRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     Lounge row, {
     _i1.Transaction? transaction,
   }) async {
@@ -879,7 +879,7 @@ class LoungeRepository {
 
   /// Deletes all rows matching the [where] expression.
   Future<List<Lounge>> deleteWhere(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<LoungeTable> where,
     _i1.Transaction? transaction,
   }) async {
@@ -892,7 +892,7 @@ class LoungeRepository {
   /// Counts the number of rows matching the [where] expression. If omitted,
   /// will return the count of all rows in the table.
   Future<int> count(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<LoungeTable>? where,
     int? limit,
     _i1.Transaction? transaction,
@@ -906,7 +906,7 @@ class LoungeRepository {
 
   /// Acquires row-level locks on [Lounge] rows matching the [where] expression.
   Future<void> lockRows(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<LoungeTable> where,
     required _i1.LockMode lockMode,
     required _i1.Transaction transaction,

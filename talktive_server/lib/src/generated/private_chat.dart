@@ -347,7 +347,7 @@ class PrivateChatRepository {
   /// );
   /// ```
   Future<List<PrivateChat>> find(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<PrivateChatTable>? where,
     int? limit,
     int? offset,
@@ -389,7 +389,7 @@ class PrivateChatRepository {
   /// );
   /// ```
   Future<PrivateChat?> findFirstRow(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<PrivateChatTable>? where,
     int? offset,
     _i1.OrderByBuilder<PrivateChatTable>? orderBy,
@@ -413,7 +413,7 @@ class PrivateChatRepository {
 
   /// Finds a single [PrivateChat] by its [id] or null if no such row exists.
   Future<PrivateChat?> findById(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     int id, {
     _i1.Transaction? transaction,
     _i1.LockMode? lockMode,
@@ -438,7 +438,7 @@ class PrivateChatRepository {
   /// rows are silently skipped, and only the successfully inserted rows are
   /// returned.
   Future<List<PrivateChat>> insert(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<PrivateChat> rows, {
     _i1.Transaction? transaction,
     bool ignoreConflicts = false,
@@ -454,7 +454,7 @@ class PrivateChatRepository {
   ///
   /// The returned [PrivateChat] will have its `id` field set.
   Future<PrivateChat> insertRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     PrivateChat row, {
     _i1.Transaction? transaction,
   }) async {
@@ -470,7 +470,7 @@ class PrivateChatRepository {
   /// This is an atomic operation, meaning that if one of the rows fails to
   /// update, none of the rows will be updated.
   Future<List<PrivateChat>> update(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<PrivateChat> rows, {
     _i1.ColumnSelections<PrivateChatTable>? columns,
     _i1.Transaction? transaction,
@@ -486,7 +486,7 @@ class PrivateChatRepository {
   /// Optionally, a list of [columns] can be provided to only update those
   /// columns. Defaults to all columns.
   Future<PrivateChat> updateRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     PrivateChat row, {
     _i1.ColumnSelections<PrivateChatTable>? columns,
     _i1.Transaction? transaction,
@@ -501,7 +501,7 @@ class PrivateChatRepository {
   /// Updates a single [PrivateChat] by its [id] with the specified [columnValues].
   /// Returns the updated row or null if no row with the given id exists.
   Future<PrivateChat?> updateById(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     int id, {
     required _i1.ColumnValueListBuilder<PrivateChatUpdateTable> columnValues,
     _i1.Transaction? transaction,
@@ -516,7 +516,7 @@ class PrivateChatRepository {
   /// Updates all [PrivateChat]s matching the [where] expression with the specified [columnValues].
   /// Returns the list of updated rows.
   Future<List<PrivateChat>> updateWhere(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.ColumnValueListBuilder<PrivateChatUpdateTable> columnValues,
     required _i1.WhereExpressionBuilder<PrivateChatTable> where,
     int? limit,
@@ -542,7 +542,7 @@ class PrivateChatRepository {
   /// This is an atomic operation, meaning that if one of the rows fail to
   /// be deleted, none of the rows will be deleted.
   Future<List<PrivateChat>> delete(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<PrivateChat> rows, {
     _i1.Transaction? transaction,
   }) async {
@@ -554,7 +554,7 @@ class PrivateChatRepository {
 
   /// Deletes a single [PrivateChat].
   Future<PrivateChat> deleteRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     PrivateChat row, {
     _i1.Transaction? transaction,
   }) async {
@@ -566,7 +566,7 @@ class PrivateChatRepository {
 
   /// Deletes all rows matching the [where] expression.
   Future<List<PrivateChat>> deleteWhere(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<PrivateChatTable> where,
     _i1.Transaction? transaction,
   }) async {
@@ -579,7 +579,7 @@ class PrivateChatRepository {
   /// Counts the number of rows matching the [where] expression. If omitted,
   /// will return the count of all rows in the table.
   Future<int> count(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<PrivateChatTable>? where,
     int? limit,
     _i1.Transaction? transaction,
@@ -593,7 +593,7 @@ class PrivateChatRepository {
 
   /// Acquires row-level locks on [PrivateChat] rows matching the [where] expression.
   Future<void> lockRows(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<PrivateChatTable> where,
     required _i1.LockMode lockMode,
     required _i1.Transaction transaction,

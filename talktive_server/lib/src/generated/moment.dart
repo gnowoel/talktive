@@ -504,7 +504,7 @@ class MomentRepository {
   /// );
   /// ```
   Future<List<Moment>> find(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<MomentTable>? where,
     int? limit,
     int? offset,
@@ -546,7 +546,7 @@ class MomentRepository {
   /// );
   /// ```
   Future<Moment?> findFirstRow(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<MomentTable>? where,
     int? offset,
     _i1.OrderByBuilder<MomentTable>? orderBy,
@@ -570,7 +570,7 @@ class MomentRepository {
 
   /// Finds a single [Moment] by its [id] or null if no such row exists.
   Future<Moment?> findById(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     int id, {
     _i1.Transaction? transaction,
     _i1.LockMode? lockMode,
@@ -595,7 +595,7 @@ class MomentRepository {
   /// rows are silently skipped, and only the successfully inserted rows are
   /// returned.
   Future<List<Moment>> insert(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<Moment> rows, {
     _i1.Transaction? transaction,
     bool ignoreConflicts = false,
@@ -611,7 +611,7 @@ class MomentRepository {
   ///
   /// The returned [Moment] will have its `id` field set.
   Future<Moment> insertRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     Moment row, {
     _i1.Transaction? transaction,
   }) async {
@@ -627,7 +627,7 @@ class MomentRepository {
   /// This is an atomic operation, meaning that if one of the rows fails to
   /// update, none of the rows will be updated.
   Future<List<Moment>> update(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<Moment> rows, {
     _i1.ColumnSelections<MomentTable>? columns,
     _i1.Transaction? transaction,
@@ -643,7 +643,7 @@ class MomentRepository {
   /// Optionally, a list of [columns] can be provided to only update those
   /// columns. Defaults to all columns.
   Future<Moment> updateRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     Moment row, {
     _i1.ColumnSelections<MomentTable>? columns,
     _i1.Transaction? transaction,
@@ -658,7 +658,7 @@ class MomentRepository {
   /// Updates a single [Moment] by its [id] with the specified [columnValues].
   /// Returns the updated row or null if no row with the given id exists.
   Future<Moment?> updateById(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     int id, {
     required _i1.ColumnValueListBuilder<MomentUpdateTable> columnValues,
     _i1.Transaction? transaction,
@@ -673,7 +673,7 @@ class MomentRepository {
   /// Updates all [Moment]s matching the [where] expression with the specified [columnValues].
   /// Returns the list of updated rows.
   Future<List<Moment>> updateWhere(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.ColumnValueListBuilder<MomentUpdateTable> columnValues,
     required _i1.WhereExpressionBuilder<MomentTable> where,
     int? limit,
@@ -699,7 +699,7 @@ class MomentRepository {
   /// This is an atomic operation, meaning that if one of the rows fail to
   /// be deleted, none of the rows will be deleted.
   Future<List<Moment>> delete(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     List<Moment> rows, {
     _i1.Transaction? transaction,
   }) async {
@@ -711,7 +711,7 @@ class MomentRepository {
 
   /// Deletes a single [Moment].
   Future<Moment> deleteRow(
-    _i1.Session session,
+    _i1.DatabaseSession session,
     Moment row, {
     _i1.Transaction? transaction,
   }) async {
@@ -723,7 +723,7 @@ class MomentRepository {
 
   /// Deletes all rows matching the [where] expression.
   Future<List<Moment>> deleteWhere(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<MomentTable> where,
     _i1.Transaction? transaction,
   }) async {
@@ -736,7 +736,7 @@ class MomentRepository {
   /// Counts the number of rows matching the [where] expression. If omitted,
   /// will return the count of all rows in the table.
   Future<int> count(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     _i1.WhereExpressionBuilder<MomentTable>? where,
     int? limit,
     _i1.Transaction? transaction,
@@ -750,7 +750,7 @@ class MomentRepository {
 
   /// Acquires row-level locks on [Moment] rows matching the [where] expression.
   Future<void> lockRows(
-    _i1.Session session, {
+    _i1.DatabaseSession session, {
     required _i1.WhereExpressionBuilder<MomentTable> where,
     required _i1.LockMode lockMode,
     required _i1.Transaction transaction,

@@ -46,16 +46,16 @@ Order of operations for Firebase + Serverpod Auth:
 
 ## 🚀 Performance & Resource Optimization
 
-This project targets a **10,000 user capacity** on a single **2 vCPU / 4GB RAM VPS**. Additionally, the user base includes many **low-end mobile devices**.
+This project targets a **10,000 user capacity** on a single **2 vCPU / 4GB RAM VPS**. To ensure stability under high load, follow these architectural principles:
 
 ### 1. Server-Side (High Throughput)
 - **Zero N+1 Queries**: Every profile load or list view must be a single efficient query. Use `include` clauses in Serverpod models.
 - **Service-Level Caching**: All high-traffic data (Resident profiles, Lounge members) must flow through service methods that implement the **Redis-Database** caching pattern.
 - **Background Delegation**: All non-critical side effects (Gamification XP, Notifications, Statistics) MUST use `TaskUtils.runBackground`.
 
-### 2. Client-Side (Low-End Devices)
-- **Shallow Widget Trees**: Avoid deeply nested widgets. Use `Sliver` lists for discovery screens to ensure memory efficiency.
-- **Lightweight Animations**: Use `flutter_animate` judiciously. Disable heavy animations or simplify them for devices with low RAM.
-- **Denormalized Feed Data**: Always use the denormalized fields (`senderName`, `senderAvatar`) provided in the message protocol to avoid rendering delays caused by additional lookups.
-- **Asset Management**: Strictly adhere to the **5MB image** and **60s voice** limits recently implemented to prevent memory pressure on low-tier hardware.
+### 2. Client-Side (Dynamic UX & Efficiency)
+- **Fluid Animations**: Use `flutter_animate` and haptic feedback to create an interactive, premium experience.
+- **Data Efficiency**: Use the denormalized fields (`senderName`, `senderAvatar`) provided in the message protocol to ensure the UI remains snappy during rapid scrolling.
+- **Asset Compliance**: Adhere to the **5MB image** and **60s voice** limits. This ensures high throughput for all users and maintains server responsiveness during peak hours.
+
 

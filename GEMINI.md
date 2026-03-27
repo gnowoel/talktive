@@ -49,20 +49,22 @@ The onboarding wizard established these Duolingo-style patterns, and this design
  
  **Optimization Over Backward Compatibility**: Since the Serverpod version is not yet deployed, we prioritize the **best secured architecture** over backward compatibility. We actively refactor and introduce breaking changes (e.g., protocol denormalization) to ensure the final product is efficient, robust, and scalable.
  
-+## Optimization & Performance Guidance
-+
-+**High-Efficiency Infrastructure**: The production environment is constrained to a **single VPS with 2 vCPUs and 4GB of RAM**. This single machine hosts the Serverpod server, PostgreSQL database, and Redis cache. All backend logic must be extremely resource-efficient to maintain stability under this shared load.
-+
-+**Scalability Goal (10,000 Users)**: We are architecting for a rapid surge to **10,000 active users**. To support this on modest hardware, we prioritize:
-+  - **Aggressive Caching**: Using Redis (via `ResidentService` and others) to shield the database from frequent read operations.
-+  - **Strategic Indexing**: Ensuring every discovery and search query is backed by an optimal database index.
-+  - **Background Delegation**: Offloading non-critical tasks (notifications, stats) to background workers to keep endpoint latency low.
-+
-+**Low-End Device Support**: A significant portion of our user base uses **older mobile phones** with limited CPU and RAM.
-+  - **UI/UX Optimization**: Keep widget trees shallow, minimize heavy animations on low-end hardware, and avoid expensive client-side computations.
-+  - **Data Efficiency**: Use denormalized message protocols (carrying sender names/avatars) to reduce the number of API calls and joins required to render the UI.
-+
+## Optimization & Performance Guidance
+
+**High-Efficiency Infrastructure**: The production environment is constrained to a **single VPS with 2 vCPUs and 4GB of RAM**. This single machine hosts the Serverpod server, PostgreSQL database, and Redis cache. All backend logic must be extremely resource-efficient to maintain stability under this shared load.
+
+**Scalability Goal (10,000 Users)**: We are architecting for a rapid surge to **10,000 active users**. To support this on modest hardware, we prioritize:
+  - **Aggressive Caching**: Using Redis (via `ResidentService` and others) to shield the database from frequent read operations.
+  - **Strategic Indexing**: Ensuring every discovery and search query is backed by an optimal database index.
+  - **Background Delegation**: Offloading non-critical tasks (notifications, stats) to background workers to keep endpoint latency low.
+
+**Dynamic UX & Efficiency**: We maintain a high standard for visual quality and platform performance.
+  - **Fluid Animations**: Use `flutter_animate` and haptic feedback extensively to create a premium, gamified experience.
+  - **Data Efficiency**: Use denormalized message protocols (carrying sender names/avatars) to keep UI rendering fast and responsive without redundant API calls.
+  - **Optimized Assets**: Maintain our strict media validation (5MB images / 60s voice) to ensure high throughput without resource exhaustion.
+
  **Git Protocol**: When committing changes, please DO NOT run `git push`. Leave the pushing to the repository owner to do manually.
+
 
 
 ## Status

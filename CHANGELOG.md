@@ -1,5 +1,17 @@
 # Talktive Development Changelog
 
+## March 28, 2026 - Backend Integration Testing & Floor Logic Verification (Phase 8.89) 🔬🛡️✅
+
+### Testing & Reliability
+- **Comprehensive Integration Test Suite**: Implemented a robust server-side testing infrastructure using Serverpod's `withServerpod` framework. Verified the five primary pillars of the Talktive backend:
+  - **Messaging Safety**: Enforced blocks, silences, and floor-based media restrictions (Floor 3 requirement).
+  - **Auto-Moderation Engine**: Validated reporting thresholds (One-Vote Rule) and automatic escalation paths (Warning -> Temporary Mute -> Reputation Zero).
+  - **Gamification Calibration**: Verified the exponential XP curve for Floor attainment, login streaks (3/7+ days), and automatic achievement unlocking.
+  - **Lounge Lifecycle**: Tested club creation, membership approvals, and creator-enforced security (Kicking members).
+  - **Reputation (Trust Score)**: Validated the `min(baseFloor, trustCap)` hybrid floor formula and passive reputation restoration (5 pts/hour).
+- **Test Infrastructure Tooling**: Developed `serverpod_test_tools.dart` with automated database cleanup (`deleteTable`), ensuring each test run starts with a clean slate for high-reliability results.
+- **Protocol & Model Reconciliation**: Corrected protocol name mismatches (e.g., `BlockedUser` -> `Block`) in the service layer revealed by the new tests.
+
 ## March 28, 2026 - Activity Detail & Milestone Fixes (Phase 8.88) 🏆💎✨
 
 ### UI/UX & Gamification

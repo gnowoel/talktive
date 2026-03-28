@@ -49,6 +49,11 @@ The onboarding wizard established these Duolingo-style patterns, and this design
  
  **Optimization Over Backward Compatibility**: Since the Serverpod version is not yet deployed, we prioritize the **best secured architecture** over backward compatibility. We actively refactor and introduce breaking changes (e.g., protocol denormalization) to ensure the final product is efficient, robust, and scalable.
  
+ **Testing & Reliability (Critical)**: To support 10,000+ users on 2 vCPUs, our logic must be bulletproof. We follow a **Test-Driven Maintenance** approach:
+  - **Core Service Testing**: All high-stakes logic (Messaging, Reputation, Reporting, Gamification) MUST be covered by integration tests using the `withServerpod` framework.
+  - **Regression Prevention**: New features are not complete until their validation rules (Floor checks, Trust Score penalties, Privacy) are programmatically verified.
+  - **Scalability Validation**: Tests should simulate high-concurrency or edge-case scenarios (e.g., rapid-fire reports, blocked user interactions) to ensure architectural stability.
+ 
 ## Optimization & Performance Guidance
 
 **High-Efficiency Infrastructure**: The production environment is constrained to a **single VPS with 2 vCPUs and 4GB of RAM**. This single machine hosts the Serverpod server, PostgreSQL database, and Redis cache. All backend logic must be extremely resource-efficient to maintain stability under this shared load.

@@ -49,6 +49,9 @@ class GamificationService {
         'User ${resident.userInfoId} leveled up to ${resident.level}! Reason: $reason',
       );
 
+      // Check for floor-based achievements
+      await checkFloorAchievements(session, resident);
+
       // Notify user of level up
       try {
         await NotificationService.sendLevelUpNotification(
@@ -365,7 +368,7 @@ class GamificationService {
       protocol.Achievement(
         key: 'rising_star',
         name: 'Rising Star',
-        description: 'Reach Floor 1',
+        description: 'First steps! Reached Floor 1',
         emoji: '🌟',
         category: 'progression',
         targetValue: 1,
@@ -374,20 +377,38 @@ class GamificationService {
       protocol.Achievement(
         key: 'high_rise',
         name: 'High Rise',
-        description: 'Reach Floor 2',
+        description: 'Moving up! Reached Floor 2',
         emoji: '🏢',
         category: 'progression',
-        targetValue: 2,
+        targetValue: 1,
         points: 50,
       ),
       protocol.Achievement(
         key: 'penthouse',
         name: 'Penthouse',
-        description: 'Reach Floor 3',
+        description: 'Luxury living! Reached Floor 3',
         emoji: '🏰',
         category: 'progression',
-        targetValue: 3,
+        targetValue: 1,
         points: 100,
+      ),
+      protocol.Achievement(
+        key: 'cloud_walker',
+        name: 'Cloud Walker',
+        description: 'Lofty heights! Reached Floor 5',
+        emoji: '☁️',
+        category: 'progression',
+        targetValue: 1,
+        points: 200,
+      ),
+      protocol.Achievement(
+        key: 'skyline_legend',
+        name: 'Skyline Legend',
+        description: 'Architect of life! Reached Floor 10',
+        emoji: '🌆',
+        category: 'progression',
+        targetValue: 1,
+        points: 500,
       ),
       protocol.Achievement(
         key: 'helpful',
@@ -561,13 +582,22 @@ class GamificationService {
     Session session,
     protocol.Resident resident,
   ) async {
-    final rep = ApartmentService.computeEffectiveFloor(resident);
-    if (rep >= 1)
+    final floor = ApartmentService.computeEffectiveFloor(resident);
+    if (floor >= 1) {
       await trackProgress(session, resident.userInfoId, 'rising_star');
-    if (rep >= 2)
+    }
+    if (floor >= 2) {
       await trackProgress(session, resident.userInfoId, 'high_rise');
-    if (rep >= 3)
+    }
+    if (floor >= 3) {
       await trackProgress(session, resident.userInfoId, 'penthouse');
+    }
+    if (floor >= 5) {
+      await trackProgress(session, resident.userInfoId, 'cloud_walker');
+    }
+    if (floor >= 10) {
+      await trackProgress(session, resident.userInfoId, 'skyline_legend');
+    }
   }
 
   /// Checks time-based achievements.

@@ -67,6 +67,15 @@ class MomentService {
 
     await ResidentService.updateResident(session, author);
 
+    // 5. Track achievement progress (Background)
+    TaskUtils.runBackground(session, (backgroundSession) async {
+      await GamificationService.trackMultipleProgress(
+        backgroundSession,
+        author.userInfoId,
+        ['first_moment', 'photographer', 'influencer'],
+      );
+    });
+
     return savedMoment;
   }
 

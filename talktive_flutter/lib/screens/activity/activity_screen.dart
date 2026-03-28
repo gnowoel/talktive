@@ -374,10 +374,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                         name: achievementData.name,
                         isUnlocked: achievement.unlocked,
                         isNew: achievement.isNew,
-                        onTap: () {
-                          // Show detail maybe? For now just stay here
-                          HapticFeedback.selectionClick();
-                        },
+                        onTap: () => _showAchievementDetail(context, achievement),
                       ),
                     );
                   },
@@ -619,6 +616,183 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                 ref.read(activityHistoryProvider.notifier).refresh(),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showAchievementDetail(
+    BuildContext context,
+    UserAchievementView userAchievement,
+  ) {
+    final achievement = userAchievement.achievement;
+    final isUnlocked = userAchievement.unlocked;
+
+    HapticFeedback.mediumImpact();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppTheme.duoRadiusLarge),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: AppTheme.duoSpacingSmall),
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isUnlocked ? Colors.white : Colors.grey[100],
+                border: Border.all(
+                  color: isUnlocked ? AppTheme.duoPurple : Colors.grey[300]!,
+                  width: 4,
+                ),
+                boxShadow: isUnlocked ? AppTheme.duoCardShadow : null,
+              ),
+              child: Center(
+                child: Text(
+                  achievement.emoji,
+                  style: const TextStyle(fontSize: 40),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppTheme.duoSpacingLarge),
+            Text(
+              achievement.name,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            const SizedBox(height: AppTheme.duoSpacingSmall),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: isUnlocked
+                    ? AppTheme.duoPurple.withValues(alpha: 0.1)
+                    : Colors.grey[100],
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                achievement.category.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: isUnlocked ? AppTheme.duoPurple : Colors.grey[600],
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ),
+            const SizedBox(height: AppTheme.duoSpacingLarge),
+            Text(
+              achievement.description,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[700],
+                fontFamily: 'Rubik',
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: AppTheme.duoSpacingLarge),
+            if (!isUnlocked && achievement.targetValue > 1) ...[
+              Text(
+                'PROGRESS',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[500],
+                  letterSpacing: 1,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Stack(
+                children: [
+                  Container(
+                    height: 16,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  FractionallySizedBox(
+                    widthFactor: (userAchievement.progress /
+                            achievement.targetValue)
+                        .clamp(0.0, 1.0),
+                    child: Container(
+                      height: 16,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: AppTheme.duoPurpleGradient,
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '${userAchievement.progress} / ${achievement.targetValue}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Rubik',
+                ),
+              ),
+              const SizedBox(height: AppTheme.duoSpacingLarge),
+            ],
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('💎 ', style: TextStyle(fontSize: 18)),
+                Text(
+                  '${achievement.points} Points',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.duoOrange,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppTheme.duoSpacingXLarge),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.duoPurple,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
+                  ),
+                  elevation: 4,
+                  shadowColor: AppTheme.duoPurple.withValues(alpha: 0.5),
+                ).copyWith(
+                  elevation: WidgetStateProperty.resolveWith((states) => 4),
+                ),
+                child: const Text(
+                  'GOT IT!',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppTheme.duoSpacingMedium),
+          ],
+        ),
       ),
     );
   }

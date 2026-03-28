@@ -44,24 +44,31 @@ class NotificationService {
 
     // 1. Handle History (Batched)
     if (saveToHistory) {
-      final notifications = userIds.map((userId) => protocol.UserNotification(
-        userId: userId,
-        type: type,
-        title: title,
-        body: body,
-        data: data != null ? jsonEncode(data) : null,
-        read: false,
-        createdAt: DateTime.now(),
-      )).toList();
+      final notifications = userIds
+          .map(
+            (userId) => protocol.UserNotification(
+              userId: userId,
+              type: type,
+              title: title,
+              body: body,
+              data: data != null ? jsonEncode(data) : null,
+              read: false,
+              createdAt: DateTime.now(),
+            ),
+          )
+          .toList();
 
       // Note: Serverpod doesn't have a direct batch insert that returns IDs easily
       // for all rows in a way we can map back to users for individual fcmData enrichment,
-      // but since we only need notificationId for the payload if it's saved, 
+      // but since we only need notificationId for the payload if it's saved,
       // and usually bulk notifications (like messages) don't save to history,
       // we'll just insert and skip individual notificationId mapping for now unless it's a single user.
-      
+
       if (userIds.length == 1) {
-        final inserted = await protocol.UserNotification.db.insertRow(session, notifications.first);
+        final inserted = await protocol.UserNotification.db.insertRow(
+          session,
+          notifications.first,
+        );
         fcmData['notificationId'] = inserted.id.toString();
       } else {
         await protocol.UserNotification.db.insert(session, notifications);
@@ -78,13 +85,17 @@ class NotificationService {
 
     // 3. Send FCM push notifications in parallel
     // We send to all tokens. FCMService.sendToToken is already async.
-    await Future.wait(tokens.map((deviceToken) => FCMService.sendToToken(
+    await Future.wait(
+      tokens.map(
+        (deviceToken) => FCMService.sendToToken(
           session,
           deviceToken.token,
           title,
           body,
           data: fcmData,
-        )));
+        ),
+      ),
+    );
   }
 
   /// Sends a message notification.
@@ -119,7 +130,9 @@ class NotificationService {
         'channelType': channelType,
         'route': channelType == 'private'
             ? '/chats/thread/$resolvedRouteId'
-            : (channelType == 'plaza' ? '/plaza' : '/lounges/chat/$resolvedRouteId'),
+            : (channelType == 'plaza'
+                  ? '/plaza'
+                  : '/lounges/chat/$resolvedRouteId'),
       },
       saveToHistory: false,
     );
@@ -150,7 +163,9 @@ class NotificationService {
 
     final route = channelType == 'private'
         ? '/chats/thread/$resolvedRouteId'
-        : (channelType == 'plaza' ? '/plaza' : '/lounges/chat/$resolvedRouteId');
+        : (channelType == 'plaza'
+              ? '/plaza'
+              : '/lounges/chat/$resolvedRouteId');
 
     await sendBulkNotifications(
       session,
@@ -303,8 +318,7 @@ class NotificationService {
       'Tap to join',
       data: {
         'loungeId': loungeId,
-        'route':
-            '/lounges/profile/$loungeId', 
+        'route': '/lounges/profile/$loungeId',
       },
       saveToHistory: true, // Now saved to history as per user request
     );

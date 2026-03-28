@@ -14,7 +14,7 @@ class ResidentService {
     UuidValue userId,
   ) async {
     final cacheKey = 'resident_$userId';
-    
+
     // 1. Try Session Cache (Local to this request/session)
     final cached = await session.caches.local.get<protocol.Resident>(cacheKey);
     if (cached != null) return cached;
@@ -22,12 +22,14 @@ class ResidentService {
     // 2. Try Global Cache (In-memory/Redis)
     protocol.Resident? globalCached;
     try {
-      globalCached = await session.caches.global.get<protocol.Resident>(cacheKey);
+      globalCached = await session.caches.global.get<protocol.Resident>(
+        cacheKey,
+      );
     } catch (e) {
       // Redis might be misconfigured or connection failed
       session.log('Cache error (get resident): $e', level: LogLevel.debug);
     }
-    
+
     if (globalCached != null) {
       // Put in local cache for next lookups in same session
       await session.caches.local.put(cacheKey, globalCached);
@@ -41,9 +43,17 @@ class ResidentService {
     );
 
     if (resident != null) {
-      await session.caches.local.put(cacheKey, resident, lifetime: Duration(minutes: 5));
+      await session.caches.local.put(
+        cacheKey,
+        resident,
+        lifetime: Duration(minutes: 5),
+      );
       try {
-        await session.caches.global.put(cacheKey, resident, lifetime: Duration(minutes: 5));
+        await session.caches.global.put(
+          cacheKey,
+          resident,
+          lifetime: Duration(minutes: 5),
+        );
       } catch (e) {
         session.log('Cache error (put resident): $e', level: LogLevel.debug);
       }
@@ -65,7 +75,9 @@ class ResidentService {
 
     // 1. Try Session Cache (Local)
     for (final id in userIds) {
-      final cached = await session.caches.local.get<protocol.Resident>(cacheKeyMap[id]!);
+      final cached = await session.caches.local.get<protocol.Resident>(
+        cacheKeyMap[id]!,
+      );
       if (cached != null) {
         result.add(cached);
       } else {
@@ -80,11 +92,13 @@ class ResidentService {
     for (final id in List<UuidValue>.from(missingIds)) {
       protocol.Resident? globalCached;
       try {
-        globalCached = await session.caches.global.get<protocol.Resident>(cacheKeyMap[id]!);
+        globalCached = await session.caches.global.get<protocol.Resident>(
+          cacheKeyMap[id]!,
+        );
       } catch (e) {
         // Fallback to missing
       }
-      
+
       if (globalCached != null) {
         result.add(globalCached);
         await session.caches.local.put(cacheKeyMap[id]!, globalCached);
@@ -105,9 +119,17 @@ class ResidentService {
     for (final resident in residentsFromDb) {
       result.add(resident);
       final key = cacheKeyMap[resident.userInfoId]!;
-      await session.caches.local.put(key, resident, lifetime: Duration(minutes: 5));
+      await session.caches.local.put(
+        key,
+        resident,
+        lifetime: Duration(minutes: 5),
+      );
       try {
-        await session.caches.global.put(key, resident, lifetime: Duration(minutes: 5));
+        await session.caches.global.put(
+          key,
+          resident,
+          lifetime: Duration(minutes: 5),
+        );
       } catch (e) {
         // Silent
       }
@@ -128,7 +150,7 @@ class ResidentService {
     // But we need to return the 'synced' resident if we want strict consistency.
     // However, for performance, we'll run it in background if they were seen recently.
     final now = DateTime.now();
-    if (resident.lastSeen != null && 
+    if (resident.lastSeen != null &&
         now.difference(resident.lastSeen!).inSeconds < 30) {
       // Very recently seen, skip blocking update
       TaskUtils.runBackground(session, (s) => ensureActiveState(s, resident));
@@ -153,7 +175,10 @@ class ResidentService {
       await session.caches.global.invalidateKey(residentKey);
       await session.caches.global.invalidateKey(viewKey);
     } catch (e) {
-      session.log('Cache error (invalidate resident): $e', level: LogLevel.debug);
+      session.log(
+        'Cache error (invalidate resident): $e',
+        level: LogLevel.debug,
+      );
     }
   }
 
@@ -379,9 +404,11 @@ class ResidentService {
     // 1. Try Global Cache for the view (excluding mutual lounges/likes which are viewer-specific)
     final baseCacheKey = 'profile_view_$targetId';
     protocol.UserProfileView? profile;
-    
+
     try {
-      profile = await session.caches.global.get<protocol.UserProfileView>(baseCacheKey);
+      profile = await session.caches.global.get<protocol.UserProfileView>(
+        baseCacheKey,
+      );
     } catch (e) {
       session.log('Cache error (get profile view): $e', level: LogLevel.debug);
     }
@@ -392,10 +419,19 @@ class ResidentService {
 
       // Parallelize base data fetching
       final statsFuture = Future.wait([
-        protocol.Message.db.count(session, where: (t) => t.senderId.equals(targetId)),
-        protocol.Moment.db.count(session, where: (t) => t.authorId.equals(targetId)),
-        protocol.UserAchievement.db.count(session,
-            where: (t) => t.userId.equals(targetId) & t.unlockedAt.notEquals(null)),
+        protocol.Message.db.count(
+          session,
+          where: (t) => t.senderId.equals(targetId),
+        ),
+        protocol.Moment.db.count(
+          session,
+          where: (t) => t.authorId.equals(targetId),
+        ),
+        protocol.UserAchievement.db.count(
+          session,
+          where: (t) =>
+              t.userId.equals(targetId) & t.unlockedAt.notEquals(null),
+        ),
       ]);
 
       final recentMomentsFuture = protocol.Moment.db.find(
@@ -446,7 +482,11 @@ class ResidentService {
 
       // Cache for 2 minutes
       try {
-        await session.caches.global.put(baseCacheKey, profile, lifetime: Duration(minutes: 2));
+        await session.caches.global.put(
+          baseCacheKey,
+          profile,
+          lifetime: Duration(minutes: 2),
+        );
       } catch (e) {
         session.log('Cache error (put profile): $e', level: LogLevel.debug);
       }
@@ -455,21 +495,44 @@ class ResidentService {
     // 2. Supplement with viewer-specific state (NOT CACHED globally)
     if (viewerId != null) {
       final socialDetails = await Future.wait([
-        ResidentService.isBlocked(session, blockerId: viewerId, blockedId: targetId),
-        ResidentService.isBlocked(session, blockerId: targetId, blockedId: viewerId),
-        protocol.UserLike.db.findFirstRow(session,
-            where: (t) => t.senderId.equals(viewerId) & t.receiverId.equals(targetId)),
-        protocol.ChannelMember.db.find(session, where: (t) => t.userInfoId.equals(viewerId)),
-        protocol.ChannelMember.db.find(session, where: (t) => t.userInfoId.equals(targetId)),
+        ResidentService.isBlocked(
+          session,
+          blockerId: viewerId,
+          blockedId: targetId,
+        ),
+        ResidentService.isBlocked(
+          session,
+          blockerId: targetId,
+          blockedId: viewerId,
+        ),
+        protocol.UserLike.db.findFirstRow(
+          session,
+          where: (t) =>
+              t.senderId.equals(viewerId) & t.receiverId.equals(targetId),
+        ),
+        protocol.ChannelMember.db.find(
+          session,
+          where: (t) => t.userInfoId.equals(viewerId),
+        ),
+        protocol.ChannelMember.db.find(
+          session,
+          where: (t) => t.userInfoId.equals(targetId),
+        ),
       ]);
 
       final isBlocked = socialDetails[0] as bool;
       final hasBlockedMe = socialDetails[1] as bool;
       final isLiked = socialDetails[2] != null;
-      
-      final viewerLoungeIds = (socialDetails[3] as List<protocol.ChannelMember>).map((g) => g.channelId).toSet();
-      final targetLoungeIds = (socialDetails[4] as List<protocol.ChannelMember>).map((g) => g.channelId).toSet();
-      final mutualLoungesCount = viewerLoungeIds.intersection(targetLoungeIds).length;
+
+      final viewerLoungeIds = (socialDetails[3] as List<protocol.ChannelMember>)
+          .map((g) => g.channelId)
+          .toSet();
+      final targetLoungeIds = (socialDetails[4] as List<protocol.ChannelMember>)
+          .map((g) => g.channelId)
+          .toSet();
+      final mutualLoungesCount = viewerLoungeIds
+          .intersection(targetLoungeIds)
+          .length;
 
       return profile.copyWith(
         isBlocked: isBlocked,
@@ -588,24 +651,40 @@ class ResidentService {
     final senderId = sender.userInfoId;
 
     if (senderId == targetId) {
-      throw protocol.TalktiveException(message: 'You cannot vouch for yourself.');
+      throw protocol.TalktiveException(
+        message: 'You cannot vouch for yourself.',
+      );
     }
 
     final target = await getResident(session, targetId);
-    if (target == null) throw protocol.TalktiveException(message: 'Target resident not found');
+    if (target == null)
+      throw protocol.TalktiveException(message: 'Target resident not found');
 
     // One-Vouch Rule
     final existingLike = await protocol.UserLike.db.findFirstRow(
       session,
       where: (t) => t.senderId.equals(senderId) & t.receiverId.equals(targetId),
     );
-    if (existingLike != null) throw protocol.TalktiveException(message: 'You have already vouched for this resident.');
+    if (existingLike != null)
+      throw protocol.TalktiveException(
+        message: 'You have already vouched for this resident.',
+      );
 
     // Blocking Check
-    final isBlocked = await ResidentService.isBlocked(session, blockerId: senderId, blockedId: targetId);
-    final hasBlockedMe = await ResidentService.isBlocked(session, blockerId: targetId, blockedId: senderId);
+    final isBlocked = await ResidentService.isBlocked(
+      session,
+      blockerId: senderId,
+      blockedId: targetId,
+    );
+    final hasBlockedMe = await ResidentService.isBlocked(
+      session,
+      blockerId: targetId,
+      blockedId: senderId,
+    );
     if (isBlocked || hasBlockedMe) {
-      throw protocol.TalktiveException(message: 'You cannot vouch for this resident due to privacy settings.');
+      throw protocol.TalktiveException(
+        message: 'You cannot vouch for this resident due to privacy settings.',
+      );
     }
 
     // Report Check
@@ -614,7 +693,9 @@ class ResidentService {
       where: (t) => t.reporterId.equals(senderId) & t.targetId.equals(targetId),
     );
     if (existingReport != null) {
-      throw protocol.TalktiveException(message: 'You cannot vouch for a resident you have reported.');
+      throw protocol.TalktiveException(
+        message: 'You cannot vouch for a resident you have reported.',
+      );
     }
 
     await protocol.UserLike.db.insertRow(
@@ -656,13 +737,15 @@ class ResidentService {
     required UuidValue targetId,
   }) async {
     final target = await getResident(session, targetId);
-    if (target == null) throw protocol.TalktiveException(message: 'Target resident not found');
+    if (target == null)
+      throw protocol.TalktiveException(message: 'Target resident not found');
 
     final existingLike = await protocol.UserLike.db.findFirstRow(
       session,
       where: (t) => t.senderId.equals(senderId) & t.receiverId.equals(targetId),
     );
-    if (existingLike == null) throw protocol.TalktiveException(message: 'Vouch not found');
+    if (existingLike == null)
+      throw protocol.TalktiveException(message: 'Vouch not found');
 
     await protocol.UserLike.db.deleteRow(session, existingLike);
 
@@ -679,7 +762,8 @@ class ResidentService {
   }) async {
     final existing = await protocol.Block.db.findFirstRow(
       session,
-      where: (t) => t.blockerId.equals(blockerId) & t.blockedId.equals(targetId),
+      where: (t) =>
+          t.blockerId.equals(blockerId) & t.blockedId.equals(targetId),
     );
 
     if (block) {
@@ -720,19 +804,29 @@ class ResidentService {
   }) async {
     if (showOnlineStatus != null) resident.showOnlineStatus = showOnlineStatus;
     if (showReadReceipts != null) resident.showReadReceipts = showReadReceipts;
-    if (showTypingIndicator != null) resident.showTypingIndicator = showTypingIndicator;
-    if (showVoiceMessages != null) resident.showVoiceMessages = showVoiceMessages;
-    if (showNeighborsDiscovery != null) resident.showNeighborsDiscovery = showNeighborsDiscovery;
+    if (showTypingIndicator != null)
+      resident.showTypingIndicator = showTypingIndicator;
+    if (showVoiceMessages != null)
+      resident.showVoiceMessages = showVoiceMessages;
+    if (showNeighborsDiscovery != null)
+      resident.showNeighborsDiscovery = showNeighborsDiscovery;
     if (showCustomAvatar != null) resident.showCustomAvatar = showCustomAvatar;
-    if (showOthersOnlineStatus != null) resident.showOthersOnlineStatus = showOthersOnlineStatus;
-    if (showOthersReadReceipts != null) resident.showOthersReadReceipts = showOthersReadReceipts;
-    if (showOthersTypingIndicators != null) resident.showOthersTypingIndicators = showOthersTypingIndicators;
+    if (showOthersOnlineStatus != null)
+      resident.showOthersOnlineStatus = showOthersOnlineStatus;
+    if (showOthersReadReceipts != null)
+      resident.showOthersReadReceipts = showOthersReadReceipts;
+    if (showOthersTypingIndicators != null)
+      resident.showOthersTypingIndicators = showOthersTypingIndicators;
     if (allowDiscovery != null) resident.allowDiscovery = allowDiscovery;
-    if (showImagesInPlaza != null) resident.showImagesInPlaza = showImagesInPlaza;
-    if (showImagesInLounges != null) resident.showImagesInLounges = showImagesInLounges;
-    if (showImagesInPrivateChats != null) resident.showImagesInPrivateChats = showImagesInPrivateChats;
-    if (showImagesInMoments != null) resident.showImagesInMoments = showImagesInMoments;
-    
+    if (showImagesInPlaza != null)
+      resident.showImagesInPlaza = showImagesInPlaza;
+    if (showImagesInLounges != null)
+      resident.showImagesInLounges = showImagesInLounges;
+    if (showImagesInPrivateChats != null)
+      resident.showImagesInPrivateChats = showImagesInPrivateChats;
+    if (showImagesInMoments != null)
+      resident.showImagesInMoments = showImagesInMoments;
+
     final bool oldKeepPrivateChats = resident.keepPrivateChats;
     if (keepPrivateChats != null) resident.keepPrivateChats = keepPrivateChats;
 
@@ -787,7 +881,7 @@ class ResidentService {
       resident.showImagesInLounges = false;
       resident.showImagesInPrivateChats = false;
       resident.showImagesInMoments = false;
-      // We don't disable read receipts/typing/online status as they are standard privacy 
+      // We don't disable read receipts/typing/online status as they are standard privacy
       // but premium lets you use them *while* staying hidden.
 
       final updated = await updateResident(session, resident);
@@ -820,9 +914,10 @@ class ResidentService {
       // 2. Find private channels that are currently persistent
       final privateChannels = await protocol.Channel.db.find(
         session,
-        where: (t) => t.id.inSet(channelIds) & 
-                     t.type.equals(protocol.ChannelType.private) & 
-                     t.isPersistent.equals(true),
+        where: (t) =>
+            t.id.inSet(channelIds) &
+            t.type.equals(protocol.ChannelType.private) &
+            t.isPersistent.equals(true),
       );
 
       if (privateChannels.isEmpty) return;
@@ -833,7 +928,10 @@ class ResidentService {
         await protocol.Channel.db.updateRow(session, channel);
       }
     } catch (e) {
-      session.log('Failed to unkeep private chats for $userId: $e', level: LogLevel.error);
+      session.log(
+        'Failed to unkeep private chats for $userId: $e',
+        level: LogLevel.error,
+      );
     }
   }
 }

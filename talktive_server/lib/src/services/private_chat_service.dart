@@ -27,7 +27,10 @@ class PrivateChatService {
       );
     }
 
-    final otherResident = await ResidentService.getResident(session, otherUserId);
+    final otherResident = await ResidentService.getResident(
+      session,
+      otherUserId,
+    );
     if (otherResident == null) {
       throw protocol.TalktiveException(
         message: 'Resident not found.',
@@ -37,19 +40,30 @@ class PrivateChatService {
 
     if (!ApartmentService.canInvite(sender: sender, receiver: otherResident)) {
       throw protocol.TalktiveException(
-        message: ApartmentService.cannotInviteReason(sender: sender, receiver: otherResident),
+        message: ApartmentService.cannotInviteReason(
+          sender: sender,
+          receiver: otherResident,
+        ),
         code: 'INVITE_RESTRICTED',
       );
     }
 
-    if (await ResidentService.isBlocked(session, blockerId: currentUserId, blockedId: otherUserId)) {
+    if (await ResidentService.isBlocked(
+      session,
+      blockerId: currentUserId,
+      blockedId: otherUserId,
+    )) {
       throw protocol.TalktiveException(
         message: 'You have blocked this resident.',
         code: 'USER_BLOCKED',
       );
     }
 
-    if (await ResidentService.isBlocked(session, blockerId: otherUserId, blockedId: currentUserId)) {
+    if (await ResidentService.isBlocked(
+      session,
+      blockerId: otherUserId,
+      blockedId: currentUserId,
+    )) {
       throw protocol.TalktiveException(
         message: 'This resident has restricted their messages.',
         code: 'BLOCKED_BY_USER',
@@ -57,12 +71,18 @@ class PrivateChatService {
     }
 
     // Order participants consistently
-    final participant1 = currentUserId.uuid.compareTo(otherUserId.uuid) < 0 ? currentUserId : otherUserId;
-    final participant2 = currentUserId.uuid.compareTo(otherUserId.uuid) < 0 ? otherUserId : currentUserId;
+    final participant1 = currentUserId.uuid.compareTo(otherUserId.uuid) < 0
+        ? currentUserId
+        : otherUserId;
+    final participant2 = currentUserId.uuid.compareTo(otherUserId.uuid) < 0
+        ? otherUserId
+        : currentUserId;
 
     var privateChat = await protocol.PrivateChat.db.findFirstRow(
       session,
-      where: (t) => t.participant1Id.equals(participant1) & t.participant2Id.equals(participant2),
+      where: (t) =>
+          t.participant1Id.equals(participant1) &
+          t.participant2Id.equals(participant2),
     );
 
     bool isCurrentlyInvited = false;
@@ -73,8 +93,12 @@ class PrivateChatService {
         session,
         where: (t) => t.channelId.equals(privateChat!.channelId),
       );
-      final currentMember = members.firstWhereOrNull((m) => m.userInfoId == currentUserId);
-      final otherMember = members.firstWhereOrNull((m) => m.userInfoId == otherUserId);
+      final currentMember = members.firstWhereOrNull(
+        (m) => m.userInfoId == currentUserId,
+      );
+      final otherMember = members.firstWhereOrNull(
+        (m) => m.userInfoId == otherUserId,
+      );
 
       if (currentMember != null &&
           (currentMember.status == protocol.ChannelMemberStatus.left ||
@@ -139,7 +163,11 @@ class PrivateChatService {
         ),
       );
 
-      await GamificationService.trackProgress(session, currentUserId, 'private_chat');
+      await GamificationService.trackProgress(
+        session,
+        currentUserId,
+        'private_chat',
+      );
       wasJustInvited = true;
     }
 
@@ -152,12 +180,21 @@ class PrivateChatService {
           privateChat.channelId,
         );
       } catch (e) {
-        session.log('Failed to send invite notification: $e', level: LogLevel.error);
+        session.log(
+          'Failed to send invite notification: $e',
+          level: LogLevel.error,
+        );
       }
     }
 
     if (initialMessage != null && initialMessage.trim().isNotEmpty) {
-      await _handleInitialMessage(session, sender, privateChat.channelId, initialMessage, isCurrentlyInvited && !wasJustInvited);
+      await _handleInitialMessage(
+        session,
+        sender,
+        privateChat.channelId,
+        initialMessage,
+        isCurrentlyInvited && !wasJustInvited,
+      );
     }
 
     return privateChat;
@@ -177,7 +214,9 @@ class PrivateChatService {
       if (isReKnock) {
         final lastMessage = await protocol.Message.db.findFirstRow(
           session,
-          where: (t) => t.channelId.equals(channelId) & t.senderId.equals(sender.userInfoId),
+          where: (t) =>
+              t.channelId.equals(channelId) &
+              t.senderId.equals(sender.userInfoId),
           orderBy: (t) => t.createdAt,
           orderDescending: true,
         );
@@ -212,7 +251,12 @@ class PrivateChatService {
         ),
       );
 
-      await MessagingService.onMessageSaved(session, message: message, channel: channel, sender: sender);
+      await MessagingService.onMessageSaved(
+        session,
+        message: message,
+        channel: channel,
+        sender: sender,
+      );
     } catch (e) {
       session.log('Initial message error: $e', level: LogLevel.warning);
     }
@@ -225,7 +269,8 @@ class PrivateChatService {
   ) async {
     final chats = await protocol.PrivateChat.db.find(
       session,
-      where: (t) => t.participant1Id.equals(userId) | t.participant2Id.equals(userId),
+      where: (t) =>
+          t.participant1Id.equals(userId) | t.participant2Id.equals(userId),
       orderBy: (t) => t.lastMessageAt,
       orderDescending: true,
     );
@@ -234,9 +279,15 @@ class PrivateChatService {
 
     final channelIds = chats.map((c) => c.channelId).toList();
     final results = await Future.wait([
-      protocol.ChannelMember.db.find(session, where: (t) => t.channelId.inSet(channelIds.toSet())),
+      protocol.ChannelMember.db.find(
+        session,
+        where: (t) => t.channelId.inSet(channelIds.toSet()),
+      ),
       ChannelService.batchGetUnreadCounts(session, channelIds, userId),
-      protocol.Channel.db.find(session, where: (t) => t.id.inSet(channelIds.toSet())),
+      protocol.Channel.db.find(
+        session,
+        where: (t) => t.id.inSet(channelIds.toSet()),
+      ),
     ]);
 
     final allMembers = results[0] as List<protocol.ChannelMember>;
@@ -247,31 +298,44 @@ class PrivateChatService {
     final items = <protocol.PrivateChatWithProfile>[];
 
     for (final chat in chats) {
-      final members = allMembers.where((m) => m.channelId == chat.channelId).toList();
-      final currentMember = members.firstWhereOrNull((m) => m.userInfoId == userId);
-      if (currentMember == null || 
-          currentMember.status == protocol.ChannelMemberStatus.left || 
+      final members = allMembers
+          .where((m) => m.channelId == chat.channelId)
+          .toList();
+      final currentMember = members.firstWhereOrNull(
+        (m) => m.userInfoId == userId,
+      );
+      if (currentMember == null ||
+          currentMember.status == protocol.ChannelMemberStatus.left ||
           currentMember.status == protocol.ChannelMemberStatus.declined) {
         continue;
       }
 
-      final otherId = chat.participant1Id == userId ? chat.participant2Id : chat.participant1Id;
-      final otherMember = members.firstWhereOrNull((m) => m.userInfoId == otherId);
+      final otherId = chat.participant1Id == userId
+          ? chat.participant2Id
+          : chat.participant1Id;
+      final otherMember = members.firstWhereOrNull(
+        (m) => m.userInfoId == otherId,
+      );
       final otherResident = await ResidentService.getResident(session, otherId);
 
       if (otherResident != null) {
-        items.add(protocol.PrivateChatWithProfile(
-          chat: chat,
-          otherResident: otherResident,
-          otherUserName: otherResident.userName,
-          otherUserAvatar: otherResident.customAvatarUrl ?? otherResident.avatar,
-          otherUserMood: otherResident.mood,
-          currentMemberStatus: currentMember.status,
-          otherMemberStatus: otherMember?.status,
-          otherUserLastReadAt: otherResident.showReadReceipts ? otherMember?.lastReadAt : null,
-          unreadCount: unreadCounts[chat.channelId] ?? 0,
-          channel: channelMap[chat.channelId],
-        ));
+        items.add(
+          protocol.PrivateChatWithProfile(
+            chat: chat,
+            otherResident: otherResident,
+            otherUserName: otherResident.userName,
+            otherUserAvatar:
+                otherResident.customAvatarUrl ?? otherResident.avatar,
+            otherUserMood: otherResident.mood,
+            currentMemberStatus: currentMember.status,
+            otherMemberStatus: otherMember?.status,
+            otherUserLastReadAt: otherResident.showReadReceipts
+                ? otherMember?.lastReadAt
+                : null,
+            unreadCount: unreadCounts[chat.channelId] ?? 0,
+            channel: channelMap[chat.channelId],
+          ),
+        );
       }
     }
     return items;
@@ -283,17 +347,33 @@ class PrivateChatService {
     int channelId,
     UuidValue currentUserId,
   ) async {
-    final chat = await protocol.PrivateChat.db.findFirstRow(session, where: (t) => t.channelId.equals(channelId));
+    final chat = await protocol.PrivateChat.db.findFirstRow(
+      session,
+      where: (t) => t.channelId.equals(channelId),
+    );
     if (chat == null) return null;
 
-    if (chat.participant1Id != currentUserId && chat.participant2Id != currentUserId) {
-      throw protocol.TalktiveException(message: 'Access denied.', code: 'ACCESS_DENIED');
+    if (chat.participant1Id != currentUserId &&
+        chat.participant2Id != currentUserId) {
+      throw protocol.TalktiveException(
+        message: 'Access denied.',
+        code: 'ACCESS_DENIED',
+      );
     }
 
-    final otherId = chat.participant1Id == currentUserId ? chat.participant2Id : chat.participant1Id;
-    final members = await protocol.ChannelMember.db.find(session, where: (t) => t.channelId.equals(channelId));
-    final currentMember = members.firstWhereOrNull((m) => m.userInfoId == currentUserId);
-    final otherMember = members.firstWhereOrNull((m) => m.userInfoId == otherId);
+    final otherId = chat.participant1Id == currentUserId
+        ? chat.participant2Id
+        : chat.participant1Id;
+    final members = await protocol.ChannelMember.db.find(
+      session,
+      where: (t) => t.channelId.equals(channelId),
+    );
+    final currentMember = members.firstWhereOrNull(
+      (m) => m.userInfoId == currentUserId,
+    );
+    final otherMember = members.firstWhereOrNull(
+      (m) => m.userInfoId == otherId,
+    );
     final resident = await ResidentService.getResident(session, otherId);
 
     if (resident == null) return null;
@@ -306,23 +386,41 @@ class PrivateChatService {
       otherUserMood: resident.mood,
       currentMemberStatus: currentMember?.status,
       otherMemberStatus: otherMember?.status,
-      otherUserLastReadAt: resident.showReadReceipts ? otherMember?.lastReadAt : null,
-      unreadCount: (await ChannelService.batchGetUnreadCounts(session, [channelId], currentUserId))[channelId] ?? 0,
+      otherUserLastReadAt: resident.showReadReceipts
+          ? otherMember?.lastReadAt
+          : null,
+      unreadCount:
+          (await ChannelService.batchGetUnreadCounts(session, [
+            channelId,
+          ], currentUserId))[channelId] ??
+          0,
       channel: await ChannelService.getChannel(session, channelId),
     );
   }
 
   /// Responds to a private chat invitation.
-  static Future<void> respondToChatInvite(Session session, int channelId, UuidValue userId, bool accept) async {
+  static Future<void> respondToChatInvite(
+    Session session,
+    int channelId,
+    UuidValue userId,
+    bool accept,
+  ) async {
     final member = await ChannelService.getMember(session, channelId, userId);
-    if (member == null || member.status != protocol.ChannelMemberStatus.invited) return;
+    if (member == null || member.status != protocol.ChannelMemberStatus.invited)
+      return;
 
-    member.status = accept ? protocol.ChannelMemberStatus.joined : protocol.ChannelMemberStatus.declined;
+    member.status = accept
+        ? protocol.ChannelMemberStatus.joined
+        : protocol.ChannelMemberStatus.declined;
     await protocol.ChannelMember.db.updateRow(session, member);
   }
 
   /// Leaves a private chat.
-  static Future<void> leaveChat(Session session, int channelId, UuidValue userId) async {
+  static Future<void> leaveChat(
+    Session session,
+    int channelId,
+    UuidValue userId,
+  ) async {
     final member = await ChannelService.getMember(session, channelId, userId);
     if (member == null) return;
 

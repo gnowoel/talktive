@@ -21,7 +21,8 @@ class AdminService {
   }) async {
     final reports = await protocol.Report.db.find(
       session,
-      where: (t) => status != null ? t.status.equals(status) : Constant.bool(true),
+      where: (t) =>
+          status != null ? t.status.equals(status) : Constant.bool(true),
       orderBy: (t) => t.createdAt,
       orderDescending: true,
       limit: limit,
@@ -36,8 +37,14 @@ class AdminService {
       userIds.add(report.targetId);
     }
 
-    final residents = await ResidentService.getResidents(session, userIds.toList());
-    final userCounts = await ResidentService.getBatchUserCounts(session, userIds.toList());
+    final residents = await ResidentService.getResidents(
+      session,
+      userIds.toList(),
+    );
+    final userCounts = await ResidentService.getBatchUserCounts(
+      session,
+      userIds.toList(),
+    );
     final residentMap = {for (final r in residents) r.userInfoId.toString(): r};
 
     return reports.map((report) {
@@ -47,7 +54,8 @@ class AdminService {
       final reporterSummary = reporterResident != null
           ? ResidentService.toAdminUserSummary(
               reporterResident,
-              messageCount: userCounts[report.reporterId.toString()]?['messages'],
+              messageCount:
+                  userCounts[report.reporterId.toString()]?['messages'],
               momentCount: userCounts[report.reporterId.toString()]?['moments'],
               reportCount: userCounts[report.reporterId.toString()]?['reports'],
             )
@@ -64,34 +72,38 @@ class AdminService {
 
       return protocol.AdminReportSummary(
         report: report,
-        reporter: reporterSummary ?? protocol.AdminUserSummary(
-          userId: report.reporterId,
-          userName: 'Unknown',
-          floor: 0,
-          trustScore: 0,
-          level: 0,
-          xp: 0,
-          role: protocol.ResidentRole.user,
-          suspended: false,
-          messageCount: 0,
-          momentCount: 0,
-          reportCount: 0,
-          createdAt: DateTime.now(),
-        ),
-        target: targetSummary ?? protocol.AdminUserSummary(
-          userId: report.targetId,
-          userName: 'Unknown',
-          floor: 0,
-          trustScore: 0,
-          level: 0,
-          xp: 0,
-          role: protocol.ResidentRole.user,
-          suspended: false,
-          messageCount: 0,
-          momentCount: 0,
-          reportCount: 0,
-          createdAt: DateTime.now(),
-        ),
+        reporter:
+            reporterSummary ??
+            protocol.AdminUserSummary(
+              userId: report.reporterId,
+              userName: 'Unknown',
+              floor: 0,
+              trustScore: 0,
+              level: 0,
+              xp: 0,
+              role: protocol.ResidentRole.user,
+              suspended: false,
+              messageCount: 0,
+              momentCount: 0,
+              reportCount: 0,
+              createdAt: DateTime.now(),
+            ),
+        target:
+            targetSummary ??
+            protocol.AdminUserSummary(
+              userId: report.targetId,
+              userName: 'Unknown',
+              floor: 0,
+              trustScore: 0,
+              level: 0,
+              xp: 0,
+              role: protocol.ResidentRole.user,
+              suspended: false,
+              messageCount: 0,
+              momentCount: 0,
+              reportCount: 0,
+              createdAt: DateTime.now(),
+            ),
       );
     }).toList();
   }
@@ -127,13 +139,16 @@ class AdminService {
       protocol.Moment.db.count(session),
       protocol.Lounge.db.count(session),
       protocol.Report.db.count(session),
-      protocol.Report.db.count(session, where: (t) => t.status.equals(protocol.ReportStatus.pending)),
-      
+      protocol.Report.db.count(
+        session,
+        where: (t) => t.status.equals(protocol.ReportStatus.pending),
+      ),
+
       // Last 24h
       protocol.Message.db.count(session, where: (t) => t.createdAt >= dayAgo),
       protocol.Moment.db.count(session, where: (t) => t.createdAt >= dayAgo),
       protocol.Report.db.count(session, where: (t) => t.createdAt >= dayAgo),
-      
+
       // Last 7d
       protocol.Message.db.count(session, where: (t) => t.createdAt >= weekAgo),
       protocol.Moment.db.count(session, where: (t) => t.createdAt >= weekAgo),
@@ -145,12 +160,21 @@ class AdminService {
       protocol.Report.db.count(session, where: (t) => t.createdAt >= monthAgo),
 
       // Active Users (24h, 7d, 30d)
-      protocol.Resident.db.count(session,
-          where: (t) => (t.lastLoginDate >= dayAgo) | (t.lastMessageDate >= dayAgo)),
-      protocol.Resident.db.count(session,
-          where: (t) => (t.lastLoginDate >= weekAgo) | (t.lastMessageDate >= weekAgo)),
-      protocol.Resident.db.count(session,
-          where: (t) => (t.lastLoginDate >= monthAgo) | (t.lastMessageDate >= monthAgo)),
+      protocol.Resident.db.count(
+        session,
+        where: (t) =>
+            (t.lastLoginDate >= dayAgo) | (t.lastMessageDate >= dayAgo),
+      ),
+      protocol.Resident.db.count(
+        session,
+        where: (t) =>
+            (t.lastLoginDate >= weekAgo) | (t.lastMessageDate >= weekAgo),
+      ),
+      protocol.Resident.db.count(
+        session,
+        where: (t) =>
+            (t.lastLoginDate >= monthAgo) | (t.lastMessageDate >= monthAgo),
+      ),
     ]);
 
     final totals = protocol.AdminTotals(
@@ -234,14 +258,21 @@ class AdminService {
     if (residents.isEmpty) return [];
 
     final userIds = residents.map((r) => r.userInfoId).toList();
-    final userCounts = await ResidentService.getBatchUserCounts(session, userIds);
+    final userCounts = await ResidentService.getBatchUserCounts(
+      session,
+      userIds,
+    );
 
-    return residents.map((r) => ResidentService.toAdminUserSummary(
-          r,
-          messageCount: userCounts[r.userInfoId.toString()]?['messages'],
-          momentCount: userCounts[r.userInfoId.toString()]?['moments'],
-          reportCount: userCounts[r.userInfoId.toString()]?['reports'],
-        )).toList();
+    return residents
+        .map(
+          (r) => ResidentService.toAdminUserSummary(
+            r,
+            messageCount: userCounts[r.userInfoId.toString()]?['messages'],
+            momentCount: userCounts[r.userInfoId.toString()]?['moments'],
+            reportCount: userCounts[r.userInfoId.toString()]?['reports'],
+          ),
+        )
+        .toList();
   }
 
   /// Updates a lounge's privacy and status.
@@ -252,7 +283,8 @@ class AdminService {
     bool? isStaffLocked,
   }) async {
     final lounge = await protocol.Lounge.db.findById(session, loungeId);
-    if (lounge == null) throw protocol.TalktiveException(message: 'Lounge not found');
+    if (lounge == null)
+      throw protocol.TalktiveException(message: 'Lounge not found');
 
     if (isPublic != null) lounge.isPublic = isPublic;
     if (isStaffLocked != null) lounge.isStaffLocked = isStaffLocked;
@@ -276,10 +308,28 @@ class AdminService {
     if (resident == null) return null;
 
     final historyResults = await Future.wait([
-      protocol.Message.db.find(session, where: (t) => t.senderId.equals(userId), limit: 20, orderDescending: true),
-      protocol.Moment.db.find(session, where: (t) => t.authorId.equals(userId), limit: 10, orderDescending: true),
-      protocol.Report.db.find(session, where: (t) => t.targetId.equals(userId), orderDescending: true),
-      protocol.Report.db.find(session, where: (t) => t.reporterId.equals(userId), orderDescending: true),
+      protocol.Message.db.find(
+        session,
+        where: (t) => t.senderId.equals(userId),
+        limit: 20,
+        orderDescending: true,
+      ),
+      protocol.Moment.db.find(
+        session,
+        where: (t) => t.authorId.equals(userId),
+        limit: 10,
+        orderDescending: true,
+      ),
+      protocol.Report.db.find(
+        session,
+        where: (t) => t.targetId.equals(userId),
+        orderDescending: true,
+      ),
+      protocol.Report.db.find(
+        session,
+        where: (t) => t.reporterId.equals(userId),
+        orderDescending: true,
+      ),
     ]);
 
     final messages = historyResults[0] as List<protocol.Message>;
@@ -300,8 +350,12 @@ class AdminService {
       reportsMade: reportsMade,
     );
   }
+
   /// Deletes a message and its associated media files.
-  static Future<void> deleteMessage(Session session, dynamic messageOrId) async {
+  static Future<void> deleteMessage(
+    Session session,
+    dynamic messageOrId,
+  ) async {
     protocol.Message? message;
     if (messageOrId is protocol.Message) {
       message = messageOrId;
@@ -317,7 +371,7 @@ class AdminService {
       if (message.mediaUrl != null) {
         await FileStorageService.deleteMedia(session, message.mediaUrl);
       }
-      
+
       // 2. Delete database row
       await protocol.Message.db.deleteRow(session, message);
     }
@@ -333,7 +387,8 @@ class AdminService {
       session,
       where: (t) => t.userInfoId.equals(userId),
     );
-    if (resident == null) throw protocol.TalktiveException(message: 'User not found');
+    if (resident == null)
+      throw protocol.TalktiveException(message: 'User not found');
 
     resident.suspended = suspended;
     if (suspended) {
@@ -354,7 +409,8 @@ class AdminService {
       session,
       where: (t) => t.userInfoId.equals(userId),
     );
-    if (resident == null) throw protocol.TalktiveException(message: 'User not found');
+    if (resident == null)
+      throw protocol.TalktiveException(message: 'User not found');
 
     resident.mutedUntil = until;
     await protocol.Resident.db.updateRow(session, resident);
@@ -370,7 +426,8 @@ class AdminService {
       session,
       where: (t) => t.userInfoId.equals(userId),
     );
-    if (resident == null) throw protocol.TalktiveException(message: 'User not found');
+    if (resident == null)
+      throw protocol.TalktiveException(message: 'User not found');
 
     resident.role = role;
     await protocol.Resident.db.updateRow(session, resident);
@@ -385,7 +442,8 @@ class AdminService {
       session,
       where: (t) => t.userInfoId.equals(userId),
     );
-    if (resident == null) throw protocol.TalktiveException(message: 'User not found');
+    if (resident == null)
+      throw protocol.TalktiveException(message: 'User not found');
 
     resident.trustScore = 100;
     resident.mutedUntil = null;

@@ -48,7 +48,9 @@ class FCMService {
       }
 
       _initialized = true;
-      stdout.writeln('✅ FCM Service initialized successfully for project: $_projectId');
+      stdout.writeln(
+        '✅ FCM Service initialized successfully for project: $_projectId',
+      );
     } catch (e, stack) {
       stdout.writeln('❌ FCM Service initialization failed: $e');
       stdout.writeln(stack);
@@ -61,8 +63,8 @@ class FCMService {
     if (_credentials == null) return null;
 
     // Return cached token if still valid (with 1-minute buffer)
-    if (_cachedToken != null && 
-        _tokenExpiry != null && 
+    if (_cachedToken != null &&
+        _tokenExpiry != null &&
         _tokenExpiry!.isAfter(DateTime.now().add(const Duration(minutes: 1)))) {
       return _cachedToken;
     }
@@ -73,7 +75,7 @@ class FCMService {
 
       _cachedToken = client.credentials.accessToken.data;
       _tokenExpiry = client.credentials.accessToken.expiry;
-      
+
       client.close();
 
       return _cachedToken;
@@ -155,7 +157,8 @@ class FCMService {
         return true;
       } else {
         // Cleanup unregistered tokens
-        if (response.statusCode == 404 && response.body.contains('UNREGISTERED')) {
+        if (response.statusCode == 404 &&
+            response.body.contains('UNREGISTERED')) {
           session.log(
             'FCM DEBUG: Unregistered device token detected. Deleting for cleanup: $token',
             level: LogLevel.warning,
@@ -166,7 +169,10 @@ class FCMService {
               where: (t) => t.token.equals(token),
             );
           } catch (e) {
-            session.log('FCM DEBUG: Error cleaning up token: $e', level: LogLevel.error);
+            session.log(
+              'FCM DEBUG: Error cleaning up token: $e',
+              level: LogLevel.error,
+            );
           }
         }
 
@@ -198,16 +204,18 @@ class FCMService {
   }) async {
     final results = <String, bool>{};
 
-    final futures = tokens.map((token) => sendToToken(
-          session,
-          token,
-          title,
-          body,
-          data: data,
-          imageUrl: imageUrl,
-          sound: sound,
-          badge: badge,
-        ));
+    final futures = tokens.map(
+      (token) => sendToToken(
+        session,
+        token,
+        title,
+        body,
+        data: data,
+        imageUrl: imageUrl,
+        sound: sound,
+        badge: badge,
+      ),
+    );
 
     final sendResults = await Future.wait(futures);
 

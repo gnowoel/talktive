@@ -54,7 +54,7 @@ class LoungeService {
     );
 
     final savedLounge = await protocol.Lounge.db.insertRow(session, lounge);
-    
+
     // 3. Invalidate discovery cache so new lounge appears immediately
     await CacheService.invalidateDiscoveryCache(session);
     await protocol.ChannelMember.db.insertRow(
@@ -164,11 +164,13 @@ class LoungeService {
         }
         if (interest != null) {
           expr &= Expression(
-              'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'');
+            'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'',
+          );
         }
         if (language != null) {
           expr &= Expression(
-              'languages::jsonb ? \'${language.replaceAll("'", "''")}\'');
+            'languages::jsonb ? \'${language.replaceAll("'", "''")}\'',
+          );
         }
         return expr;
       },
@@ -202,14 +204,16 @@ class LoungeService {
         }
         if (language != null) {
           expr &= Expression(
-              'languages::jsonb ? \'${language.replaceAll("'", "''")}\'');
+            'languages::jsonb ? \'${language.replaceAll("'", "''")}\'',
+          );
         }
         if (interestArray != null) {
           // If a specific interest was requested, use strict containment.
           // Otherwise, if using resident interests, use 'any of' (?| operator)
           if (interest != null) {
             expr &= Expression(
-                'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'');
+              'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'',
+            );
           } else {
             expr &= Expression('interests::jsonb ?| array[$interestArray]');
           }
@@ -225,10 +229,14 @@ class LoungeService {
 
     filtered.sort((a, b) {
       final aMatch =
-          a.interests?.where((i) => (resident.interests ?? []).contains(i)).length ??
+          a.interests
+              ?.where((i) => (resident.interests ?? []).contains(i))
+              .length ??
           0;
       final bMatch =
-          b.interests?.where((i) => (resident.interests ?? []).contains(i)).length ??
+          b.interests
+              ?.where((i) => (resident.interests ?? []).contains(i))
+              .length ??
           0;
       if (aMatch != bMatch) return bMatch.compareTo(aMatch);
       return b.memberCount.compareTo(a.memberCount);
@@ -244,7 +252,9 @@ class LoungeService {
     required protocol.Resident resident,
   }) async {
     if (!lounge.isPublic) {
-      throw protocol.TalktiveException(message: 'Cannot apply to a private lounge');
+      throw protocol.TalktiveException(
+        message: 'Cannot apply to a private lounge',
+      );
     }
 
     if (lounge.memberCount >= lounge.maxMembers) {
@@ -261,9 +271,14 @@ class LoungeService {
 
     if (existingMember != null) {
       if (existingMember.status == protocol.ChannelMemberStatus.joined) {
-        throw protocol.TalktiveException(message: 'Already a member of this lounge');
-      } else if (existingMember.status == protocol.ChannelMemberStatus.applied) {
-        throw protocol.TalktiveException(message: 'Already applied to this lounge');
+        throw protocol.TalktiveException(
+          message: 'Already a member of this lounge',
+        );
+      } else if (existingMember.status ==
+          protocol.ChannelMemberStatus.applied) {
+        throw protocol.TalktiveException(
+          message: 'Already applied to this lounge',
+        );
       }
 
       existingMember.status = protocol.ChannelMemberStatus.applied;
@@ -292,10 +307,16 @@ class LoungeService {
     final inviterId = inviter.userInfoId;
     final targetId = target.userInfoId;
 
-    if (inviterId == targetId) throw protocol.TalktiveException(message: 'Cannot invite yourself');
-    if (lounge.memberCount >= lounge.maxMembers) throw protocol.TalktiveException(message: 'Lounge is full');
+    if (inviterId == targetId)
+      throw protocol.TalktiveException(message: 'Cannot invite yourself');
+    if (lounge.memberCount >= lounge.maxMembers)
+      throw protocol.TalktiveException(message: 'Lounge is full');
 
-    if (await ResidentService.isBlocked(session, blockerId: targetId, blockedId: inviterId)) {
+    if (await ResidentService.isBlocked(
+      session,
+      blockerId: targetId,
+      blockedId: inviterId,
+    )) {
       throw protocol.TalktiveException(message: 'You cannot invite this user.');
     }
 
@@ -353,7 +374,8 @@ class LoungeService {
     required bool accept,
   }) async {
     final lounge = await protocol.Lounge.db.findById(session, loungeId);
-    if (lounge == null) throw protocol.TalktiveException(message: 'Lounge not found');
+    if (lounge == null)
+      throw protocol.TalktiveException(message: 'Lounge not found');
 
     final member = await protocol.ChannelMember.db.findFirstRow(
       session,
@@ -363,7 +385,8 @@ class LoungeService {
           t.status.equals(protocol.ChannelMemberStatus.invited),
     );
 
-    if (member == null) throw protocol.TalktiveException(message: 'No pending invitation found');
+    if (member == null)
+      throw protocol.TalktiveException(message: 'No pending invitation found');
 
     if (!accept) {
       member.status = protocol.ChannelMemberStatus.declined;
@@ -372,17 +395,28 @@ class LoungeService {
     }
 
     if (member.invitedBy == lounge.creatorId) {
-      if (lounge.memberCount >= lounge.maxMembers) throw protocol.TalktiveException(message: 'Lounge is full');
+      if (lounge.memberCount >= lounge.maxMembers)
+        throw protocol.TalktiveException(message: 'Lounge is full');
       member.status = protocol.ChannelMemberStatus.joined;
       await protocol.ChannelMember.db.updateRow(session, member);
 
       lounge.memberCount += 1;
       await protocol.Lounge.db.updateRow(session, lounge);
 
-      await GamificationService.trackProgress(session, userId, 'social_butterfly');
+      await GamificationService.trackProgress(
+        session,
+        userId,
+        'social_butterfly',
+      );
       final resident = await ResidentService.getResident(session, userId);
-      if (resident != null) await GamificationService.awardXP(session, resident, 25, 'Joined lounge');
-      
+      if (resident != null)
+        await GamificationService.awardXP(
+          session,
+          resident,
+          25,
+          'Joined lounge',
+        );
+
       // Award Lounge XP
       await awardLoungeXP(session, lounge.channelId, 5, 'Member joined');
     } else {
@@ -400,8 +434,12 @@ class LoungeService {
     required bool approve,
   }) async {
     final lounge = await protocol.Lounge.db.findById(session, loungeId);
-    if (lounge == null) throw protocol.TalktiveException(message: 'Lounge not found');
-    if (lounge.creatorId != creatorId) throw protocol.TalktiveException(message: 'Only the creator can approve applications');
+    if (lounge == null)
+      throw protocol.TalktiveException(message: 'Lounge not found');
+    if (lounge.creatorId != creatorId)
+      throw protocol.TalktiveException(
+        message: 'Only the creator can approve applications',
+      );
 
     final pendingMember = await protocol.ChannelMember.db.findFirstRow(
       session,
@@ -411,7 +449,8 @@ class LoungeService {
           t.status.equals(protocol.ChannelMemberStatus.applied),
     );
 
-    if (pendingMember == null) throw protocol.TalktiveException(message: 'No pending application found');
+    if (pendingMember == null)
+      throw protocol.TalktiveException(message: 'No pending application found');
 
     if (!approve) {
       pendingMember.status = protocol.ChannelMemberStatus.declined;
@@ -419,7 +458,8 @@ class LoungeService {
       return;
     }
 
-    if (lounge.memberCount >= lounge.maxMembers) throw protocol.TalktiveException(message: 'Lounge is full');
+    if (lounge.memberCount >= lounge.maxMembers)
+      throw protocol.TalktiveException(message: 'Lounge is full');
 
     pendingMember.status = protocol.ChannelMemberStatus.joined;
     await protocol.ChannelMember.db.updateRow(session, pendingMember);
@@ -427,9 +467,19 @@ class LoungeService {
     lounge.memberCount += 1;
     await protocol.Lounge.db.updateRow(session, lounge);
 
-    await GamificationService.trackProgress(session, targetId, 'social_butterfly');
+    await GamificationService.trackProgress(
+      session,
+      targetId,
+      'social_butterfly',
+    );
     final resident = await ResidentService.getResident(session, targetId);
-    if (resident != null) await GamificationService.awardXP(session, resident, 25, 'Application approved');
+    if (resident != null)
+      await GamificationService.awardXP(
+        session,
+        resident,
+        25,
+        'Application approved',
+      );
 
     // Award Lounge XP
     await awardLoungeXP(session, lounge.channelId, 5, 'Member joined');
@@ -502,7 +552,8 @@ class LoungeService {
     bool isMuted,
   ) async {
     final lounge = await protocol.Lounge.db.findById(session, loungeId);
-    if (lounge == null) throw protocol.TalktiveException(message: 'Lounge not found');
+    if (lounge == null)
+      throw protocol.TalktiveException(message: 'Lounge not found');
 
     final member = await protocol.ChannelMember.db.findFirstRow(
       session,
@@ -512,7 +563,8 @@ class LoungeService {
           t.status.equals(protocol.ChannelMemberStatus.joined),
     );
 
-    if (member == null) throw protocol.TalktiveException(message: 'Not a member');
+    if (member == null)
+      throw protocol.TalktiveException(message: 'Not a member');
 
     member.isMuted = isMuted;
     await protocol.ChannelMember.db.updateRow(session, member);
@@ -545,7 +597,10 @@ class LoungeService {
   }
 
   /// Deletes a lounge and all associated data, including messages and media files.
-  static Future<void> deleteLounge(Session session, protocol.Lounge lounge) async {
+  static Future<void> deleteLounge(
+    Session session,
+    protocol.Lounge lounge,
+  ) async {
     final channelId = lounge.channelId;
 
     // 1. Delete all messages and their media files
@@ -574,7 +629,10 @@ class LoungeService {
     }
 
     // 2. Delete members
-    await session.db.unsafeQuery('DELETE FROM "channel_member" WHERE "channelId" = $channelId');
+    await protocol.ChannelMember.db.deleteWhere(
+      session,
+      where: (t) => t.channelId.equals(channelId),
+    );
 
     // 3. Delete lounge
     await protocol.Lounge.db.deleteRow(session, lounge);
@@ -592,8 +650,12 @@ class LoungeService {
     required UuidValue targetId,
   }) async {
     final lounge = await protocol.Lounge.db.findById(session, loungeId);
-    if (lounge == null) throw protocol.TalktiveException(message: 'Lounge not found');
-    if (lounge.creatorId != creatorId) throw protocol.TalktiveException(message: 'Only the creator can kick members');
+    if (lounge == null)
+      throw protocol.TalktiveException(message: 'Lounge not found');
+    if (lounge.creatorId != creatorId)
+      throw protocol.TalktiveException(
+        message: 'Only the creator can kick members',
+      );
 
     await leaveLounge(session, loungeId: loungeId, userId: targetId);
   }
@@ -618,13 +680,16 @@ class LoungeService {
     if (reason == 'Member joined' && lounge.memberCount % 10 == 0) {
       TaskUtils.runBackground(session, (backgroundSession) async {
         try {
-          final creator = await ResidentService.getResident(backgroundSession, lounge.creatorId);
+          final creator = await ResidentService.getResident(
+            backgroundSession,
+            lounge.creatorId,
+          );
           if (creator != null) {
             // Milestone reward: 25 XP per 10 members
             await GamificationService.awardXP(
               backgroundSession,
               creator,
-              25, 
+              25,
               'Milestone: ${lounge.memberCount} members in "${lounge.name}"! 🚀',
             );
 
@@ -642,28 +707,38 @@ class LoungeService {
             );
           }
         } catch (e) {
-          backgroundSession.log('Failed to reward lounge creator for milestone: $e');
+          backgroundSession.log(
+            'Failed to reward lounge creator for milestone: $e',
+          );
         }
       });
     }
 
     // 4. Level Check: Did the lounge level up?
-    final nextLevel = (lounge.xp / 100).floor() + 1; // Simplistic: 100 XP per level
+    final nextLevel =
+        (lounge.xp / 100).floor() + 1; // Simplistic: 100 XP per level
     if (nextLevel > lounge.level) {
       lounge.level = nextLevel; // Update lounge level
-      final xpRequiredForCurrentLevel = (nextLevel - 1) * 100; // XP required to reach the *previous* level
-      lounge.xp -= xpRequiredForCurrentLevel; // Subtract XP for the levels already passed
+      final xpRequiredForCurrentLevel =
+          (nextLevel - 1) * 100; // XP required to reach the *previous* level
+      lounge.xp -=
+          xpRequiredForCurrentLevel; // Subtract XP for the levels already passed
 
       // Increase capacity on level up: base 50 + (level-1)*20
       lounge.maxMembers = 50 + (lounge.level - 1) * 20;
 
-      session.log('Lounge "${lounge.name}" leveled up to ${lounge.level}! Capacity is now ${lounge.maxMembers}.');
-      
+      session.log(
+        'Lounge "${lounge.name}" leveled up to ${lounge.level}! Capacity is now ${lounge.maxMembers}.',
+      );
+
       // Notify creator and award XP in background
       TaskUtils.runBackground(session, (backgroundSession) async {
         try {
           // 1. Award XP to creator for lounge management success
-          final creator = await ResidentService.getResident(backgroundSession, lounge.creatorId);
+          final creator = await ResidentService.getResident(
+            backgroundSession,
+            lounge.creatorId,
+          );
           if (creator != null) {
             await GamificationService.awardXP(
               backgroundSession,
@@ -686,7 +761,9 @@ class LoungeService {
             },
           );
         } catch (e) {
-          backgroundSession.log('Failed to reward or notify lounge creator for level up: $e');
+          backgroundSession.log(
+            'Failed to reward or notify lounge creator for level up: $e',
+          );
         }
       });
     }

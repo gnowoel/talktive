@@ -42,7 +42,7 @@ class SeedData {
         targetValue: 100,
         points: 100,
       ),
-       Achievement(
+      Achievement(
         key: 'creator_milestone',
         name: 'Community Pillar',
         description: 'Earned for growing your lounge to 10 members.',

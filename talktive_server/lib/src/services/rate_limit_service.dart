@@ -97,8 +97,11 @@ class RateLimitService {
 
       return null; // No rate limit hit
     } catch (e, stack) {
-      session.log('Rate limit check error: $e',
-          level: LogLevel.warning, stackTrace: stack);
+      session.log(
+        'Rate limit check error: $e',
+        level: LogLevel.warning,
+        stackTrace: stack,
+      );
       // Fallback to allowing the message if cache fails (availability over restriction)
       return null;
     }

@@ -4,7 +4,6 @@ import '../services/search_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 
 class SearchEndpoint extends Endpoint with EndpointAuthMixin {
-
   /// Search for users with advanced filtering
   Future<List<protocol.UserSummary>> searchUsers(
     Session session,

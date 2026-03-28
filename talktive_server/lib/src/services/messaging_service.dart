@@ -42,8 +42,10 @@ class MessagingService {
     }
 
     if (fileSize != null) {
-      InputValidationService.validateFileSize(fileSize, fieldName: 'Media file')
-          .throwIfInvalid();
+      InputValidationService.validateFileSize(
+        fileSize,
+        fieldName: 'Media file',
+      ).throwIfInvalid();
     }
 
     if (mediaType == 'voice' && duration != null) {
@@ -96,13 +98,14 @@ class MessagingService {
     }
 
     // 5. Floor-based and Premium content restrictions
-    final hasMedia = (imageUrl != null && imageUrl.isNotEmpty) ||
+    final hasMedia =
+        (imageUrl != null && imageUrl.isNotEmpty) ||
         (mediaUrl != null && mediaUrl.isNotEmpty);
 
     if (hasMedia) {
       // Plaza and Lounge restrictions: images/media allowed only for Floor 2+
-      if ((channel.type == protocol.ChannelType.plaza || 
-           channel.type == protocol.ChannelType.lounge) &&
+      if ((channel.type == protocol.ChannelType.plaza ||
+              channel.type == protocol.ChannelType.lounge) &&
           senderEffectiveFloor < 2) {
         throw protocol.TalktiveException(
           message: 'You must reach Floor 2 to send media in public spaces. 🏢',
@@ -125,7 +128,8 @@ class MessagingService {
       final members = await protocol.ChannelMember.db.find(
         session,
         where: (t) =>
-            t.channelId.equals(channel.id!) & t.userInfoId.notEquals(senderUuid),
+            t.channelId.equals(channel.id!) &
+            t.userInfoId.notEquals(senderUuid),
       );
       if (members.isNotEmpty) {
         final otherUserUuid = members.first.userInfoId;
@@ -136,7 +140,8 @@ class MessagingService {
         );
         if (isBlocked) {
           throw protocol.TalktiveException(
-            message: 'Message not delivered. You are currently restricted by this resident.',
+            message:
+                'Message not delivered. You are currently restricted by this resident.',
             code: 'PRIVACY_RESTRICTED',
           );
         }
@@ -157,7 +162,11 @@ class MessagingService {
     final channelId = channel.id!;
 
     // 1. Update sender's lastReadAt
-    final senderMembership = await ChannelService.getMember(session, channelId, senderUuid);
+    final senderMembership = await ChannelService.getMember(
+      session,
+      channelId,
+      senderUuid,
+    );
     if (senderMembership != null) {
       senderMembership.lastReadAt = message.createdAt;
       await protocol.ChannelMember.db.updateRow(session, senderMembership);
@@ -212,7 +221,187 @@ class MessagingService {
         senderUuid,
         ['first_message', 'conversationalist', 'chatterbox'],
       );
-      await GamificationService.checkTimeBasedAchievements(backgroundSession, senderUuid);
+      await GamificationService.checkTimeBasedAchievements(
+        backgroundSession,
+        senderUuid,
+      );
     });
+  }
+
+  /// Pins a message to the top of its channel.
+  static Future<protocol.Message> pinMessage(
+    Session session, {
+    required int messageId,
+    required protocol.Resident resident,
+  }) async {
+    final message = await protocol.Message.db.findById(session, messageId);
+    if (message == null) {
+      throw protocol.TalktiveException(
+        message: 'Message not found.',
+        code: 'MESSAGE_NOT_FOUND',
+      );
+    }
+
+    final channel = await protocol.Channel.db.findById(
+      session,
+      message.channelId,
+    );
+    if (channel == null) {
+      throw protocol.TalktiveException(
+        message: 'Channel not found.',
+        code: 'CHANNEL_NOT_FOUND',
+      );
+    }
+
+    bool canPin = false;
+    if (resident.role == protocol.ResidentRole.admin ||
+        resident.role == protocol.ResidentRole.moderator) {
+      if (channel.type != protocol.ChannelType.private) {
+        canPin = true;
+      }
+    }
+
+    if (!canPin) {
+      if (channel.type == protocol.ChannelType.lounge) {
+        final lounge = await protocol.Lounge.db.findFirstRow(
+          session,
+          where: (t) => t.channelId.equals(channel.id!),
+        );
+        if (lounge != null && lounge.creatorId == resident.userInfoId) {
+          canPin = true;
+        }
+      } else if (channel.type == protocol.ChannelType.private) {
+        final privateChat = await protocol.PrivateChat.db.findFirstRow(
+          session,
+          where: (t) => t.channelId.equals(channel.id!),
+        );
+        if (privateChat != null &&
+            (privateChat.participant1Id == resident.userInfoId ||
+                privateChat.participant2Id == resident.userInfoId)) {
+          canPin = true;
+        }
+      }
+    }
+
+    if (!canPin) {
+      throw protocol.TalktiveException(
+        message:
+            'Access denied: You do not have permission to pin messages in this channel.',
+        code: 'ACCESS_DENIED',
+      );
+    }
+
+    final existingPinned = await protocol.Message.db.find(
+      session,
+      where: (t) =>
+          t.channelId.equals(message.channelId) & t.isPinned.equals(true),
+    );
+
+    if (existingPinned.isNotEmpty) {
+      await protocol.Message.db.updateWhere(
+        session,
+        where: (t) =>
+            t.channelId.equals(message.channelId) & t.isPinned.equals(true),
+        columnValues: (t) => [t.isPinned(false)],
+      );
+
+      for (final oldMessage in existingPinned) {
+        oldMessage.isPinned = false;
+        await session.messages.postMessage(
+          'channel_${message.channelId}',
+          oldMessage,
+        );
+      }
+    }
+
+    message.isPinned = true;
+    message.pinnedAt = DateTime.now();
+    final updatedMessage = await protocol.Message.db.updateRow(
+      session,
+      message,
+    );
+
+    await session.messages.postMessage(
+      'channel_${message.channelId}',
+      updatedMessage,
+    );
+    return updatedMessage;
+  }
+
+  /// Unpins a message.
+  static Future<protocol.Message> unpinMessage(
+    Session session, {
+    required int messageId,
+    required protocol.Resident resident,
+  }) async {
+    final message = await protocol.Message.db.findById(session, messageId);
+    if (message == null) {
+      throw protocol.TalktiveException(
+        message: 'Message not found.',
+        code: 'MESSAGE_NOT_FOUND',
+      );
+    }
+
+    final channel = await protocol.Channel.db.findById(
+      session,
+      message.channelId,
+    );
+    if (channel == null) {
+      throw protocol.TalktiveException(
+        message: 'Channel not found.',
+        code: 'CHANNEL_NOT_FOUND',
+      );
+    }
+
+    bool canUnpin = false;
+    if (resident.role == protocol.ResidentRole.admin ||
+        resident.role == protocol.ResidentRole.moderator) {
+      if (channel.type != protocol.ChannelType.private) {
+        canUnpin = true;
+      }
+    }
+
+    if (!canUnpin) {
+      if (channel.type == protocol.ChannelType.lounge) {
+        final lounge = await protocol.Lounge.db.findFirstRow(
+          session,
+          where: (t) => t.channelId.equals(channel.id!),
+        );
+        if (lounge != null && lounge.creatorId == resident.userInfoId) {
+          canUnpin = true;
+        }
+      } else if (channel.type == protocol.ChannelType.private) {
+        final privateChat = await protocol.PrivateChat.db.findFirstRow(
+          session,
+          where: (t) => t.channelId.equals(channel.id!),
+        );
+        if (privateChat != null &&
+            (privateChat.participant1Id == resident.userInfoId ||
+                privateChat.participant2Id == resident.userInfoId)) {
+          canUnpin = true;
+        }
+      }
+    }
+
+    if (!canUnpin) {
+      throw protocol.TalktiveException(
+        message:
+            'Access denied: You do not have permission to unpin messages in this channel.',
+        code: 'ACCESS_DENIED',
+      );
+    }
+
+    message.isPinned = false;
+    message.pinnedAt = null;
+    final updatedMessage = await protocol.Message.db.updateRow(
+      session,
+      message,
+    );
+
+    await session.messages.postMessage(
+      'channel_${message.channelId}',
+      updatedMessage,
+    );
+    return updatedMessage;
   }
 }

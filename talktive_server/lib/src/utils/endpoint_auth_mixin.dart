@@ -63,7 +63,8 @@ mixin EndpointAuthMixin {
 
     if (resident.suspended) {
       throw protocol.TalktiveException(
-        message: 'Your account has been suspended for violating our community guidelines.',
+        message:
+            'Your account has been suspended for violating our community guidelines.',
         code: 'ACCOUNT_SUSPENDED',
       );
     }
@@ -100,7 +101,10 @@ mixin EndpointAuthMixin {
 
   /// Safely runs a background task with a temporary background session.
   /// This prevents 'Session is closed' errors for tasks that outlive the request.
-  void runBackground(Session session, Future<void> Function(Session backgroundSession) task) {
+  void runBackground(
+    Session session,
+    Future<void> Function(Session backgroundSession) task,
+  ) {
     TaskUtils.runBackground(session, task);
   }
 }

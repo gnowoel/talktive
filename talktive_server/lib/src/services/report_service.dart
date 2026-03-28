@@ -15,6 +15,71 @@ class ReportService {
     int? messageId,
   }) async {
     final now = DateTime.now();
+    final oneDayAgo = now.subtract(const Duration(days: 1));
+    final thirtyMinutesAgo = now.subtract(const Duration(minutes: 30));
+
+    // Check if effectively on floor 1
+    if (ApartmentService.computeEffectiveFloor(reporter) < 1) {
+      throw protocol.TalktiveException(
+        message:
+            'You must reach Floor 1 to report users. Keep chatting and maintain a good Trust Score!',
+      );
+    }
+
+    // Check if already reported this user EVER (One-Vote Rule)
+    final existingReport = await protocol.Report.db.findFirstRow(
+      session,
+      where: (t) =>
+          t.reporterId.equals(reporter.userInfoId) &
+          t.targetId.equals(target.userInfoId),
+    );
+    if (existingReport != null) {
+      throw protocol.TalktiveException(
+        message: 'You have already reported this user.',
+      );
+    }
+
+    // Check if they liked the user EVER (One-Vote Rule)
+    final existingLike = await protocol.UserLike.db.findFirstRow(
+      session,
+      where: (t) =>
+          t.senderId.equals(reporter.userInfoId) &
+          t.receiverId.equals(target.userInfoId),
+    );
+    if (existingLike != null) {
+      throw protocol.TalktiveException(
+        message:
+            'You cannot report a user you have vouched for. Please unlike them first.',
+      );
+    }
+
+    // Check cooldown (30 minutes between any reports)
+    final recentReport = await protocol.Report.db.findFirstRow(
+      session,
+      where: (t) =>
+          t.reporterId.equals(reporter.userInfoId) &
+          (t.createdAt > thirtyMinutesAgo),
+      orderBy: (t) => t.createdAt,
+      orderDescending: true,
+    );
+    if (recentReport != null) {
+      final minutesLeft = 30 - now.difference(recentReport.createdAt).inMinutes;
+      throw protocol.TalktiveException(
+        message: 'Please wait $minutesLeft minutes before reporting again.',
+      );
+    }
+
+    // Check daily report limit (3 per day)
+    final todayReports = await protocol.Report.db.count(
+      session,
+      where: (t) =>
+          t.reporterId.equals(reporter.userInfoId) & (t.createdAt > oneDayAgo),
+    );
+    if (todayReports >= 3) {
+      throw protocol.TalktiveException(
+        message: 'Daily report limit reached (3 reports per day).',
+      );
+    }
 
     // 1. Create the report
     final report = protocol.Report(
@@ -72,7 +137,7 @@ class ReportService {
       session.log(
         'User ${target.userInfoId} reached severe report threshold (10+ reports in 30d). Trust Score set to 0.',
       );
-      
+
       try {
         await NotificationService.sendSafetyNotification(
           session,
@@ -89,7 +154,7 @@ class ReportService {
       session.log(
         'User ${target.userInfoId} reached mute threshold (5+ reports in 7d). Muted for 24h.',
       );
-      
+
       try {
         await NotificationService.sendSafetyNotification(
           session,
@@ -105,7 +170,7 @@ class ReportService {
       session.log(
         'User ${target.userInfoId} reached warning threshold (3+ reports in 7d).',
       );
-      
+
       try {
         await NotificationService.sendWarningNotification(
           session,

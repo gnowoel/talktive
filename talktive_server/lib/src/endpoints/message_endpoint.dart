@@ -29,8 +29,11 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
   }) async {
     try {
       // 1. Basic Input Validation
-      InputValidationService.validateId(channelId, 'Channel ID').throwIfInvalid();
-      
+      InputValidationService.validateId(
+        channelId,
+        'Channel ID',
+      ).throwIfInvalid();
+
       final bool hasContent = content != null && content.trim().isNotEmpty;
       final bool hasImageUrl = imageUrl != null && imageUrl.trim().isNotEmpty;
       final bool hasMediaUrl = mediaUrl != null && mediaUrl.trim().isNotEmpty;
@@ -49,7 +52,10 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
 
       // Media & Voice Validation
       if (fileSize != null) {
-        InputValidationService.validateFileSize(fileSize, fieldName: 'Media file').throwIfInvalid();
+        InputValidationService.validateFileSize(
+          fileSize,
+          fieldName: 'Media file',
+        ).throwIfInvalid();
       }
 
       if (mediaType == 'voice' && duration != null) {
@@ -101,12 +107,18 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         senderTrustScore: sender.trustScore,
       );
 
-      final savedMessage = await protocol.Message.db.insertRow(session, message);
+      final savedMessage = await protocol.Message.db.insertRow(
+        session,
+        message,
+      );
 
       // 6. Handle side effects (async) - DON'T AWAIT (Run in background)
       TaskUtils.runBackground(session, (backgroundSession) async {
         // Send notifications (includes mentions, push, and lounge logic)
-        final channel = await ChannelService.getChannel(backgroundSession, savedMessage.channelId);
+        final channel = await ChannelService.getChannel(
+          backgroundSession,
+          savedMessage.channelId,
+        );
         if (channel != null) {
           await _triggerNotifications(
             backgroundSession,
@@ -131,7 +143,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       session.log(stack.toString(), level: LogLevel.error);
       rethrow;
     }
-   }
+  }
 
   /// Subscribes to a channel to receive real-time updates (Messages, Typing, etc).
   Stream<SerializableModel> subscribe(Session session, int channelId) async* {
@@ -267,22 +279,24 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     final loungeName = channel.name ?? (isPlaza ? 'Plaza' : 'Chat');
 
     // 3. Notify mentions (Parallel)
-    final mentionFutures = mentionedUserIds.map((mentionedId) =>
-        NotificationService.sendMentionNotification(
-          session,
-          mentionedId,
-          senderName,
-          content,
-          channelId,
-          loungeName,
-          loungeId: loungeId,
-        ));
+    final mentionFutures = mentionedUserIds.map(
+      (mentionedId) => NotificationService.sendMentionNotification(
+        session,
+        mentionedId,
+        senderName,
+        content,
+        channelId,
+        loungeName,
+        loungeId: loungeId,
+      ),
+    );
 
     // 4. Notify other members (Private/Lounge only)
     Future? bulkMemberFuture;
     if (!isPlaza) {
-      final String channelTypeStr =
-          channel.type == protocol.ChannelType.private ? 'private' : 'lounge';
+      final String channelTypeStr = channel.type == protocol.ChannelType.private
+          ? 'private'
+          : 'lounge';
       final mentionIdSet = mentionedUserIds.toSet();
 
       // Batch fetch users who have blocked the sender
@@ -301,8 +315,9 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
 
       final recipientIds = <UuidValue>[];
       for (final member in otherMembers) {
-        if (member.isMuted || mentionIdSet.contains(member.userInfoId)) continue;
-        
+        if (member.isMuted || mentionIdSet.contains(member.userInfoId))
+          continue;
+
         // Check if the recipient has blocked the sender (using fetched batch)
         if (blockedBySet.contains(member.userInfoId)) continue;
 
@@ -347,7 +362,11 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     // Verify membership for private/lounge channels
     final channel = await ChannelService.getChannel(session, channelId);
     if (channel != null && channel.type != protocol.ChannelType.plaza) {
-      final membership = await ChannelService.getMember(session, channelId, userUuid);
+      final membership = await ChannelService.getMember(
+        session,
+        channelId,
+        userUuid,
+      );
       if (membership == null) {
         throw protocol.TalktiveException(
           message: 'Access denied: Not a member of this channel.',
@@ -356,11 +375,18 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       }
     }
 
-    return await ChannelService.updatePersistence(session, channelId, isPersistent);
+    return await ChannelService.updatePersistence(
+      session,
+      channelId,
+      isPersistent,
+    );
   }
 
   /// Gets the currently pinned message for a channel.
-  Future<protocol.Message?> getPinnedMessage(Session session, int channelId) async {
+  Future<protocol.Message?> getPinnedMessage(
+    Session session,
+    int channelId,
+  ) async {
     return await protocol.Message.db.findFirstRow(
       session,
       where: (t) => t.channelId.equals(channelId) & t.isPinned.equals(true),
@@ -368,96 +394,15 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Pins a message to the top of its channel.
-  /// Only admins can pin messages.
   Future<protocol.Message> pinMessage(Session session, int messageId) async {
     final userUuid = await getUserId(session);
     final resident = await getResidentProfile(session, userUuid);
 
-    // 2. Fetch Message
-    final message = await protocol.Message.db.findById(session, messageId);
-    if (message == null) {
-      throw protocol.TalktiveException(
-        message: 'Message not found.',
-        code: 'MESSAGE_NOT_FOUND',
-      );
-    }
-
-    // 3. Authorization Check
-    final channel = await protocol.Channel.db.findById(session, message.channelId);
-    if (channel == null) {
-      throw protocol.TalktiveException(
-        message: 'Channel not found.',
-        code: 'CHANNEL_NOT_FOUND',
-      );
-    }
-
-    bool canPin = false;
-    if (resident.role == protocol.ResidentRole.admin || resident.role == protocol.ResidentRole.moderator) {
-      // Admins and Moderators can pin in Plaza and Lounges
-      if (channel.type != protocol.ChannelType.private) {
-        canPin = true;
-      }
-    }
-
-    if (!canPin) {
-      if (channel.type == protocol.ChannelType.lounge) {
-        final lounge = await protocol.Lounge.db.findFirstRow(
-          session,
-          where: (t) => t.channelId.equals(channel.id!),
-        );
-        if (lounge != null && lounge.creatorId == resident.userInfoId) {
-          canPin = true;
-        }
-      } else if (channel.type == protocol.ChannelType.private) {
-        final privateChat = await protocol.PrivateChat.db.findFirstRow(
-          session,
-          where: (t) => t.channelId.equals(channel.id!),
-        );
-        if (privateChat != null &&
-            (privateChat.participant1Id == resident.userInfoId || privateChat.participant2Id == resident.userInfoId)) {
-          canPin = true;
-        }
-      }
-    }
-
-    if (!canPin) {
-      throw protocol.TalktiveException(
-        message: 'Access denied: You do not have permission to pin messages in this channel.',
-        code: 'ACCESS_DENIED',
-      );
-    }
-
-    // 4. Unpin all others first
-    // This maintains the "One Pinned Message" rule for simplicity.
-    final existingPinned = await protocol.Message.db.find(
+    return await MessagingService.pinMessage(
       session,
-      where: (t) => t.channelId.equals(message.channelId) & t.isPinned.equals(true),
+      messageId: messageId,
+      resident: resident,
     );
-
-    if (existingPinned.isNotEmpty) {
-      await protocol.Message.db.updateWhere(
-        session,
-        where: (t) => t.channelId.equals(message.channelId) & t.isPinned.equals(true),
-        columnValues: (t) => [t.isPinned(false)],
-      );
-
-      // Broadcast unpin events for the old ones
-      for (final oldMessage in existingPinned) {
-        oldMessage.isPinned = false;
-        await session.messages.postMessage('channel_${message.channelId}', oldMessage);
-      }
-    }
-
-    // 5. Pin this message
-    message.isPinned = true;
-    message.pinnedAt = DateTime.now();
-    final updatedMessage = await protocol.Message.db.updateRow(session, message);
-
-    // 6. Broadcast Pin Event
-    // We broadcast the message itself as a way to update the client.
-    await session.messages.postMessage('channel_${message.channelId}', updatedMessage);
-
-    return updatedMessage;
   }
 
   /// Unpins a message.
@@ -465,65 +410,10 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     final userUuid = await getUserId(session);
     final resident = await getResidentProfile(session, userUuid);
 
-    // 2. Fetch Message
-    final message = await protocol.Message.db.findById(session, messageId);
-    if (message == null) {
-      throw protocol.TalktiveException(
-        message: 'Message not found.',
-        code: 'MESSAGE_NOT_FOUND',
-      );
-    }
-
-    // 3. Authorization Check
-    final channel = await protocol.Channel.db.findById(session, message.channelId);
-    if (channel == null) {
-      throw protocol.TalktiveException(
-        message: 'Channel not found.',
-        code: 'CHANNEL_NOT_FOUND',
-      );
-    }
-
-    bool canUnpin = false;
-    if (resident.role == protocol.ResidentRole.admin || resident.role == protocol.ResidentRole.moderator) {
-      if (channel.type != protocol.ChannelType.private) {
-        canUnpin = true;
-      }
-    }
-
-    if (!canUnpin) {
-      if (channel.type == protocol.ChannelType.lounge) {
-        final lounge = await protocol.Lounge.db.findFirstRow(
-          session,
-          where: (t) => t.channelId.equals(channel.id!),
-        );
-        if (lounge != null && lounge.creatorId == resident.userInfoId) {
-          canUnpin = true;
-        }
-      } else if (channel.type == protocol.ChannelType.private) {
-        final privateChat = await protocol.PrivateChat.db.findFirstRow(
-          session,
-          where: (t) => t.channelId.equals(channel.id!),
-        );
-        if (privateChat != null &&
-            (privateChat.participant1Id == resident.userInfoId || privateChat.participant2Id == resident.userInfoId)) {
-          canUnpin = true;
-        }
-      }
-    }
-
-    if (!canUnpin) {
-      throw protocol.TalktiveException(
-        message: 'Access denied: You do not have permission to unpin messages in this channel.',
-        code: 'ACCESS_DENIED',
-      );
-    }
-
-    // 4. Unpin
-    message.isPinned = false;
-    message.pinnedAt = null;
-    final updatedMessage = await protocol.Message.db.updateRow(session, message);
-
-
-    return updatedMessage;
+    return await MessagingService.unpinMessage(
+      session,
+      messageId: messageId,
+      resident: resident,
+    );
   }
 }

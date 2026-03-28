@@ -112,7 +112,8 @@ class InputValidationService {
 
   /// Validates a lounge description.
   static ValidationResult validateLoungeDescription(String? description) {
-    if (description != null && description.length > maxLoungeDescriptionLength) {
+    if (description != null &&
+        description.length > maxLoungeDescriptionLength) {
       return ValidationResult(
         isValid: false,
         error:
@@ -312,7 +313,11 @@ class InputValidationService {
   }
 
   /// Validates file size in bytes.
-  static ValidationResult validateFileSize(int size, {int maxSize = maxImageSizeBytes, String fieldName = 'File'}) {
+  static ValidationResult validateFileSize(
+    int size, {
+    int maxSize = maxImageSizeBytes,
+    String fieldName = 'File',
+  }) {
     if (size > maxSize) {
       final mb = (maxSize / (1024 * 1024)).toStringAsFixed(0);
       return ValidationResult(
@@ -328,7 +333,8 @@ class InputValidationService {
     if (durationSeconds > maxVoiceDurationSeconds) {
       return ValidationResult(
         isValid: false,
-        error: 'Voice message is too long. Maximum length is $maxVoiceDurationSeconds seconds.',
+        error:
+            'Voice message is too long. Maximum length is $maxVoiceDurationSeconds seconds.',
       );
     }
     if (durationSeconds <= 0) {

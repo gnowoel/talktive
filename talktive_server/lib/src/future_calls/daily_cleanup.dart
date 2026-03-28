@@ -8,15 +8,21 @@ class DailyCleanupCall extends FutureCall {
   @override
   Future<void> invoke(Session session, SerializableModel? object) async {
     session.log('TALKTIVE: Daily cleanup job triggered.', level: LogLevel.info);
-    
+
     try {
       // 1. Run the heavy lifting in ContentEphemeralityService
       final stats = await ContentEphemeralityService.runCleanup(session);
-      
+
       final total = stats.values.fold(0, (a, b) => a + b);
-      session.log('TALKTIVE: Success. Summary of items removed: $stats. Total: $total', level: LogLevel.info);
+      session.log(
+        'TALKTIVE: Success. Summary of items removed: $stats. Total: $total',
+        level: LogLevel.info,
+      );
     } catch (e, stack) {
-      session.log('TALKTIVE: Error during daily cleanup: $e\n$stack', level: LogLevel.error);
+      session.log(
+        'TALKTIVE: Error during daily cleanup: $e\n$stack',
+        level: LogLevel.error,
+      );
     } finally {
       // 2. Schedule the NEXT cleanup for 5 AM Eastern (09:00 UTC) tomorrow
       final nextRun = DailyCleanupCall.getNextCleanupTime();
@@ -24,7 +30,10 @@ class DailyCleanupCall extends FutureCall {
           .callAtTime(nextRun)
           .dailyCleanupCall
           .invoke(null);
-      session.log('TALKTIVE: Next cleanup scheduled for: $nextRun', level: LogLevel.info);
+      session.log(
+        'TALKTIVE: Next cleanup scheduled for: $nextRun',
+        level: LogLevel.info,
+      );
     }
   }
 
@@ -33,7 +42,7 @@ class DailyCleanupCall extends FutureCall {
     final now = DateTime.now().toUtc();
     // Start with 9 AM UTC today
     var next = DateTime.utc(now.year, now.month, now.day, 9, 0);
-    
+
     // If we've already passed 9 AM UTC today, schedule it for tomorrow
     if (now.isAfter(next)) {
       next = next.add(const Duration(days: 1));

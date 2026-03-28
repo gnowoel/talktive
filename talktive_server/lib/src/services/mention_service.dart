@@ -22,7 +22,9 @@ class MentionService {
     // This solves the "@Rick Novak this morning" ambiguity because we only look for actual names.
     final members = await protocol.ChannelMember.db.find(
       session,
-      where: (t) => t.channelId.equals(channelId) & t.status.equals(protocol.ChannelMemberStatus.joined),
+      where: (t) =>
+          t.channelId.equals(channelId) &
+          t.status.equals(protocol.ChannelMemberStatus.joined),
     );
     if (members.isEmpty) return [];
 
@@ -47,7 +49,8 @@ class MentionService {
     }
 
     final detectedIds = <UuidValue>{};
-    final sortedNames = nameMap.keys.toList()..sort((a, b) => b.length.compareTo(a.length));
+    final sortedNames = nameMap.keys.toList()
+      ..sort((a, b) => b.length.compareTo(a.length));
 
     for (final index in atIndices) {
       final chunk = content.substring(index + 1).toLowerCase();

@@ -19,7 +19,10 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
     InputValidationService.validateImageUrl(imageUrl).throwIfInvalid();
     InputValidationService.validateCaption(caption).throwIfInvalid();
     if (fileSize != null) {
-      InputValidationService.validateFileSize(fileSize, fieldName: 'Moment image').throwIfInvalid();
+      InputValidationService.validateFileSize(
+        fileSize,
+        fieldName: 'Moment image',
+      ).throwIfInvalid();
     }
 
     final resident = await getAuthenticatedResident(session);

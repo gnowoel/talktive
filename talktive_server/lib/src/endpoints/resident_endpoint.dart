@@ -4,6 +4,7 @@ import '../services/input_validation_service.dart';
 import '../services/resident_service.dart';
 import '../services/file_storage_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
+
 class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
   /// Checks if the authenticated user has a Resident profile and
   /// performs standard background tasks (daily login bonus, etc.).
@@ -16,7 +17,10 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Fetches a Resident profile by their user ID.
-  Future<protocol.Resident?> getResidentById(Session session, String userId) async {
+  Future<protocol.Resident?> getResidentById(
+    Session session,
+    String userId,
+  ) async {
     InputValidationService.validateUuid(userId).throwIfInvalid();
     final userUuid = UuidValue.fromString(userId);
     return await ResidentService.getResident(session, userUuid);
@@ -40,8 +44,14 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     InputValidationService.validateName(name).throwIfInvalid();
     InputValidationService.validateGender(gender).throwIfInvalid();
     InputValidationService.validateBio(bio).throwIfInvalid();
-    InputValidationService.validateStringList(interests, 'Interests').throwIfInvalid();
-    InputValidationService.validateStringList(languages, 'Languages').throwIfInvalid();
+    InputValidationService.validateStringList(
+      interests,
+      'Interests',
+    ).throwIfInvalid();
+    InputValidationService.validateStringList(
+      languages,
+      'Languages',
+    ).throwIfInvalid();
 
     final senderUuid = await getUserId(session);
 
@@ -84,11 +94,17 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     InputValidationService.validateName(name).throwIfInvalid();
     InputValidationService.validateGender(gender).throwIfInvalid();
     InputValidationService.validateBio(bio).throwIfInvalid();
-    InputValidationService.validateStringList(interests, 'Interests').throwIfInvalid();
-    InputValidationService.validateStringList(languages, 'Languages').throwIfInvalid();
+    InputValidationService.validateStringList(
+      interests,
+      'Interests',
+    ).throwIfInvalid();
+    InputValidationService.validateStringList(
+      languages,
+      'Languages',
+    ).throwIfInvalid();
 
     final resident = await getAuthenticatedResident(session);
-    
+
     // Sync name with auth profile
     await ResidentService.syncAuthProfile(session, resident.userInfoId, name);
 
@@ -114,7 +130,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     resident.customAvatarUrl = customAvatarUrl;
 
     final updated = await ResidentService.updateResident(session, resident);
-    
+
     // Clean up old avatar file if it's different and exists
     if (customAvatarUrl != oldAvatarUrl && oldAvatarUrl != null) {
       await FileStorageService.deleteMedia(session, oldAvatarUrl);
@@ -124,7 +140,11 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Updates only the custom avatar URL (standalone method for overlay button).
-  Future<protocol.Resident> updateCustomAvatar(Session session, String? customAvatarUrl, {int? avatarSize}) async {
+  Future<protocol.Resident> updateCustomAvatar(
+    Session session,
+    String? customAvatarUrl, {
+    int? avatarSize,
+  }) async {
     if (avatarSize != null) {
       InputValidationService.validateFileSize(
         avatarSize,
@@ -132,21 +152,21 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
         fieldName: 'Avatar image',
       ).throwIfInvalid();
     }
-    
+
     final resident = await getAuthenticatedResident(session);
-    
+
     if (customAvatarUrl != null && !resident.isPremium) {
       throw protocol.TalktiveException(
         message: 'Custom avatars are a Premium feature.',
         code: 'PREMIUM_REQUIRED',
       );
     }
-    
+
     final oldAvatarUrl = resident.customAvatarUrl;
     resident.customAvatarUrl = customAvatarUrl;
 
     final updated = await ResidentService.updateResident(session, resident);
-    
+
     if (customAvatarUrl != oldAvatarUrl && oldAvatarUrl != null) {
       await FileStorageService.deleteMedia(session, oldAvatarUrl);
     }
@@ -155,7 +175,10 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Get a user's profile view (with stats)
-  Future<protocol.UserProfileView?> getUserProfile(Session session, String userId) async {
+  Future<protocol.UserProfileView?> getUserProfile(
+    Session session,
+    String userId,
+  ) async {
     InputValidationService.validateUuid(userId).throwIfInvalid();
     final viewerId = await getUserId(session);
     final targetId = UuidValue.fromString(userId);
@@ -198,7 +221,10 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
   /// Get list of user IDs liked by current user.
   Future<List<String>> getMyLikedUserIds(Session session) async {
     final callerId = await getUserId(session);
-    final likes = await protocol.UserLike.db.find(session, where: (t) => t.senderId.equals(callerId));
+    final likes = await protocol.UserLike.db.find(
+      session,
+      where: (t) => t.senderId.equals(callerId),
+    );
     return likes.map((e) => e.receiverId.toString()).toList();
   }
 
@@ -209,7 +235,12 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     final blockerId = await getUserId(session);
     final targetId = UuidValue.fromString(userId);
 
-    await ResidentService.setBlockStatus(session, blockerId: blockerId, targetId: targetId, block: true);
+    await ResidentService.setBlockStatus(
+      session,
+      blockerId: blockerId,
+      targetId: targetId,
+      block: true,
+    );
     return true;
   }
 
@@ -218,7 +249,12 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     final blockerId = await getUserId(session);
     final targetId = UuidValue.fromString(userId);
 
-    await ResidentService.setBlockStatus(session, blockerId: blockerId, targetId: targetId, block: false);
+    await ResidentService.setBlockStatus(
+      session,
+      blockerId: blockerId,
+      targetId: targetId,
+      block: false,
+    );
     return true;
   }
 
@@ -227,13 +263,20 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     final blockerId = await getUserId(session);
     final targetId = UuidValue.fromString(userId);
 
-    final block = await protocol.Block.db.findFirstRow(session, where: (t) => t.blockerId.equals(blockerId) & t.blockedId.equals(targetId));
+    final block = await protocol.Block.db.findFirstRow(
+      session,
+      where: (t) =>
+          t.blockerId.equals(blockerId) & t.blockedId.equals(targetId),
+    );
     return block != null;
   }
 
   Future<List<String>> getBlockedUserIds(Session session) async {
     final blockerId = await getUserId(session);
-    final blocks = await protocol.Block.db.find(session, where: (t) => t.blockerId.equals(blockerId));
+    final blocks = await protocol.Block.db.find(
+      session,
+      where: (t) => t.blockerId.equals(blockerId),
+    );
     return blocks.map((b) => b.blockedId.toString()).toList();
   }
 

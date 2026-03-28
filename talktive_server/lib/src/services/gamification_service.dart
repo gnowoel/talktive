@@ -48,7 +48,7 @@ class GamificationService {
       session.log(
         'User ${resident.userInfoId} leveled up to ${resident.level}! Reason: $reason',
       );
-      
+
       // Notify user of level up
       try {
         await NotificationService.sendLevelUpNotification(
@@ -57,7 +57,10 @@ class GamificationService {
           resident.level,
         );
       } catch (e) {
-        session.log('Failed to send level up notification: $e', level: LogLevel.error);
+        session.log(
+          'Failed to send level up notification: $e',
+          level: LogLevel.error,
+        );
       }
     }
 
@@ -181,7 +184,12 @@ class GamificationService {
   }) async {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    await _updateStreakInternal(session, resident, resident.lastLoginDate, today);
+    await _updateStreakInternal(
+      session,
+      resident,
+      resident.lastLoginDate,
+      today,
+    );
     if (save) {
       await protocol.Resident.db.updateRow(session, resident);
     }
@@ -249,7 +257,10 @@ class GamificationService {
       streakDay: resident.currentStreak,
     );
 
-    final savedReward = await protocol.DailyReward.db.insertRow(session, reward);
+    final savedReward = await protocol.DailyReward.db.insertRow(
+      session,
+      reward,
+    );
 
     // Award trustScore and XP to resident (daily reward)
     resident.trustScore = (resident.trustScore + rewardAmount).clamp(0, 1000);
@@ -537,8 +548,10 @@ class GamificationService {
       }
     }
 
-    if (toInsert.isNotEmpty) await protocol.UserAchievement.db.insert(session, toInsert);
-    if (toUpdate.isNotEmpty) await protocol.UserAchievement.db.update(session, toUpdate);
+    if (toInsert.isNotEmpty)
+      await protocol.UserAchievement.db.insert(session, toInsert);
+    if (toUpdate.isNotEmpty)
+      await protocol.UserAchievement.db.update(session, toUpdate);
 
     return result;
   }
@@ -549,9 +562,12 @@ class GamificationService {
     protocol.Resident resident,
   ) async {
     final rep = ApartmentService.computeEffectiveFloor(resident);
-    if (rep >= 1) await trackProgress(session, resident.userInfoId, 'rising_star');
-    if (rep >= 2) await trackProgress(session, resident.userInfoId, 'high_rise');
-    if (rep >= 3) await trackProgress(session, resident.userInfoId, 'penthouse');
+    if (rep >= 1)
+      await trackProgress(session, resident.userInfoId, 'rising_star');
+    if (rep >= 2)
+      await trackProgress(session, resident.userInfoId, 'high_rise');
+    if (rep >= 3)
+      await trackProgress(session, resident.userInfoId, 'penthouse');
   }
 
   /// Checks time-based achievements.
@@ -588,13 +604,16 @@ class GamificationService {
         ),
       );
 
-      result.add(protocol.UserAchievementView(
-        achievement: achievement,
-        progress: userAchievement.progress,
-        unlocked: userAchievement.unlockedAt != null,
-        unlockedAt: userAchievement.unlockedAt,
-        isNew: userAchievement.unlockedAt != null && !userAchievement.notified,
-      ));
+      result.add(
+        protocol.UserAchievementView(
+          achievement: achievement,
+          progress: userAchievement.progress,
+          unlocked: userAchievement.unlockedAt != null,
+          unlockedAt: userAchievement.unlockedAt,
+          isNew:
+              userAchievement.unlockedAt != null && !userAchievement.notified,
+        ),
+      );
     }
 
     // Sort: unlocked first, then by key
@@ -639,7 +658,8 @@ class GamificationService {
     final userAchievements = await protocol.UserAchievement.db.find(
       session,
       where: (t) =>
-          t.userId.equals(userId) & t.achievementId.inSet(achievementIds.toSet()),
+          t.userId.equals(userId) &
+          t.achievementId.inSet(achievementIds.toSet()),
     );
 
     final toUpdate = <protocol.UserAchievement>[];

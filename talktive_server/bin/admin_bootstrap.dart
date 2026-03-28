@@ -18,7 +18,11 @@ void main(List<String> args) async {
   }
 
   final command = args[0];
-  final pod = Serverpod(['--mode', 'development'], protocol.Protocol(), Endpoints());
+  final pod = Serverpod(
+    ['--mode', 'development'],
+    protocol.Protocol(),
+    Endpoints(),
+  );
   final session = await pod.createSession();
 
   try {
@@ -144,14 +148,18 @@ Future<void> _privatize(Session session, int loungeId) async {
   lounge.isPublic = false;
   lounge.isStaffLocked = true;
   await protocol.Lounge.db.updateRow(session, lounge);
-  stdout.writeln('SUCCESS: Lounge "${lounge.name}" (ID: $loungeId) is now PRIVATE and LOCKED.');
+  stdout.writeln(
+    'SUCCESS: Lounge "${lounge.name}" (ID: $loungeId) is now PRIVATE and LOCKED.',
+  );
 }
 
 Future<void> _listUsers(Session session) async {
   final users = await protocol.Resident.db.find(session);
   for (var u in users) {
     String roleStr = '[${u.role.name.toUpperCase()}]';
-    stdout.writeln('- ${u.userName} (${u.userInfoId}) $roleStr [XP: ${u.xp}] [Floor: ${u.level}] [TS: ${u.trustScore}]');
+    stdout.writeln(
+      '- ${u.userName} (${u.userInfoId}) $roleStr [XP: ${u.xp}] [Floor: ${u.level}] [TS: ${u.trustScore}]',
+    );
   }
 }
 
@@ -159,7 +167,9 @@ Future<void> _listLounges(Session session) async {
   final lounges = await protocol.Lounge.db.find(session);
   for (var l in lounges) {
     String lockStr = l.isStaffLocked ? '[LOCKED]' : '[OPEN]';
-    stdout.writeln('- ${l.name} (ID: ${l.id}) $lockStr - Public: ${l.isPublic}');
+    stdout.writeln(
+      '- ${l.name} (ID: ${l.id}) $lockStr - Public: ${l.isPublic}',
+    );
   }
 }
 

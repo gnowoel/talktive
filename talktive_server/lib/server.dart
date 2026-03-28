@@ -138,8 +138,13 @@ void run(List<String> args) async {
   // The DailyCleanupCall will reschedule itself every 24 hours at the target time.
   // We use try/catch to ensure server continues even if scheduling fails.
   try {
-    await pod.futureCalls.callAtTime(DailyCleanupCall.getNextCleanupTime()).dailyCleanupCall.invoke(null);
+    await pod.futureCalls
+        .callAtTime(DailyCleanupCall.getNextCleanupTime())
+        .dailyCleanupCall
+        .invoke(null);
   } catch (e) {
-    stdout.writeln('Notification: Daily cleanup already scheduled or failed to schedule: $e');
+    stdout.writeln(
+      'Notification: Daily cleanup already scheduled or failed to schedule: $e',
+    );
   }
 }

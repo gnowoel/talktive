@@ -144,8 +144,11 @@ class ContentFilterService {
       );
       return false;
     } catch (e, stack) {
-      session.log('Error checking repeated message: $e',
-          level: LogLevel.warning, stackTrace: stack);
+      session.log(
+        'Error checking repeated message: $e',
+        level: LogLevel.warning,
+        stackTrace: stack,
+      );
       return false; // Fail open (allow message) on cache errors
     }
   }

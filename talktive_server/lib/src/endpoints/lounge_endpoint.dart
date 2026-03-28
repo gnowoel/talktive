@@ -26,11 +26,21 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
   }) async {
     // 1. Validation
     InputValidationService.validateLoungeName(name).throwIfInvalid();
-    InputValidationService.validateLoungeDescription(description).throwIfInvalid();
+    InputValidationService.validateLoungeDescription(
+      description,
+    ).throwIfInvalid();
     InputValidationService.validateLoungeRules(rules).throwIfInvalid();
-    InputValidationService.validateLoungeMemberLimit(maxMembers).throwIfInvalid();
-    InputValidationService.validateStringList(interests, 'Interests').throwIfInvalid();
-    InputValidationService.validateStringList(languages, 'Languages').throwIfInvalid();
+    InputValidationService.validateLoungeMemberLimit(
+      maxMembers,
+    ).throwIfInvalid();
+    InputValidationService.validateStringList(
+      interests,
+      'Interests',
+    ).throwIfInvalid();
+    InputValidationService.validateStringList(
+      languages,
+      'Languages',
+    ).throwIfInvalid();
     InputValidationService.validateCountry(country).throwIfInvalid();
 
     final currentUserId = await getUserId(session);
@@ -73,7 +83,10 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     int limit = 50,
     int offset = 0,
   }) async {
-    InputValidationService.validatePagination(limit: limit, offset: offset).throwIfInvalid();
+    InputValidationService.validatePagination(
+      limit: limit,
+      offset: offset,
+    ).throwIfInvalid();
     final currentUserId = await getUserId(session);
 
     return await LoungeService.listMyLounges(
@@ -131,7 +144,9 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     final resident = await getAuthenticatedResident(session);
 
     if (ApartmentService.isMuted(resident)) {
-      throw protocol.TalktiveException(message: ApartmentService.getMuteReason(resident));
+      throw protocol.TalktiveException(
+        message: ApartmentService.getMuteReason(resident),
+      );
     }
 
     await LoungeService.applyToLounge(
@@ -156,7 +171,9 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     }
 
     if (ApartmentService.isMuted(inviter)) {
-      throw protocol.TalktiveException(message: ApartmentService.getMuteReason(inviter));
+      throw protocol.TalktiveException(
+        message: ApartmentService.getMuteReason(inviter),
+      );
     }
 
     // Verify inviter is a member
@@ -169,11 +186,14 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     );
 
     if (member == null) {
-      throw protocol.TalktiveException(message: 'You are not a member of this lounge');
+      throw protocol.TalktiveException(
+        message: 'You are not a member of this lounge',
+      );
     }
 
     final target = await ResidentService.getResident(session, targetUserId);
-    if (target == null) throw protocol.TalktiveException(message: 'User profile not found');
+    if (target == null)
+      throw protocol.TalktiveException(message: 'User profile not found');
 
     await LoungeService.inviteUser(
       session,
@@ -223,7 +243,7 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     int loungeId,
   ) async {
     final currentUserId = await getUserId(session);
-    
+
     await LoungeService.leaveLounge(
       session,
       loungeId: loungeId,
@@ -263,7 +283,9 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     final lounge = await getLounge(session, loungeId);
 
     if (lounge.creatorId != currentUserId) {
-      throw protocol.TalktiveException(message: 'Only the creator can view applications');
+      throw protocol.TalktiveException(
+        message: 'Only the creator can view applications',
+      );
     }
 
     return await LoungeService.getMembersByStatus(
@@ -300,20 +322,41 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     );
 
     if (member == null || member.role != 'admin') {
-      throw protocol.TalktiveException(message: 'Only lounge admins can update details');
+      throw protocol.TalktiveException(
+        message: 'Only lounge admins can update details',
+      );
     }
 
     // Validation
-    if (name != null) InputValidationService.validateLoungeName(name).throwIfInvalid();
-    if (description != null) InputValidationService.validateLoungeDescription(description).throwIfInvalid();
-    if (maxMembers != null) InputValidationService.validateLoungeMemberLimit(maxMembers).throwIfInvalid();
-    if (interests != null) InputValidationService.validateStringList(interests, 'Interests').throwIfInvalid();
-    if (languages != null) InputValidationService.validateStringList(languages, 'Languages').throwIfInvalid();
-    if (country != null) InputValidationService.validateCountry(country).throwIfInvalid();
-    if (rules != null) InputValidationService.validateLoungeRules(rules).throwIfInvalid();
+    if (name != null)
+      InputValidationService.validateLoungeName(name).throwIfInvalid();
+    if (description != null)
+      InputValidationService.validateLoungeDescription(
+        description,
+      ).throwIfInvalid();
+    if (maxMembers != null)
+      InputValidationService.validateLoungeMemberLimit(
+        maxMembers,
+      ).throwIfInvalid();
+    if (interests != null)
+      InputValidationService.validateStringList(
+        interests,
+        'Interests',
+      ).throwIfInvalid();
+    if (languages != null)
+      InputValidationService.validateStringList(
+        languages,
+        'Languages',
+      ).throwIfInvalid();
+    if (country != null)
+      InputValidationService.validateCountry(country).throwIfInvalid();
+    if (rules != null)
+      InputValidationService.validateLoungeRules(rules).throwIfInvalid();
 
     if (isPublic != null && isPublic && lounge.isStaffLocked) {
-      throw protocol.TalktiveException(message: 'This lounge is locked to private by staff.');
+      throw protocol.TalktiveException(
+        message: 'This lounge is locked to private by staff.',
+      );
     }
 
     return await LoungeService.updateLounge(
@@ -337,7 +380,9 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     final lounge = await getLounge(session, loungeId);
 
     if (lounge.creatorId != currentUserId) {
-      throw protocol.TalktiveException(message: 'Only the creator can delete the lounge');
+      throw protocol.TalktiveException(
+        message: 'Only the creator can delete the lounge',
+      );
     }
 
     await LoungeService.deleteLounge(session, lounge);

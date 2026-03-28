@@ -16,7 +16,12 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     int offset = 0,
   }) async {
     await getStaffProfile(session);
-    return await listReports(session, status: protocol.ReportStatus.pending, limit: limit, offset: offset);
+    return await listReports(
+      session,
+      status: protocol.ReportStatus.pending,
+      limit: limit,
+      offset: offset,
+    );
   }
 
   /// Fetches all reports with optional status filtering.
@@ -27,8 +32,12 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     int offset = 0,
   }) async {
     await getStaffProfile(session);
-    return await AdminService.getAllReports(session,
-        status: status, limit: limit, offset: offset);
+    return await AdminService.getAllReports(
+      session,
+      status: status,
+      limit: limit,
+      offset: offset,
+    );
   }
 
   /// Legacy helper for getAllReports
@@ -37,7 +46,8 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     protocol.ReportStatus? status,
     int limit = 50,
     int offset = 0,
-  }) async => listReports(session, status: status, limit: limit, offset: offset);
+  }) async =>
+      listReports(session, status: status, limit: limit, offset: offset);
 
   /// Resolves a report, optionally taking action against the target.
   Future<void> resolveReport(
@@ -56,13 +66,20 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Suspends a user account.
-  Future<void> suspendUser(Session session, {required UuidValue userId, String? reason}) async {
+  Future<void> suspendUser(
+    Session session, {
+    required UuidValue userId,
+    String? reason,
+  }) async {
     await getAdminProfile(session);
     await AdminService.setSuspensionStatus(session, userId, suspended: true);
   }
 
   /// Unsuspends a user account.
-  Future<void> unsuspendUser(Session session, {required UuidValue userId}) async {
+  Future<void> unsuspendUser(
+    Session session, {
+    required UuidValue userId,
+  }) async {
     await getAdminProfile(session);
     await AdminService.setSuspensionStatus(session, userId, suspended: false);
   }
@@ -76,7 +93,8 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     String? reason,
   }) async {
     await getStaffProfile(session);
-    final totalMinutes = minutes ?? (durationHours != null ? durationHours * 60 : 60);
+    final totalMinutes =
+        minutes ?? (durationHours != null ? durationHours * 60 : 60);
     final until = DateTime.now().add(Duration(minutes: totalMinutes));
     await AdminService.setMuteStatus(session, userId, until: until);
   }
@@ -94,7 +112,11 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Resets a user's reputation to default.
-  Future<void> resetReputation(Session session, {required UuidValue userId, String? reason}) async {
+  Future<void> resetReputation(
+    Session session, {
+    required UuidValue userId,
+    String? reason,
+  }) async {
     await getStaffProfile(session);
     await AdminService.resetReputation(session, userId);
   }
@@ -113,29 +135,54 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     int offset = 0,
   }) async {
     await getStaffProfile(session);
-    return await AdminService.searchUsers(session, query, limit: limit, offset: offset);
+    return await AdminService.searchUsers(
+      session,
+      query,
+      limit: limit,
+      offset: offset,
+    );
   }
 
   /// Promotes a user to Admin role.
-  Future<void> promoteToAdmin(Session session, {required UuidValue userId}) async {
+  Future<void> promoteToAdmin(
+    Session session, {
+    required UuidValue userId,
+  }) async {
     await getAdminProfile(session);
     await AdminService.setRole(session, userId, protocol.ResidentRole.admin);
   }
 
   /// Demotes an Admin to Moderator or regular user.
-  Future<void> demoteFromAdmin(Session session, {required UuidValue userId}) async {
+  Future<void> demoteFromAdmin(
+    Session session, {
+    required UuidValue userId,
+  }) async {
     await getAdminProfile(session);
-    await AdminService.setRole(session, userId, protocol.ResidentRole.moderator);
+    await AdminService.setRole(
+      session,
+      userId,
+      protocol.ResidentRole.moderator,
+    );
   }
 
   /// Promotes a user to Moderator role.
-  Future<void> promoteToModerator(Session session, {required UuidValue userId}) async {
+  Future<void> promoteToModerator(
+    Session session, {
+    required UuidValue userId,
+  }) async {
     await getAdminProfile(session);
-    await AdminService.setRole(session, userId, protocol.ResidentRole.moderator);
+    await AdminService.setRole(
+      session,
+      userId,
+      protocol.ResidentRole.moderator,
+    );
   }
 
   /// Demotes a moderator back to a regular user.
-  Future<void> demoteFromModerator(Session session, {required UuidValue userId}) async {
+  Future<void> demoteFromModerator(
+    Session session, {
+    required UuidValue userId,
+  }) async {
     await getAdminProfile(session);
     await AdminService.setRole(session, userId, protocol.ResidentRole.user);
   }
@@ -143,11 +190,20 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
   /// Makes a lounge private/locked by staff.
   Future<void> makeLoungePrivate(Session session, int loungeId) async {
     await getStaffProfile(session);
-    await AdminService.setLoungeStatus(session, loungeId, isPublic: false, isStaffLocked: true);
+    await AdminService.setLoungeStatus(
+      session,
+      loungeId,
+      isPublic: false,
+      isStaffLocked: true,
+    );
   }
 
   /// Disbands a lounge.
-  Future<void> disbandLounge(Session session, {required int loungeId, String? reason}) async {
+  Future<void> disbandLounge(
+    Session session, {
+    required int loungeId,
+    String? reason,
+  }) async {
     await getStaffProfile(session);
     await AdminService.disbandLounge(session, loungeId);
   }
@@ -169,7 +225,8 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
   }) async {
     await getStaffProfile(session);
     final detail = await AdminService.getUserDetails(session, userId);
-    if (detail == null) throw protocol.TalktiveException(message: 'User not found');
+    if (detail == null)
+      throw protocol.TalktiveException(message: 'User not found');
     return detail;
   }
 }

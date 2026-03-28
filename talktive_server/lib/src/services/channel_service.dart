@@ -6,7 +6,10 @@ import 'resident_service.dart';
 /// This consolidates logic used by Private Chats, Lounges, and the Plaza.
 class ChannelService {
   /// Fetches a channel by ID.
-  static Future<protocol.Channel?> getChannel(Session session, int channelId) async {
+  static Future<protocol.Channel?> getChannel(
+    Session session,
+    int channelId,
+  ) async {
     return await protocol.Channel.db.findById(session, channelId);
   }
 
@@ -23,7 +26,11 @@ class ChannelService {
   }
 
   /// Ensures a user is marked as having read a channel up to now.
-  static Future<void> markAsRead(Session session, int channelId, UuidValue userId) async {
+  static Future<void> markAsRead(
+    Session session,
+    int channelId,
+    UuidValue userId,
+  ) async {
     final membership = await getMember(session, channelId, userId);
     if (membership != null) {
       final now = DateTime.now();
@@ -145,7 +152,8 @@ class ChannelService {
     }
 
     // Joining message and channel_member to filter unread messages
-    final sql = '''
+    final sql =
+        '''
       SELECT m."channelId", COUNT(m.id)
       FROM "message" m
       INNER JOIN "channel_member" cm ON m."channelId" = cm."channelId"

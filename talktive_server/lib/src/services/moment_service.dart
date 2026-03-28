@@ -23,7 +23,8 @@ class MomentService {
     // 1. Floor restriction: Only Floor 2+ can post moments (prevent spam)
     if (effectiveFloor < 2) {
       throw TalktiveException(
-        message: 'You must reach Floor 2 to post moments. Keep interacting to climb higher!',
+        message:
+            'You must reach Floor 2 to post moments. Keep interacting to climb higher!',
         code: 'FLOOR_TOO_LOW',
       );
     }
@@ -207,7 +208,8 @@ class MomentService {
 
     final likes = await MomentLike.db.find(
       session,
-      where: (t) => t.momentId.inSet(momentIds.toSet()) & t.userId.equals(userId),
+      where: (t) =>
+          t.momentId.inSet(momentIds.toSet()) & t.userId.equals(userId),
     );
 
     final likedSet = likes.map((l) => l.momentId).toSet();
@@ -297,16 +299,24 @@ class MomentService {
     // 1. Authorization check (if userId provided)
     if (userId != null) {
       final resident = await ResidentService.getResident(session, userId);
-      final isStaff = resident?.role == ResidentRole.admin || resident?.role == ResidentRole.moderator;
-      
+      final isStaff =
+          resident?.role == ResidentRole.admin ||
+          resident?.role == ResidentRole.moderator;
+
       if (moment.authorId != userId && !isStaff) {
         throw TalktiveException(message: 'Permission denied: Not your moment');
       }
     }
 
     // 2. Clean up associations
-    await MomentLike.db.deleteWhere(session, where: (t) => t.momentId.equals(momentId));
-    await MomentComment.db.deleteWhere(session, where: (t) => t.momentId.equals(momentId));
+    await MomentLike.db.deleteWhere(
+      session,
+      where: (t) => t.momentId.equals(momentId),
+    );
+    await MomentComment.db.deleteWhere(
+      session,
+      where: (t) => t.momentId.equals(momentId),
+    );
 
     // 3. Clean up physical media
     await FileStorageService.deleteMedia(session, moment.imageUrl);

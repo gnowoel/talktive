@@ -38,7 +38,11 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
   ) async {
     InputValidationService.validateId(channelId, 'Channel ID').throwIfInvalid();
     final currentUserId = await getUserId(session);
-    return await PrivateChatService.getPrivateChatDetails(session, channelId, currentUserId);
+    return await PrivateChatService.getPrivateChatDetails(
+      session,
+      channelId,
+      currentUserId,
+    );
   }
 
   /// Accepts or declines a private chat invitation
@@ -49,7 +53,12 @@ class PrivateChatEndpoint extends Endpoint with EndpointAuthMixin {
   ) async {
     InputValidationService.validateId(channelId, 'Channel ID').throwIfInvalid();
     final currentUserId = await getUserId(session);
-    await PrivateChatService.respondToChatInvite(session, channelId, currentUserId, accept);
+    await PrivateChatService.respondToChatInvite(
+      session,
+      channelId,
+      currentUserId,
+      accept,
+    );
   }
 
   /// Leaves a private chat.

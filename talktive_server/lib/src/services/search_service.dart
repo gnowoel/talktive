@@ -20,7 +20,8 @@ class SearchService {
 
     if (query != null && query.trim().isNotEmpty) {
       final q = query.trim();
-      expr &= (t.userName.ilike('%$q%') |
+      expr &=
+          (t.userName.ilike('%$q%') |
           t.bio.ilike('%$q%') |
           Expression('interests::text ilike \'%$q%\''));
     }
@@ -31,12 +32,16 @@ class SearchService {
     if (isPremium != null) expr &= t.isPremium.equals(isPremium);
 
     if (language != null) {
-      expr &= Expression('languages::jsonb ? \'${language.replaceAll("'", "''")}\'');
+      expr &= Expression(
+        'languages::jsonb ? \'${language.replaceAll("'", "''")}\'',
+      );
     }
     if (interest != null) {
-      expr &= Expression('interests::jsonb ? \'${interest.replaceAll("'", "''")}\'');
+      expr &= Expression(
+        'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'',
+      );
     }
-    
+
     return expr;
   }
 
@@ -54,7 +59,8 @@ class SearchService {
     required protocol.Resident currentUser,
   }) async {
     final hasQuery = query != null && query.trim().isNotEmpty;
-    final hasFilters = gender != null ||
+    final hasFilters =
+        gender != null ||
         country != null ||
         language != null ||
         interest != null ||
@@ -107,9 +113,7 @@ class SearchService {
       limit: limit,
     );
 
-    return residents
-        .map((r) => ResidentService.toUserSummary(r))
-        .toList();
+    return residents.map((r) => ResidentService.toUserSummary(r)).toList();
   }
 
   static Expression _buildLoungeFilters(
@@ -123,18 +127,23 @@ class SearchService {
 
     if (query != null && query.trim().isNotEmpty) {
       final q = query.trim();
-      expr &= (t.name.ilike('%$q%') |
+      expr &=
+          (t.name.ilike('%$q%') |
           t.description.ilike('%$q%') |
           Expression('interests::text ilike \'%$q%\''));
     }
 
     if (country != null) expr &= t.country.equals(country);
-    
+
     if (interest != null) {
-      expr &= Expression('interests::jsonb ? \'${interest.replaceAll("'", "''")}\'');
+      expr &= Expression(
+        'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'',
+      );
     }
     if (language != null) {
-      expr &= Expression('languages::jsonb ? \'${language.replaceAll("'", "''")}\'');
+      expr &= Expression(
+        'languages::jsonb ? \'${language.replaceAll("'", "''")}\'',
+      );
     }
     return expr;
   }
@@ -265,15 +274,17 @@ class SearchService {
     // This avoids the 'fetch then filter' bottleneck.
     final residents = await protocol.Resident.db.find(
       session,
-      where: (t) => _buildResidentFilters(
-        t,
-        gender: gender,
-        country: country,
-        language: language,
-        interest: interest,
-        ageRange: ageRange,
-        isPremium: isPremium,
-      ) & (t.lastMessageDate >= sevenDaysAgo),
+      where: (t) =>
+          _buildResidentFilters(
+            t,
+            gender: gender,
+            country: country,
+            language: language,
+            interest: interest,
+            ageRange: ageRange,
+            isPremium: isPremium,
+          ) &
+          (t.lastMessageDate >= sevenDaysAgo),
       orderBy: (t) => t.lastMessageDate,
       orderDescending: true,
       limit: limit,
@@ -296,12 +307,12 @@ class SearchService {
         orderDescending: true,
         limit: limit,
       );
-      return fallbackResidents.map((r) => ResidentService.toUserSummary(r)).toList();
+      return fallbackResidents
+          .map((r) => ResidentService.toUserSummary(r))
+          .toList();
     }
 
-    return residents
-        .map((r) => ResidentService.toUserSummary(r))
-        .toList();
+    return residents.map((r) => ResidentService.toUserSummary(r)).toList();
   }
 
   /// Search all content (users, lounges, moments)
@@ -356,19 +367,17 @@ class SearchService {
       limit: limit * 2,
     );
 
-    final results = matchingResidents
-        .map((resident) {
-          final sharedInterests = currentUser.interests!
-              .where((interest) => resident.interests!.contains(interest))
-              .toList();
+    final results = matchingResidents.map((resident) {
+      final sharedInterests = currentUser.interests!
+          .where((interest) => resident.interests!.contains(interest))
+          .toList();
 
-          return ResidentService.toUserSummary(
-            resident,
-            sharedInterests: sharedInterests,
-            matchScore: sharedInterests.length,
-          );
-        })
-        .toList();
+      return ResidentService.toUserSummary(
+        resident,
+        sharedInterests: sharedInterests,
+        matchScore: sharedInterests.length,
+      );
+    }).toList();
 
     results.sort((a, b) => (b.matchScore ?? 0).compareTo(a.matchScore ?? 0));
     return results.take(limit).toList();
@@ -400,19 +409,17 @@ class SearchService {
       limit: limit * 2,
     );
 
-    final results = matchingResidents
-        .map((resident) {
-          final sharedLanguages = currentUser.languages!
-              .where((language) => resident.languages!.contains(language))
-              .toList();
+    final results = matchingResidents.map((resident) {
+      final sharedLanguages = currentUser.languages!
+          .where((language) => resident.languages!.contains(language))
+          .toList();
 
-          return ResidentService.toUserSummary(
-            resident,
-            sharedLanguages: sharedLanguages,
-            matchScore: sharedLanguages.length,
-          );
-        })
-        .toList();
+      return ResidentService.toUserSummary(
+        resident,
+        sharedLanguages: sharedLanguages,
+        matchScore: sharedLanguages.length,
+      );
+    }).toList();
 
     results.sort((a, b) => (b.matchScore ?? 0).compareTo(a.matchScore ?? 0));
     return results.take(limit).toList();
@@ -428,8 +435,22 @@ class SearchService {
     protocol.Resident? currentUser,
   }) async {
     final futures = await Future.wait([
-      if (currentUser != null) discoverUsersByInterests(session, limit: limit, currentUser: currentUser) else Future.value([]),
-      if (currentUser != null) discoverUsersByLanguages(session, limit: limit, currentUser: currentUser) else Future.value([]),
+      if (currentUser != null)
+        discoverUsersByInterests(
+          session,
+          limit: limit,
+          currentUser: currentUser,
+        )
+      else
+        Future.value([]),
+      if (currentUser != null)
+        discoverUsersByLanguages(
+          session,
+          limit: limit,
+          currentUser: currentUser,
+        )
+      else
+        Future.value([]),
       getTrendingMoments(session, limit: limit),
       getPopularLounges(
         session,

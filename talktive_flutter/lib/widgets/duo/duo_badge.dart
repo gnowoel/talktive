@@ -130,8 +130,8 @@ class DuoBadge extends StatelessWidget {
               ],
             ),
           )
-              .animate(onPlay: (c) => isUnlocked ? c.repeat() : null)
-              .shimmer(duration: isUnlocked ? 2.seconds : Duration.zero, angle: -0.5)
+              .animate(onPlay: (c) => isNew ? c.repeat() : null)
+              .shimmer(duration: isNew ? 2.seconds : Duration.zero, angle: -0.5)
               .animate()
               .scale(
                 begin: const Offset(0.9, 0.9),

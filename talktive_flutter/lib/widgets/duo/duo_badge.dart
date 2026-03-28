@@ -28,8 +28,8 @@ class DuoBadge extends StatelessWidget {
         children: [
           // Badge circle
           Container(
-                width: 80,
-                height: 80,
+                width: 60,
+                height: 60,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: isUnlocked
@@ -47,8 +47,8 @@ class DuoBadge extends StatelessWidget {
                       ? [
                           BoxShadow(
                             color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
                           ),
                         ]
                       : null,
@@ -59,7 +59,7 @@ class DuoBadge extends StatelessWidget {
                       child: Text(
                         emoji,
                         style: TextStyle(
-                          fontSize: 36,
+                          fontSize: 28,
                           color: isUnlocked ? null : Colors.grey[400],
                         ),
                       ),

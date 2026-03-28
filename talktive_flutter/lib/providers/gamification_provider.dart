@@ -92,9 +92,14 @@ class GamificationNotifier extends _$GamificationNotifier {
     state = const AsyncValue.loading();
     try {
       final data = await fetchAll();
-      state = AsyncValue.data(data);
+      // Check if the provider is still mounted before updating state
+      if (ref.exists(gamificationProvider)) {
+        state = AsyncValue.data(data);
+      }
     } catch (e, stack) {
-      state = AsyncValue.error(e, stack);
+      if (ref.exists(gamificationProvider)) {
+        state = AsyncValue.error(e, stack);
+      }
     }
   }
 }

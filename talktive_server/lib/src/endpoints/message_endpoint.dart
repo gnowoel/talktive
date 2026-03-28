@@ -120,11 +120,11 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
           savedMessage.channelId,
         );
         if (channel != null) {
-          await _triggerNotifications(
+          await NotificationService.triggerMessageNotifications(
             backgroundSession,
-            channel,
-            savedMessage,
-            sender,
+            channel: channel,
+            message: savedMessage,
+            sender: sender,
           );
 
           // Side effects: Broadcast, Recents, Gamification
@@ -239,108 +239,6 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         isTyping,
       );
     }
-  }
-
-  /// Internal helper to trigger notifications in the background.
-  Future<void> _triggerNotifications(
-    Session session,
-    protocol.Channel channel,
-    protocol.Message message,
-    protocol.Resident sender,
-  ) async {
-    final content = message.content;
-    if (content == null || content.isEmpty) return;
-
-    final isPlaza = channel.type == protocol.ChannelType.plaza;
-    final channelId = channel.id!;
-    final senderUuid = sender.userInfoId;
-    final senderName = sender.userName ?? 'Resident';
-
-    // 1. Resolve lounge once for all notifications
-    int? loungeId;
-    if (!isPlaza) {
-      final lounge = await protocol.Lounge.db.findFirstRow(
-        session,
-        where: (t) => t.channelId.equals(channelId),
-      );
-      loungeId = lounge?.id;
-    }
-
-    // 2. Detect mentions
-    final mentionedUserIds = await MentionService.getMentionedUserIds(
-      session,
-      channelId,
-      content,
-    );
-
-    // Remove sender
-    mentionedUserIds.remove(senderUuid);
-
-    final loungeName = channel.name ?? (isPlaza ? 'Plaza' : 'Chat');
-
-    // 3. Notify mentions (Parallel)
-    final mentionFutures = mentionedUserIds.map(
-      (mentionedId) => NotificationService.sendMentionNotification(
-        session,
-        mentionedId,
-        senderName,
-        content,
-        channelId,
-        loungeName,
-        loungeId: loungeId,
-      ),
-    );
-
-    // 4. Notify other members (Private/Lounge only)
-    Future? bulkMemberFuture;
-    if (!isPlaza) {
-      final String channelTypeStr = channel.type == protocol.ChannelType.private
-          ? 'private'
-          : 'lounge';
-      final mentionIdSet = mentionedUserIds.toSet();
-
-      // Batch fetch users who have blocked the sender
-      final blockedBySet = await ResidentService.getBlocksAgainstUser(
-        session,
-        senderUuid,
-      );
-
-      final otherMembers = await protocol.ChannelMember.db.find(
-        session,
-        where: (t) =>
-            t.channelId.equals(channelId) &
-            t.userInfoId.notEquals(senderUuid) &
-            t.status.equals(protocol.ChannelMemberStatus.joined),
-      );
-
-      final recipientIds = <UuidValue>[];
-      for (final member in otherMembers) {
-        if (member.isMuted || mentionIdSet.contains(member.userInfoId))
-          continue;
-
-        // Check if the recipient has blocked the sender (using fetched batch)
-        if (blockedBySet.contains(member.userInfoId)) continue;
-
-        recipientIds.add(member.userInfoId);
-      }
-
-      if (recipientIds.isNotEmpty) {
-        bulkMemberFuture = NotificationService.sendBulkMessageNotifications(
-          session,
-          recipientIds,
-          senderName,
-          content,
-          channelId,
-          channelTypeStr,
-          loungeId: loungeId,
-        );
-      }
-    }
-
-    // Run all notifications in parallel
-    final List<Future> futures = [...mentionFutures];
-    if (bulkMemberFuture != null) futures.add(bulkMemberFuture);
-    await Future.wait(futures);
   }
 
   /// Updates the persistence setting of a channel.

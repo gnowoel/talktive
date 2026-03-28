@@ -43,19 +43,8 @@ class ReportEndpoint extends Endpoint with EndpointAuthMixin {
       throw protocol.TalktiveException(message: 'You cannot report yourself.');
     }
 
-    // Fetch reporter
+    // Fetch reporter and target
     final reporter = await getResidentProfile(session, reporterUuid);
-
-    // Effective floor ≥ 1 required to report (prevents abuse from new
-    // accounts and from trustScore-restricted users)
-    if (ApartmentService.computeEffectiveFloor(reporter) < 1) {
-      throw protocol.TalktiveException(
-        message:
-            'You must reach Floor 1 to report users. Keep chatting and maintain a good Trust Score!',
-      );
-    }
-
-    // Fetch target
     final target = await protocol.Resident.db.findFirstRow(
       session,
       where: (t) => t.userInfoId.equals(targetUuid),
@@ -65,6 +54,7 @@ class ReportEndpoint extends Endpoint with EndpointAuthMixin {
     }
 
     // Create report and apply automated moderation using ReportService
+    // All business rules (Floor check, cooldown, daily limits) are in ReportService.
     await ReportService.createReport(
       session,
       reporter: reporter,

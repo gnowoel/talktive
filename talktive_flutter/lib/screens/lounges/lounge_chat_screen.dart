@@ -156,79 +156,29 @@ class LoungeChatScreen extends ConsumerStatefulWidget {
   ConsumerState<LoungeChatScreen> createState() => _LoungeChatScreenState();
 }
 
-class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
-  final ScrollController _scrollController = ScrollController();
-  final TextEditingController _messageController = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
-  bool _isSending = false;
+class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen>
+    with ChatScreenMixin {
   bool _hasMarkedAsRead = false;
   bool _isExiting = false;
+
+  @override
+  int get channelId => widget.lounge.channelId;
 
   void _showUpgradePrompt(String feature) {
     DuoUpgradeHelper.showUpgradePrompt(context, feature);
   }
 
-  Future<void> _sendVoiceMessage(String path, int durationSeconds) async {
-    final currentResident = ref.read(currentResidentProvider).value;
-    if (currentResident == null) return;
-
-    if (!currentResident.isPremium) {
-      DuoSnackBarHelper.showError(
-        context,
-        'Voice messages are a Premium feature! 🎙️ Upgrade in Settings.',
-      );
-      return;
-    }
-
-    setState(() => _isSending = true);
-
-    try {
-      final mediaService = ref.read(mediaServiceProvider);
-      final uploadResult = await mediaService.uploadFile(XFile(path), 'voices');
-
-      if (uploadResult != null) {
-        await _sendMessage(
-          mediaUrl: uploadResult.url,
-          mediaType: 'voice',
-          duration: durationSeconds,
-          fileSize: uploadResult.sizeInBytes,
-        );
-        HapticFeedback.lightImpact();
-      }
-    } catch (e) {
-      if (mounted) {
-        DuoSnackBarHelper.showError(context, 'Failed to send voice: $e');
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isSending = false);
-      }
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    _markAsRead();
-    _scrollController.addListener(_onScroll);
+    _loungeMarkAsRead();
   }
 
-  void _onScroll() {
-    if (_scrollController.hasClients) {
-      if (_scrollController.position.pixels >= 
-          _scrollController.position.maxScrollExtent - 200) {
-        ref.read(realtimeChatProvider(widget.lounge.channelId).notifier).loadMore();
-      }
-    }
-  }
-
-  Future<void> _markAsRead() async {
+  Future<void> _loungeMarkAsRead() async {
     if (!mounted || _hasMarkedAsRead) return;
 
     try {
       final client = ref.read(clientProvider);
-      final channelId = widget.lounge.channelId;
-
       await client.message.markChannelAsRead(channelId);
 
       if (mounted) {
@@ -243,157 +193,29 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
   }
 
   @override
-  void dispose() {
-    // Final mark as read when leaving - capture client and ID synchronously
-    try {
-      final client = ref.read(clientProvider);
-      final channelId = widget.lounge.channelId;
-      // Fire and forget, no longer using 'ref' inside the async part
-      client.message
-          .markChannelAsRead(channelId)
-          .catchError((e) => debugPrint(e));
-    } catch (e) {
-      debugPrint('Error in dispose mark read: $e');
-    }
-
-    _scrollController.dispose();
-    _messageController.dispose();
-    _focusNode.dispose();
-    super.dispose();
-  }
-
-  Future<void> _pickAndSendImage() async {
-    final currentResident = ref.read(currentResidentProvider).value;
-    if (currentResident == null) return;
-
-    final floor = DuoFloorHelper.computeFloor(currentResident);
-    if (floor < 2) {
-      DuoSnackBarHelper.showError(
-        context,
-        'You need to be Floor 2+ to send images in Lounges! 🏢',
-      );
-      return;
-    }
-
-    final mediaService = ref.read(mediaServiceProvider);
-    final image = await mediaService.pickImage();
-    if (image == null) return;
-
-    setState(() {
-      _isSending = true;
-    });
-
-    try {
-      final uploadResult = await mediaService.uploadFile(image, 'chats');
-      if (uploadResult != null) {
-        await _sendMessage(
-          imageUrl: uploadResult.url,
-          fileSize: uploadResult.sizeInBytes,
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        DuoSnackBarHelper.showError(context, 'Failed to upload image: $e');
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSending = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _sendMessage({
-    String? imageUrl,
-    String? mediaUrl,
-    String? mediaType,
-    int? duration,
-    int? fileSize,
-  }) async {
-    final content = _messageController.text.trim();
-    if (content.isEmpty && imageUrl == null) {
-      return;
-    }
-
-    setState(() => _isSending = true);
-    try {
-      await ref
-          .read(realtimeChatProvider(widget.lounge.channelId).notifier)
-          .sendMessage(
-            content: content.isEmpty ? null : content,
-            imageUrl: imageUrl,
-            mediaUrl: mediaUrl,
-            mediaType: mediaType,
-            duration: duration,
-            fileSize: fileSize,
-          );
-
-      _messageController.clear();
-      _hasMarkedAsRead = false; // Allow re-marking as read for new messages
-      _markAsRead();
-      HapticFeedback.lightImpact();
-
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          0,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        DuoSnackBarHelper.showError(context, e);
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isSending = false);
-        // On Web, requesting focus needs to happen after the next frame to work reliably
-        Future.delayed(Duration.zero, () {
-          if (mounted) _focusNode.requestFocus();
-        });
-      }
-    }
-  }
-
-  void _addMention(String userName) {
-    final current = _messageController.text;
-    if (current.isEmpty || current.endsWith(' ')) {
-      _messageController.text = '$current@$userName ';
-    } else {
-      _messageController.text = '$current @$userName ';
-    }
-    // Move cursor to end
-    _messageController.selection = TextSelection.fromPosition(
-      TextPosition(offset: _messageController.text.length),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
     // Listen for real-time updates to mark as read if user is viewing
-    ref.listen(realtimeChatProvider(widget.lounge.channelId), (previous, next) {
+    ref.listen(realtimeChatProvider(channelId), (previous, next) {
       if (previous != null && next.hasValue && next.value != null) {
         final prevLength = previous.value?.messages.length ?? 0;
         final nextLength = next.value?.messages.length ?? 0;
         if (nextLength > prevLength) {
           _hasMarkedAsRead =
               false; // Reset to allow marking new messages as read
-          _markAsRead();
+          _loungeMarkAsRead();
         }
       }
     });
 
-    final chatState = ref.watch(realtimeChatProvider(widget.lounge.channelId));
+    final chatState = ref.watch(realtimeChatProvider(channelId));
     final currentResidentAsync = ref.watch(currentResidentProvider);
     final currentResident = currentResidentAsync.value;
     final canSend =
         currentResident != null && !DuoFloorHelper.isMuted(currentResident);
 
     final typingUsers = chatState.value?.typingUsers ?? {};
-    final otherTypingUsers = typingUsers
-        .where((u) => u != currentResident?.userName)
-        .toList();
+    final otherTypingUsers =
+        typingUsers.where((u) => u != currentResident?.userName).toList();
 
     return PopScope(
       canPop: _isExiting,
@@ -405,316 +227,310 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
         }
       },
       child: DuoChatInputLayout(
-      typingIndicator:
-          (currentResident?.isPremium == true && otherTypingUsers.isNotEmpty)
-          ? _buildTypingIndicator(otherTypingUsers)
-          : null,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            HapticFeedback.lightImpact();
-            context.popWithAd(ref);
-          },
-        ),
-        title: InkWell(
-          onTap: () {
-            HapticFeedback.lightImpact();
-            context.push(
-              '/lounges/profile/${widget.lounge.id!}',
-              extra: widget.lounge,
-            );
-          },
-          child: Row(
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      AppTheme.duoBlueGradient[0].withValues(alpha: 0.2),
-                      AppTheme.duoBlueGradient[1].withValues(alpha: 0.2),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(AppTheme.duoRadiusSmall),
-                ),
-                child: Center(
-                  child: Text(
-                    widget.lounge.emoji ?? '👥',
-                    style: const TextStyle(fontSize: 20),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.lounge.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                        fontFamily: 'Poppins',
-                      ),
-                    ),
-                    Text(
-                      '${widget.lounge.memberCount} members',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                        fontFamily: 'Rubik',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.people, size: 24, color: Colors.black),
+        typingIndicator:
+            (currentResident?.isPremium == true && otherTypingUsers.isNotEmpty)
+                ? _buildTypingIndicator(otherTypingUsers)
+                : null,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
             onPressed: () {
               HapticFeedback.lightImpact();
+              context.popWithAd(ref);
+            },
+          ),
+          title: InkWell(
+            onTap: () {
+              HapticFeedback.lightImpact();
               context.push(
-                '/lounges/members/${widget.lounge.id!}',
+                '/lounges/profile/${widget.lounge.id!}',
                 extra: widget.lounge,
               );
             },
-          ),
-          DuoRefreshButton(
-            color: Colors.black,
-            onRefresh: () {
-              ref
-                  .read(realtimeChatProvider(widget.lounge.channelId).notifier)
-                  .refresh();
-            },
-          ),
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_horiz, color: Colors.black),
-            onSelected: (value) async {
-              if (value == 'profile') {
-                context.push(
-                  '/lounges/profile/${widget.lounge.id!}',
-                  extra: widget.lounge,
-                );
-              } else if (value == 'edit') {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (context) =>
-                      CreateLoungeDialog(existingLounge: widget.lounge),
-                );
-              } else if (value == 'leave') {
-                _confirmLeaveLounge(context, ref);
-              } else if (value == 'delete') {
-                _confirmDeleteLounge(context, ref);
-              } else if (value == 'admin_private') {
-                _confirmForcePrivate(context, ref);
-              } else if (value == 'admin_disband') {
-                _confirmAdminDisband(context, ref);
-              }
-            },
-            itemBuilder: (_) {
-              final isCreator =
-                  currentResident?.userInfoId == widget.lounge.creatorId;
-              return [
-                const PopupMenuItem(
-                  value: 'profile',
-                  child: Row(
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppTheme.duoBlueGradient[0].withValues(alpha: 0.2),
+                        AppTheme.duoBlueGradient[1].withValues(alpha: 0.2),
+                      ],
+                    ),
+                    borderRadius:
+                        BorderRadius.circular(AppTheme.duoRadiusSmall),
+                  ),
+                  child: Center(
+                    child: Text(
+                      widget.lounge.emoji ?? '👥',
+                      style: const TextStyle(fontSize: 20),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.info, size: 20, color: AppTheme.textPrimary),
-                      SizedBox(width: 12),
-                      Text('Lounge Profile'),
+                      Text(
+                        widget.lounge.name,
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                  fontFamily: 'Poppins',
+                                ),
+                      ),
+                      Text(
+                        '${widget.lounge.memberCount} members',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.grey[600],
+                              fontFamily: 'Rubik',
+                            ),
+                      ),
                     ],
                   ),
                 ),
-                if (isCreator)
-                  PopupMenuItem(
-                    value: 'edit',
+              ],
+            ),
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.people, size: 24, color: Colors.black),
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                context.push(
+                  '/lounges/members/${widget.lounge.id!}',
+                  extra: widget.lounge,
+                );
+              },
+            ),
+            DuoRefreshButton(
+              color: Colors.black,
+              onRefresh: () {
+                ref.read(realtimeChatProvider(channelId).notifier).refresh();
+              },
+            ),
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_horiz, color: Colors.black),
+              onSelected: (value) async {
+                if (value == 'profile') {
+                  context.push(
+                    '/lounges/profile/${widget.lounge.id!}',
+                    extra: widget.lounge,
+                  );
+                } else if (value == 'edit') {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) =>
+                        CreateLoungeDialog(existingLounge: widget.lounge),
+                  );
+                } else if (value == 'leave') {
+                  _confirmLeaveLounge(context, ref);
+                } else if (value == 'delete') {
+                  _confirmDeleteLounge(context, ref);
+                } else if (value == 'admin_private') {
+                  _confirmForcePrivate(context, ref);
+                } else if (value == 'admin_disband') {
+                  _confirmAdminDisband(context, ref);
+                }
+              },
+              itemBuilder: (_) {
+                final isCreator =
+                    currentResident?.userInfoId == widget.lounge.creatorId;
+                return [
+                  const PopupMenuItem(
+                    value: 'profile',
                     child: Row(
                       children: [
-                        const Icon(
-                          Icons.edit,
-                          size: 20,
-                          color: AppTheme.textPrimary,
-                        ),
+                        Icon(Icons.info, size: 20, color: AppTheme.textPrimary),
                         const SizedBox(width: 12),
-                        Text(
-                          'Edit Lounge',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
+                        Text('Lounge Profile'),
                       ],
                     ),
                   ),
-                if (!isCreator)
-                  const PopupMenuItem(
-                    value: 'leave',
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.exit_to_app,
-                          color: AppTheme.duoRed,
-                          size: 20,
-                        ),
-                        SizedBox(width: 12),
-                        Text(
-                          'Leave Lounge',
-                          style: TextStyle(
-                            color: AppTheme.duoRed,
-                            fontWeight: FontWeight.bold,
+                  if (isCreator)
+                    PopupMenuItem(
+                      value: 'edit',
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.edit,
+                            size: 20,
+                            color: AppTheme.textPrimary,
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                if (isCreator)
-                  const PopupMenuItem(
-                    value: 'delete',
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.delete_forever,
-                          color: AppTheme.duoRed,
-                          size: 20,
-                        ),
-                        SizedBox(width: 12),
-                        Text(
-                          'Disband Lounge',
-                          style: TextStyle(
-                            color: AppTheme.duoRed,
-                            fontWeight: FontWeight.bold,
+                          const SizedBox(width: 12),
+                          Text(
+                            'Edit Lounge',
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                if (currentResident?.isStaff ?? false) ...[
-                  const PopupMenuDivider(),
-                  PopupMenuItem(
-                    value: 'admin_private',
-                    enabled:
-                        widget.lounge.isPublic && !widget.lounge.isStaffLocked,
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.gavel,
-                          color: widget.lounge.isStaffLocked
-                              ? Colors.grey
-                              : AppTheme.duoPurple,
-                          size: 20,
-                        ),
-                        SizedBox(width: 12),
-                        Text(
-                          widget.lounge.isStaffLocked
-                              ? 'Staff Locked'
-                              : 'Force Private',
-                          style: TextStyle(
+                  if (!isCreator)
+                    const PopupMenuItem(
+                      value: 'leave',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.exit_to_app,
+                            color: AppTheme.duoRed,
+                            size: 20,
+                          ),
+                          SizedBox(width: 12),
+                          Text(
+                            'Leave Lounge',
+                            style: TextStyle(
+                              color: AppTheme.duoRed,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (isCreator)
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.delete_forever,
+                            color: AppTheme.duoRed,
+                            size: 20,
+                          ),
+                          SizedBox(width: 12),
+                          Text(
+                            'Disband Lounge',
+                            style: TextStyle(
+                              color: AppTheme.duoRed,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (currentResident?.isStaff ?? false) ...[
+                    const PopupMenuDivider(),
+                    PopupMenuItem(
+                      value: 'admin_private',
+                      enabled:
+                          widget.lounge.isPublic && !widget.lounge.isStaffLocked,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.gavel,
                             color: widget.lounge.isStaffLocked
                                 ? Colors.grey
                                 : AppTheme.duoPurple,
-                            fontWeight: FontWeight.bold,
+                            size: 20,
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const PopupMenuItem(
-                    value: 'admin_disband',
-                    child: Row(
-                      children: [
-                        Icon(Icons.gavel, color: AppTheme.duoRed, size: 20),
-                        SizedBox(width: 12),
-                        Text(
-                          'Admin: Disband',
-                          style: TextStyle(
-                            color: AppTheme.duoRed,
-                            fontWeight: FontWeight.bold,
+                          SizedBox(width: 12),
+                          Text(
+                            widget.lounge.isStaffLocked
+                                ? 'Staff Locked'
+                                : 'Force Private',
+                            style: TextStyle(
+                              color: widget.lounge.isStaffLocked
+                                  ? Colors.grey
+                                  : AppTheme.duoPurple,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ];
-            },
-          ),
-        ],
-      ),
-      header: (chatState.value?.pinnedMessage != null)
-          ? PinnedMessageBar(
-              message: chatState.value!.pinnedMessage!,
-              onUnpin: (currentResident?.isStaff ?? false) ||
-                      (currentResident?.userInfoId == widget.lounge.creatorId)
-                  ? () => ref
-                      .read(realtimeChatProvider(widget.lounge.channelId).notifier)
-                      .unpinMessage(chatState.value!.pinnedMessage!.id!)
-                  : null,
-            )
-          : null,
-      controller: _messageController,
-      onSend: _sendMessage,
-      onVoiceSend: _sendVoiceMessage,
-      onVoiceStart: () async {
-        final currentResident = ref.read(currentResidentProvider).value;
-        if (currentResident == null) return false;
-
-        if (!currentResident.isPremium) {
-          _showUpgradePrompt('Voice Messages');
-          return false;
-        }
-
-        if (!currentResident.showVoiceMessages) {
-          DuoSnackBarHelper.showWarning(
-            context,
-            'Enable voice messages in Settings! 🎙️',
-          );
-          return false;
-        }
-        return true;
-      },
-      onTypingStatusChanged: (isTyping) {
-        if (currentResident?.showTypingIndicator == true) {
-          ref
-              .read(realtimeChatProvider(widget.lounge.channelId).notifier)
-              .setTyping(isTyping);
-        }
-      },
-      onImagePick: () async {
-        if (currentResident?.showImagesInLounges != true) {
-          DuoSnackBarHelper.showWarning(
-            context,
-            'Enable image sharing in Settings! 📸',
-          );
-          return;
-        }
-
-        _pickAndSendImage();
-      },
-      enabled: canSend,
-      isSending: _isSending,
-      isLoading: currentResidentAsync.isLoading,
-      focusNode: _focusNode,
-      activeColor: AppTheme.duoBlue,
-      hintText: canSend
-          ? 'Message the lounge...'
-          : DuoFloorHelper.getMuteInputHint(currentResident),
-      content: chatState.when(
-        data: (state) => state.messages.isEmpty
-            ? _buildEmptyState()
-            : _buildMessagesList(state, currentResident),
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppTheme.primaryColor),
+                    const PopupMenuItem(
+                      value: 'admin_disband',
+                      child: Row(
+                        children: [
+                          Icon(Icons.gavel, color: AppTheme.duoRed, size: 20),
+                          SizedBox(width: 12),
+                          Text(
+                            'Admin: Disband',
+                            style: TextStyle(
+                              color: AppTheme.duoRed,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ];
+              },
+            ),
+          ],
         ),
-        error: (error, stack) => _buildErrorState(error),
+        header: (chatState.value?.pinnedMessage != null)
+            ? PinnedMessageBar(
+                message: chatState.value!.pinnedMessage!,
+                onUnpin: (currentResident?.isStaff ?? false) ||
+                        (currentResident?.userInfoId == widget.lounge.creatorId)
+                    ? () => ref
+                        .read(realtimeChatProvider(channelId).notifier)
+                        .unpinMessage(chatState.value!.pinnedMessage!.id!)
+                    : null,
+              )
+            : null,
+        controller: messageController,
+        onSend: sendMessage,
+        onVoiceSend: sendVoiceMessage,
+        onVoiceStart: () async {
+          final currentResident = ref.read(currentResidentProvider).value;
+          if (currentResident == null) return false;
+
+          if (!currentResident.isPremium) {
+            _showUpgradePrompt('Voice Messages');
+            return false;
+          }
+
+          if (!currentResident.showVoiceMessages) {
+            DuoSnackBarHelper.showWarning(
+              context,
+              'Enable voice messages in Settings! 🎙️',
+            );
+            return false;
+          }
+          return true;
+        },
+        onTypingStatusChanged: handleTypingStatus,
+        onImagePick: () async {
+          if (currentResident?.showImagesInLounges != true) {
+            DuoSnackBarHelper.showWarning(
+              context,
+              'Enable image sharing in Settings! 📸',
+            );
+            return;
+          }
+
+          pickAndSendImage(floorRestriction: 2);
+        },
+        enabled: canSend,
+        isSending: isSending,
+        isLoading: currentResidentAsync.isLoading,
+        focusNode: focusNode,
+        activeColor: AppTheme.duoBlue,
+        hintText: canSend
+            ? 'Message the lounge...'
+            : DuoFloorHelper.getMuteInputHint(currentResident),
+        content: chatState.when(
+          data: (state) => state.messages.isEmpty
+              ? _buildEmptyState()
+              : _buildMessagesList(state, currentResident),
+          loading: () => const Center(
+            child: CircularProgressIndicator(color: AppTheme.primaryColor),
+          ),
+          error: (error, stack) => _buildErrorState(error),
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildTypingIndicator(List<String> typingUsers) {
     if (typingUsers.isEmpty) return const SizedBox.shrink();
@@ -864,13 +680,11 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
 
     return RefreshIndicator(
       onRefresh: () async {
-        ref
-            .read(realtimeChatProvider(widget.lounge.channelId).notifier)
-            .refresh();
+        ref.read(realtimeChatProvider(channelId).notifier).refresh();
       },
       color: AppTheme.primaryColor,
       child: ListView.builder(
-        controller: _scrollController,
+        controller: scrollController,
         reverse: true,
         padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
         itemCount: filteredMessages.length + (state.hasMore ? 1 : 0),
@@ -901,7 +715,17 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
             message: message,
             isCurrentUser: isCurrentUser,
             currentResident: currentResident,
-            onMention: _addMention,
+            onMention: (name) {
+              final current = messageController.text;
+              if (current.isEmpty || current.endsWith(' ')) {
+                messageController.text = '$current@$name ';
+              } else {
+                messageController.text = '$current @$name ';
+              }
+              messageController.selection = TextSelection.fromPosition(
+                TextPosition(offset: messageController.text.length),
+              );
+            },
             otherMemberNames: memberNames,
             canPin: (currentResident?.isStaff ?? false) ||
                 (currentResident?.userInfoId == widget.lounge.creatorId),

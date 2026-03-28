@@ -15,13 +15,12 @@ import '../../widgets/chat/message_bubble.dart';
 import '../../widgets/chat/pinned_message_bar.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
 import '../../helpers/duo_upgrade_helper.dart';
-import '../../services/media_service.dart';
-import 'package:image_picker/image_picker.dart';
 import '../../providers/lounge_provider.dart';
 import '../../providers/private_chat_provider.dart';
 import '../../providers/client_provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../utils/ad_navigation_utils.dart';
+import '../../widgets/chat/chat_screen_mixin.dart';
 
 /// Chat thread screen for private 1-on-1 conversations
 class ChatThreadScreen extends ConsumerStatefulWidget {
@@ -33,13 +32,13 @@ class ChatThreadScreen extends ConsumerStatefulWidget {
   ConsumerState<ChatThreadScreen> createState() => _ChatThreadScreenState();
 }
 
-class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
+class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
+    with ChatScreenMixin {
   bool _isExiting = false;
-  final ScrollController _scrollController = ScrollController();
-  final TextEditingController _messageController = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
-  bool _isSending = false;
   bool _hasMarkedAsRead = false;
+
+  @override
+  int get channelId => widget.channelId;
 
   void _showUpgradePrompt(String feature) {
     DuoUpgradeHelper.showUpgradePrompt(context, feature);
@@ -48,24 +47,14 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
   @override
   void initState() {
     super.initState();
-    _markAsRead();
-    _scrollController.addListener(_onScroll);
+    _threadMarkAsRead();
   }
 
-  void _onScroll() {
-    if (_scrollController.hasClients) {
-      if (_scrollController.position.pixels >= 
-          _scrollController.position.maxScrollExtent - 200) {
-        ref.read(realtimeChatProvider(widget.channelId).notifier).loadMore();
-      }
-    }
-  }
-
-  Future<void> _markAsRead() async {
+  Future<void> _threadMarkAsRead() async {
     if (!mounted || _hasMarkedAsRead) return;
     try {
       final client = ref.read(clientProvider);
-      await client.message.markChannelAsRead(widget.channelId);
+      await client.message.markChannelAsRead(channelId);
       if (mounted) {
         _hasMarkedAsRead = true;
         // Invalidate both lists to update unread counts immediately
@@ -78,184 +67,26 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
   }
 
   @override
-  void dispose() {
-    // Final mark as read when leaving - capture client synchronously
-    try {
-      final client = ref.read(clientProvider);
-      final channelId = widget.channelId;
-      client.message
-          .markChannelAsRead(channelId)
-          .catchError((e) => debugPrint(e));
-    } catch (e) {
-      debugPrint('Error in dispose mark read: $e');
-    }
-
-    _scrollController.dispose();
-    _messageController.dispose();
-    _focusNode.dispose();
-    super.dispose();
-  }
-
-  Future<void> _sendMessage() async {
-    final content = _messageController.text.trim();
-    if (content.isEmpty) {
-      return;
-    }
-
-    setState(() => _isSending = true);
-    try {
-      await _sendMessageInternal(content: content);
-    } finally {
-      if (mounted) {
-        setState(() => _isSending = false);
-        // On Web, requesting focus needs to happen after the next frame to work reliably
-        Future.delayed(Duration.zero, () {
-          if (mounted) _focusNode.requestFocus();
-        });
-      }
-    }
-  }
-
-  Future<void> _sendMessageInternal({
-    String? content,
-    String? imageUrl,
-    String? mediaUrl,
-    String? mediaType,
-    int? duration,
-    int? fileSize,
-  }) async {
-    try {
-      await ref
-          .read(realtimeChatProvider(widget.channelId).notifier)
-          .sendMessage(
-            content: content ?? _messageController.text.trim(),
-            imageUrl: imageUrl,
-            mediaUrl: mediaUrl,
-            mediaType: mediaType,
-            duration: duration,
-            fileSize: fileSize,
-          );
-      _messageController.clear();
-      _hasMarkedAsRead = false;
-      _markAsRead();
-      HapticFeedback.lightImpact();
-
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          0,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        DuoSnackBarHelper.showError(context, e);
-      }
-    }
-  }
-
-  void _addMention(String userName) {
-    final current = _messageController.text;
-    if (current.isEmpty || current.endsWith(' ')) {
-      _messageController.text = '$current@$userName ';
-    } else {
-      _messageController.text = '$current @$userName ';
-    }
-    // Move cursor to end
-    _messageController.selection = TextSelection.fromPosition(
-      TextPosition(offset: _messageController.text.length),
-    );
-  }
-
-  Future<void> _pickAndSendImage() async {
-    final mediaService = ref.read(mediaServiceProvider);
-    final image = await mediaService.pickImage();
-    if (image == null) return;
-
-    setState(() {
-      _isSending = true;
-    });
-
-    try {
-      final uploadResult = await mediaService.uploadFile(image, 'chats');
-      if (uploadResult != null) {
-        await _sendMessageInternal(
-          imageUrl: uploadResult.url,
-          fileSize: uploadResult.sizeInBytes,
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        DuoSnackBarHelper.showError(context, 'Failed to upload image: $e');
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSending = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _sendVoiceMessage(String path, int durationSeconds) async {
-    final currentResident = ref.read(currentResidentProvider).value;
-    if (currentResident == null) return;
-
-    if (!currentResident.isPremium) {
-      DuoSnackBarHelper.showError(
-        context,
-        'Voice messages are a Premium feature! 🎙️ Upgrade in Settings.',
-      );
-      return;
-    }
-
-    setState(() => _isSending = true);
-
-    try {
-      final mediaService = ref.read(mediaServiceProvider);
-      final uploadResult = await mediaService.uploadFile(XFile(path), 'voices');
-
-      if (uploadResult != null) {
-        await _sendMessageInternal(
-          mediaUrl: uploadResult.url,
-          mediaType: 'voice',
-          duration: durationSeconds,
-          fileSize: uploadResult.sizeInBytes,
-        );
-        HapticFeedback.lightImpact();
-      }
-    } catch (e) {
-      if (mounted) {
-        DuoSnackBarHelper.showError(context, 'Failed to send voice: $e');
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isSending = false);
-      }
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     final chatDetailsAsync = ref.watch(
-      privateChatDetailsProvider(widget.channelId),
+      privateChatDetailsProvider(channelId),
     );
 
     // Listen for real-time updates to mark as read if user is viewing
-    ref.listen(realtimeChatProvider(widget.channelId), (previous, next) {
+    ref.listen(realtimeChatProvider(channelId), (previous, next) {
       if (previous != null && next.hasValue && next.value != null) {
         final prevLength = previous.value?.messages.length ?? 0;
         final nextLength = next.value?.messages.length ?? 0;
         if (nextLength > prevLength) {
           _hasMarkedAsRead = false;
-          _markAsRead();
+          _threadMarkAsRead();
         }
       }
     });
 
     final currentResidentAsync = ref.watch(currentResidentProvider);
     final currentResident = currentResidentAsync.value;
-    final chatState = ref.watch(realtimeChatProvider(widget.channelId));
+    final chatState = ref.watch(realtimeChatProvider(channelId));
 
     return PopScope(
       canPop: _isExiting,
@@ -268,329 +99,319 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
       },
       child: chatDetailsAsync.when(
         data: (details) {
-        if (details == null) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (context.mounted) {
-              DuoSnackBarHelper.showError(context, 'Private chat not found');
-              context.go('/chats');
-            }
-          });
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
+          if (details == null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted) {
+                DuoSnackBarHelper.showError(context, 'Private chat not found');
+                context.go('/chats');
+              }
+            });
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
 
-        if (details.currentMemberStatus == ChannelMemberStatus.invited) {
-          // Instead of redirecting inside build, we can just return PeepholeScreen inline, or schedule a GoRouter push
-          // But since it's a deep link, it's safe to just show the peephole view if they haven't accepted
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (context.mounted) {
-              context.go('/chats'); // We shouldn't stay here
-              context.push('/chats/peephole', extra: details);
-            }
-          });
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
+          if (details.currentMemberStatus == ChannelMemberStatus.invited) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted) {
+                context.go('/chats');
+                context.push('/chats/peephole', extra: details);
+              }
+            });
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
 
-        final otherResident = details.otherResident;
-        final otherName = details.otherUserName ?? 'Resident';
-        final otherAvatar = details.otherUserAvatar;
-        final otherFloor = DuoFloorHelper.computeFloor(otherResident);
-        final otherMood = details.otherUserMood;
+          final otherResident = details.otherResident;
+          final otherName = details.otherUserName ?? 'Resident';
+          final otherAvatar = details.otherUserAvatar;
+          final otherFloor = DuoFloorHelper.computeFloor(otherResident);
+          final otherMood = details.otherUserMood;
 
-        final canSend =
-            currentResident != null && !DuoFloorHelper.isMuted(currentResident);
+          final canSend = currentResident != null &&
+              !DuoFloorHelper.isMuted(currentResident);
 
-        final typingUsers = chatState.value?.typingUsers ?? {};
-        // Filter out ourselves if we are in the list
-        final otherTypingUsers = typingUsers
-            .where((u) => u != currentResident?.userName)
-            .toList();
+          final typingUsers = chatState.value?.typingUsers ?? {};
+          final otherTypingUsers =
+              typingUsers.where((u) => u != currentResident?.userName).toList();
 
-        return DuoChatInputLayout(
-          typingIndicator:
-              (currentResident?.isPremium == true &&
-                  currentResident?.showOthersTypingIndicators == true &&
-                  otherTypingUsers.isNotEmpty)
-              ? _buildTypingIndicator(otherTypingUsers)
-              : null,
-          appBar: AppBar(
-            backgroundColor: Colors.white,
-            elevation: 0,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black),
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                context.popWithAd(ref);
-              },
-            ),
-            title: Row(
-              children: [
-                DuoAvatar(
-                  imageUrl: otherAvatar,
-                  size: 36,
-                  mood: otherMood,
-                  showRing: true,
-                  floorLevel: otherFloor,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        otherName,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                              fontFamily: 'Poppins',
-                            ),
-                      ),
-                      Text(
-                        otherFloor > 0 ? 'Floor $otherFloor' : 'New Resident',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.textSecondary,
-                          fontFamily: 'Rubik',
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              DuoRefreshButton(
-                color: Colors.black,
-                onRefresh: () {
-                  ref
-                      .read(realtimeChatProvider(widget.channelId).notifier)
-                      .refresh();
+          return DuoChatInputLayout(
+            typingIndicator: (currentResident?.isPremium == true &&
+                    currentResident?.showOthersTypingIndicators == true &&
+                    otherTypingUsers.isNotEmpty)
+                ? _buildTypingIndicator(otherTypingUsers)
+                : null,
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.black),
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  context.popWithAd(ref);
                 },
               ),
-              if (currentResident?.keepPrivateChats == true)
-                IconButton(
-                  onPressed: () async {
-                    if (currentResident?.isPremium != true) {
-                      _showUpgradePrompt('Chat Persistence 🔖');
-                      return;
-                    }
-
-                    try {
-                      final client = ref.read(clientProvider);
-                      final isPersistent =
-                          details.channel?.isPersistent ?? false;
-                      await client.message.updateChannelPersistence(
-                        widget.channelId,
-                        !isPersistent,
-                      );
-
-                      if (context.mounted) {
-                        HapticFeedback.mediumImpact();
-                        DuoSnackBarHelper.showSuccess(
-                          context,
-                          !isPersistent
-                              ? 'Chat will be kept permanently! 🔖'
-                              : 'Chat ephemerality restored. ✨',
-                        );
-                        // Invalidate to refresh the Details (specifically the channel object)
-                        ref.invalidate(
-                          privateChatDetailsProvider(widget.channelId),
-                        );
-                      }
-                    } catch (e) {
-                      if (context.mounted) {
-                        DuoSnackBarHelper.showError(
-                          context,
-                          'Failed to update persistence',
-                        );
-                      }
-                    }
-                  },
-                  icon: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Icon(
-                        details.channel?.isPersistent == true
-                            ? Icons.bookmark_rounded
-                            : Icons.bookmark_border_rounded,
-                        color: details.channel?.isPersistent == true
-                            ? AppTheme.duoPurple
-                            : Colors.black54,
-                        size: 28,
-                      ),
-                      if (currentResident?.isPremium != true)
-                        Positioned(
-                          right: 0,
-                          bottom: 0,
-                          child: Container(
-                            padding: const EdgeInsets.all(1.5),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.1),
-                                  blurRadius: 2,
-                                ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.lock_rounded,
-                              size: 10,
-                              color: AppTheme.duoOrange,
-                            ),
-                          ),
-                        ),
-                    ],
+              title: Row(
+                children: [
+                  DuoAvatar(
+                    imageUrl: otherAvatar,
+                    size: 36,
+                    mood: otherMood,
+                    showRing: true,
+                    floorLevel: otherFloor,
                   ),
-                  tooltip: details.channel?.isPersistent == true
-                      ? 'Unkeep Chat'
-                      : 'Keep Chat',
-                ),
-              PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert, color: Colors.black),
-                onSelected: (value) async {
-                  if (value == 'leave') {
-                    final confirm = await showDialog<bool>(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                        title: const Text('Leave Chat?'),
-                        content: const Text(
-                          'Are you sure you want to leave this chat? You won\'t be able to receive messages until you\'re invited back.',
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          otherName,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                                fontFamily: 'Poppins',
+                              ),
                         ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(ctx, false),
-                            child: const Text(
-                              'Cancel',
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.pop(ctx, true),
-                            child: const Text(
-                              'Leave',
-                              style: TextStyle(color: AppTheme.duoRed),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                    if (confirm == true && context.mounted) {
+                        Text(
+                          otherFloor > 0 ? 'Floor $otherFloor' : 'New Resident',
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: AppTheme.textSecondary,
+                                    fontFamily: 'Rubik',
+                                  ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                DuoRefreshButton(
+                  color: Colors.black,
+                  onRefresh: () {
+                    ref.read(realtimeChatProvider(channelId).notifier).refresh();
+                  },
+                ),
+                if (currentResident?.keepPrivateChats == true)
+                  IconButton(
+                    onPressed: () async {
+                      if (currentResident?.isPremium != true) {
+                        _showUpgradePrompt('Chat Persistence 🔖');
+                        return;
+                      }
+
                       try {
-                        await ref
-                            .read(privateChatListProvider.notifier)
-                            .leaveChat(widget.channelId);
+                        final client = ref.read(clientProvider);
+                        final isPersistent =
+                            details.channel?.isPersistent ?? false;
+                        await client.message.updateChannelPersistence(
+                          channelId,
+                          !isPersistent,
+                        );
+
                         if (context.mounted) {
-                          Navigator.pop(context); // Go back to chats list
+                          HapticFeedback.mediumImpact();
+                          DuoSnackBarHelper.showSuccess(
+                            context,
+                            !isPersistent
+                                ? 'Chat will be kept permanently! 🔖'
+                                : 'Chat ephemerality restored. ✨',
+                          );
+                          // Invalidate to refresh the Details (specifically the channel object)
+                          ref.invalidate(
+                            privateChatDetailsProvider(channelId),
+                          );
                         }
                       } catch (e) {
                         if (context.mounted) {
                           DuoSnackBarHelper.showError(
                             context,
-                            'Failed to leave chat',
+                            'Failed to update persistence',
                           );
                         }
                       }
-                    }
-                  }
-                },
-                itemBuilder: (BuildContext context) {
-                  return [
-                    const PopupMenuItem<String>(
-                      value: 'leave',
-                      child: Row(
-                        children: [
-                          Text('🚪', style: TextStyle(fontSize: 20)),
-                          SizedBox(width: 8),
-                          Text(
-                            'Leave Chat',
-                            style: TextStyle(
-                              color: AppTheme.duoRed,
-                              fontWeight: FontWeight.bold,
+                    },
+                    icon: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Icon(
+                          details.channel?.isPersistent == true
+                              ? Icons.bookmark_rounded
+                              : Icons.bookmark_border_rounded,
+                          color: details.channel?.isPersistent == true
+                              ? AppTheme.duoPurple
+                              : Colors.black54,
+                          size: 28,
+                        ),
+                        if (currentResident?.isPremium != true)
+                          Positioned(
+                            right: 0,
+                            bottom: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(1.5),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.1),
+                                    blurRadius: 2,
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.lock_rounded,
+                                size: 10,
+                                color: AppTheme.duoOrange,
+                              ),
                             ),
                           ),
-                        ],
-                      ),
+                      ],
                     ),
-                  ];
-                },
-              ),
-            ],
-          ),
-          controller: _messageController,
-          onSend: _sendMessage,
-          onVoiceSend: _sendVoiceMessage,
-          onVoiceStart: () async {
-            if (currentResident == null) return false;
-
-            if (!currentResident.isPremium) {
-              _showUpgradePrompt('Voice Messages');
-              return false;
-            }
-
-            if (!currentResident.showVoiceMessages) {
-              DuoSnackBarHelper.showWarning(
-                context,
-                'Enable voice messages in Settings! 🎙️',
-              );
-              return false;
-            }
-            return true;
-          },
-          onTypingStatusChanged: (isTyping) {
-            if (currentResident?.showTypingIndicator == true) {
-              ref
-                  .read(realtimeChatProvider(widget.channelId).notifier)
-                  .setTyping(isTyping);
-            }
-          },
-          onImagePick: () async {
-            if (currentResident?.showImagesInPrivateChats != true) {
-              DuoSnackBarHelper.showWarning(
-                context,
-                'Enable image sharing in Settings! 📸',
-              );
-              return;
-            }
-
-            _pickAndSendImage();
-          },
-          enabled: canSend,
-          isSending: _isSending,
-          isLoading: currentResidentAsync.isLoading,
-          focusNode: _focusNode,
-          activeColor: AppTheme.duoOrange,
-          header: (chatState.value?.pinnedMessage != null)
-              ? PinnedMessageBar(
-                  message: chatState.value!.pinnedMessage!,
-                  onUnpin: () => ref
-                      .read(realtimeChatProvider(widget.channelId).notifier)
-                      .unpinMessage(chatState.value!.pinnedMessage!.id!),
-                )
-              : null,
-          hintText: canSend
-              ? 'Type a message...'
-              : DuoFloorHelper.getMuteInputHint(currentResident),
-          content: chatState.when(
-            data: (state) => state.messages.isEmpty
-                ? _buildEmptyState()
-                : _buildMessagesList(
-                    state,
-                    otherName,
-                    currentResident,
-                    details.otherResident.userInfoId.toString(),
+                    tooltip: details.channel?.isPersistent == true
+                        ? 'Unkeep Chat'
+                        : 'Keep Chat',
                   ),
-            loading: () => const Center(
-              child: CircularProgressIndicator(color: AppTheme.primaryColor),
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert, color: Colors.black),
+                  onSelected: (value) async {
+                    if (value == 'leave') {
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('Leave Chat?'),
+                          content: const Text(
+                            'Are you sure you want to leave this chat? You won\'t be able to receive messages until you\'re invited back.',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              child: const Text(
+                                'Cancel',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, true),
+                              child: const Text(
+                                'Leave',
+                                style: TextStyle(color: AppTheme.duoRed),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirm == true && context.mounted) {
+                        try {
+                          await ref
+                              .read(privateChatListProvider.notifier)
+                              .leaveChat(channelId);
+                          if (context.mounted) {
+                            Navigator.pop(context); // Go back to chats list
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            DuoSnackBarHelper.showError(
+                              context,
+                              'Failed to leave chat',
+                            );
+                          }
+                        }
+                      }
+                    }
+                  },
+                  itemBuilder: (BuildContext context) {
+                    return [
+                      const PopupMenuItem<String>(
+                        value: 'leave',
+                        child: Row(
+                          children: [
+                            Text('🚪', style: TextStyle(fontSize: 20)),
+                            SizedBox(width: 8),
+                            Text(
+                              'Leave Chat',
+                              style: TextStyle(
+                                color: AppTheme.duoRed,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ];
+                  },
+                ),
+              ],
             ),
-            error: (error, stack) => _buildErrorState(error),
-          ),
-        );
-      },
+            controller: messageController,
+            onSend: sendMessage,
+            onVoiceSend: sendVoiceMessage,
+            onVoiceStart: () async {
+              if (currentResident == null) return false;
+
+              if (!currentResident.isPremium) {
+                _showUpgradePrompt('Voice Messages');
+                return false;
+              }
+
+              if (!currentResident.showVoiceMessages) {
+                DuoSnackBarHelper.showWarning(
+                  context,
+                  'Enable voice messages in Settings! 🎙️',
+                );
+                return false;
+              }
+              return true;
+            },
+            onTypingStatusChanged: handleTypingStatus,
+            onImagePick: () async {
+              if (currentResident?.showImagesInPrivateChats != true) {
+                DuoSnackBarHelper.showWarning(
+                  context,
+                  'Enable image sharing in Settings! 📸',
+                );
+                return;
+              }
+
+              pickAndSendImage();
+            },
+            enabled: canSend,
+            isSending: isSending,
+            isLoading: currentResidentAsync.isLoading,
+            focusNode: focusNode,
+            activeColor: AppTheme.duoOrange,
+            header: (chatState.value?.pinnedMessage != null)
+                ? PinnedMessageBar(
+                    message: chatState.value!.pinnedMessage!,
+                    onUnpin: () => ref
+                        .read(realtimeChatProvider(channelId).notifier)
+                        .unpinMessage(chatState.value!.pinnedMessage!.id!),
+                  )
+                : null,
+            hintText: canSend
+                ? 'Type a message...'
+                : DuoFloorHelper.getMuteInputHint(currentResident),
+            content: chatState.when(
+              data: (state) => state.messages.isEmpty
+                  ? _buildEmptyState()
+                  : _buildMessagesList(
+                      state,
+                      otherName,
+                      currentResident,
+                      details.otherResident.userInfoId.toString(),
+                    ),
+              loading: () => const Center(
+                child: CircularProgressIndicator(color: AppTheme.primaryColor),
+              ),
+              error: (error, stack) => _buildErrorState(error),
+            ),
+          );
+        },
         loading: () => Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
@@ -622,7 +443,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                 ),
                 TextButton(
                   onPressed: () => ref.invalidate(
-                    privateChatDetailsProvider(widget.channelId),
+                    privateChatDetailsProvider(channelId),
                   ),
                   child: const Text('Retry'),
                 ),
@@ -746,11 +567,11 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
 
     return RefreshIndicator(
       onRefresh: () async {
-        ref.read(realtimeChatProvider(widget.channelId).notifier).refresh();
+        ref.read(realtimeChatProvider(channelId).notifier).refresh();
       },
       color: AppTheme.primaryColor,
       child: ListView.builder(
-        controller: _scrollController,
+        controller: scrollController,
         reverse: true,
         padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
         itemCount: filteredMessages.length + (state.hasMore ? 1 : 0),
@@ -790,7 +611,17 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
             message: message,
             isCurrentUser: isCurrentUser,
             currentResident: currentResident,
-            onMention: _addMention,
+            onMention: (name) {
+              final current = messageController.text;
+              if (current.isEmpty || current.endsWith(' ')) {
+                messageController.text = '$current@$name ';
+              } else {
+                messageController.text = '$current @$name ';
+              }
+              messageController.selection = TextSelection.fromPosition(
+                TextPosition(offset: messageController.text.length),
+              );
+            },
             otherMemberNames: [otherName],
             isRead: isRead,
             canPin: true, // Both participants can pin in private chats

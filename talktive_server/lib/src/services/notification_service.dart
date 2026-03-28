@@ -2,6 +2,8 @@ import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import 'dart:convert';
 import 'fcm_service.dart';
+import 'mention_service.dart';
+import 'resident_service.dart';
 
 class NotificationService {
   /// Sends a notification to a user.
@@ -525,5 +527,100 @@ class NotificationService {
       },
       saveToHistory: true,
     );
+  }
+
+  /// Orchestrates all notifications for a new message (mentions, push, etc).
+  static Future<void> triggerMessageNotifications(
+    Session session, {
+    required protocol.Channel channel,
+    required protocol.Message message,
+    required protocol.Resident sender,
+  }) async {
+    final content = message.content;
+    if (content == null || content.isEmpty) return;
+
+    final isPlaza = channel.type == protocol.ChannelType.plaza;
+    final channelId = channel.id!;
+    final senderUuid = sender.userInfoId;
+    final senderName = sender.userName ?? 'Resident';
+
+    // 1. Resolve loungeId if applicable
+    int? loungeId;
+    if (!isPlaza) {
+      final lounge = await protocol.Lounge.db.findFirstRow(
+        session,
+        where: (t) => t.channelId.equals(channelId),
+      );
+      loungeId = lounge?.id;
+    }
+
+    // 2. Detect mentions
+    final mentionedUserIds = await MentionService.getMentionedUserIds(
+      session,
+      channelId,
+      content,
+    );
+    mentionedUserIds.remove(senderUuid);
+
+    final loungeName = channel.name ?? (isPlaza ? 'Plaza' : 'Chat');
+
+    // 3. Notify mentions (Parallel)
+    final mentionFutures = mentionedUserIds.map(
+      (mentionedId) => sendMentionNotification(
+        session,
+        mentionedId,
+        senderName,
+        content,
+        channelId,
+        loungeName,
+        loungeId: loungeId,
+      ),
+    );
+
+    // 4. Notify other members (Private/Lounge only)
+    Future? bulkMemberFuture;
+    if (!isPlaza) {
+      final String channelTypeStr =
+          channel.type == protocol.ChannelType.private ? 'private' : 'lounge';
+
+      final mentionIdSet = mentionedUserIds.toSet();
+      final blockedBySet = await ResidentService.getBlocksAgainstUser(
+        session,
+        senderUuid,
+      );
+
+      final otherMembers = await protocol.ChannelMember.db.find(
+        session,
+        where: (t) =>
+            t.channelId.equals(channelId) &
+            t.userInfoId.notEquals(senderUuid) &
+            t.status.equals(protocol.ChannelMemberStatus.joined),
+      );
+
+      final recipientIds = <UuidValue>[];
+      for (final member in otherMembers) {
+        if (member.isMuted || mentionIdSet.contains(member.userInfoId))
+          continue;
+        if (blockedBySet.contains(member.userInfoId)) continue;
+        recipientIds.add(member.userInfoId);
+      }
+
+      if (recipientIds.isNotEmpty) {
+        bulkMemberFuture = sendBulkMessageNotifications(
+          session,
+          recipientIds,
+          senderName,
+          content,
+          channelId,
+          channelTypeStr,
+          loungeId: loungeId,
+        );
+      }
+    }
+
+    await Future.wait([
+      ...mentionFutures,
+      if (bulkMemberFuture != null) bulkMemberFuture,
+    ]);
   }
 }

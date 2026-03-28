@@ -89,15 +89,17 @@ class GamificationNotifier extends _$GamificationNotifier {
 
   /// Refreshes the gamification data.
   Future<void> refresh() async {
+    bool isMounted = true;
+    ref.onDispose(() => isMounted = false);
+
     state = const AsyncValue.loading();
     try {
       final data = await fetchAll();
-      // Check if the provider is still mounted before updating state
-      if (ref.exists(gamificationProvider)) {
+      if (isMounted) {
         state = AsyncValue.data(data);
       }
     } catch (e, stack) {
-      if (ref.exists(gamificationProvider)) {
+      if (isMounted) {
         state = AsyncValue.error(e, stack);
       }
     }

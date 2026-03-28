@@ -404,4 +404,130 @@ class MessagingService {
     );
     return updatedMessage;
   }
+
+  /// Recalls a message.
+  static Future<protocol.Message> recallMessage(
+    Session session, {
+    required int messageId,
+    required protocol.Resident resident,
+  }) async {
+    final message = await protocol.Message.db.findById(session, messageId);
+    if (message == null) {
+      throw protocol.TalktiveException(
+        message: 'Message not found.',
+        code: 'MESSAGE_NOT_FOUND',
+      );
+    }
+
+    if (message.isRecalled) {
+      return message;
+    }
+
+    final channel = await protocol.Channel.db.findById(
+      session,
+      message.channelId,
+    );
+    if (channel == null) {
+      throw protocol.TalktiveException(
+        message: 'Channel not found.',
+        code: 'CHANNEL_NOT_FOUND',
+      );
+    }
+
+    bool canRecall = false;
+
+    // 1. Own message can always be recalled
+    if (message.senderId == resident.userInfoId) {
+      canRecall = true;
+    }
+
+    // 2. Staff (Admin/Moderator) can recall in non-private spaces
+    if (!canRecall &&
+        (resident.role == protocol.ResidentRole.admin ||
+            resident.role == protocol.ResidentRole.moderator)) {
+      if (channel.type != protocol.ChannelType.private) {
+        canRecall = true;
+      }
+    }
+
+    // 3. Lounge Creator can recall in their lounge
+    if (!canRecall && channel.type == protocol.ChannelType.lounge) {
+      final lounge = await protocol.Lounge.db.findFirstRow(
+        session,
+        where: (t) => t.channelId.equals(channel.id!),
+      );
+      if (lounge != null && lounge.creatorId == resident.userInfoId) {
+        canRecall = true;
+      }
+    }
+
+    if (!canRecall) {
+      throw protocol.TalktiveException(
+        message:
+            'Access denied: You do not have permission to recall this message.',
+        code: 'ACCESS_DENIED',
+      );
+    }
+
+    // Mark as recalled
+    message.isRecalled = true;
+    message.recalledAt = DateTime.now();
+    message.content = null;
+    message.imageUrl = null;
+    message.mediaUrl = null;
+    message.mediaType = null;
+    message.duration = null;
+    message.fileSize = null;
+
+    final updatedMessage = await protocol.Message.db.updateRow(session, message);
+
+    // Update Denormalized Info (Preview text) if it was the last message
+    if (channel.type != protocol.ChannelType.plaza) {
+      bool isLast = false;
+      if (channel.type == protocol.ChannelType.private) {
+        final pc = await protocol.PrivateChat.db.findFirstRow(
+          session,
+          where: (t) => t.channelId.equals(channel.id!),
+        );
+        if (pc != null && pc.lastMessageAt != null) {
+          // Approximate check: if recalled message was the latest according to time
+          // Better: We could just check if there's any message newer than this one.
+          final newerMsg = await protocol.Message.db.findFirstRow(
+            session,
+            where: (t) => t.channelId.equals(channel.id!) & (t.createdAt > message.createdAt),
+          );
+          if (newerMsg == null) isLast = true;
+        }
+      } else if (channel.type == protocol.ChannelType.lounge) {
+        final lounge = await protocol.Lounge.db.findFirstRow(
+          session,
+          where: (t) => t.channelId.equals(channel.id!),
+        );
+         if (lounge != null && lounge.lastMessageAt != null) {
+             final newerMsg = await protocol.Message.db.findFirstRow(
+                session,
+                where: (t) => t.channelId.equals(channel.id!) & (t.createdAt > message.createdAt),
+             );
+             if (newerMsg == null) isLast = true;
+         }
+      }
+
+      if (isLast) {
+        await ChannelService.updateLastMessage(
+          session,
+          channel.id!,
+          channelType: channel.type,
+          content: 'Message recalled 🔄',
+        );
+      }
+    }
+
+    // Broadcast update
+    await session.messages.postMessage(
+      'channel_${message.channelId}',
+      updatedMessage,
+    );
+
+    return updatedMessage;
+  }
 }

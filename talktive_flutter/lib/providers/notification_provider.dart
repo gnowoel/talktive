@@ -65,8 +65,14 @@ class ActivityHistory extends _$ActivityHistory {
   }
 
   Future<void> refresh() async {
+    bool isMounted = true;
+    ref.onDispose(() => isMounted = false);
+
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => _fetchNotifications());
+    final result = await AsyncValue.guard(() => _fetchNotifications());
+    if (isMounted) {
+      state = result;
+    }
   }
 
   Future<void> markAsRead(List<int> ids) async {

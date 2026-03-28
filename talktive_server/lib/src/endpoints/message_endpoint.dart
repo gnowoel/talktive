@@ -416,4 +416,16 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       resident: resident,
     );
   }
+
+  /// Recalls a message.
+  Future<protocol.Message> recallMessage(Session session, int messageId) async {
+    final userUuid = await getUserId(session);
+    final resident = await getResidentProfile(session, userUuid);
+
+    return await MessagingService.recallMessage(
+      session,
+      messageId: messageId,
+      resident: resident,
+    );
+  }
 }

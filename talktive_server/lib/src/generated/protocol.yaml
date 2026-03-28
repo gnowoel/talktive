@@ -74,6 +74,7 @@ message:
   - getPinnedMessage:
   - pinMessage:
   - unpinMessage:
+  - recallMessage:
 moment:
   - postMoment:
   - listMoments:

@@ -794,6 +794,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
             otherMemberNames: [otherName],
             isRead: isRead,
             canPin: true, // Both participants can pin in private chats
+            canRecall: isCurrentUser,
           )
               .animate(delay: Duration(milliseconds: index * 10))
               .fadeIn(duration: 200.ms)

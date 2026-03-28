@@ -28,12 +28,15 @@ abstract class Message
     required this.createdAt,
     this.duration,
     this.fileSize,
+    bool? isRecalled,
+    this.recalledAt,
     required this.senderName,
     this.senderAvatar,
     this.senderMood,
     required this.senderFloor,
     required this.senderTrustScore,
-  }) : isPinned = isPinned ?? false;
+  }) : isPinned = isPinned ?? false,
+       isRecalled = isRecalled ?? false;
 
   factory Message({
     int? id,
@@ -49,6 +52,8 @@ abstract class Message
     required DateTime createdAt,
     int? duration,
     int? fileSize,
+    bool? isRecalled,
+    DateTime? recalledAt,
     required String senderName,
     String? senderAvatar,
     String? senderMood,
@@ -79,6 +84,12 @@ abstract class Message
       ),
       duration: jsonSerialization['duration'] as int?,
       fileSize: jsonSerialization['fileSize'] as int?,
+      isRecalled: jsonSerialization['isRecalled'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isRecalled']),
+      recalledAt: jsonSerialization['recalledAt'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['recalledAt']),
       senderName: jsonSerialization['senderName'] as String,
       senderAvatar: jsonSerialization['senderAvatar'] as String?,
       senderMood: jsonSerialization['senderMood'] as String?,
@@ -118,6 +129,10 @@ abstract class Message
 
   int? fileSize;
 
+  bool isRecalled;
+
+  DateTime? recalledAt;
+
   String senderName;
 
   String? senderAvatar;
@@ -148,6 +163,8 @@ abstract class Message
     DateTime? createdAt,
     int? duration,
     int? fileSize,
+    bool? isRecalled,
+    DateTime? recalledAt,
     String? senderName,
     String? senderAvatar,
     String? senderMood,
@@ -171,6 +188,8 @@ abstract class Message
       'createdAt': createdAt.toJson(),
       if (duration != null) 'duration': duration,
       if (fileSize != null) 'fileSize': fileSize,
+      'isRecalled': isRecalled,
+      if (recalledAt != null) 'recalledAt': recalledAt?.toJson(),
       'senderName': senderName,
       if (senderAvatar != null) 'senderAvatar': senderAvatar,
       if (senderMood != null) 'senderMood': senderMood,
@@ -196,6 +215,8 @@ abstract class Message
       'createdAt': createdAt.toJson(),
       if (duration != null) 'duration': duration,
       if (fileSize != null) 'fileSize': fileSize,
+      'isRecalled': isRecalled,
+      if (recalledAt != null) 'recalledAt': recalledAt?.toJson(),
       'senderName': senderName,
       if (senderAvatar != null) 'senderAvatar': senderAvatar,
       if (senderMood != null) 'senderMood': senderMood,
@@ -251,6 +272,8 @@ class _MessageImpl extends Message {
     required DateTime createdAt,
     int? duration,
     int? fileSize,
+    bool? isRecalled,
+    DateTime? recalledAt,
     required String senderName,
     String? senderAvatar,
     String? senderMood,
@@ -270,6 +293,8 @@ class _MessageImpl extends Message {
          createdAt: createdAt,
          duration: duration,
          fileSize: fileSize,
+         isRecalled: isRecalled,
+         recalledAt: recalledAt,
          senderName: senderName,
          senderAvatar: senderAvatar,
          senderMood: senderMood,
@@ -295,6 +320,8 @@ class _MessageImpl extends Message {
     DateTime? createdAt,
     Object? duration = _Undefined,
     Object? fileSize = _Undefined,
+    bool? isRecalled,
+    Object? recalledAt = _Undefined,
     String? senderName,
     Object? senderAvatar = _Undefined,
     Object? senderMood = _Undefined,
@@ -315,6 +342,8 @@ class _MessageImpl extends Message {
       createdAt: createdAt ?? this.createdAt,
       duration: duration is int? ? duration : this.duration,
       fileSize: fileSize is int? ? fileSize : this.fileSize,
+      isRecalled: isRecalled ?? this.isRecalled,
+      recalledAt: recalledAt is DateTime? ? recalledAt : this.recalledAt,
       senderName: senderName ?? this.senderName,
       senderAvatar: senderAvatar is String? ? senderAvatar : this.senderAvatar,
       senderMood: senderMood is String? ? senderMood : this.senderMood,
@@ -389,6 +418,17 @@ class MessageUpdateTable extends _i1.UpdateTable<MessageTable> {
     table.fileSize,
     value,
   );
+
+  _i1.ColumnValue<bool, bool> isRecalled(bool value) => _i1.ColumnValue(
+    table.isRecalled,
+    value,
+  );
+
+  _i1.ColumnValue<DateTime, DateTime> recalledAt(DateTime? value) =>
+      _i1.ColumnValue(
+        table.recalledAt,
+        value,
+      );
 
   _i1.ColumnValue<String, String> senderName(String value) => _i1.ColumnValue(
     table.senderName,
@@ -469,6 +509,15 @@ class MessageTable extends _i1.Table<int?> {
       'fileSize',
       this,
     );
+    isRecalled = _i1.ColumnBool(
+      'isRecalled',
+      this,
+      hasDefault: true,
+    );
+    recalledAt = _i1.ColumnDateTime(
+      'recalledAt',
+      this,
+    );
     senderName = _i1.ColumnString(
       'senderName',
       this,
@@ -517,6 +566,10 @@ class MessageTable extends _i1.Table<int?> {
 
   late final _i1.ColumnInt fileSize;
 
+  late final _i1.ColumnBool isRecalled;
+
+  late final _i1.ColumnDateTime recalledAt;
+
   late final _i1.ColumnString senderName;
 
   late final _i1.ColumnString senderAvatar;
@@ -542,6 +595,8 @@ class MessageTable extends _i1.Table<int?> {
     createdAt,
     duration,
     fileSize,
+    isRecalled,
+    recalledAt,
     senderName,
     senderAvatar,
     senderMood,

@@ -13,6 +13,8 @@ fields:
   createdAt: DateTime
   duration: int?
   fileSize: int?
+  isRecalled: bool, default=false
+  recalledAt: DateTime?
 
   # Denormalized Sender Info
   senderName: String

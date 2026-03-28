@@ -1,5 +1,45 @@
 # Talktive Development Changelog
 
+## March 28, 2026 - Message Recall & Content Retraction (Phase 8.87) 🔄🛡️✨
+
+### Features & Moderation Tools
+
+- **Message Recall**: Implemented a comprehensive message recall feature across all channel types (Plaza, Lounges, Private Chats). This allows users to retract their own messages and provides staff with critical content moderation capabilities.
+- **Role-Based Permissions**:
+  - **Residents**: Can recall their own messages in any channel.
+  - **Staff (Admins/Moderators)**: Can recall any message in public spaces (Plaza and Lounges).
+  - **Lounge Creators**: Can recall any message within their community lounge.
+- **Content Retraction Logic**: Recalled messages are not physically deleted but have their content nullified and marked as `isRecalled`. This preserves conversation flow while ensuring inappropriate content is removed.
+- **Real-time Synchronization**: Integrated WebSocket broadcasts to immediately update the "Message recalled 🔄" state for all active participants.
+
+### UI/UX Improvements
+
+- **Visual Recall State**: Updated `MessageBubble` to render a specialized recalled state with intuitive iconography and clear feedback.
+- **Administrative Menu**: Enhanced the long-press context menu with a "Recall Message" action, protected by role-based authorization and a safety confirmation dialog.
+- **Channel Preview Updates**: Automatically updates channel last-message previews to "Message recalled 🔄" if the retracted message was the latest in the thread.
+
+### Backend & Infrastructure
+
+- **Protocol Extension**: Added `isRecalled` and `recalledAt` fields to the `Message` protocol and synchronized the database schema.
+- **Service Layer Delegation**: Implemented recall logic within `MessagingService`, ensuring consistent permission enforcement and side-effect management (broadcasting, channel updates).
+- **API Reconciliation**: Exposed `recallMessage` in `MessageEndpoint` for unified frontend access.
+
+## March 28, 2026 - Premium Badge Redesign & Lifecycle Stability (Phase 8.86) 🏆🏗️✨
+
+### UI/UX & Gamification
+
+- **Premium Badge Redesign**: Completely overhauled the `DuoBadge` system with a premium "Duolingo-first" aesthetic. Badges now feature a larger, more detailed 72px circle with expressive emojis.
+- **Grayscale Locked State**: Implemented a sophisticated grayscale color matrix filter for locked badges, moving the "lock" indicator to a discreet, professional bubble in the bottom-right corner.
+- **Interactive Animations**: Added a shimmering effect and an elastic entrance animation for unlocked badges, providing a high-quality feedback loop for user progress.
+- **Haptic Feedback**: Integrated tactile feedback (Medium Impact) on badge taps to enhance the gamified experience.
+- **Activity Layout Optimization**: Increased the header height for the achievements list in the `ActivityScreen` to accommodate the new badge dimensions and improve visual breathing room.
+
+### Technical & Stability
+
+- **Ref Lifecycle Protection**: Resolved critical "Ref used after dispose" runtime exceptions in `GamificationNotifier` and `ActivityHistoryProvider`. Implemented a robust `isMounted` pattern using `ref.onDispose` to ensure async updates only occur while the provider is active.
+- **Flutter Web & Android Verification**: Confirmed warning-free compilation and stable runtime operation across Serverpod (localhost:8082), Flutter Web (Port 8083), and Android Emulator.
+- **Codebase Sanitization**: Fixed animation syntax errors and missing service imports in the new `DuoBadge` component.
+
 ## March 31, 2026 - Lounge House Rules & Milestone Rewards (Phase 8.85) 🏠💎🦋
 
 ### Community Engagement & Gamification

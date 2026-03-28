@@ -337,6 +337,18 @@ class RealtimeChat extends _$RealtimeChat {
     }
   }
 
+  /// Recalls a message.
+  Future<void> recallMessage(int messageId) async {
+    final client = ref.read(clientProvider);
+    try {
+      await client.message.recallMessage(messageId);
+      // Recalled status will be updated via WebSocket broadcast
+    } catch (e) {
+      debugPrint('RealtimeChat: Recall error: $e');
+      rethrow;
+    }
+  }
+
   /// Updates our typing status.
   Future<void> setTyping(bool isTyping) async {
     final client = ref.read(clientProvider);

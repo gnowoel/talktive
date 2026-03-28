@@ -25,6 +25,7 @@ class MessageBubble extends ConsumerWidget {
   final List<String>? otherMemberNames;
   final bool isRead;
   final bool canPin;
+  final bool canRecall;
 
   const MessageBubble({
     super.key,
@@ -32,6 +33,7 @@ class MessageBubble extends ConsumerWidget {
     required this.isCurrentUser,
     required this.currentResident,
     this.canPin = false,
+    this.canRecall = false,
     this.onMention,
     this.otherMemberNames,
     this.isRead = false,
@@ -66,6 +68,45 @@ class MessageBubble extends ConsumerWidget {
                 fontWeight: FontWeight.w500,
               ),
               textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (message.isRecalled) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: AppTheme.duoSpacingSmall,
+        ),
+        child: Align(
+          alignment: isCurrentUser ? Alignment.centerRight : Alignment.centerLeft,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.history_rounded,
+                  size: 14,
+                  color: Colors.grey.shade500,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Message recalled 🔄',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.grey.shade500,
+                    fontFamily: 'Rubik',
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -443,6 +484,70 @@ class MessageBubble extends ConsumerWidget {
                   } catch (e) {
                     if (context.mounted) {
                       DuoSnackBarHelper.showError(context, e.toString());
+                    }
+                  }
+                },
+              ),
+            ],
+            if (canRecall && !message.isRecalled) ...[
+              const Divider(),
+              ListTile(
+                leading: const Icon(
+                  Icons.history_rounded,
+                  color: AppTheme.duoPurple,
+                ),
+                title: const Text(
+                  'Recall Message',
+                  style: TextStyle(
+                    color: AppTheme.duoPurple,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      title: const Text('Recall message?'),
+                      content: const Text(
+                        'This will hide the message content for everyone. This action cannot be undone.',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, true),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppTheme.duoPurple,
+                          ),
+                          child: const Text('Recall'),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirm == true && context.mounted) {
+                    try {
+                      final notifier = ref.read(
+                        realtimeChatProvider(message.channelId).notifier,
+                      );
+                      await notifier.recallMessage(message.id!);
+                      if (context.mounted) {
+                        DuoSnackBarHelper.showSuccess(
+                          context,
+                          'Message recalled.',
+                        );
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        DuoSnackBarHelper.showError(context, e.toString());
+                      }
                     }
                   }
                 },

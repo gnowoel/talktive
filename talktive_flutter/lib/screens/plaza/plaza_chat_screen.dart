@@ -470,6 +470,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen> {
             isCurrentUser: isCurrentUser,
             currentResident: currentResident,
             canPin: currentResident?.isStaff ?? false,
+            canRecall: isCurrentUser || (currentResident?.isStaff ?? false),
           )
               .animate()
               .fadeIn(delay: Duration(milliseconds: index * 10))

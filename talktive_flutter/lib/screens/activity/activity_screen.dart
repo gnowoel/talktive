@@ -355,7 +355,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
               ),
               const SizedBox(height: AppTheme.duoSpacingSmall),
               SizedBox(
-                height: 90,
+                height: 130,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: achievements.length,
@@ -367,7 +367,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                       padding: EdgeInsets.only(
                         right: index == achievements.length - 1
                             ? 0
-                            : AppTheme.duoSpacingSmall,
+                            : AppTheme.duoSpacingMedium,
                       ),
                       child: DuoBadge(
                         emoji: achievementData.emoji,

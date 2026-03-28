@@ -953,7 +953,6 @@ class EndpointMessage extends _i2.EndpointRef {
       );
 
   /// Pins a message to the top of its channel.
-  /// Only admins can pin messages.
   _i3.Future<_i17.Message> pinMessage(int messageId) =>
       caller.callServerEndpoint<_i17.Message>(
         'message',
@@ -966,6 +965,14 @@ class EndpointMessage extends _i2.EndpointRef {
       caller.callServerEndpoint<_i17.Message>(
         'message',
         'unpinMessage',
+        {'messageId': messageId},
+      );
+
+  /// Recalls a message.
+  _i3.Future<_i17.Message> recallMessage(int messageId) =>
+      caller.callServerEndpoint<_i17.Message>(
+        'message',
+        'recallMessage',
         {'messageId': messageId},
       );
 }

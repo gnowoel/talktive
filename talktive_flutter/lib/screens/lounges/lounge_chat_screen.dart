@@ -905,6 +905,9 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen> {
             otherMemberNames: memberNames,
             canPin: (currentResident?.isStaff ?? false) ||
                 (currentResident?.userInfoId == widget.lounge.creatorId),
+            canRecall: isCurrentUser ||
+                (currentResident?.isStaff ?? false) ||
+                (currentResident?.userInfoId == widget.lounge.creatorId),
           )
               .animate(delay: Duration(milliseconds: index * 10))
               .fadeIn(duration: 200.ms)

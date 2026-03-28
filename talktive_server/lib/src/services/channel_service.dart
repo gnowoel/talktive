@@ -88,7 +88,6 @@ class ChannelService {
     return await protocol.Channel.db.updateRow(session, channel);
   }
 
-  /// Updates the denormalized 'last message' fields for a channel's owner record (PrivateChat or Lounge).
   static Future<void> updateLastMessage(
     Session session,
     int channelId, {
@@ -97,6 +96,7 @@ class ChannelService {
     String? imageUrl,
     String? mediaUrl,
     String? mediaType,
+    bool updateTimestamp = true,
   }) async {
     final now = DateTime.now();
 
@@ -121,7 +121,9 @@ class ChannelService {
         where: (t) => t.channelId.equals(channelId),
       );
       if (privateChat != null) {
-        privateChat.lastMessageAt = now;
+        if (updateTimestamp) {
+          privateChat.lastMessageAt = now;
+        }
         privateChat.lastMessage = previewText;
         await protocol.PrivateChat.db.updateRow(session, privateChat);
       }
@@ -131,7 +133,9 @@ class ChannelService {
         where: (t) => t.channelId.equals(channelId),
       );
       if (lounge != null) {
-        lounge.lastMessageAt = now;
+        if (updateTimestamp) {
+          lounge.lastMessageAt = now;
+        }
         lounge.lastMessage = previewText;
         await protocol.Lounge.db.updateRow(session, lounge);
       }

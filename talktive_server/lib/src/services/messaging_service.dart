@@ -518,6 +518,7 @@ class MessagingService {
           channel.id!,
           channelType: channel.type,
           content: 'Message recalled 🔄',
+          updateTimestamp: false,
         );
       }
     }

@@ -138,6 +138,12 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 ## Recent Fixes
 
 
+- **Full-Stack Consolidation & Simplification (Mar 2026)**:
+  - **Frontend Redundancy Elimination**: Introduced `ChatScreenMixin` to unify common chat logic (scrolling, messaging, image/voice handling) across `PlazaChatScreen`, `LoungeChatScreen`, and `ChatThreadScreen`. This reduced duplicated UI code by over 600 lines while ensuring consistent behavior across all chat environments.
+  - **Backend Orchestration Refactoring**: Migrated notification orchestration logic from `MessageEndpoint` to `NotificationService.triggerMessageNotifications`. This further thins the endpoint layer and centralizes complex side-effect logic.
+  - **Service-Level Delegation**: Simplified `ReportEndpoint` and other controllers by delegating business rules and validation logic to their respective service classes (`ReportService`, etc.), maintaining a clean delegated architecture.
+  - **UI Consistency**: Standardized typing indicators and message list rendering across all chat screens using the unified mixin properties.
+
 - **Global Caching Standardization & Infrastructure Polish (Mar 2026)**:
   - **Unified Caching Architecture**: Standardized the tiered caching strategy (Local -> Global Redis -> Database) for the `Resident` model. All reads/writes now flow through `ResidentService`, ensuring distributed cache consistency and zero stale data during rapid profile updates.
   - **Service-Level Sync**: Refactored `ApartmentService`, `GamificationService`, `ChatService`, and `MomentService` to use cache-aware update methods, eliminating N+1 query patterns and local caching mismatches.

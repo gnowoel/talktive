@@ -230,7 +230,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen>
       },
       child: DuoChatInputLayout(
         typingIndicator:
-            (currentResident?.isPremium == true && otherTypingUsers.isNotEmpty)
+            (currentResident?.isPlus == true && otherTypingUsers.isNotEmpty)
                 ? DuoTypingIndicator(typingUsers: otherTypingUsers)
                 : null,
         appBar: AppBar(
@@ -487,7 +487,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen>
           final currentResident = ref.read(currentResidentProvider).value;
           if (currentResident == null) return false;
 
-          if (!currentResident.isPremium) {
+          if (!currentResident.isPlus) {
             _showUpgradePrompt('Voice Messages');
             return false;
           }

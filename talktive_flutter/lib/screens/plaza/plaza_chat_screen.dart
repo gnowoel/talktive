@@ -60,7 +60,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
       },
       child: DuoChatInputLayout(
         typingIndicator:
-            (currentResident?.isPremium == true &&
+            (currentResident?.isPlus == true &&
                     currentResident?.showOthersTypingIndicators == true &&
                     otherTypingUsers.isNotEmpty)
                 ? DuoTypingIndicator(typingUsers: otherTypingUsers)
@@ -138,7 +138,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
           final currentResident = ref.read(currentResidentProvider).value;
           if (currentResident == null) return false;
 
-          if (!currentResident.isPremium) {
+          if (!currentResident.isPlus) {
             if (mounted) {
               ref.read(realtimeChatProvider(channelId).notifier).setTyping(false); // Cancel typing
               // Mixin handles upgrade prompt if we want, but here we keep it custom if needed

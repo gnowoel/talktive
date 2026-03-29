@@ -9,6 +9,7 @@ import '../../services/media_service.dart';
 import '../../helpers/duo_snackbar_helper.dart';
 import '../../helpers/duo_floor_helper.dart';
 import '../../helpers/duo_upgrade_helper.dart';
+import '../../helpers/resident_ext.dart';
 import 'package:talktive_client/talktive_client.dart';
 
 mixin ChatScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
@@ -97,7 +98,7 @@ mixin ChatScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     final currentResident = ref.read(currentResidentProvider).value;
     if (currentResident == null) return;
 
-    if (!currentResident.isPremium) {
+    if (!currentResident.isPlus) {
       DuoUpgradeHelper.showUpgradePrompt(context, 'Voice Messages');
       return;
     }
@@ -178,7 +179,7 @@ mixin ChatScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
 
   void handleTypingStatus(bool isTyping) {
     final currentResident = ref.read(currentResidentProvider).value;
-    if (currentResident?.isPremium == true &&
+    if (currentResident?.isPlus == true &&
         currentResident?.showTypingIndicator == true) {
       ref.read(realtimeChatProvider(channelId).notifier).setTyping(isTyping);
     }

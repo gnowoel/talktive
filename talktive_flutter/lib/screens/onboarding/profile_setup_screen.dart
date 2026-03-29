@@ -17,6 +17,7 @@ import '../../services/media_service.dart';
 
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import 'package:talktive_client/talktive_client.dart';
+import '../../helpers/resident_ext.dart';
 
 class ProfileSetupScreen extends ConsumerStatefulWidget {
   final Resident? initialResident;
@@ -511,7 +512,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                           duration: 300.ms,
                           curve: Curves.elasticOut,
                         ),
-                        if (widget.initialResident?.isPremium ?? false)
+                        if (widget.initialResident?.isPlus ?? false)
                           Positioned(
                             right: 0,
                             bottom: 0,
@@ -555,7 +556,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                       ],
                     ),
                   ),
-                  if (widget.initialResident?.isPremium ?? false) ...[
+                  if (widget.initialResident?.isPlus ?? false) ...[
                     if (_customAvatarUrl != null) ...[
                       const SizedBox(height: 16),
                       DuoButton(

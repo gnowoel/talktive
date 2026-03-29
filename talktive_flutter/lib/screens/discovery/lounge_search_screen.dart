@@ -10,6 +10,7 @@ import '../../config/theme.dart';
 import '../../providers/client_provider.dart';
 import '../../providers/lounge_provider.dart';
 import '../../providers/current_resident_provider.dart';
+import '../../helpers/resident_ext.dart';
 import '../../widgets/duo/duo_input.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_empty_state.dart';
@@ -112,9 +113,9 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
   @override
   Widget build(BuildContext context) {
     final resident = ref.watch(currentResidentProvider).value;
-    final isPremium = resident?.isPremium ?? false;
+    final isPlus = resident?.isPlus ?? false;
     final hasSearchFeature =
-        isPremium && (resident?.showNeighborsDiscovery ?? true);
+        isPlus && (resident?.showNeighborsDiscovery ?? true);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -138,7 +139,7 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
                     onTap: hasSearchFeature
                         ? null
                         : () {
-                            if (!isPremium) {
+                            if (!isPlus) {
                               _showUpgradePrompt();
                             } else {
                               DuoSnackBarHelper.showActionRequired(
@@ -179,7 +180,7 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
                   onPressed: hasSearchFeature
                       ? _showFilterSheet
                       : () {
-                          if (!isPremium) {
+                          if (!isPlus) {
                             _showUpgradePrompt();
                           } else {
                             DuoSnackBarHelper.showActionRequired(

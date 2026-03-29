@@ -15,6 +15,7 @@ import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
 import '../../helpers/date_formatter.dart';
 import '../../providers/current_resident_provider.dart';
+import '../../helpers/resident_ext.dart';
 
 /// Duolingo-style Chats screen - list of private conversations
 class ChatsScreen extends ConsumerWidget {
@@ -235,7 +236,7 @@ class ChatsScreen extends ConsumerWidget {
               showRing: true,
               floorLevel: DuoFloorHelper.computeFloor(chatItem.otherResident),
               isOnline:
-                  (ref.watch(currentResidentProvider).value?.isPremium ??
+                  (ref.watch(currentResidentProvider).value?.isPlus ??
                       false) &&
                   (ref
                           .watch(currentResidentProvider)

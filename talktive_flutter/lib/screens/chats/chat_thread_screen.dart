@@ -22,6 +22,7 @@ import '../../providers/client_provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../utils/ad_navigation_utils.dart';
 import '../../widgets/chat/chat_screen_mixin.dart';
+import '../../helpers/resident_ext.dart';
 
 /// Chat thread screen for private 1-on-1 conversations
 class ChatThreadScreen extends ConsumerStatefulWidget {
@@ -138,7 +139,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
               typingUsers.where((u) => u != currentResident?.userName).toList();
 
           return DuoChatInputLayout(
-            typingIndicator: (currentResident?.isPremium == true &&
+            typingIndicator: (currentResident?.isPlus == true &&
                     currentResident?.showOthersTypingIndicators == true &&
                     otherTypingUsers.isNotEmpty)
                 ? DuoTypingIndicator(typingUsers: otherTypingUsers, isPrivate: true)
@@ -201,7 +202,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
                 if (currentResident?.keepPrivateChats == true)
                   IconButton(
                     onPressed: () async {
-                      if (currentResident?.isPremium != true) {
+                      if (currentResident?.isPlus != true) {
                         _showUpgradePrompt('Chat Persistence 🔖');
                         return;
                       }
@@ -249,7 +250,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
                               : Colors.black54,
                           size: 28,
                         ),
-                        if (currentResident?.isPremium != true)
+                        if (currentResident?.isPlus != true)
                           Positioned(
                             right: 0,
                             bottom: 0,
@@ -355,7 +356,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
             onVoiceStart: () async {
               if (currentResident == null) return false;
 
-              if (!currentResident.isPremium) {
+              if (!currentResident.isPlus) {
                 _showUpgradePrompt('Voice Messages');
                 return false;
               }
@@ -560,9 +561,9 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
               message.senderId == currentResident.userInfoId;
 
           bool isRead = false;
-          // Only Premium users can SEE read receipts
+          // Only Plus users can SEE read receipts
           if (isCurrentUser &&
-              currentResident.isPremium &&
+              currentResident.isPlus &&
               currentResident.showOthersReadReceipts &&
               otherLastReadAt != null) {
             isRead = message.createdAt.isBefore(otherLastReadAt);

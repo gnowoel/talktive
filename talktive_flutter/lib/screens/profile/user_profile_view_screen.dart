@@ -310,7 +310,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           ).animate().fadeIn(delay: 150.ms).slideY(begin: 0.1, end: 0),
 
           // Premium Feature: Online/Offline Status
-          if (ref.watch(currentResidentProvider).value?.isPremium ?? false)
+          if (ref.watch(currentResidentProvider).value?.isPlus ?? false)
             Padding(
               padding: const EdgeInsets.only(top: 4, bottom: 8),
               child: Row(

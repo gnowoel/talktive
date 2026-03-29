@@ -125,7 +125,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: AppTheme.duoSpacingLarge),
               _buildSectionHeader(context, 'Premium Features'),
-              _buildPremiumCard(context, ref, resident.isPremium),
+              _buildPremiumCard(context, ref, resident),
               const SizedBox(height: AppTheme.duoSpacingMedium),
               _buildFeatureRow(
                 context,
@@ -141,9 +141,9 @@ class SettingsScreen extends ConsumerWidget {
                 icon: Icons.account_circle,
                 title: 'Custom Avatar',
                 description: 'Upload your own image to use as an avatar.',
-                isLocked: !resident.isPremium,
+                isLocked: !resident.isPlus,
                 value: resident.showCustomAvatar,
-                onChanged: resident.isPremium
+                onChanged: resident.isPlus
                     ? (val) => _updatePrivacySettings(
                         context,
                         ref,
@@ -156,9 +156,9 @@ class SettingsScreen extends ConsumerWidget {
                 icon: Icons.mic,
                 title: 'Voice Messages',
                 description: 'Send audio messages in any chat thread.',
-                isLocked: !resident.isPremium,
+                isLocked: !resident.isPlus,
                 value: resident.showVoiceMessages,
-                onChanged: resident.isPremium
+                onChanged: resident.isPlus
                     ? (val) => _updatePrivacySettings(
                         context,
                         ref,
@@ -172,9 +172,9 @@ class SettingsScreen extends ConsumerWidget {
                 title: 'Advanced Search',
                 description:
                     'Search neighbors and lounges using terms and filters.',
-                isLocked: !resident.isPremium,
+                isLocked: !resident.isPlus,
                 value: resident.showNeighborsDiscovery,
-                onChanged: resident.isPremium
+                onChanged: resident.isPlus
                     ? (val) => _updatePrivacySettings(
                         context,
                         ref,
@@ -187,9 +187,9 @@ class SettingsScreen extends ConsumerWidget {
                 icon: Icons.online_prediction,
                 title: 'Online Indicator',
                 description: 'See when your friends are active in real-time.',
-                isLocked: !resident.isPremium,
+                isLocked: !resident.isPlus,
                 value: resident.showOthersOnlineStatus,
-                onChanged: resident.isPremium
+                onChanged: resident.isPlus
                     ? (val) => _updatePrivacySettings(
                         context,
                         ref,
@@ -202,9 +202,9 @@ class SettingsScreen extends ConsumerWidget {
                 icon: Icons.done_all,
                 title: 'Read Receipts',
                 description: 'See when others have read your messages.',
-                isLocked: !resident.isPremium,
+                isLocked: !resident.isPlus,
                 value: resident.showOthersReadReceipts,
-                onChanged: resident.isPremium
+                onChanged: resident.isPlus
                     ? (val) => _updatePrivacySettings(
                         context,
                         ref,
@@ -217,9 +217,9 @@ class SettingsScreen extends ConsumerWidget {
                 icon: Icons.edit,
                 title: 'Typing Indicators',
                 description: 'See when someone is replying to you.',
-                isLocked: !resident.isPremium,
+                isLocked: !resident.isPlus,
                 value: resident.showOthersTypingIndicators,
-                onChanged: resident.isPremium
+                onChanged: resident.isPlus
                     ? (val) => _updatePrivacySettings(
                         context,
                         ref,
@@ -232,9 +232,9 @@ class SettingsScreen extends ConsumerWidget {
                 icon: Icons.history,
                 title: 'Keep Private Chats',
                 description: 'Prevent your private chats from being deleted.',
-                isLocked: !resident.isPremium,
+                isLocked: !resident.isPlus,
                 value: resident.keepPrivateChats,
-                onChanged: resident.isPremium
+                onChanged: resident.isPlus
                     ? (val) => _updatePrivacySettings(
                         context,
                         ref,
@@ -353,9 +353,9 @@ class SettingsScreen extends ConsumerWidget {
   Widget _buildPremiumCard(
     BuildContext context,
     WidgetRef ref,
-    bool isPremium,
+    Resident resident,
   ) {
-    if (isPremium) {
+    if (resident.isPremium) {
       return DuoCard(
         color: AppTheme.primaryColor.withValues(alpha: 0.1),
         child: Padding(
@@ -406,6 +406,61 @@ class SettingsScreen extends ConsumerWidget {
       );
     }
 
+    if (resident.isTrialActive) {
+      final expires = resident.premiumTrialExpires!;
+      final timeLeft = expires.difference(DateTime.now());
+      final hoursLeft = timeLeft.inHours;
+      final minutesLeft = timeLeft.inMinutes % 60;
+
+      return DuoCard(
+        color: AppTheme.duoPurple.withValues(alpha: 0.1),
+        child: Padding(
+          padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+          child: Column(
+            children: [
+              const Icon(Icons.timer, size: 40, color: AppTheme.duoPurple),
+              const SizedBox(height: 12),
+              const Text(
+                'TRIAL ACTIVE',
+                style: TextStyle(
+                  color: AppTheme.duoPurple,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  letterSpacing: 1.1,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Enjoy all premium features for free!\nExpires in: ${hoursLeft}h ${minutesLeft}m',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey[700]),
+              ),
+              const SizedBox(height: 16),
+              DuoButton(
+                text: 'Upgrade Now',
+                onPressed: () async {
+                  HapticFeedback.mediumImpact();
+                  try {
+                    await client.resident.purchasePremium();
+                    ref.invalidate(currentResidentProvider);
+                    if (!context.mounted) return;
+                    DuoSnackBarHelper.showSuccess(
+                      context,
+                      'Welcome to Talktive Plus! 🌟',
+                    );
+                  } catch (e) {
+                    if (!context.mounted) return;
+                    DuoSnackBarHelper.showError(context, 'Purchase failed');
+                  }
+                },
+                width: double.infinity,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return DuoCard(
       child: Padding(
         padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
@@ -422,23 +477,52 @@ class SettingsScreen extends ConsumerWidget {
               style: TextStyle(color: Colors.grey[600]),
             ),
             const SizedBox(height: 16),
-            DuoButton(
-              text: 'Upgrade Now',
-              onPressed: () async {
-                HapticFeedback.mediumImpact();
-                try {
-                  await client.resident.purchasePremium();
-                  ref.invalidate(currentResidentProvider);
-                  if (!context.mounted) return;
-                  DuoSnackBarHelper.showSuccess(
-                    context,
-                    'Welcome to Talktive Plus! 🌟',
-                  );
-                } catch (e) {
-                  if (!context.mounted) return;
-                  DuoSnackBarHelper.showError(context, 'Purchase failed');
-                }
-              },
+            Row(
+              children: [
+                Expanded(
+                  child: DuoButton(
+                    text: 'Try Out',
+                    variant: DuoButtonVariant.secondary,
+                    onPressed: () async {
+                      HapticFeedback.mediumImpact();
+                      try {
+                        await client.resident.startPremiumTrial();
+                        ref.invalidate(currentResidentProvider);
+                        if (!context.mounted) return;
+                        DuoSnackBarHelper.showSuccess(
+                          context,
+                          'Trial started! Enjoy 24h of Plus. ✨',
+                        );
+                      } catch (e) {
+                        if (!context.mounted) return;
+                        DuoSnackBarHelper.showError(context, 'Trial failed');
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 2,
+                  child: DuoButton(
+                    text: 'Upgrade Now',
+                    onPressed: () async {
+                      HapticFeedback.mediumImpact();
+                      try {
+                        await client.resident.purchasePremium();
+                        ref.invalidate(currentResidentProvider);
+                        if (!context.mounted) return;
+                        DuoSnackBarHelper.showSuccess(
+                          context,
+                          'Welcome to Talktive Plus! 🌟',
+                        );
+                      } catch (e) {
+                        if (!context.mounted) return;
+                        DuoSnackBarHelper.showError(context, 'Purchase failed');
+                      }
+                    },
+                  ),
+                ),
+              ],
             ),
           ],
         ),

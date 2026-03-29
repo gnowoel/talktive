@@ -14,6 +14,7 @@ import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/chat/message_bubble.dart';
 import '../../widgets/chat/pinned_message_bar.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
+import '../../widgets/duo/duo_typing_indicator.dart';
 import '../../helpers/duo_upgrade_helper.dart';
 import '../../providers/lounge_provider.dart';
 import '../../providers/private_chat_provider.dart';
@@ -140,7 +141,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
             typingIndicator: (currentResident?.isPremium == true &&
                     currentResident?.showOthersTypingIndicators == true &&
                     otherTypingUsers.isNotEmpty)
-                ? _buildTypingIndicator(otherTypingUsers)
+                ? DuoTypingIndicator(typingUsers: otherTypingUsers, isPrivate: true)
                 : null,
             appBar: AppBar(
               backgroundColor: Colors.white,
@@ -507,45 +508,6 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
         ],
       ),
     );
-  }
-
-  Widget _buildTypingIndicator(List<String> typingUsers) {
-    if (typingUsers.isEmpty) return const SizedBox.shrink();
-
-    final text = typingUsers.length == 1
-        ? '${typingUsers[0]} is typing...'
-        : 'Multiple people are typing...';
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppTheme.duoSpacingLarge,
-        vertical: 4,
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-                width: 24,
-                child: const Text('✍️', style: TextStyle(fontSize: 14)),
-              )
-              .animate(onPlay: (c) => c.repeat(reverse: true))
-              .scale(
-                duration: 600.ms,
-                begin: const Offset(0.8, 0.8),
-                end: const Offset(1.1, 1.1),
-              ),
-          const SizedBox(width: 8),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 12,
-              color: AppTheme.textSecondary,
-              fontStyle: FontStyle.italic,
-              fontFamily: 'Rubik',
-            ),
-          ),
-        ],
-      ),
-    ).animate().fadeIn().slideY(begin: 0.2, end: 0);
   }
 
   Widget _buildMessagesList(

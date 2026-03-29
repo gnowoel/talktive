@@ -18,6 +18,7 @@ import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_info_banner.dart';
 import '../../widgets/duo/duo_chat_layout.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
+import '../../widgets/duo/duo_typing_indicator.dart';
 import '../../utils/ad_navigation_utils.dart';
 import '../../widgets/chat/chat_screen_mixin.dart';
 
@@ -62,7 +63,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
             (currentResident?.isPremium == true &&
                     currentResident?.showOthersTypingIndicators == true &&
                     otherTypingUsers.isNotEmpty)
-                ? _buildTypingIndicator(otherTypingUsers)
+                ? DuoTypingIndicator(typingUsers: otherTypingUsers)
                 : null,
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -197,45 +198,6 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
         ),
       ),
     );
-  }
-
-  Widget _buildTypingIndicator(List<String> typingUsers) {
-    if (typingUsers.isEmpty) return const SizedBox.shrink();
-
-    final text = typingUsers.length == 1
-        ? '${typingUsers[0]} is typing...'
-        : '${typingUsers[0]} and ${typingUsers.length - 1} others typing...';
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppTheme.duoSpacingLarge,
-        vertical: 4,
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-                width: 24,
-                child: const Text('✍️', style: TextStyle(fontSize: 14)),
-              )
-              .animate(onPlay: (c) => c.repeat(reverse: true))
-              .scale(
-                duration: 600.ms,
-                begin: const Offset(0.8, 0.8),
-                end: const Offset(1.1, 1.1),
-              ),
-          const SizedBox(width: 8),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 12,
-              color: AppTheme.textSecondary,
-              fontStyle: FontStyle.italic,
-              fontFamily: 'Rubik',
-            ),
-          ),
-        ],
-      ),
-    ).animate().fadeIn().slideY(begin: 0.2, end: 0);
   }
 
   Widget _buildMessagesList(RealtimeChatState state, Resident? currentResident) {

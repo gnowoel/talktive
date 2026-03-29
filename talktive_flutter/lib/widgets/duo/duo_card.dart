@@ -34,20 +34,13 @@ class DuoCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(
           borderRadius ?? AppTheme.duoRadiusLarge,
         ),
-        border: Border.all(
-          color: borderColor ?? const Color(0xFFE5E5E5),
-          width: borderWidth ?? 2,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: (color ?? Colors.white).computeLuminance() > 0.5
-                ? const Color(0xFFE5E5E5)
-                : (color ?? Colors.white).withValues(alpha: 0.8),
-            offset: const Offset(0, 2),
-            spreadRadius: 0,
-            blurRadius: 0,
-          ),
-        ],
+        border: borderWidth != null
+            ? Border.all(
+                color: borderColor ?? AppTheme.duoBorder,
+                width: borderWidth!,
+              )
+            : null,
+        boxShadow: AppTheme.duoCardShadow,
       ),
       child: child,
     );

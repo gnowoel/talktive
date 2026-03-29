@@ -472,19 +472,19 @@ class AppTheme {
   // Duolingo-Style Shadows
   static List<BoxShadow> duoCardShadow = [
     BoxShadow(
-      color: const Color(0xFFE5E5E5),
-      offset: const Offset(0, 2),
+      color: Colors.black.withValues(alpha: 0.07),
+      blurRadius: 20,
       spreadRadius: 0,
-      blurRadius: 0,
+      offset: const Offset(0, 6),
     ),
   ];
 
   static List<BoxShadow> duoButtonShadow = [
     BoxShadow(
-      color: Colors.black.withValues(alpha: 0.1),
-      offset: const Offset(0, 4),
+      color: primaryColor.withValues(alpha: 0.28),
+      blurRadius: 14,
       spreadRadius: 0,
-      blurRadius: 0,
+      offset: const Offset(0, 4),
     ),
   ];
 

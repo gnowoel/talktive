@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'config/app_config.dart';
 import 'config/theme.dart';
 import 'wrappers/serverpod_initialize.dart';
 import 'widgets/duo/duo_notification_toast.dart';
@@ -30,9 +32,11 @@ class _ServerpodAppContentState extends ConsumerState<_ServerpodAppContent> {
   void initState() {
     super.initState();
     // Initialize AdService for the Serverpod version
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(adServiceProvider).initialize();
-    });
+    if (!kIsWeb) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(adServiceProvider).initialize();
+      });
+    }
   }
 
   @override
@@ -42,7 +46,7 @@ class _ServerpodAppContentState extends ConsumerState<_ServerpodAppContent> {
     ref.watch(fCMManagerProvider);
 
     return ServerpodInitialize(
-      useEmulators: true,
+      useEmulators: AppConfig.instance.useFirebaseEmulators,
       child: MaterialApp.router(
         title: 'Talktive (Serverpod)',
         debugShowCheckedModeBanner: false,

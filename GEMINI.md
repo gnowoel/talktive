@@ -81,6 +81,7 @@ The onboarding wizard established these Duolingo-style patterns, and this design
   - `AuthServices` (serverpod_auth_core_server) used for user creation.
   - `JwtTokenManager`/ServerSideSessionsConfig issue tokens.
   - `Resident` table links to `AuthUser` via `userInfoId` (UUID).
+  - Platform-specific Google sign-in UI is acceptable as long as both Android and Web converge on the same Firebase identity and then exchange into the same Serverpod session model.
   - **Legacy Warning**: Do not use `int` for User IDs. The system is fully migrated to UUIDs.
 
 ## Current Phase
@@ -139,10 +140,10 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 
 
 - **GIS 7.2.0 Authentication Overhaul (Mar 2026)**:
-  - **Modern SDK Adoption**: Migrated the entire authentication stack to `google_sign_in: 7.2.0`, resolving broken constructor issues and `UnimplementedError` on Web.
-  - **Singleton API**: Standardized on `GoogleSignIn.instance` with explicit `initialize(clientId: ...)` to ensure cross-platform coherence.
-  - **Event-Driven Provider**: Refactored `AuthProvider` to use the non-future `authentication` getter and the new `authenticationEvents` event stream, providing robust session restoration and automated Serverpod token exchange.
-  - **UI Unification**: Standardized the Google Sign-In button as a high-fidelity `DuoButton` component, eliminating redundant and platform-brittle native button rendering.
+  - **Modern SDK Adoption**: Migrated the authentication stack to `google_sign_in: 7.2.0`.
+  - **Platform-Appropriate Flow**: Android uses native `GoogleSignIn.instance.authenticate()`. Web uses the GIS-rendered Google button and completes Firebase + Serverpod exchange from Google auth events.
+  - **Session Convergence**: Both platforms still converge on Firebase Auth and then exchange the Firebase identity token through `firebaseIdp` into the same Serverpod session model.
+  - **Environment Guardrails**: Runtime config now enables Firebase Emulator Suite only during development and routes release builds to the production Serverpod API URL from app config.
 
 - **Privacy & Premium Polish (Mar 2026)**: 
   - **Settings Refinement**: Resolved `RenderFlex` overflow on the Settings screen by removing redundant "Upgrade Now" buttons.

@@ -136,6 +136,16 @@ Even for the new Serverpod version, we use **Firebase Authentication**.
     > **⚠️ SEAMLESS DISCOVERY**
     > Returning residents are automatically logged into the Serverpod backend. For testing the legacy version while signed in, a "Switch App Version" option should be added to settings or the cache cleared via a sign-out event.
 
+### Environment Behavior
+
+- **Debug builds** default to local development services:
+  - Serverpod: `http://localhost:8080` on Web, `http://10.0.2.2:8080` on Android emulator
+  - Firebase Emulator Suite: enabled by default
+- **Release builds** default to the production Serverpod API URL from `talktive_flutter/assets/config.json`
+- You can override either behavior at build/run time with Dart defines:
+  - `--dart-define=SERVERPOD_URL=https://api.talktive.app`
+  - `--dart-define=USE_FIREBASE_EMULATORS=false`
+
 ## 🧠 Development Philosophy
 
 **Underlying Structural Changes Over Quick Patches**: To ensure the codebase remains simple and robust, we consistently prioritize making deep structural or database-level optimizations rather than relying on brittle surface-level UI patches or workarounds.

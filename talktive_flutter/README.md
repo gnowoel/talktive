@@ -48,3 +48,12 @@ In a separate terminal, start the Flutter client:
 cd talktive_flutter
 flutter run
 ```
+
+## Environment Selection
+
+- Debug builds use local development endpoints automatically.
+- Firebase emulators are enabled only in development.
+- Release builds use the production Serverpod API URL from `assets/config.json`.
+- You can override runtime behavior with Dart defines:
+  - `--dart-define=SERVERPOD_URL=...`
+  - `--dart-define=USE_FIREBASE_EMULATORS=false`

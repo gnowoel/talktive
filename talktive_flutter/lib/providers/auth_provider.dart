@@ -1,12 +1,10 @@
-import 'dart:async';
-import 'package:flutter/material.dart';
+import 'dart:async' show StreamSubscription, unawaited;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/foundation.dart';
 import '../serverpod_client.dart';
-import '../config/auth_config.dart';
 
 part 'auth_provider.g.dart';
 
@@ -41,22 +39,26 @@ class AuthFailure extends TalktiveAuthState {
 
 @Riverpod(keepAlive: true)
 class Auth extends _$Auth {
+  Future<AuthStatus>? _ongoingLogin;
+  StreamSubscription<GoogleSignInAuthenticationEvent>? _webAuthSubscription;
+
   @override
-    FutureOr<TalktiveAuthState> build() async {
-    // 1. Initialize Google Sign-In with configuration
-    await GoogleSignIn.instance.initialize(
-      clientId: kIsWeb ? AuthConfig.webClientId : null,
-    );
+  FutureOr<TalktiveAuthState> build() async {
+    if (kIsWeb && _webAuthSubscription == null) {
+      _webAuthSubscription = GoogleSignIn.instance.authenticationEvents.listen((
+        event,
+      ) {
+        if (event is GoogleSignInAuthenticationEventSignIn) {
+          unawaited(_completeWebGoogleSignIn(event.user));
+        }
+      });
+      ref.onDispose(() {
+        _webAuthSubscription?.cancel();
+        _webAuthSubscription = null;
+      });
+    }
 
-    // 2. Listen for Google Sign-In changes
-    GoogleSignIn.instance.authenticationEvents.listen((event) {
-      if (event is GoogleSignInAuthenticationEventSignIn && (state.value is Unauthenticated || state.value is AuthInitial)) {
-        debugPrint('Auth: Google user signed in - initiating auto-exchange for Serverpod...');
-        loginWithGoogle();
-      }
-    });
-
-    // 3. Existing session check
+    // Existing session check
     if (!sessionManager.isAuthenticated) {
       // Check if user is already logged in with Firebase but not Serverpod.
       final firebaseUser = FirebaseAuth.instance.currentUser;
@@ -111,109 +113,33 @@ class Auth extends _$Auth {
 
   /// Initiates Google Sign-In flow via Firebase
   Future<AuthStatus> loginWithGoogle() async {
+    if (_ongoingLogin != null) {
+      return _ongoingLogin!;
+    }
+
+    _ongoingLogin = _loginWithGoogleInternal();
+    try {
+      return await _ongoingLogin!;
+    } finally {
+      _ongoingLogin = null;
+    }
+  }
+
+  Future<AuthStatus> _loginWithGoogleInternal() async {
     state = const AsyncValue.loading();
 
     try {
-      // 1. Sign in with Google (Client Side)
+      // 1. Sign in with Google / Firebase (client side)
       debugPrint('Auth: Triggering Google Sign-In...');
-      
-      GoogleSignInAccount? googleUser;
-      
-      if (kIsWeb) {
-        // On Web, the user signs in via our button which triggers GIS.
-        // We try to pick up the already signed in user here.
-        googleUser = await GoogleSignIn.instance.attemptLightweightAuthentication();
-        if (googleUser == null) {
-          debugPrint('Auth: Web lightweight auth failed or returned null.');
-          return AuthStatus.cancelled;
-        }
-      } else {
-        googleUser = await GoogleSignIn.instance.authenticate();
-      }
 
-      if (googleUser == null) {
-        debugPrint('Auth: Google user is null (cancelled or blocked)');
+      if (kIsWeb) {
+        // Web interactive auth is driven by the GIS-rendered button.
+        // We finish the Firebase + Serverpod exchange from authenticationEvents.
         return AuthStatus.cancelled;
       }
 
-      // 2. Get Google Credentials
-      debugPrint('Auth: Getting Google auth tokens for ${googleUser.email}...');
-      // In 7.2.0, authentication is a getter, not a future.
-      final googleAuth = googleUser.authentication;
-      final idTokenFromGoogle = googleAuth.idToken;
-
-      if (idTokenFromGoogle == null) {
-        debugPrint('Auth: Error - Google idToken is null!');
-        return AuthStatus.error;
-      }
-
-      final credential = GoogleAuthProvider.credential(
-        idToken: idTokenFromGoogle,
-      );
-
-      // 3. Link or Sign in to Firebase
-      final currentUser = FirebaseAuth.instance.currentUser;
-      UserCredential userCredential;
-
-      if (currentUser != null &&
-          (currentUser.isAnonymous ||
-              currentUser.providerData.every(
-                (info) => info.providerId != 'google.com',
-              ))) {
-        try {
-          userCredential = await currentUser.linkWithCredential(credential);
-        } on FirebaseAuthException catch (e) {
-          if (e.code == 'provider-already-linked') {
-            userCredential = await FirebaseAuth.instance.signInWithCredential(
-              credential,
-            );
-          } else if (e.code == 'credential-already-in-use') {
-            throw Exception(
-              "This Google account is already linked to another Talktive account.",
-            );
-          } else {
-            rethrow;
-          }
-        }
-      } else {
-        userCredential = await FirebaseAuth.instance.signInWithCredential(
-          credential,
-        );
-      }
-      final user = userCredential.user;
-
-      if (user == null) {
-        throw Exception("Firebase Sign-In failed: User is null");
-      }
-
-      // 4. Get Firebase ID Token
-      debugPrint('Auth: Firebase Sign-In success. Getting idToken...');
-      final idToken = await userCredential.user!.getIdToken();
-      debugPrint('Auth: idToken length: ${idToken?.length}');
-
-      if (idToken == null) {
-        throw Exception("Firebase ID Token is null");
-      }
-
-      // 5. Authenticate with Serverpod
-      debugPrint('Auth: Calling firebaseIdp.login with Serverpod...');
-      final authSuccess = await client.firebaseIdp.login(idToken: idToken);
-      debugPrint('Auth: Serverpod login SUCCEEDED.');
-      debugPrint('Auth: Serverpod token (first 10 chars): ${authSuccess.token.substring(0, authSuccess.token.length > 10 ? 10 : authSuccess.token.length)}');
-
-      await sessionManager.updateSignedInUser(authSuccess);
-
-      // 6. Refresh Auth State
-      final newState = await _refreshAuthState();
-      state = AsyncValue.data(newState);
-
-      if (newState is Authenticated) {
-        return AuthStatus.authenticated;
-      } else if (newState is NeedsProfile) {
-        return AuthStatus.needsProfile;
-      } else {
-        return AuthStatus.error;
-      }
+      final googleUser = await GoogleSignIn.instance.authenticate();
+      return await _exchangeGoogleUserForSession(googleUser);
     } on GoogleSignInException catch (e) {
       if (e.code == GoogleSignInExceptionCode.canceled) {
         state = const AsyncValue.data(Unauthenticated());
@@ -221,9 +147,110 @@ class Auth extends _$Auth {
       }
       state = AsyncValue.error(e, StackTrace.current);
       return AuthStatus.error;
-    } catch (e) {
-      debugPrint("Sign in failed: $e");
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'popup-closed-by-user' ||
+          e.code == 'cancelled-popup-request') {
+        state = const AsyncValue.data(Unauthenticated());
+        return AuthStatus.cancelled;
+      }
+      debugPrint('Auth: Firebase auth failed: $e');
       state = AsyncValue.error(e, StackTrace.current);
+      return AuthStatus.error;
+    } catch (e) {
+      debugPrint('Sign in failed: $e');
+      state = AsyncValue.error(e, StackTrace.current);
+      return AuthStatus.error;
+    }
+  }
+
+  Future<void> _completeWebGoogleSignIn(GoogleSignInAccount googleUser) async {
+    if (_ongoingLogin != null) {
+      return;
+    }
+
+    _ongoingLogin = _exchangeGoogleUserForSession(googleUser);
+    try {
+      await _ongoingLogin;
+    } finally {
+      _ongoingLogin = null;
+    }
+  }
+
+  Future<AuthStatus> _exchangeGoogleUserForSession(
+    GoogleSignInAccount googleUser,
+  ) async {
+    debugPrint('Auth: Getting Google auth tokens for ${googleUser.email}...');
+    final googleAuth = googleUser.authentication;
+    final idTokenFromGoogle = googleAuth.idToken;
+
+    if (idTokenFromGoogle == null) {
+      debugPrint('Auth: Error - Google idToken is null!');
+      state = const AsyncValue.data(Unauthenticated());
+      return AuthStatus.error;
+    }
+
+    final credential = GoogleAuthProvider.credential(idToken: idTokenFromGoogle);
+
+    // Link or sign in to Firebase.
+    final currentUser = FirebaseAuth.instance.currentUser;
+    UserCredential userCredential;
+
+    if (currentUser != null &&
+        (currentUser.isAnonymous ||
+            currentUser.providerData.every(
+              (info) => info.providerId != 'google.com',
+            ))) {
+      try {
+        userCredential = await currentUser.linkWithCredential(credential);
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'provider-already-linked') {
+          userCredential = await FirebaseAuth.instance.signInWithCredential(
+            credential,
+          );
+        } else if (e.code == 'credential-already-in-use') {
+          throw Exception(
+            'This Google account is already linked to another Talktive account.',
+          );
+        } else {
+          rethrow;
+        }
+      }
+    } else {
+      userCredential = await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
+    }
+
+    final user = userCredential.user;
+    if (user == null) {
+      throw Exception('Firebase sign-in failed: User is null');
+    }
+
+    debugPrint('Auth: Firebase sign-in success. Getting idToken...');
+    final idToken = await user.getIdToken();
+    debugPrint('Auth: idToken length: ${idToken?.length}');
+
+    if (idToken == null) {
+      throw Exception('Firebase ID token is null');
+    }
+
+    debugPrint('Auth: Calling firebaseIdp.login with Serverpod...');
+    final authSuccess = await client.firebaseIdp.login(idToken: idToken);
+    debugPrint('Auth: Serverpod login SUCCEEDED.');
+    debugPrint(
+      'Auth: Serverpod token (first 10 chars): ${authSuccess.token.substring(0, authSuccess.token.length > 10 ? 10 : authSuccess.token.length)}',
+    );
+
+    await sessionManager.updateSignedInUser(authSuccess);
+
+    final newState = await _refreshAuthState();
+    state = AsyncValue.data(newState);
+
+    if (newState is Authenticated) {
+      return AuthStatus.authenticated;
+    } else if (newState is NeedsProfile) {
+      return AuthStatus.needsProfile;
+    } else {
       return AuthStatus.error;
     }
   }

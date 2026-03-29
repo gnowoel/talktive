@@ -1132,3 +1132,17 @@ This document tracks the major development milestones and changes made during th
 - **Notification Architecture:** `docs/NOTIFICATION_ARCHITECTURE.md`
 - **Deployment Guide:** `DEPLOYMENT.md`
 - **Project Context:** `GEMINI.md`
+# Unreleased
+
+- **Cross-Platform Google Sign-In Stabilization (Mar 2026)**:
+  - Restored working Google sign-in on both Android and Web after the `google_sign_in` 7.2.0 migration.
+  - Kept Android on the native GIS / Credential Manager path and switched Web to the GIS-rendered Google button flow.
+  - Removed broken re-entrant auth behavior and stabilized Firebase-to-Serverpod session exchange.
+  - Prevented `google_mobile_ads` initialization on Web.
+  - Gated auth-dependent providers to avoid noisy unauthenticated requests during onboarding and startup.
+
+- **Runtime Environment Configuration (Mar 2026)**:
+  - Introduced centralized `AppConfig` for runtime environment selection.
+  - Debug builds now default to localhost Serverpod endpoints and Firebase Emulator Suite.
+  - Release builds now default to the production Serverpod API URL from `talktive_flutter/assets/config.json`.
+  - Applied the environment-selection rule consistently to both the legacy Firebase app path and the Serverpod app path.

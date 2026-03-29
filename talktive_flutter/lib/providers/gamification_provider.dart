@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'client_provider.dart';
+import 'auth_provider.dart';
 
 part 'gamification_provider.g.dart';
 
@@ -33,6 +34,10 @@ class GamificationData {
 class GamificationNotifier extends _$GamificationNotifier {
   @override
   FutureOr<GamificationData?> build() async {
+    final authState = ref.watch(authProvider);
+    if (!authState.hasValue || authState.value is! Authenticated) {
+      return null;
+    }
     return fetchAll();
   }
 

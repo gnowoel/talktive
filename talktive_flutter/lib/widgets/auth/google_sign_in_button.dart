@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:google_sign_in_web/web_only.dart' as google_web;
 import '../../config/theme.dart';
 
 class GoogleSignInButton extends StatelessWidget {
@@ -16,6 +16,22 @@ class GoogleSignInButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWeb) {
+      return SizedBox(
+        width: double.infinity,
+        height: 58,
+        child: google_web.renderButton(
+          configuration: google_web.GSIButtonConfiguration(
+            theme: google_web.GSIButtonTheme.outline,
+            size: google_web.GSIButtonSize.large,
+            text: google_web.GSIButtonText.continueWith,
+            shape: google_web.GSIButtonShape.pill,
+            logoAlignment: google_web.GSIButtonLogoAlignment.left,
+          ),
+        ),
+      );
+    }
+
     return Container(
           width: double.infinity,
           height: 58,

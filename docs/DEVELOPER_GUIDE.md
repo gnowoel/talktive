@@ -38,6 +38,15 @@ Order of operations for Firebase + Serverpod Auth:
 4. Await `sessionManager.initialize()`.
 5. Call `client.firebaseIdp.login(idToken: ...)` after Google Sign-In.
 
+### 4.1 Environment Selection
+- `AppConfig` centralizes runtime environment settings for both the legacy Firebase app path and the Serverpod app path.
+- Debug builds default to localhost / emulator endpoints.
+- Release builds default to the production Serverpod URL from `talktive_flutter/assets/config.json`.
+- Firebase Emulator Suite usage is controlled centrally and should remain a development-only feature.
+- Optional overrides:
+  - `--dart-define=SERVERPOD_URL=https://api.talktive.app`
+  - `--dart-define=USE_FIREBASE_EMULATORS=false`
+
 ### 5. Background Tasks & Performance
 - **TaskUtils.runBackground**: For any side-effect that is not critical to the immediate response (Notifications, Achievements, Stats), use `TaskUtils.runBackground(session, (...) async { ... })`. This prevents UI hanging while external network calls (FCM) or secondary database writes are performed.
 - **Session Lifecycle**: Never use a closed request `session` inside a background task. `TaskUtils` correctly creates a temporary `backgroundSession` to handle this safely.
@@ -57,5 +66,4 @@ This project targets a **10,000 user capacity** on a single **2 vCPU / 4GB RAM V
 - **Fluid Animations**: Use `flutter_animate` and haptic feedback to create an interactive, premium experience.
 - **Data Efficiency**: Use the denormalized fields (`senderName`, `senderAvatar`) provided in the message protocol to ensure the UI remains snappy during rapid scrolling.
 - **Asset Compliance**: Adhere to the **5MB image** and **60s voice** limits. This ensures high throughput for all users and maintains server responsiveness during peak hours.
-
 

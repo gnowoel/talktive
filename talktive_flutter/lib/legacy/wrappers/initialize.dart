@@ -8,6 +8,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../../config/app_config.dart';
 import '../services/ad_service/simple_ad_manager.dart';
 import '../services/avatar.dart';
 import '../services/legacy_messaging.dart';
@@ -39,8 +40,7 @@ class _InitializeState extends State<Initialize> {
   Future<void> _initializeApp() async {
     try {
       if (kDebugMode && widget.useEmulators) {
-        final isAndroid = defaultTargetPlatform == TargetPlatform.android;
-        final host = isAndroid ? '10.0.2.2' : 'localhost';
+        final host = AppConfig.instance.firebaseEmulatorHost;
 
         await _initializeEmulators(host);
       }

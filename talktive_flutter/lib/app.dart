@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'config/app_config.dart';
 import 'services/edge_to_edge_manager.dart';
 import 'package:go_router/go_router.dart';
 
@@ -14,8 +15,6 @@ import 'legacy/wrappers/providers.dart';
 import 'legacy/wrappers/setup.dart';
 import 'legacy/wrappers/subscribe.dart';
 import 'legacy/wrappers/whats_new.dart';
-
-const useEmulators = true;
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -51,7 +50,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Initialize(
-      useEmulators: useEmulators,
+      useEmulators: AppConfig.instance.useFirebaseEmulators,
       child: Providers(
         child: VerifyUser(
           child: WhatsNew(

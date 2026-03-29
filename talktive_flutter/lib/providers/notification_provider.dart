@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'client_provider.dart';
+import 'auth_provider.dart';
 
 part 'notification_provider.g.dart';
 
@@ -47,6 +48,10 @@ class InAppNotification extends _$InAppNotification {
 class ActivityHistory extends _$ActivityHistory {
   @override
   Future<List<UserNotification>> build() async {
+    final authState = ref.watch(authProvider);
+    if (!authState.hasValue || authState.value is! Authenticated) {
+      return const <UserNotification>[];
+    }
     return _fetchNotifications();
   }
 

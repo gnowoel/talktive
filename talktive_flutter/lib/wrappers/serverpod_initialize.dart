@@ -8,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
 
+import '../config/app_config.dart';
 import '../services/edge_to_edge_manager.dart';
 import '../config/theme.dart';
 
@@ -45,8 +46,7 @@ class _ServerpodInitializeState extends State<ServerpodInitialize> {
 
       // 2. Firebase Emulator Initialization (if in debug mode)
       if (kDebugMode && widget.useEmulators) {
-        final isAndroid = defaultTargetPlatform == TargetPlatform.android;
-        final host = isAndroid ? '10.0.2.2' : 'localhost';
+        final host = AppConfig.instance.firebaseEmulatorHost;
 
         try {
           debugPrint('ServerpodInitialize: Using Firebase Emulators at $host');

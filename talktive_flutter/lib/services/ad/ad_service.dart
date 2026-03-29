@@ -40,6 +40,10 @@ class AdService {
 
   /// Initialize the Mobile Ads SDK and Consent Service
   Future<void> initialize() async {
+    if (kIsWeb) {
+      debugPrint('[AdService] Skipping ads initialization on Web');
+      return;
+    }
     debugPrint('[AdService] Initializing Mobile Ads SDK...');
     try {
       await MobileAds.instance.initialize();
@@ -148,6 +152,10 @@ class AdService {
   /// Show the interstitial ad if conditions are met
   /// [onAdClosed] is called whether the ad was shown and dismissed, or if it was skipped.
   Future<void> showInterstitialAd({VoidCallback? onAdClosed}) async {
+    if (kIsWeb) {
+      onAdClosed?.call();
+      return;
+    }
     if (!_shouldShowAd()) {
       debugPrint('[AdService] Conditions not met, skipping ad');
       onAdClosed?.call();

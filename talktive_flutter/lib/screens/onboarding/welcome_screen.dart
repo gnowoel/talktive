@@ -160,6 +160,17 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(authProvider, (previous, next) {
+      if (!mounted || !next.hasValue) return;
+      final authState = next.value;
+
+      if (authState is Authenticated) {
+        context.go('/');
+      } else if (authState is NeedsProfile) {
+        context.go('/profile-setup');
+      }
+    });
+
     final authState = ref.watch(authProvider);
 
     return Scaffold(

@@ -10,6 +10,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_web_plugins/url_strategy.dart' show usePathUrlStrategy;
 
 import 'firebase_options.dart';
+import 'config/app_config.dart';
 import 'config/auth_config.dart';
 
 import 'serverpod_client.dart';
@@ -18,13 +19,12 @@ import 'services/background_messaging_handler.dart';
 import 'version_selector.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   debugRepaintRainbowEnabled = false;
 
   if (kIsWeb) {
     usePathUrlStrategy();
   }
-
-  WidgetsFlutterBinding.ensureInitialized();
 
   // Pre-initialize SharedPreferences to ensure plugin is registered early
   // and available when needed in Initialize wrapper.
@@ -34,18 +34,20 @@ Future<void> main() async {
     debugPrint('Warning: SharedPreferences pre-initialization failed: $e');
   }
 
-  // Initialize edge-to-edge display support
-  await EdgeToEdgeManager.initialize();
+  // Initialize Edge-to-Edge display
+  try {
+    await EdgeToEdgeManager.initialize();
+  } catch (e) {
+    debugPrint('Main: EdgeToEdge initialization failed: $e');
+  }
 
-  // Initialize Google Sign-In (mandatory exactly once in v7.0+)
   await GoogleSignIn.instance.initialize(
     clientId: kIsWeb ? AuthConfig.webClientId : null,
+    serverClientId: kIsWeb ? null : AuthConfig.webClientId,
   );
 
-  // Initialize Serverpod Client
-  await initializeServerpodClient();
+  await AppConfig.initialize();
 
-  // Firebase core initialization is essential and should stay in main()
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -54,9 +56,12 @@ Future<void> main() async {
     if (e.code != 'duplicate-app') {
       rethrow;
     }
-    // Default app already exists (native pre-init). Safe to proceed.
+    // Android can arrive here if the default app was initialized natively.
     Firebase.app();
   }
+
+  // Initialize Serverpod Client
+  await initializeServerpodClient();
 
   // Background message handler needs to be registered early
   FirebaseMessaging.onBackgroundMessage(backgroundMessagingHandler);

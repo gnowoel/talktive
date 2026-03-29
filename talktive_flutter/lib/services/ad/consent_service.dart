@@ -20,6 +20,10 @@ class ConsentService {
   /// Initialize consent info. Returns true if request can be made.
   Future<bool> initialize() async {
     if (_isInitialized) return _canRequestAds;
+    if (kIsWeb) {
+      _isInitialized = true;
+      return false;
+    }
 
     try {
       // 1. Load cached values first for immediate access
@@ -66,6 +70,7 @@ class ConsentService {
 
   /// Show the consent form if required
   Future<void> showConsentFormIfRequired() async {
+    if (kIsWeb) return;
     if (_currentStatus == ConsentStatus.required) {
       final isAvailable = await ConsentInformation.instance
           .isConsentFormAvailable();
@@ -98,6 +103,7 @@ class ConsentService {
 
   /// Manually show privacy options (e.g. from settings)
   Future<void> showPrivacyOptions() async {
+    if (kIsWeb) return;
     final completer = Completer<void>();
     ConsentForm.showPrivacyOptionsForm((FormError? error) {
       completer.complete();

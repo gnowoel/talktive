@@ -120,9 +120,9 @@ class _DuoButtonState extends State<DuoButton> {
       onTapCancel: isDisabled ? null : () => setState(() => _isPressed = false),
       onTap: isDisabled ? null : widget.onPressed,
       child: AnimatedScale(
-        scale: _isPressed ? 0.96 : 1.0,
-        duration: AppTheme.duoAnimationQuick,
-        curve: Curves.easeOut,
+        scale: _isPressed ? 0.94 : 1.0,
+        duration: const Duration(milliseconds: 100),
+        curve: Curves.easeOutBack,
         child: Container(
           width: widget.width,
           padding: padding,
@@ -132,10 +132,10 @@ class _DuoButtonState extends State<DuoButton> {
                 : LinearGradient(
                     colors: isDisabled
                         ? [Colors.grey.shade300, Colors.grey.shade400]
-                        : [buttonColor, _darkenColor(buttonColor, 0.05)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                        : [buttonColor, _darkenColor(buttonColor, 0.08)],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                ),
             color: isGhost
                 ? Colors.transparent
                 : isSecondary
@@ -145,17 +145,27 @@ class _DuoButtonState extends State<DuoButton> {
             border: isGhost
                 ? Border.all(
                     color: isDisabled ? Colors.grey.shade300 : buttonColor,
-                    width: 2,
+                    width: 2.5,
                   )
                 : isSecondary
                 ? Border.all(
-                    color: isDisabled ? Colors.grey.shade300 : buttonColor,
-                    width: 2,
+                    color: isDisabled ? Colors.grey.shade300 : buttonColor.withValues(alpha: 0.3),
+                    width: 2.5,
                   )
-                : null,
+                : Border.all(
+                    color: _darkenColor(buttonColor, 0.15),
+                    width: 1,
+                  ),
             boxShadow: (isDisabled || isGhost)
                 ? null
-                : AppTheme.duoButtonShadow,
+                : [
+                    BoxShadow(
+                      color: _darkenColor(buttonColor, 0.2),
+                      offset: Offset(0, _isPressed ? 1 : 4.5),
+                      spreadRadius: 0,
+                      blurRadius: 0,
+                    ),
+                  ],
           ),
           child: widget.isLoading
               ? Center(
@@ -163,7 +173,7 @@ class _DuoButtonState extends State<DuoButton> {
                     height: iconSize,
                     width: iconSize,
                     child: CircularProgressIndicator(
-                      strokeWidth: 2,
+                      strokeWidth: 2.5,
                       valueColor: AlwaysStoppedAnimation<Color>(textColor),
                     ),
                   ),
@@ -179,15 +189,16 @@ class _DuoButtonState extends State<DuoButton> {
                               widget.emoji!,
                               style: TextStyle(fontSize: iconSize, height: 1.0),
                             ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppTheme.duoSpacingSmall),
                     ],
                     Text(
                       widget.text,
                       style: TextStyle(
                         color: textColor,
                         fontSize: fontSize,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w900,
                         fontFamily: 'Poppins',
+                        letterSpacing: 0.5,
                       ),
                     ),
                     if (widget.secondaryIcon != null ||
@@ -210,14 +221,21 @@ class _DuoButtonState extends State<DuoButton> {
                                 controller.repeat(reverse: true),
                           )
                           .scale(
-                            duration: 1000.ms,
+                            duration: 800.ms,
                             begin: const Offset(1, 1),
                             end: const Offset(1.2, 1.2),
                           )
-                          .shimmer(duration: 2000.ms),
+                          .shimmer(duration: 1500.ms),
                     ],
                   ],
                 ),
+        ).animate(
+          target: (!isDisabled && !isSecondary && !isGhost) ? 1.0 : 0.0,
+          onPlay: (controller) => controller.repeat(reverse: false),
+        ).shimmer(
+          delay: 3.seconds,
+          duration: 1.seconds,
+          color: Colors.white.withValues(alpha: 0.2),
         ),
       ),
     );

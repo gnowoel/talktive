@@ -28,45 +28,11 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     bool isSystem = false,
   }) async {
     try {
-      // 1. Basic Input Validation
-      InputValidationService.validateId(
-        channelId,
-        'Channel ID',
-      ).throwIfInvalid();
-
-      final bool hasContent = content != null && content.trim().isNotEmpty;
-      final bool hasImageUrl = imageUrl != null && imageUrl.trim().isNotEmpty;
-      final bool hasMediaUrl = mediaUrl != null && mediaUrl.trim().isNotEmpty;
-      final bool hasMedia = hasImageUrl || hasMediaUrl;
-
-      if (!hasContent && !hasMedia) {
-        throw protocol.TalktiveException(
-          message: 'Message cannot be empty',
-          code: 'VALIDATION_ERROR',
-        );
-      }
-
-      if (hasContent) {
-        InputValidationService.validateMessageContent(content).throwIfInvalid();
-      }
-
-      // Media & Voice Validation
-      if (fileSize != null) {
-        InputValidationService.validateFileSize(
-          fileSize,
-          fieldName: 'Media file',
-        ).throwIfInvalid();
-      }
-
-      if (mediaType == 'voice' && duration != null) {
-        InputValidationService.validateVoiceDuration(duration).throwIfInvalid();
-      }
-
-      // 2. Auth & Resident Fetch
+      // 1. Auth & Resident Fetch
       final senderUuid = await getUserId(session);
       final sender = await getResidentProfile(session, senderUuid);
 
-      // 3. Channel Fetch & Access Verification
+      // 2. Channel Fetch & Access Verification
       final channel = await protocol.Channel.db.findById(session, channelId);
       if (channel == null) {
         throw protocol.TalktiveException(
@@ -75,8 +41,8 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         );
       }
 
-      // 4. Detailed Validation (Mute, Floor, Filter, Privacy)
-      final filteredContent = await MessagingService.validateMessage(
+      // 3. Send Message via Service (Orchestration delegated to Service layer)
+      return await MessagingService.sendMessage(
         session,
         sender: sender,
         channel: channel,
@@ -86,58 +52,8 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         mediaType: mediaType,
         duration: duration,
         fileSize: fileSize,
-      );
-
-      // 5. Create & Save Message
-      final message = protocol.Message(
-        channelId: channelId,
-        senderId: sender.userInfoId,
-        content: filteredContent,
-        imageUrl: imageUrl,
-        mediaUrl: mediaUrl,
-        mediaType: mediaType,
         isSystem: isSystem,
-        createdAt: DateTime.now(),
-        duration: duration,
-        fileSize: fileSize,
-        senderName: sender.userName ?? 'Resident',
-        senderAvatar: sender.customAvatarUrl ?? sender.avatar,
-        senderMood: sender.mood,
-        senderFloor: ApartmentService.computeEffectiveFloor(sender),
-        senderTrustScore: sender.trustScore,
       );
-
-      final savedMessage = await protocol.Message.db.insertRow(
-        session,
-        message,
-      );
-
-      // 6. Handle side effects (async) - DON'T AWAIT (Run in background)
-      TaskUtils.runBackground(session, (backgroundSession) async {
-        // Send notifications (includes mentions, push, and lounge logic)
-        final channel = await ChannelService.getChannel(
-          backgroundSession,
-          savedMessage.channelId,
-        );
-        if (channel != null) {
-          await NotificationService.triggerMessageNotifications(
-            backgroundSession,
-            channel: channel,
-            message: savedMessage,
-            sender: sender,
-          );
-
-          // Side effects: Broadcast, Recents, Gamification
-          await MessagingService.onMessageSaved(
-            backgroundSession,
-            message: savedMessage,
-            channel: channel,
-            sender: sender,
-          );
-        }
-      });
-
-      return savedMessage;
     } catch (e, stack) {
       session.log('FAILED to send message: $e', level: LogLevel.error);
       session.log(stack.toString(), level: LogLevel.error);

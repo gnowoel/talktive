@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../config/theme.dart';
 import '../../helpers/url_helper.dart';
 import 'package:talktive/helpers/duo_trust_score_helper.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 /// Duolingo-style avatar with gradient ring and optional mood or floor overlays.
 class DuoAvatar extends StatelessWidget {
@@ -225,13 +226,27 @@ class DuoAvatar extends StatelessWidget {
             right: 0,
             bottom: 0,
             child: Container(
-              width: size * 0.3,
-              height: size * 0.3,
+              width: size * 0.32,
+              height: size * 0.32,
               decoration: BoxDecoration(
                 color: AppTheme.duoGreen,
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
+                border: Border.all(color: Colors.white, width: 2.5),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.duoGreen.withValues(alpha: 0.4),
+                    blurRadius: 6,
+                    spreadRadius: 1,
+                  ),
+                ],
               ),
+            )
+            .animate(onPlay: (c) => c.repeat(reverse: true))
+            .scale(
+              begin: const Offset(1, 1),
+              end: const Offset(1.2, 1.2),
+              duration: 800.ms,
+              curve: Curves.easeInOut,
             ),
           ),
         ],

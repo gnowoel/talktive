@@ -25,6 +25,7 @@ import 'package:image_picker/image_picker.dart';
 import 'lounge_profile_screen.dart';
 import '../../providers/private_chat_provider.dart';
 import '../../utils/ad_navigation_utils.dart';
+import '../../widgets/chat/chat_screen_mixin.dart';
 
 /// Loader for deep linking into LoungeChatScreen without the Lounge model
 class LoungeChatLoader extends ConsumerStatefulWidget {

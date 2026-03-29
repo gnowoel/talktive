@@ -8,6 +8,7 @@ import 'input_validation_service.dart';
 import 'rate_limit_service.dart';
 import 'channel_service.dart';
 import 'lounge_service.dart';
+import 'notification_service.dart';
 import '../utils/task_utils.dart';
 
 /// Service for handling message validation and post-save operations.
@@ -149,6 +150,83 @@ class MessagingService {
     }
 
     return filteredContent;
+  }
+
+  /// Creates, saves, and triggers post-save processes for a new message.
+  /// This is the primary entry point for sending a message from any endpoint.
+  static Future<protocol.Message> sendMessage(
+    Session session, {
+    required protocol.Resident sender,
+    required protocol.Channel channel,
+    String? content,
+    String? imageUrl,
+    String? mediaUrl,
+    String? mediaType,
+    int? duration,
+    int? fileSize,
+    bool isSystem = false,
+  }) async {
+    // 1. Validate the content and permissions
+    final filteredContent = await validateMessage(
+      session,
+      sender: sender,
+      channel: channel,
+      content: content,
+      imageUrl: imageUrl,
+      mediaUrl: mediaUrl,
+      mediaType: mediaType,
+      duration: duration,
+      fileSize: fileSize,
+    );
+
+    // 2. Build the message object
+    final message = protocol.Message(
+      channelId: channel.id!,
+      senderId: sender.userInfoId,
+      content: filteredContent,
+      imageUrl: imageUrl,
+      mediaUrl: mediaUrl,
+      mediaType: mediaType,
+      isSystem: isSystem,
+      createdAt: DateTime.now(),
+      duration: duration,
+      fileSize: fileSize,
+      senderName: sender.userName ?? 'Resident',
+      senderAvatar: sender.customAvatarUrl ?? sender.avatar,
+      senderMood: sender.mood,
+      senderFloor: ApartmentService.computeEffectiveFloor(sender),
+      senderTrustScore: sender.trustScore,
+    );
+
+    // 3. Save to database
+    final savedMessage = await protocol.Message.db.insertRow(session, message);
+
+    // 4. Handle side effects (asynchronously in background)
+    TaskUtils.runBackground(session, (backgroundSession) async {
+      // Re-fetch channel for background session scope safety if needed,
+      // though for most listeners this might be overkill, it keeps it robust.
+      final channelReloaded =
+          await ChannelService.getChannel(backgroundSession, channel.id!);
+      if (channelReloaded != null) {
+        // Trigger notifications (Push, mentioning, etc.)
+        await NotificationService.triggerMessageNotifications(
+          backgroundSession,
+          channel: channelReloaded,
+          message: savedMessage,
+          sender: sender,
+        );
+
+        // Handle other save life-cycle events (Real-time broadcast, unread counts, XP, Streaks)
+        await onMessageSaved(
+          backgroundSession,
+          message: savedMessage,
+          channel: channelReloaded,
+          sender: sender,
+        );
+      }
+    });
+
+    return savedMessage;
   }
 
   /// Handles all post-message-save operations: broadcasts, notifications, gamification.

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_button.dart';
+import '../../widgets/duo/duo_switch.dart';
 import '../../helpers/duo_snackbar_helper.dart';
 import '../../helpers/duo_upgrade_helper.dart';
 import '../../helpers/resident_ext.dart';
@@ -43,22 +45,18 @@ class SettingsScreen extends ConsumerWidget {
           return ListView(
             padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
             children: [
-              _buildSectionHeader(context, 'Privacy'),
+              _buildSectionHeader(context, 'Privacy Control'),
               DuoCard(
                 child: Column(
                   children: [
-                    SwitchListTile(
-                      title: const Text(
-                        'Show Online Status',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: const Text(
-                        'Let others see when you are active',
-                      ),
+                    _buildDuoListTile(
+                      context,
+                      title: 'Online Status',
+                      subtitle: 'Let others see when you are active',
+                      emoji: '🟢',
                       value: resident.showOnlineStatus,
-                      activeThumbColor: AppTheme.duoGreen,
+                      activeColor: AppTheme.duoGreen,
                       onChanged: (value) async {
-                        HapticFeedback.selectionClick();
                         try {
                           await client.resident.updateOnlineSettings(
                             showOnlineStatus: value,
@@ -80,46 +78,42 @@ class SettingsScreen extends ConsumerWidget {
                         }
                       },
                     ),
-                    SwitchListTile(
-                      title: const Text(
-                        'Show Read Receipts',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: const Text(
-                        'Let others see when you have read their messages',
-                      ),
+                    const Divider(height: 1, indent: 16, endIndent: 16),
+                    _buildDuoListTile(
+                      context,
+                      title: 'Read Receipts',
+                      subtitle: 'Let others see when you read messages',
+                      emoji: '👁️',
                       value: resident.showReadReceipts,
-                      activeThumbColor: AppTheme.primaryColor,
+                      activeColor: AppTheme.primaryColor,
                       onChanged: (value) => _updatePrivacySettings(
                         context,
                         ref,
                         showReadReceipts: value,
                       ),
                     ),
-                    SwitchListTile(
-                      title: const Text(
-                        'Show Typing Indicator',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: const Text('Show others when you are typing'),
+                    const Divider(height: 1, indent: 16, endIndent: 16),
+                    _buildDuoListTile(
+                      context,
+                      title: 'Typing Indicator',
+                      subtitle: 'Show others when you are typing',
+                      emoji: '✍️',
                       value: resident.showTypingIndicator,
-                      activeThumbColor: AppTheme.primaryColor,
+                      activeColor: AppTheme.primaryColor,
                       onChanged: (value) => _updatePrivacySettings(
                         context,
                         ref,
                         showTypingIndicator: value,
                       ),
                     ),
-                    SwitchListTile(
-                      title: const Text(
-                        'Appear in Discovery',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: const Text(
-                        'Allow other residents to discover your persona',
-                      ),
+                    const Divider(height: 1, indent: 16, endIndent: 16),
+                    _buildDuoListTile(
+                      context,
+                      title: 'Appear in Discovery',
+                      subtitle: 'Allow others to discover your persona',
+                      emoji: '🔍',
                       value: resident.allowDiscovery,
-                      activeThumbColor: AppTheme.duoPurple,
+                      activeColor: AppTheme.duoPurple,
                       onChanged: (value) => _updatePrivacySettings(
                         context,
                         ref,
@@ -452,6 +446,68 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
+  Widget _buildDuoListTile(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool>? onChanged,
+    required String emoji,
+    Color? activeColor,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.duoSpacingMedium,
+        vertical: 12,
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: AppTheme.lightBackground,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: Text(
+                emoji,
+                style: const TextStyle(fontSize: 20, height: 1.0),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppTheme.textSecondary.withValues(alpha: 0.7),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          DuoSwitch(
+            value: value,
+            onChanged: onChanged,
+            activeColor: activeColor ?? AppTheme.primaryColor,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildFeatureRow(
     BuildContext context, {
     required IconData icon,
@@ -468,8 +524,9 @@ class SettingsScreen extends ConsumerWidget {
               DuoUpgradeHelper.showUpgradePrompt(context, title);
             }
           : null,
+      borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
         child: Row(
           children: [
             Container(
@@ -477,9 +534,12 @@ class SettingsScreen extends ConsumerWidget {
               height: 48,
               decoration: BoxDecoration(
                 color: isLocked
-                    ? Colors.grey[200]
+                    ? Colors.grey[100]
                     : AppTheme.primaryColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: isLocked ? Colors.grey[200]! : AppTheme.primaryColor.withValues(alpha: 0.2),
+                ),
               ),
               child: Center(
                 child: Icon(
@@ -518,13 +578,10 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ),
             if (!isLocked && onChanged != null && value != null)
-              Switch(
+              DuoSwitch(
                 value: value,
-                activeThumbColor: AppTheme.primaryColor,
-                onChanged: (val) {
-                  HapticFeedback.selectionClick();
-                  onChanged(val);
-                },
+                onChanged: onChanged,
+                activeColor: AppTheme.primaryColor,
               ),
           ],
         ),

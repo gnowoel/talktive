@@ -100,8 +100,6 @@ privateChat:
   - getPrivateChatDetails:
   - respondToChatInvite:
   - leaveChat:
-report:
-  - reportUser:
 resident:
   - getResident:
   - getResidentById:
@@ -109,18 +107,9 @@ resident:
   - updateResident:
   - updateCustomAvatar:
   - getUserProfile:
-  - likeUser:
-  - unlikeUser:
-  - getMyLikedUserIds:
-  - blockUser:
-  - unblockUser:
-  - isUserBlocked:
-  - getBlockedUserIds:
-  - updateOnlineSettings:
-  - purchasePremium:
-  - cancelPremium:
-  - startPremiumTrial:
   - updatePrivacySettings:
+  - setPremiumStatus:
+  - startPremiumTrial:
 search:
   - searchUsers:
   - searchLounges:
@@ -129,5 +118,14 @@ search:
   - getTrendingMoments:
   - getPopularLounges:
   - getActiveUsers:
+social:
+  - likeUser:
+  - unlikeUser:
+  - getMyLikedUserIds:
+  - blockUser:
+  - unblockUser:
+  - isUserBlocked:
+  - getBlockedUserIds:
+  - reportUser:
 greeting:
   - hello:

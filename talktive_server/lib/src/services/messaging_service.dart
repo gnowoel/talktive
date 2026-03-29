@@ -63,7 +63,7 @@ class MessagingService {
       );
       if (!validation.isValid) {
         throw protocol.TalktiveException(
-          message: validation.reason ?? 'Invalid message content',
+          message: validation.error ?? 'Invalid message content',
           code: 'CONTENT_FILTER_FAIL',
         );
       }
@@ -205,8 +205,10 @@ class MessagingService {
     TaskUtils.runBackground(session, (backgroundSession) async {
       // Re-fetch channel for background session scope safety if needed,
       // though for most listeners this might be overkill, it keeps it robust.
-      final channelReloaded =
-          await ChannelService.getChannel(backgroundSession, channel.id!);
+      final channelReloaded = await ChannelService.getChannel(
+        backgroundSession,
+        channel.id!,
+      );
       if (channelReloaded != null) {
         // Trigger notifications (Push, mentioning, etc.)
         await NotificationService.triggerMessageNotifications(
@@ -557,7 +559,10 @@ class MessagingService {
     message.duration = null;
     message.fileSize = null;
 
-    final updatedMessage = await protocol.Message.db.updateRow(session, message);
+    final updatedMessage = await protocol.Message.db.updateRow(
+      session,
+      message,
+    );
 
     // Update Denormalized Info (Preview text) if it was the last message
     if (channel.type != protocol.ChannelType.plaza) {
@@ -572,7 +577,9 @@ class MessagingService {
           // Better: We could just check if there's any message newer than this one.
           final newerMsg = await protocol.Message.db.findFirstRow(
             session,
-            where: (t) => t.channelId.equals(channel.id!) & (t.createdAt > message.createdAt),
+            where: (t) =>
+                t.channelId.equals(channel.id!) &
+                (t.createdAt > message.createdAt),
           );
           if (newerMsg == null) isLast = true;
         }
@@ -581,13 +588,15 @@ class MessagingService {
           session,
           where: (t) => t.channelId.equals(channel.id!),
         );
-         if (lounge != null && lounge.lastMessageAt != null) {
-             final newerMsg = await protocol.Message.db.findFirstRow(
-                session,
-                where: (t) => t.channelId.equals(channel.id!) & (t.createdAt > message.createdAt),
-             );
-             if (newerMsg == null) isLast = true;
-         }
+        if (lounge != null && lounge.lastMessageAt != null) {
+          final newerMsg = await protocol.Message.db.findFirstRow(
+            session,
+            where: (t) =>
+                t.channelId.equals(channel.id!) &
+                (t.createdAt > message.createdAt),
+          );
+          if (newerMsg == null) isLast = true;
+        }
       }
 
       if (isLast) {

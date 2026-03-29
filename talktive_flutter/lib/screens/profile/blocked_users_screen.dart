@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../providers/blocked_users_provider.dart';
+import '../../providers/social_relationships_provider.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/duo/duo_card.dart';
@@ -19,7 +19,7 @@ class BlockedUsersScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final blockedUsersAsync = ref.watch(blockedUsersProvider);
+    final socialStateAsync = ref.watch(socialRelationshipsStateProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -37,8 +37,9 @@ class BlockedUsersScreen extends ConsumerWidget {
           onPressed: () => context.pop(),
         ),
       ),
-      body: blockedUsersAsync.when(
-        data: (blockedUserIds) {
+      body: socialStateAsync.when(
+        data: (socialState) {
+          final blockedUserIds = socialState.blockedUserIds;
           if (blockedUserIds.isEmpty) {
             return const DuoEmptyState(
               emoji: '🚫',
@@ -158,7 +159,9 @@ class BlockedUsersScreen extends ConsumerWidget {
     String userName,
   ) async {
     try {
-      await ref.read(blockedUsersProvider.notifier).unblock(userId);
+      await ref
+          .read(socialRelationshipsStateProvider.notifier)
+          .unblockUser(userId);
       if (context.mounted) {
         HapticFeedback.mediumImpact();
         DuoSnackBarHelper.showSuccess(context, '$userName has been unblocked');

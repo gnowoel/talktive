@@ -1,12 +1,11 @@
 import 'package:serverpod/serverpod.dart';
-import 'package:talktive_server/src/generated/protocol.dart';
 import '../services/input_validation_service.dart';
+import '../utils/validation_result.dart';
 
 /// Content filtering service for profanity and spam detection
 class ContentFilterService {
   /// Common profanity words (basic list - expand as needed)
   static const List<String> profanityList = [
-    // Add profanity words here - keeping it minimal for example
     'badword1',
     'badword2',
     'spam',
@@ -46,7 +45,7 @@ class ContentFilterService {
     // Check for excessive caps
     final capsCount = content.replaceAll(RegExp(r'[^A-Z]'), '').length;
     final totalLetters = content.replaceAll(RegExp(r'[^a-zA-Z]'), '').length;
-    if (totalLetters > 10 && capsCount / totalLetters > 0.7) {
+    if (totalLetters > 10 && (capsCount / totalLetters) > 0.7) {
       return true; // More than 70% caps
     }
 
@@ -89,17 +88,12 @@ class ContentFilterService {
   ) async {
     // Length check
     if (content.trim().isEmpty) {
-      return ValidationResult(
-        isValid: false,
-        reason: 'Message cannot be empty',
-      );
+      return ValidationResult.failure('Message cannot be empty');
     }
 
     if (content.length > InputValidationService.maxMessageLength) {
-      return ValidationResult(
-        isValid: false,
-        reason:
-            'Message too long (max ${InputValidationService.maxMessageLength} characters)',
+      return ValidationResult.failure(
+        'Message too long (max ${InputValidationService.maxMessageLength} characters)',
       );
     }
 
@@ -108,18 +102,14 @@ class ContentFilterService {
     final filtered = filterContent(content, strictMode: strictMode);
 
     if (filtered == null) {
-      return ValidationResult(
-        isValid: false,
-        reason: strictMode
+      return ValidationResult.failure(
+        strictMode
             ? 'Message contains inappropriate content'
             : 'Message appears to be spam',
       );
     }
 
-    return ValidationResult(
-      isValid: true,
-      filteredContent: filtered,
-    );
+    return ValidationResult.success(filteredContent: filtered);
   }
 
   /// Check for repeated messages (spam detection)
@@ -174,17 +164,4 @@ class ContentFilterService {
       session.log('Error flagging content: $e', level: LogLevel.warning);
     }
   }
-}
-
-/// Validation result
-class ValidationResult {
-  final bool isValid;
-  final String? reason;
-  final String? filteredContent;
-
-  ValidationResult({
-    required this.isValid,
-    this.reason,
-    this.filteredContent,
-  });
 }

@@ -5,7 +5,7 @@ import 'package:talktive_client/talktive_client.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
-import '../../providers/blocked_users_provider.dart';
+import '../../providers/social_relationships_provider.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_floor_badge.dart';
 import '../../helpers/date_formatter.dart';
@@ -437,7 +437,9 @@ class MessageBubble extends ConsumerWidget {
                 );
 
                 if (confirm == true && context.mounted) {
-                  ref.read(blockedUsersProvider.notifier).block(senderId);
+                  ref
+                      .read(socialRelationshipsStateProvider.notifier)
+                      .blockUser(senderId);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('$senderName blocked.'),

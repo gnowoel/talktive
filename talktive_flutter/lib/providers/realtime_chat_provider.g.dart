@@ -56,7 +56,7 @@ final class RealtimeChatProvider
   }
 }
 
-String _$realtimeChatHash() => r'81583ee21fc44b2fe8a7150c7905cd9cf6cc1fca';
+String _$realtimeChatHash() => r'e1e94de86549596a2883a7056561939948501d7f';
 
 /// Provider for real-time chat with WebSocket streaming.
 /// Automatically subscribes to channel updates and maintains message list.

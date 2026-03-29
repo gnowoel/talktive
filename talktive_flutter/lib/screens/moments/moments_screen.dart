@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../config/theme.dart';
-import '../../providers/blocked_users_provider.dart';
+import '../../providers/social_relationships_provider.dart';
 import '../../providers/moments_provider.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
@@ -401,7 +401,8 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
 
   Widget _buildBody() {
     final momentsAsync = ref.watch(momentsProvider);
-    final blockedUsers = ref.watch(blockedUsersProvider).value ?? [];
+    final socialState = ref.watch(socialRelationshipsStateProvider).value;
+    final blockedUsers = socialState?.blockedUserIds ?? [];
     final likedMoments = ref.watch(momentLikesProvider).value ?? {};
 
     return momentsAsync.when(

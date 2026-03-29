@@ -5,7 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../providers/realtime_chat_provider.dart';
 import '../../providers/current_resident_provider.dart';
-import '../../providers/blocked_users_provider.dart';
+import '../../providers/social_relationships_provider.dart';
 import '../../config/theme.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
@@ -209,8 +209,8 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
     Resident? currentResident,
   ) {
     final messages = state.messages;
-    final blockedUsersAsync = ref.watch(blockedUsersProvider);
-    final blockedUsers = blockedUsersAsync.value ?? [];
+    final socialState = ref.watch(socialRelationshipsStateProvider).value;
+    final blockedUsers = socialState?.blockedUserIds ?? [];
 
     final filteredMessages = messages.where((msg) {
       return !blockedUsers.contains(msg.senderId.toString());

@@ -8,7 +8,7 @@ import '../../widgets/duo/duo_stat_card.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_input.dart';
 import '../../widgets/duo/duo_badge.dart';
-import '../../providers/blocked_users_provider.dart';
+import '../../providers/social_relationships_provider.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -50,8 +50,8 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final blockedIds = ref.watch(blockedUsersProvider).value ?? [];
-    final isBlocked = blockedIds.contains(widget.userId);
+    final socialState = ref.watch(socialRelationshipsStateProvider).value;
+    final isBlocked = socialState?.isBlocked(widget.userId) ?? false;
     final profileAsync = ref.watch(userProfileProvider(widget.userId));
 
     return Scaffold(
@@ -936,11 +936,9 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
               }
               Navigator.pop(context);
               try {
-                final client = ref.read(clientProvider);
-                await client.report.reportUser(
-                  targetUserId: widget.userId,
-                  reason: reason,
-                );
+                await ref
+                    .read(socialRelationshipsStateProvider.notifier)
+                    .reportUser(widget.userId, reason);
                 if (context.mounted) {
                   DuoSnackBarHelper.showSuccess(
                     context,

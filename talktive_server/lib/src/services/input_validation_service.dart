@@ -1,5 +1,5 @@
 import 'package:serverpod/serverpod.dart';
-import 'package:talktive_server/src/generated/protocol.dart';
+import '../utils/validation_result.dart';
 
 /// Centralized input validation service for all endpoints.
 /// Provides consistent validation rules across the application.
@@ -31,78 +31,65 @@ class InputValidationService {
     String name, {
     String fieldName = 'Name',
   }) {
-    if (name.trim().isEmpty) {
-      return ValidationResult(
-        isValid: false,
-        error: '$fieldName cannot be empty',
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) {
+      return ValidationResult.failure('$fieldName cannot be empty');
+    }
+
+    if (trimmed.length > maxNameLength) {
+      return ValidationResult.failure(
+        '$fieldName must be $maxNameLength characters or less',
       );
     }
 
-    if (name.length > maxNameLength) {
-      return ValidationResult(
-        isValid: false,
-        error: '$fieldName must be $maxNameLength characters or less',
+    if (trimmed.length < 2) {
+      return ValidationResult.failure(
+        '$fieldName must be at least 2 characters',
       );
     }
 
-    if (name.length < 2) {
-      return ValidationResult(
-        isValid: false,
-        error: '$fieldName must be at least 2 characters',
-      );
-    }
-
-    return ValidationResult(isValid: true);
+    return ValidationResult.success();
   }
 
   /// Validates a message content string.
   static ValidationResult validateMessageContent(String content) {
     if (content.trim().isEmpty) {
-      return ValidationResult(
-        isValid: false,
-        error: 'Message cannot be empty',
-      );
+      return ValidationResult.failure('Message cannot be empty');
     }
 
     if (content.length > maxMessageLength) {
-      return ValidationResult(
-        isValid: false,
-        error: 'Message must be $maxMessageLength characters or less',
+      return ValidationResult.failure(
+        'Message must be $maxMessageLength characters or less',
       );
     }
 
-    return ValidationResult(isValid: true);
+    return ValidationResult.success();
   }
 
   /// Validates a caption (for moments).
   static ValidationResult validateCaption(String caption) {
     if (caption.length > maxCaptionLength) {
-      return ValidationResult(
-        isValid: false,
-        error: 'Caption must be $maxCaptionLength characters or less',
+      return ValidationResult.failure(
+        'Caption must be $maxCaptionLength characters or less',
       );
     }
 
-    return ValidationResult(isValid: true);
+    return ValidationResult.success();
   }
 
   /// Validates a comment text.
   static ValidationResult validateComment(String text) {
     if (text.trim().isEmpty) {
-      return ValidationResult(
-        isValid: false,
-        error: 'Comment cannot be empty',
-      );
+      return ValidationResult.failure('Comment cannot be empty');
     }
 
     if (text.length > maxCommentLength) {
-      return ValidationResult(
-        isValid: false,
-        error: 'Comment must be $maxCommentLength characters or less',
+      return ValidationResult.failure(
+        'Comment must be $maxCommentLength characters or less',
       );
     }
 
-    return ValidationResult(isValid: true);
+    return ValidationResult.success();
   }
 
   /// Validates a lounge name.
@@ -114,59 +101,49 @@ class InputValidationService {
   static ValidationResult validateLoungeDescription(String? description) {
     if (description != null &&
         description.length > maxLoungeDescriptionLength) {
-      return ValidationResult(
-        isValid: false,
-        error:
-            'Lounge description must be $maxLoungeDescriptionLength characters or less',
+      return ValidationResult.failure(
+        'Lounge description must be $maxLoungeDescriptionLength characters or less',
       );
     }
 
-    return ValidationResult(isValid: true);
+    return ValidationResult.success();
   }
 
   /// Validates lounge rules.
   static ValidationResult validateLoungeRules(String? rules) {
     if (rules != null && rules.length > maxLoungeRulesLength) {
-      return ValidationResult(
-        isValid: false,
-        error: 'Lounge rules must be $maxLoungeRulesLength characters or less',
+      return ValidationResult.failure(
+        'Lounge rules must be $maxLoungeRulesLength characters or less',
       );
     }
 
-    return ValidationResult(isValid: true);
+    return ValidationResult.success();
   }
 
   /// Validates lounge member limits.
   static ValidationResult validateLoungeMemberLimit(int maxMembers) {
     if (maxMembers < minLoungeMembers || maxMembers > maxLoungeMembers) {
-      return ValidationResult(
-        isValid: false,
-        error:
-            'Max members must be between $minLoungeMembers and $maxLoungeMembers',
+      return ValidationResult.failure(
+        'Max members must be between $minLoungeMembers and $maxLoungeMembers',
       );
     }
 
-    return ValidationResult(isValid: true);
+    return ValidationResult.success();
   }
 
   /// Validates a report reason.
   static ValidationResult validateReportReason(String reason) {
     if (reason.trim().isEmpty) {
-      return ValidationResult(
-        isValid: false,
-        error: 'Report reason cannot be empty',
-      );
+      return ValidationResult.failure('Report reason cannot be empty');
     }
 
     if (reason.length > maxReportReasonLength) {
-      return ValidationResult(
-        isValid: false,
-        error:
-            'Report reason must be $maxReportReasonLength characters or less',
+      return ValidationResult.failure(
+        'Report reason must be $maxReportReasonLength characters or less',
       );
     }
 
-    return ValidationResult(isValid: true);
+    return ValidationResult.success();
   }
 
   /// Validates pagination parameters.
@@ -175,65 +152,51 @@ class InputValidationService {
     required int offset,
   }) {
     if (limit < 1 || limit > maxListLimit) {
-      return ValidationResult(
-        isValid: false,
-        error: 'Limit must be between 1 and $maxListLimit',
+      return ValidationResult.failure(
+        'Limit must be between 1 and $maxListLimit',
       );
     }
 
     if (offset < 0 || offset > maxOffset) {
-      return ValidationResult(
-        isValid: false,
-        error: 'Offset must be between 0 and $maxOffset',
+      return ValidationResult.failure(
+        'Offset must be between 0 and $maxOffset',
       );
     }
 
-    return ValidationResult(isValid: true);
+    return ValidationResult.success();
   }
 
   /// Validates a UUID string.
   static ValidationResult validateUuid(String uuid) {
     try {
       UuidValue.fromString(uuid);
-      return ValidationResult(isValid: true);
+      return ValidationResult.success();
     } catch (e) {
-      return ValidationResult(
-        isValid: false,
-        error: 'Invalid user ID format',
-      );
+      return ValidationResult.failure('Invalid user ID format');
     }
   }
 
   /// Validates a URL string.
   static ValidationResult validateUrl(String? url) {
     if (url == null || url.isEmpty) {
-      return ValidationResult(isValid: true); // Optional URL
+      return ValidationResult.success(); // Optional URL
     }
 
     try {
       final uri = Uri.parse(url);
       if (!uri.hasScheme || (!uri.isScheme('http') && !uri.isScheme('https'))) {
-        return ValidationResult(
-          isValid: false,
-          error: 'URL must use http or https protocol',
-        );
+        return ValidationResult.failure('URL must use http or https protocol');
       }
-      return ValidationResult(isValid: true);
+      return ValidationResult.success();
     } catch (e) {
-      return ValidationResult(
-        isValid: false,
-        error: 'Invalid URL format',
-      );
+      return ValidationResult.failure('Invalid URL format');
     }
   }
 
   /// Validates an image URL (must be present and valid).
   static ValidationResult validateImageUrl(String imageUrl) {
     if (imageUrl.trim().isEmpty) {
-      return ValidationResult(
-        isValid: false,
-        error: 'Image URL is required',
-      );
+      return ValidationResult.failure('Image URL is required');
     }
 
     return validateUrl(imageUrl);
@@ -243,36 +206,29 @@ class InputValidationService {
   static ValidationResult validateGender(String gender) {
     const validGenders = ['male', 'female', 'non-binary', 'prefer-not-to-say'];
     if (!validGenders.contains(gender.toLowerCase())) {
-      return ValidationResult(
-        isValid: false,
-        error: 'Invalid gender selection',
-      );
+      return ValidationResult.failure('Invalid gender selection');
     }
-    return ValidationResult(isValid: true);
+    return ValidationResult.success();
   }
 
   /// Validates a bio text.
   static ValidationResult validateBio(String? bio) {
     if (bio != null && bio.length > maxBioLength) {
-      return ValidationResult(
-        isValid: false,
-        error: 'Bio must be $maxBioLength characters or less',
+      return ValidationResult.failure(
+        'Bio must be $maxBioLength characters or less',
       );
     }
 
-    return ValidationResult(isValid: true);
+    return ValidationResult.success();
   }
 
   /// Validates an ID (must be positive).
   static ValidationResult validateId(int id, String fieldName) {
     if (id <= 0) {
-      return ValidationResult(
-        isValid: false,
-        error: '$fieldName must be a positive number',
-      );
+      return ValidationResult.failure('$fieldName must be a positive number');
     }
 
-    return ValidationResult(isValid: true);
+    return ValidationResult.success();
   }
 
   /// Validates a list of strings (e.g., interests, languages).
@@ -283,33 +239,30 @@ class InputValidationService {
     int maxItemLength = 50,
   }) {
     if (items == null || items.isEmpty) {
-      return ValidationResult(isValid: true); // Optional list
+      return ValidationResult.success(); // Optional list
     }
 
     if (items.length > maxItems) {
-      return ValidationResult(
-        isValid: false,
-        error: '$fieldName cannot have more than $maxItems items',
+      return ValidationResult.failure(
+        '$fieldName cannot have more than $maxItems items',
       );
     }
 
     for (final item in items) {
       if (item.trim().isEmpty) {
-        return ValidationResult(
-          isValid: false,
-          error: '$fieldName cannot contain empty items',
+        return ValidationResult.failure(
+          '$fieldName cannot contain empty items',
         );
       }
 
       if (item.length > maxItemLength) {
-        return ValidationResult(
-          isValid: false,
-          error: '$fieldName items must be $maxItemLength characters or less',
+        return ValidationResult.failure(
+          '$fieldName items must be $maxItemLength characters or less',
         );
       }
     }
 
-    return ValidationResult(isValid: true);
+    return ValidationResult.success();
   }
 
   /// Validates file size in bytes.
@@ -320,74 +273,43 @@ class InputValidationService {
   }) {
     if (size > maxSize) {
       final mb = (maxSize / (1024 * 1024)).toStringAsFixed(0);
-      return ValidationResult(
-        isValid: false,
-        error: '$fieldName is too large. Maximum size is ${mb}MB.',
+      return ValidationResult.failure(
+        '$fieldName is too large. Maximum size is ${mb}MB.',
       );
     }
-    return ValidationResult(isValid: true);
+    return ValidationResult.success();
   }
 
   /// Validates voice message duration.
   static ValidationResult validateVoiceDuration(int durationSeconds) {
     if (durationSeconds > maxVoiceDurationSeconds) {
-      return ValidationResult(
-        isValid: false,
-        error:
-            'Voice message is too long. Maximum length is $maxVoiceDurationSeconds seconds.',
+      return ValidationResult.failure(
+        'Voice message is too long. Maximum length is $maxVoiceDurationSeconds seconds.',
       );
     }
     if (durationSeconds <= 0) {
-      return ValidationResult(
-        isValid: false,
-        error: 'Voice message is too short.',
-      );
+      return ValidationResult.failure('Voice message is too short.');
     }
-    return ValidationResult(isValid: true);
+    return ValidationResult.success();
   }
 
   /// Validates a country string.
   static ValidationResult validateCountry(String? country) {
     if (country != null && country.length > 50) {
-      return ValidationResult(
-        isValid: false,
-        error: 'Country name must be 50 characters or less',
+      return ValidationResult.failure(
+        'Country name must be 50 characters or less',
       );
     }
-    return ValidationResult(isValid: true);
+    return ValidationResult.success();
   }
 
   /// Validates an age range string.
   static ValidationResult validateAgeRange(String? ageRange) {
     if (ageRange != null && ageRange.length > 20) {
-      return ValidationResult(
-        isValid: false,
-        error: 'Age range must be 20 characters or less',
+      return ValidationResult.failure(
+        'Age range must be 20 characters or less',
       );
     }
-    return ValidationResult(isValid: true);
-  }
-}
-
-/// Result of a validation check.
-class ValidationResult {
-  final bool isValid;
-  final String? error;
-  final String? errorCode;
-
-  ValidationResult({
-    required this.isValid,
-    this.error,
-    this.errorCode,
-  });
-
-  /// Throws a TalktiveException if validation failed.
-  void throwIfInvalid() {
-    if (!isValid) {
-      throw TalktiveException(
-        message: error ?? 'Validation failed',
-        code: errorCode ?? 'VALIDATION_ERROR',
-      );
-    }
+    return ValidationResult.success();
   }
 }

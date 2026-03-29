@@ -14,7 +14,7 @@ import '../../widgets/duo/duo_badge.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../providers/client_provider.dart';
-import '../../providers/blocked_users_provider.dart';
+import '../../providers/social_relationships_provider.dart';
 
 final _peepholeMessageProvider = FutureProvider.family<Message?, int>((
   ref,
@@ -414,8 +414,8 @@ class PeepholeScreen extends ConsumerWidget {
                         try {
                           // Block the user
                           await ref
-                              .read(blockedUsersProvider.notifier)
-                              .block(otherUserId);
+                              .read(socialRelationshipsStateProvider.notifier)
+                              .blockUser(otherUserId);
                           // Decline the chat invite
                           await ref
                               .read(privateChatListProvider.notifier)

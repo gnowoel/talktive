@@ -1231,36 +1231,6 @@ class EndpointPrivateChat extends _i2.EndpointRef {
 }
 
 /// {@category Endpoint}
-class EndpointReport extends _i2.EndpointRef {
-  EndpointReport(_i2.EndpointCaller caller) : super(caller);
-
-  @override
-  String get name => 'report';
-
-  /// Reports a user for inappropriate behavior.
-  /// Implements abuse prevention:
-  /// - Floor 0 users cannot report
-  /// - Max 5 reports per day per user
-  /// - 30-minute cooldown between reports
-  /// - Cannot report the same user more than once per day
-  _i3.Future<void> reportUser({
-    required String targetUserId,
-    required String reason,
-    int? channelId,
-    int? messageId,
-  }) => caller.callServerEndpoint<void>(
-    'report',
-    'reportUser',
-    {
-      'targetUserId': targetUserId,
-      'reason': reason,
-      'channelId': channelId,
-      'messageId': messageId,
-    },
-  );
-}
-
-/// {@category Endpoint}
 class EndpointResident extends _i2.EndpointRef {
   EndpointResident(_i2.EndpointCaller caller) : super(caller);
 
@@ -1363,90 +1333,6 @@ class EndpointResident extends _i2.EndpointRef {
         {'userId': userId},
       );
 
-  /// Vouch/Like a user.
-  _i3.Future<void> likeUser(String targetUserId) =>
-      caller.callServerEndpoint<void>(
-        'resident',
-        'likeUser',
-        {'targetUserId': targetUserId},
-      );
-
-  /// Remove a Vouch/Like.
-  _i3.Future<void> unlikeUser(String targetUserId) =>
-      caller.callServerEndpoint<void>(
-        'resident',
-        'unlikeUser',
-        {'targetUserId': targetUserId},
-      );
-
-  /// Get list of user IDs liked by current user.
-  _i3.Future<List<String>> getMyLikedUserIds() =>
-      caller.callServerEndpoint<List<String>>(
-        'resident',
-        'getMyLikedUserIds',
-        {},
-      );
-
-  _i3.Future<bool> blockUser(String userId) => caller.callServerEndpoint<bool>(
-    'resident',
-    'blockUser',
-    {'userId': userId},
-  );
-
-  _i3.Future<bool> unblockUser(String userId) =>
-      caller.callServerEndpoint<bool>(
-        'resident',
-        'unblockUser',
-        {'userId': userId},
-      );
-
-  _i3.Future<bool> isUserBlocked(String userId) =>
-      caller.callServerEndpoint<bool>(
-        'resident',
-        'isUserBlocked',
-        {'userId': userId},
-      );
-
-  _i3.Future<List<String>> getBlockedUserIds() =>
-      caller.callServerEndpoint<List<String>>(
-        'resident',
-        'getBlockedUserIds',
-        {},
-      );
-
-  /// Updates privacy settings for online status.
-  _i3.Future<_i11.Resident> updateOnlineSettings({
-    required bool showOnlineStatus,
-  }) => caller.callServerEndpoint<_i11.Resident>(
-    'resident',
-    'updateOnlineSettings',
-    {'showOnlineStatus': showOnlineStatus},
-  );
-
-  /// Mocks a premium purchase.
-  _i3.Future<_i11.Resident> purchasePremium() =>
-      caller.callServerEndpoint<_i11.Resident>(
-        'resident',
-        'purchasePremium',
-        {},
-      );
-
-  /// Mocks a subscription cancellation (downgrade).
-  _i3.Future<_i11.Resident> cancelPremium() =>
-      caller.callServerEndpoint<_i11.Resident>(
-        'resident',
-        'cancelPremium',
-        {},
-      );
-
-  /// Starts a 24-hour premium trial.
-  _i3.Future<_i11.Resident> startPremiumTrial() =>
-      caller.callServerEndpoint<_i11.Resident>(
-        'resident',
-        'startPremiumTrial',
-        {},
-      );
-
   /// Updates privacy settings (Read Receipts, Typing Indicator, Voice, Search, etc).
   _i3.Future<_i11.Resident> updatePrivacySettings({
     bool? showOnlineStatus,
@@ -1485,6 +1371,22 @@ class EndpointResident extends _i2.EndpointRef {
       'showImagesInMoments': showImagesInMoments,
     },
   );
+
+  /// Updates premium status (Mock for testing).
+  _i3.Future<_i11.Resident> setPremiumStatus({required bool isPremium}) =>
+      caller.callServerEndpoint<_i11.Resident>(
+        'resident',
+        'setPremiumStatus',
+        {'isPremium': isPremium},
+      );
+
+  /// Starts a 24-hour premium trial.
+  _i3.Future<_i11.Resident> startPremiumTrial() =>
+      caller.callServerEndpoint<_i11.Resident>(
+        'resident',
+        'startPremiumTrial',
+        {},
+      );
 }
 
 /// {@category Endpoint}
@@ -1617,6 +1519,87 @@ class EndpointSearch extends _i2.EndpointRef {
   );
 }
 
+/// Endpoint for peer-to-peer social interactions (Likes, Blocks, Reports).
+/// {@category Endpoint}
+class EndpointSocial extends _i2.EndpointRef {
+  EndpointSocial(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'social';
+
+  /// Vouch/Like a user.
+  _i3.Future<void> likeUser(String targetUserId) =>
+      caller.callServerEndpoint<void>(
+        'social',
+        'likeUser',
+        {'targetUserId': targetUserId},
+      );
+
+  /// Remove a Vouch/Like.
+  _i3.Future<void> unlikeUser(String targetUserId) =>
+      caller.callServerEndpoint<void>(
+        'social',
+        'unlikeUser',
+        {'targetUserId': targetUserId},
+      );
+
+  /// Get list of user IDs liked by current user.
+  _i3.Future<List<String>> getMyLikedUserIds() =>
+      caller.callServerEndpoint<List<String>>(
+        'social',
+        'getMyLikedUserIds',
+        {},
+      );
+
+  /// Blocks a user.
+  _i3.Future<bool> blockUser(String userId) => caller.callServerEndpoint<bool>(
+    'social',
+    'blockUser',
+    {'userId': userId},
+  );
+
+  /// Unblocks a user.
+  _i3.Future<bool> unblockUser(String userId) =>
+      caller.callServerEndpoint<bool>(
+        'social',
+        'unblockUser',
+        {'userId': userId},
+      );
+
+  /// Checks if a user is blocked.
+  _i3.Future<bool> isUserBlocked(String userId) =>
+      caller.callServerEndpoint<bool>(
+        'social',
+        'isUserBlocked',
+        {'userId': userId},
+      );
+
+  /// Gets list of user IDs blocked by current user.
+  _i3.Future<List<String>> getBlockedUserIds() =>
+      caller.callServerEndpoint<List<String>>(
+        'social',
+        'getBlockedUserIds',
+        {},
+      );
+
+  /// Reports a user for inappropriate behavior.
+  _i3.Future<void> reportUser({
+    required String targetUserId,
+    required String reason,
+    int? channelId,
+    int? messageId,
+  }) => caller.callServerEndpoint<void>(
+    'social',
+    'reportUser',
+    {
+      'targetUserId': targetUserId,
+      'reason': reason,
+      'channelId': channelId,
+      'messageId': messageId,
+    },
+  );
+}
+
 /// This is an example endpoint that returns a greeting message through
 /// its [hello] method.
 /// {@category Endpoint}
@@ -1689,9 +1672,9 @@ class Client extends _i2.ServerpodClientShared {
     moment = EndpointMoment(this);
     notification = EndpointNotification(this);
     privateChat = EndpointPrivateChat(this);
-    report = EndpointReport(this);
     resident = EndpointResident(this);
     search = EndpointSearch(this);
+    social = EndpointSocial(this);
     greeting = EndpointGreeting(this);
     modules = Modules(this);
   }
@@ -1718,11 +1701,11 @@ class Client extends _i2.ServerpodClientShared {
 
   late final EndpointPrivateChat privateChat;
 
-  late final EndpointReport report;
-
   late final EndpointResident resident;
 
   late final EndpointSearch search;
+
+  late final EndpointSocial social;
 
   late final EndpointGreeting greeting;
 
@@ -1741,9 +1724,9 @@ class Client extends _i2.ServerpodClientShared {
     'moment': moment,
     'notification': notification,
     'privateChat': privateChat,
-    'report': report,
     'resident': resident,
     'search': search,
+    'social': social,
     'greeting': greeting,
   };
 

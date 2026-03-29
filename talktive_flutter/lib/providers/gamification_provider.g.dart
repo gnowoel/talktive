@@ -34,7 +34,7 @@ final class GamificationNotifierProvider
 }
 
 String _$gamificationNotifierHash() =>
-    r'8cbbc17f5dce5b994b6192e15083a37cbc873441';
+    r'470458ce6211299ce08520e287a1e094a25277cc';
 
 abstract class _$GamificationNotifier
     extends $AsyncNotifier<GamificationData?> {

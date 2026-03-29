@@ -190,129 +190,6 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     );
   }
 
-  // --- Liking / Vouching ---
-
-  /// Vouch/Like a user.
-  Future<void> likeUser(Session session, String targetUserId) async {
-    InputValidationService.validateUuid(targetUserId).throwIfInvalid();
-    final resident = await getAuthenticatedResident(session);
-    final targetId = UuidValue.fromString(targetUserId);
-
-    await ResidentService.vouchForUser(
-      session,
-      sender: resident,
-      targetId: targetId,
-    );
-  }
-
-  /// Remove a Vouch/Like.
-  Future<void> unlikeUser(Session session, String targetUserId) async {
-    InputValidationService.validateUuid(targetUserId).throwIfInvalid();
-    final callerId = await getUserId(session);
-    final targetId = UuidValue.fromString(targetUserId);
-
-    await ResidentService.removeVouch(
-      session,
-      senderId: callerId,
-      targetId: targetId,
-    );
-  }
-
-  /// Get list of user IDs liked by current user.
-  Future<List<String>> getMyLikedUserIds(Session session) async {
-    final callerId = await getUserId(session);
-    final likes = await protocol.UserLike.db.find(
-      session,
-      where: (t) => t.senderId.equals(callerId),
-    );
-    return likes.map((e) => e.receiverId.toString()).toList();
-  }
-
-  // --- Blocking ---
-
-  Future<bool> blockUser(Session session, String userId) async {
-    InputValidationService.validateUuid(userId).throwIfInvalid();
-    final blockerId = await getUserId(session);
-    final targetId = UuidValue.fromString(userId);
-
-    await ResidentService.setBlockStatus(
-      session,
-      blockerId: blockerId,
-      targetId: targetId,
-      block: true,
-    );
-    return true;
-  }
-
-  Future<bool> unblockUser(Session session, String userId) async {
-    InputValidationService.validateUuid(userId).throwIfInvalid();
-    final blockerId = await getUserId(session);
-    final targetId = UuidValue.fromString(userId);
-
-    await ResidentService.setBlockStatus(
-      session,
-      blockerId: blockerId,
-      targetId: targetId,
-      block: false,
-    );
-    return true;
-  }
-
-  Future<bool> isUserBlocked(Session session, String userId) async {
-    InputValidationService.validateUuid(userId).throwIfInvalid();
-    final blockerId = await getUserId(session);
-    final targetId = UuidValue.fromString(userId);
-
-    final block = await protocol.Block.db.findFirstRow(
-      session,
-      where: (t) =>
-          t.blockerId.equals(blockerId) & t.blockedId.equals(targetId),
-    );
-    return block != null;
-  }
-
-  Future<List<String>> getBlockedUserIds(Session session) async {
-    final blockerId = await getUserId(session);
-    final blocks = await protocol.Block.db.find(
-      session,
-      where: (t) => t.blockerId.equals(blockerId),
-    );
-    return blocks.map((b) => b.blockedId.toString()).toList();
-  }
-
-  /// Updates privacy settings for online status.
-  Future<protocol.Resident> updateOnlineSettings(
-    Session session, {
-    required bool showOnlineStatus,
-  }) async {
-    final resident = await getAuthenticatedResident(session);
-    resident.showOnlineStatus = true;
-    return await protocol.Resident.db.updateRow(session, resident);
-  }
-
-  /// Mocks a premium purchase.
-  Future<protocol.Resident> purchasePremium(Session session) async {
-    final senderUuid = await getUserId(session);
-    return await ResidentService.setPremiumStatus(session, senderUuid, true);
-  }
-
-  /// Mocks a subscription cancellation (downgrade).
-  Future<protocol.Resident> cancelPremium(Session session) async {
-    final senderUuid = await getUserId(session);
-    return await ResidentService.setPremiumStatus(session, senderUuid, false);
-  }
-
-  /// Starts a 24-hour premium trial.
-  Future<protocol.Resident> startPremiumTrial(Session session) async {
-    final senderUuid = await getUserId(session);
-    // For now, we give 24 hours for trial
-    return await ResidentService.activatePremiumTrial(
-      session,
-      senderUuid,
-      const Duration(hours: 24),
-    );
-  }
-
   /// Updates privacy settings (Read Receipts, Typing Indicator, Voice, Search, etc).
   Future<protocol.Resident> updatePrivacySettings(
     Session session, {
@@ -352,6 +229,29 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
       showImagesInLounges: showImagesInLounges,
       showImagesInPrivateChats: showImagesInPrivateChats,
       showImagesInMoments: showImagesInMoments,
+    );
+  }
+
+  /// Updates premium status (Mock for testing).
+  Future<protocol.Resident> setPremiumStatus(
+    Session session, {
+    required bool isPremium,
+  }) async {
+    final senderUuid = await getUserId(session);
+    return await ResidentService.setPremiumStatus(
+      session,
+      senderUuid,
+      isPremium,
+    );
+  }
+
+  /// Starts a 24-hour premium trial.
+  Future<protocol.Resident> startPremiumTrial(Session session) async {
+    final senderUuid = await getUserId(session);
+    return await ResidentService.activatePremiumTrial(
+      session,
+      senderUuid,
+      const Duration(hours: 24),
     );
   }
 }

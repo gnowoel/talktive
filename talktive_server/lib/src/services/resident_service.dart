@@ -13,53 +13,8 @@ class ResidentService {
     Session session,
     UuidValue userId,
   ) async {
-    final cacheKey = 'resident_$userId';
-
-    // 1. Try Session Cache (Local to this request/session)
-    final cached = await session.caches.local.get<protocol.Resident>(cacheKey);
-    if (cached != null) return cached;
-
-    // 2. Try Global Cache (In-memory/Redis)
-    protocol.Resident? globalCached;
-    try {
-      globalCached = await session.caches.global.get<protocol.Resident>(
-        cacheKey,
-      );
-    } catch (e) {
-      // Redis might be misconfigured or connection failed
-      session.log('Cache error (get resident): $e', level: LogLevel.debug);
-    }
-
-    if (globalCached != null) {
-      // Put in local cache for next lookups in same session
-      await session.caches.local.put(cacheKey, globalCached);
-      return globalCached;
-    }
-
-    // 3. Database Fallback
-    final resident = await protocol.Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(userId),
-    );
-
-    if (resident != null) {
-      await session.caches.local.put(
-        cacheKey,
-        resident,
-        lifetime: Duration(minutes: 5),
-      );
-      try {
-        await session.caches.global.put(
-          cacheKey,
-          resident,
-          lifetime: Duration(minutes: 5),
-        );
-      } catch (e) {
-        session.log('Cache error (put resident): $e', level: LogLevel.debug);
-      }
-    }
-
-    return resident;
+    final residents = await getResidents(session, [userId]);
+    return residents.isNotEmpty ? residents.first : null;
   }
 
   /// Fetches multiple Residents by their userInfoIds with batch caching.
@@ -96,7 +51,8 @@ class ResidentService {
           cacheKeyMap[id]!,
         );
       } catch (e) {
-        // Fallback to missing
+        // Redis connection failure
+        session.log('Global cache error (get): $e', level: LogLevel.debug);
       }
 
       if (globalCached != null) {
@@ -122,16 +78,16 @@ class ResidentService {
       await session.caches.local.put(
         key,
         resident,
-        lifetime: Duration(minutes: 5),
+        lifetime: const Duration(minutes: 5),
       );
       try {
         await session.caches.global.put(
           key,
           resident,
-          lifetime: Duration(minutes: 5),
+          lifetime: const Duration(minutes: 5),
         );
       } catch (e) {
-        // Silent
+        session.log('Global cache error (put): $e', level: LogLevel.debug);
       }
     }
 
@@ -456,7 +412,7 @@ class ResidentService {
       final unlockedAchievements = allAchievements
           .where((a) => a.unlocked)
           .toList();
-      
+
       // Sort by unlockedAt descending
       unlockedAchievements.sort((a, b) {
         if (a.unlockedAt == null && b.unlockedAt == null) return 0;

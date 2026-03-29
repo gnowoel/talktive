@@ -94,7 +94,7 @@ final class ActivityHistoryProvider
   ActivityHistory create() => ActivityHistory();
 }
 
-String _$activityHistoryHash() => r'7909049ba363ebd5d583df2157b9b3eaa9d1d51c';
+String _$activityHistoryHash() => r'5617c9c24c4725523b5557e1911c6da507e64835';
 
 /// Provider for fetching and managing the persistent activity history (notifications).
 

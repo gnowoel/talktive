@@ -2,8 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'client_provider.dart';
-import 'blocked_users_provider.dart';
-import 'user_likes_provider.dart';
+import 'social_relationships_provider.dart';
 
 part 'user_profile_provider.g.dart';
 
@@ -12,10 +11,8 @@ part 'user_profile_provider.g.dart';
 class UserProfile extends _$UserProfile {
   @override
   FutureOr<UserProfileView?> build(String userId) async {
-    // Watch blocked users and likes to rebuild when they change
-    // This makes the profile view reactive to blocking/liking actions
-    ref.watch(blockedUsersProvider);
-    ref.watch(userLikesProvider);
+    // Watch social relationships to rebuild when they change
+    ref.watch(socialRelationshipsStateProvider);
 
     try {
       final client = ref.read(clientProvider);
@@ -40,14 +37,12 @@ class UserProfile extends _$UserProfile {
     final currentProfile = state.value;
     if (currentProfile == null) return;
 
-    final blockedNotifier = ref.read(blockedUsersProvider.notifier);
+    final socialNotifier = ref.read(socialRelationshipsStateProvider.notifier);
     if (currentProfile.isBlocked) {
-      await blockedNotifier.unblock(userId);
+      await socialNotifier.unblockUser(userId);
     } else {
-      await blockedNotifier.block(userId);
+      await socialNotifier.blockUser(userId);
     }
-
-    // The provider will automatically rebuild because it watches blockedUsersProvider
   }
 
   /// Toggles the like status of the user
@@ -55,13 +50,13 @@ class UserProfile extends _$UserProfile {
     final currentProfile = state.value;
     if (currentProfile == null) return;
 
-    final likesNotifier = ref.read(userLikesProvider.notifier);
-    if (ref.read(userLikesProvider).value?.contains(userId) ?? false) {
-      await likesNotifier.unlikeUser(userId);
-    } else {
-      await likesNotifier.likeUser(userId);
-    }
+    final socialNotifier = ref.read(socialRelationshipsStateProvider.notifier);
+    final socialState = ref.read(socialRelationshipsStateProvider).value;
 
-    // The provider will automatically rebuild because it watches userLikesProvider
+    if (socialState?.isLiked(userId) ?? false) {
+      await socialNotifier.unlikeUser(userId);
+    } else {
+      await socialNotifier.likeUser(userId);
+    }
   }
 }

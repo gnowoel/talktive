@@ -43,6 +43,8 @@ abstract class Resident
     _i2.ResidentRole? role,
     this.lastSeen,
     bool? isPremium,
+    this.premiumTrialExpires,
+    int? trialCount,
     bool? showOnlineStatus,
     bool? showReadReceipts,
     bool? showTypingIndicator,
@@ -69,6 +71,7 @@ abstract class Resident
        ageRange = ageRange ?? '18-24',
        role = role ?? _i2.ResidentRole.user,
        isPremium = isPremium ?? false,
+       trialCount = trialCount ?? 0,
        showOnlineStatus = showOnlineStatus ?? true,
        showReadReceipts = showReadReceipts ?? true,
        showTypingIndicator = showTypingIndicator ?? true,
@@ -112,6 +115,8 @@ abstract class Resident
     _i2.ResidentRole? role,
     DateTime? lastSeen,
     bool? isPremium,
+    DateTime? premiumTrialExpires,
+    int? trialCount,
     bool? showOnlineStatus,
     bool? showReadReceipts,
     bool? showTypingIndicator,
@@ -194,6 +199,12 @@ abstract class Resident
       isPremium: jsonSerialization['isPremium'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(jsonSerialization['isPremium']),
+      premiumTrialExpires: jsonSerialization['premiumTrialExpires'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(
+              jsonSerialization['premiumTrialExpires'],
+            ),
+      trialCount: jsonSerialization['trialCount'] as int?,
       showOnlineStatus: jsonSerialization['showOnlineStatus'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(
@@ -333,6 +344,10 @@ abstract class Resident
 
   bool isPremium;
 
+  DateTime? premiumTrialExpires;
+
+  int trialCount;
+
   bool showOnlineStatus;
 
   bool showReadReceipts;
@@ -398,6 +413,8 @@ abstract class Resident
     _i2.ResidentRole? role,
     DateTime? lastSeen,
     bool? isPremium,
+    DateTime? premiumTrialExpires,
+    int? trialCount,
     bool? showOnlineStatus,
     bool? showReadReceipts,
     bool? showTypingIndicator,
@@ -446,6 +463,9 @@ abstract class Resident
       'role': role.toJson(),
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isPremium': isPremium,
+      if (premiumTrialExpires != null)
+        'premiumTrialExpires': premiumTrialExpires?.toJson(),
+      'trialCount': trialCount,
       'showOnlineStatus': showOnlineStatus,
       'showReadReceipts': showReadReceipts,
       'showTypingIndicator': showTypingIndicator,
@@ -496,6 +516,9 @@ abstract class Resident
       'role': role.toJson(),
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isPremium': isPremium,
+      if (premiumTrialExpires != null)
+        'premiumTrialExpires': premiumTrialExpires?.toJson(),
+      'trialCount': trialCount,
       'showOnlineStatus': showOnlineStatus,
       'showReadReceipts': showReadReceipts,
       'showTypingIndicator': showTypingIndicator,
@@ -575,6 +598,8 @@ class _ResidentImpl extends Resident {
     _i2.ResidentRole? role,
     DateTime? lastSeen,
     bool? isPremium,
+    DateTime? premiumTrialExpires,
+    int? trialCount,
     bool? showOnlineStatus,
     bool? showReadReceipts,
     bool? showTypingIndicator,
@@ -618,6 +643,8 @@ class _ResidentImpl extends Resident {
          role: role,
          lastSeen: lastSeen,
          isPremium: isPremium,
+         premiumTrialExpires: premiumTrialExpires,
+         trialCount: trialCount,
          showOnlineStatus: showOnlineStatus,
          showReadReceipts: showReadReceipts,
          showTypingIndicator: showTypingIndicator,
@@ -667,6 +694,8 @@ class _ResidentImpl extends Resident {
     _i2.ResidentRole? role,
     Object? lastSeen = _Undefined,
     bool? isPremium,
+    Object? premiumTrialExpires = _Undefined,
+    int? trialCount,
     bool? showOnlineStatus,
     bool? showReadReceipts,
     bool? showTypingIndicator,
@@ -722,6 +751,10 @@ class _ResidentImpl extends Resident {
       role: role ?? this.role,
       lastSeen: lastSeen is DateTime? ? lastSeen : this.lastSeen,
       isPremium: isPremium ?? this.isPremium,
+      premiumTrialExpires: premiumTrialExpires is DateTime?
+          ? premiumTrialExpires
+          : this.premiumTrialExpires,
+      trialCount: trialCount ?? this.trialCount,
       showOnlineStatus: showOnlineStatus ?? this.showOnlineStatus,
       showReadReceipts: showReadReceipts ?? this.showReadReceipts,
       showTypingIndicator: showTypingIndicator ?? this.showTypingIndicator,
@@ -887,6 +920,17 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
 
   _i1.ColumnValue<bool, bool> isPremium(bool value) => _i1.ColumnValue(
     table.isPremium,
+    value,
+  );
+
+  _i1.ColumnValue<DateTime, DateTime> premiumTrialExpires(DateTime? value) =>
+      _i1.ColumnValue(
+        table.premiumTrialExpires,
+        value,
+      );
+
+  _i1.ColumnValue<int, int> trialCount(int value) => _i1.ColumnValue(
+    table.trialCount,
     value,
   );
 
@@ -1094,6 +1138,15 @@ class ResidentTable extends _i1.Table<int?> {
       this,
       hasDefault: true,
     );
+    premiumTrialExpires = _i1.ColumnDateTime(
+      'premiumTrialExpires',
+      this,
+    );
+    trialCount = _i1.ColumnInt(
+      'trialCount',
+      this,
+      hasDefault: true,
+    );
     showOnlineStatus = _i1.ColumnBool(
       'showOnlineStatus',
       this,
@@ -1227,6 +1280,10 @@ class ResidentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnBool isPremium;
 
+  late final _i1.ColumnDateTime premiumTrialExpires;
+
+  late final _i1.ColumnInt trialCount;
+
   late final _i1.ColumnBool showOnlineStatus;
 
   late final _i1.ColumnBool showReadReceipts;
@@ -1287,6 +1344,8 @@ class ResidentTable extends _i1.Table<int?> {
     role,
     lastSeen,
     isPremium,
+    premiumTrialExpires,
+    trialCount,
     showOnlineStatus,
     showReadReceipts,
     showTypingIndicator,

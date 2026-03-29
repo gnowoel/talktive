@@ -42,6 +42,8 @@ abstract class Resident implements _i1.SerializableModel {
     _i2.ResidentRole? role,
     this.lastSeen,
     bool? isPremium,
+    this.premiumTrialExpires,
+    int? trialCount,
     bool? showOnlineStatus,
     bool? showReadReceipts,
     bool? showTypingIndicator,
@@ -68,6 +70,7 @@ abstract class Resident implements _i1.SerializableModel {
        ageRange = ageRange ?? '18-24',
        role = role ?? _i2.ResidentRole.user,
        isPremium = isPremium ?? false,
+       trialCount = trialCount ?? 0,
        showOnlineStatus = showOnlineStatus ?? true,
        showReadReceipts = showReadReceipts ?? true,
        showTypingIndicator = showTypingIndicator ?? true,
@@ -111,6 +114,8 @@ abstract class Resident implements _i1.SerializableModel {
     _i2.ResidentRole? role,
     DateTime? lastSeen,
     bool? isPremium,
+    DateTime? premiumTrialExpires,
+    int? trialCount,
     bool? showOnlineStatus,
     bool? showReadReceipts,
     bool? showTypingIndicator,
@@ -193,6 +198,12 @@ abstract class Resident implements _i1.SerializableModel {
       isPremium: jsonSerialization['isPremium'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(jsonSerialization['isPremium']),
+      premiumTrialExpires: jsonSerialization['premiumTrialExpires'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(
+              jsonSerialization['premiumTrialExpires'],
+            ),
+      trialCount: jsonSerialization['trialCount'] as int?,
       showOnlineStatus: jsonSerialization['showOnlineStatus'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(
@@ -330,6 +341,10 @@ abstract class Resident implements _i1.SerializableModel {
 
   bool isPremium;
 
+  DateTime? premiumTrialExpires;
+
+  int trialCount;
+
   bool showOnlineStatus;
 
   bool showReadReceipts;
@@ -392,6 +407,8 @@ abstract class Resident implements _i1.SerializableModel {
     _i2.ResidentRole? role,
     DateTime? lastSeen,
     bool? isPremium,
+    DateTime? premiumTrialExpires,
+    int? trialCount,
     bool? showOnlineStatus,
     bool? showReadReceipts,
     bool? showTypingIndicator,
@@ -440,6 +457,9 @@ abstract class Resident implements _i1.SerializableModel {
       'role': role.toJson(),
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isPremium': isPremium,
+      if (premiumTrialExpires != null)
+        'premiumTrialExpires': premiumTrialExpires?.toJson(),
+      'trialCount': trialCount,
       'showOnlineStatus': showOnlineStatus,
       'showReadReceipts': showReadReceipts,
       'showTypingIndicator': showTypingIndicator,
@@ -495,6 +515,8 @@ class _ResidentImpl extends Resident {
     _i2.ResidentRole? role,
     DateTime? lastSeen,
     bool? isPremium,
+    DateTime? premiumTrialExpires,
+    int? trialCount,
     bool? showOnlineStatus,
     bool? showReadReceipts,
     bool? showTypingIndicator,
@@ -538,6 +560,8 @@ class _ResidentImpl extends Resident {
          role: role,
          lastSeen: lastSeen,
          isPremium: isPremium,
+         premiumTrialExpires: premiumTrialExpires,
+         trialCount: trialCount,
          showOnlineStatus: showOnlineStatus,
          showReadReceipts: showReadReceipts,
          showTypingIndicator: showTypingIndicator,
@@ -587,6 +611,8 @@ class _ResidentImpl extends Resident {
     _i2.ResidentRole? role,
     Object? lastSeen = _Undefined,
     bool? isPremium,
+    Object? premiumTrialExpires = _Undefined,
+    int? trialCount,
     bool? showOnlineStatus,
     bool? showReadReceipts,
     bool? showTypingIndicator,
@@ -642,6 +668,10 @@ class _ResidentImpl extends Resident {
       role: role ?? this.role,
       lastSeen: lastSeen is DateTime? ? lastSeen : this.lastSeen,
       isPremium: isPremium ?? this.isPremium,
+      premiumTrialExpires: premiumTrialExpires is DateTime?
+          ? premiumTrialExpires
+          : this.premiumTrialExpires,
+      trialCount: trialCount ?? this.trialCount,
       showOnlineStatus: showOnlineStatus ?? this.showOnlineStatus,
       showReadReceipts: showReadReceipts ?? this.showReadReceipts,
       showTypingIndicator: showTypingIndicator ?? this.showTypingIndicator,

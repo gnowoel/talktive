@@ -120,7 +120,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     resident.languages = languages ?? resident.languages;
 
     // Premium check for custom avatar
-    if (customAvatarUrl != null && !resident.isPremium) {
+    if (customAvatarUrl != null && !ResidentService.isPlusMember(resident)) {
       throw protocol.TalktiveException(
         message: 'Custom avatars are a Premium feature.',
         code: 'PREMIUM_REQUIRED',
@@ -155,7 +155,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
 
     final resident = await getAuthenticatedResident(session);
 
-    if (customAvatarUrl != null && !resident.isPremium) {
+    if (customAvatarUrl != null && !ResidentService.isPlusMember(resident)) {
       throw protocol.TalktiveException(
         message: 'Custom avatars are a Premium feature.',
         code: 'PREMIUM_REQUIRED',
@@ -300,6 +300,17 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
   Future<protocol.Resident> cancelPremium(Session session) async {
     final senderUuid = await getUserId(session);
     return await ResidentService.setPremiumStatus(session, senderUuid, false);
+  }
+
+  /// Starts a 24-hour premium trial.
+  Future<protocol.Resident> startPremiumTrial(Session session) async {
+    final senderUuid = await getUserId(session);
+    // For now, we give 24 hours for trial
+    return await ResidentService.activatePremiumTrial(
+      session,
+      senderUuid,
+      const Duration(hours: 24),
+    );
   }
 
   /// Updates privacy settings (Read Receipts, Typing Indicator, Voice, Search, etc).

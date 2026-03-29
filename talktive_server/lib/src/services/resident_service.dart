@@ -782,6 +782,16 @@ class ResidentService {
     }
   }
 
+  /// Helper to check if a resident is a Plus member (either paid or trial).
+  static bool isPlusMember(protocol.Resident resident) {
+    if (resident.isPremium) return true;
+    if (resident.premiumTrialExpires != null &&
+        resident.premiumTrialExpires!.isAfter(DateTime.now())) {
+      return true;
+    }
+    return false;
+  }
+
   /// Updates privacy settings for a resident.
   static Future<protocol.Resident> updatePrivacy(
     Session session, {
@@ -802,33 +812,42 @@ class ResidentService {
     bool? showImagesInPrivateChats,
     bool? showImagesInMoments,
   }) async {
+    final bool isPlus = isPlusMember(resident);
+
     if (showOnlineStatus != null) resident.showOnlineStatus = showOnlineStatus;
     if (showReadReceipts != null) resident.showReadReceipts = showReadReceipts;
     if (showTypingIndicator != null)
       resident.showTypingIndicator = showTypingIndicator;
-    if (showVoiceMessages != null)
+
+    // Premium Features
+    if (showVoiceMessages != null && isPlus)
       resident.showVoiceMessages = showVoiceMessages;
-    if (showNeighborsDiscovery != null)
+    if (showNeighborsDiscovery != null && isPlus)
       resident.showNeighborsDiscovery = showNeighborsDiscovery;
-    if (showCustomAvatar != null) resident.showCustomAvatar = showCustomAvatar;
+    if (showCustomAvatar != null && isPlus)
+      resident.showCustomAvatar = showCustomAvatar;
+    if (allowDiscovery != null && isPlus)
+      resident.allowDiscovery = allowDiscovery;
+    if (showImagesInPlaza != null && isPlus)
+      resident.showImagesInPlaza = showImagesInPlaza;
+    if (showImagesInLounges != null && isPlus)
+      resident.showImagesInLounges = showImagesInLounges;
+    if (showImagesInPrivateChats != null && isPlus)
+      resident.showImagesInPrivateChats = showImagesInPrivateChats;
+    if (showImagesInMoments != null && isPlus)
+      resident.showImagesInMoments = showImagesInMoments;
+
+    // Standard privacy can be toggled by anyone
     if (showOthersOnlineStatus != null)
       resident.showOthersOnlineStatus = showOthersOnlineStatus;
     if (showOthersReadReceipts != null)
       resident.showOthersReadReceipts = showOthersReadReceipts;
     if (showOthersTypingIndicators != null)
       resident.showOthersTypingIndicators = showOthersTypingIndicators;
-    if (allowDiscovery != null) resident.allowDiscovery = allowDiscovery;
-    if (showImagesInPlaza != null)
-      resident.showImagesInPlaza = showImagesInPlaza;
-    if (showImagesInLounges != null)
-      resident.showImagesInLounges = showImagesInLounges;
-    if (showImagesInPrivateChats != null)
-      resident.showImagesInPrivateChats = showImagesInPrivateChats;
-    if (showImagesInMoments != null)
-      resident.showImagesInMoments = showImagesInMoments;
 
     final bool oldKeepPrivateChats = resident.keepPrivateChats;
-    if (keepPrivateChats != null) resident.keepPrivateChats = keepPrivateChats;
+    if (keepPrivateChats != null && isPlus)
+      resident.keepPrivateChats = keepPrivateChats;
 
     final updatedResident = await updateResident(session, resident);
 
@@ -838,6 +857,35 @@ class ResidentService {
     }
 
     return updatedResident;
+  }
+
+  /// Activates a premium trial for a user.
+  static Future<protocol.Resident> activatePremiumTrial(
+    Session session,
+    UuidValue userId,
+    Duration duration,
+  ) async {
+    final resident = await getResident(session, userId);
+    if (resident == null) {
+      throw protocol.TalktiveException(message: 'Resident not found');
+    }
+
+    // Set trial expiration and increment count
+    resident.premiumTrialExpires = DateTime.now().add(duration);
+    resident.trialCount += 1;
+
+    // Automatically enable all premium settings for trial
+    resident.showNeighborsDiscovery = true;
+    resident.allowDiscovery = true;
+    resident.showCustomAvatar = true;
+    resident.showVoiceMessages = true;
+    resident.keepPrivateChats = true;
+    resident.showImagesInPlaza = true;
+    resident.showImagesInLounges = true;
+    resident.showImagesInPrivateChats = true;
+    resident.showImagesInMoments = true;
+
+    return await updateResident(session, resident);
   }
 
   /// Updates a user's premium status and cleans up premium settings if disabled.
@@ -854,6 +902,9 @@ class ResidentService {
     resident.isPremium = isPremium;
 
     if (isPremium) {
+      // Clear trial once they pay
+      resident.premiumTrialExpires = null;
+
       // Enable all premium features by default on purchase
       resident.showNeighborsDiscovery = true;
       resident.allowDiscovery = true;
@@ -872,25 +923,26 @@ class ResidentService {
       resident.showImagesInMoments = true;
     } else {
       // Automatically disable all premium settings if subscription expires/cancels
-      final bool oldKeepPrivateChats = resident.keepPrivateChats;
-      resident.keepPrivateChats = false;
-      resident.showCustomAvatar = false;
-      resident.showVoiceMessages = false;
-      resident.showNeighborsDiscovery = false;
-      resident.showImagesInPlaza = false;
-      resident.showImagesInLounges = false;
-      resident.showImagesInPrivateChats = false;
-      resident.showImagesInMoments = false;
-      // We don't disable read receipts/typing/online status as they are standard privacy
-      // but premium lets you use them *while* staying hidden.
+      // ONLY if they don't have an active trial either
+      if (!isPlusMember(resident)) {
+        final bool oldKeepPrivateChats = resident.keepPrivateChats;
+        resident.keepPrivateChats = false;
+        resident.showCustomAvatar = false;
+        resident.showVoiceMessages = false;
+        resident.showNeighborsDiscovery = false;
+        resident.showImagesInPlaza = false;
+        resident.showImagesInLounges = false;
+        resident.showImagesInPrivateChats = false;
+        resident.showImagesInMoments = false;
 
-      final updated = await updateResident(session, resident);
+        final updated = await updateResident(session, resident);
 
-      // Perform cleanup for kept chats if they were previously enabled
-      if (oldKeepPrivateChats) {
-        await _unkeepAllPrivateChats(session, userId);
+        // Perform cleanup for kept chats if they were previously enabled
+        if (oldKeepPrivateChats) {
+          await _unkeepAllPrivateChats(session, userId);
+        }
+        return updated;
       }
-      return updated;
     }
 
     return await updateResident(session, resident);

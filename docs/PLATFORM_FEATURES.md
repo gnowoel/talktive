@@ -57,6 +57,17 @@ Talktive is built on the principle of open community and expressive personality.
 
 ---
 
+## 🎁 Premium Trials
+
+To ensure all residents can experience the full potential of the "Apartment Building," Talktive offers a **Premium Trial** system:
+
+- **24-Hour Trial**: Residents can activate a one-day trial to explore all **Talktive Plus** features for free.
+- **Full Feature Access**: All premium-locked settings (Voice Messages, Custom Avatars, Advanced Search, Chat Persistence) are unlocked during the trial period.
+- **Ad-Supported**: To support the community during the trial, interstitial ads remain active until a full **Talktive Plus** subscription is purchased.
+- **Availability**: Trials are available periodically to allow new and returning residents to discover the latest platform enhancements.
+
+---
+
 ## 🛡️ Feature Gating Philosophy
 
 Talktive uses a **Security First** approach to feature access:

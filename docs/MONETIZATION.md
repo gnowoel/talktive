@@ -33,6 +33,15 @@ Residents who subscribe to **Talktive Plus** receive an ad-free experience:
 - **Ad Exemption**: Users with `isPremium` status are automatically exempted from all interstitial ads.
 - **Visual Gating**: Ad-related UI elements are hidden or disabled for premium subscribers.
 
+### 🎁 Premium Trial System
+
+Talktive includes a **Premium Trial** system that allows residents to explore Plus features before committing to a subscription:
+
+- **24-Hour Access**: One-click activation for a 24-hour trial period.
+- **Full Features**: All premium capabilities (Custom Avatars, Voice, etc.) are enabled.
+- **Ad Persistence**: Trials are ad-supported; interstitial ads are only disabled for **Paid Plus** subscribers.
+- **Future Ready**: The trial system tracks usage counts (`trialCount`) and expiration times (`premiumTrialExpires`) to facilitate future billing and limitation logic.
+
 ---
 
 ## 🛠️ Technical Implementation

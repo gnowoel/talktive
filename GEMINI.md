@@ -138,6 +138,13 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 ## Recent Fixes
 
 
+- **Premium Trial System & Feature Gating (Mar 2026)**:
+  - **Try-Before-You-Buy**: Implemented a 24-hour Premium Trial system allowing residents to explore all Talktive Plus features (Custom Avatar, Voice Messages, Advanced Search, Chat Persistence) before subscribing.
+  - **Backend Orchestration**: Added `premiumTrialExpires` and `trialCount` to the `Resident` model. Introduced `ResidentService.isPlusMember` to unify permission checks for both paid and trial users.
+  - **Feature Activation**: Trial activation automatically enables all premium-locked settings (Voice, Search, etc.) to ensure a frictionless experience.
+  - **Ad-Supported Trial**: Maintained interstitial ads for trial users, ensuring the building's monetization strategy remains intact until a full subscription is purchased.
+  - **UI Integration**: Added a "Try Out" button to the Settings screen with a real-time countdown timer for active trials. Updated all client-side feature checks to use the new `isPlus` extension.
+
 - **Full-Stack Consolidation & Simplification (Mar 2026)**:
   - **Frontend Redundancy Elimination**: Introduced `ChatScreenMixin` to unify common chat logic (scrolling, messaging, image/voice handling) across `PlazaChatScreen`, `LoungeChatScreen`, and `ChatThreadScreen`. This reduced duplicated UI code by over 600 lines while ensuring consistent behavior across all chat environments.
   - **Backend Orchestration Refactoring**: Migrated notification orchestration logic from `MessageEndpoint` to `NotificationService.triggerMessageNotifications`. This further thins the endpoint layer and centralizes complex side-effect logic.

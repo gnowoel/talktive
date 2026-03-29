@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../config/theme.dart';
 
@@ -29,11 +31,6 @@ class GoogleSignInButton extends StatelessWidget {
                 color: Colors.black.withValues(alpha: 0.08),
                 blurRadius: 15,
                 offset: const Offset(0, 5),
-              ),
-              BoxShadow(
-                color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
               ),
             ],
           ),

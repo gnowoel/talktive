@@ -138,6 +138,12 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 ## Recent Fixes
 
 
+- **GIS 7.2.0 Authentication Overhaul (Mar 2026)**:
+  - **Modern SDK Adoption**: Migrated the entire authentication stack to `google_sign_in: 7.2.0`, resolving broken constructor issues and `UnimplementedError` on Web.
+  - **Singleton API**: Standardized on `GoogleSignIn.instance` with explicit `initialize(clientId: ...)` to ensure cross-platform coherence.
+  - **Event-Driven Provider**: Refactored `AuthProvider` to use the non-future `authentication` getter and the new `authenticationEvents` event stream, providing robust session restoration and automated Serverpod token exchange.
+  - **UI Unification**: Standardized the Google Sign-In button as a high-fidelity `DuoButton` component, eliminating redundant and platform-brittle native button rendering.
+
 - **Privacy & Premium Polish (Mar 2026)**: 
   - **Settings Refinement**: Resolved `RenderFlex` overflow on the Settings screen by removing redundant "Upgrade Now" buttons.
   - **Simplified Privacy UI**: Removed the "Privacy Control" section from settings to provide a cleaner discovery experience.

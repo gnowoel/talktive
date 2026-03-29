@@ -27,4 +27,5 @@ fields:
   ageRange: String?
   lastSeen: DateTime?
   isOnline: bool, default=false
+  isPremium: bool, default=false
   role: ResidentRole

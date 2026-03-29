@@ -45,8 +45,10 @@ abstract class UserProfileView
     this.ageRange,
     this.lastSeen,
     bool? isOnline,
+    bool? isPremium,
     required this.role,
-  }) : isOnline = isOnline ?? false;
+  }) : isOnline = isOnline ?? false,
+       isPremium = isPremium ?? false;
 
   factory UserProfileView({
     required _i1.UuidValue userId,
@@ -75,6 +77,7 @@ abstract class UserProfileView
     String? ageRange,
     DateTime? lastSeen,
     bool? isOnline,
+    bool? isPremium,
     required _i3.ResidentRole role,
   }) = _UserProfileViewImpl;
 
@@ -124,6 +127,9 @@ abstract class UserProfileView
       isOnline: jsonSerialization['isOnline'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(jsonSerialization['isOnline']),
+      isPremium: jsonSerialization['isPremium'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isPremium']),
       role: _i3.ResidentRole.fromJson((jsonSerialization['role'] as String)),
     );
   }
@@ -180,6 +186,8 @@ abstract class UserProfileView
 
   bool isOnline;
 
+  bool isPremium;
+
   _i3.ResidentRole role;
 
   /// Returns a shallow copy of this [UserProfileView]
@@ -212,6 +220,7 @@ abstract class UserProfileView
     String? ageRange,
     DateTime? lastSeen,
     bool? isOnline,
+    bool? isPremium,
     _i3.ResidentRole? role,
   });
   @override
@@ -245,6 +254,7 @@ abstract class UserProfileView
       if (ageRange != null) 'ageRange': ageRange,
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isOnline': isOnline,
+      'isPremium': isPremium,
       'role': role.toJson(),
     };
   }
@@ -282,6 +292,7 @@ abstract class UserProfileView
       if (ageRange != null) 'ageRange': ageRange,
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isOnline': isOnline,
+      'isPremium': isPremium,
       'role': role.toJson(),
     };
   }
@@ -322,6 +333,7 @@ class _UserProfileViewImpl extends UserProfileView {
     String? ageRange,
     DateTime? lastSeen,
     bool? isOnline,
+    bool? isPremium,
     required _i3.ResidentRole role,
   }) : super._(
          userId: userId,
@@ -350,6 +362,7 @@ class _UserProfileViewImpl extends UserProfileView {
          ageRange: ageRange,
          lastSeen: lastSeen,
          isOnline: isOnline,
+         isPremium: isPremium,
          role: role,
        );
 
@@ -384,6 +397,7 @@ class _UserProfileViewImpl extends UserProfileView {
     Object? ageRange = _Undefined,
     Object? lastSeen = _Undefined,
     bool? isOnline,
+    bool? isPremium,
     _i3.ResidentRole? role,
   }) {
     return UserProfileView(
@@ -419,6 +433,7 @@ class _UserProfileViewImpl extends UserProfileView {
       ageRange: ageRange is String? ? ageRange : this.ageRange,
       lastSeen: lastSeen is DateTime? ? lastSeen : this.lastSeen,
       isOnline: isOnline ?? this.isOnline,
+      isPremium: isPremium ?? this.isPremium,
       role: role ?? this.role,
     );
   }

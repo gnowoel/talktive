@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talktive_client/talktive_client.dart';
@@ -46,85 +45,6 @@ class SettingsScreen extends ConsumerWidget {
           return ListView(
             padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
             children: [
-              _buildSectionHeader(context, 'Privacy Control'),
-              DuoCard(
-                child: Column(
-                  children: [
-                    _buildDuoListTile(
-                      context,
-                      title: 'Online Status',
-                      subtitle: 'Let others see when you are active',
-                      emoji: '🟢',
-                      value: resident.showOnlineStatus,
-                      activeColor: AppTheme.duoGreen,
-                      onChanged: (value) async {
-                        try {
-                          await client.resident.updateOnlineSettings(
-                            showOnlineStatus: value,
-                          );
-                          ref.invalidate(currentResidentProvider);
-                          if (!context.mounted) return;
-                          DuoSnackBarHelper.showSuccess(
-                            context,
-                            value
-                                ? 'Online status visible! 🟢'
-                                : 'Incognito mode active! 👻',
-                          );
-                        } catch (e) {
-                          if (!context.mounted) return;
-                          DuoSnackBarHelper.showError(
-                            context,
-                            'Failed to update settings',
-                          );
-                        }
-                      },
-                    ),
-                    const Divider(height: 1, indent: 16, endIndent: 16),
-                    _buildDuoListTile(
-                      context,
-                      title: 'Read Receipts',
-                      subtitle: 'Let others see when you read messages',
-                      emoji: '👁️',
-                      value: resident.showReadReceipts,
-                      activeColor: AppTheme.primaryColor,
-                      onChanged: (value) => _updatePrivacySettings(
-                        context,
-                        ref,
-                        showReadReceipts: value,
-                      ),
-                    ),
-                    const Divider(height: 1, indent: 16, endIndent: 16),
-                    _buildDuoListTile(
-                      context,
-                      title: 'Typing Indicator',
-                      subtitle: 'Show others when you are typing',
-                      emoji: '✍️',
-                      value: resident.showTypingIndicator,
-                      activeColor: AppTheme.primaryColor,
-                      onChanged: (value) => _updatePrivacySettings(
-                        context,
-                        ref,
-                        showTypingIndicator: value,
-                      ),
-                    ),
-                    const Divider(height: 1, indent: 16, endIndent: 16),
-                    _buildDuoListTile(
-                      context,
-                      title: 'Appear in Discovery',
-                      subtitle: 'Allow others to discover your persona',
-                      emoji: '🔍',
-                      value: resident.allowDiscovery,
-                      activeColor: AppTheme.duoPurple,
-                      onChanged: (value) => _updatePrivacySettings(
-                        context,
-                        ref,
-                        allowDiscovery: value,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: AppTheme.duoSpacingLarge),
               _buildSectionHeader(context, 'Premium Features'),
               _buildPremiumCard(context, ref, resident),
               const SizedBox(height: AppTheme.duoSpacingMedium),
@@ -436,26 +356,6 @@ class SettingsScreen extends ConsumerWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey[700]),
               ),
-              const SizedBox(height: 16),
-              DuoButton(
-                text: 'Upgrade Now',
-                onPressed: () async {
-                  HapticFeedback.mediumImpact();
-                  try {
-                    await client.resident.purchasePremium();
-                    ref.invalidate(currentResidentProvider);
-                    if (!context.mounted) return;
-                    DuoSnackBarHelper.showSuccess(
-                      context,
-                      'Welcome to Talktive Plus! 🌟',
-                    );
-                  } catch (e) {
-                    if (!context.mounted) return;
-                    DuoSnackBarHelper.showError(context, 'Purchase failed');
-                  }
-                },
-                width: double.infinity,
-              ),
             ],
           ),
         ),
@@ -478,117 +378,27 @@ class SettingsScreen extends ConsumerWidget {
               style: TextStyle(color: Colors.grey[600]),
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: DuoButton(
-                    text: 'Try Out',
-                    variant: DuoButtonVariant.secondary,
-                    onPressed: () async {
-                      HapticFeedback.mediumImpact();
-                      try {
-                        await client.resident.startPremiumTrial();
-                        ref.invalidate(currentResidentProvider);
-                        if (!context.mounted) return;
-                        DuoSnackBarHelper.showSuccess(
-                          context,
-                          'Trial started! Enjoy 24h of Plus. ✨',
-                        );
-                      } catch (e) {
-                        if (!context.mounted) return;
-                        DuoSnackBarHelper.showError(context, 'Trial failed');
-                      }
-                    },
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  flex: 2,
-                  child: DuoButton(
-                    text: 'Upgrade Now',
-                    onPressed: () async {
-                      HapticFeedback.mediumImpact();
-                      try {
-                        await client.resident.purchasePremium();
-                        ref.invalidate(currentResidentProvider);
-                        if (!context.mounted) return;
-                        DuoSnackBarHelper.showSuccess(
-                          context,
-                          'Welcome to Talktive Plus! 🌟',
-                        );
-                      } catch (e) {
-                        if (!context.mounted) return;
-                        DuoSnackBarHelper.showError(context, 'Purchase failed');
-                      }
-                    },
-                  ),
-                ),
-              ],
+            DuoButton(
+              text: 'Try Out',
+              width: double.infinity,
+              onPressed: () async {
+                HapticFeedback.mediumImpact();
+                try {
+                  await client.resident.startPremiumTrial();
+                  ref.invalidate(currentResidentProvider);
+                  if (!context.mounted) return;
+                  DuoSnackBarHelper.showSuccess(
+                    context,
+                    'Trial started! Enjoy 24h of Plus. ✨',
+                  );
+                } catch (e) {
+                  if (!context.mounted) return;
+                  DuoSnackBarHelper.showError(context, 'Trial failed');
+                }
+              },
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildDuoListTile(
-    BuildContext context, {
-    required String title,
-    required String subtitle,
-    required bool value,
-    required ValueChanged<bool>? onChanged,
-    required String emoji,
-    Color? activeColor,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppTheme.duoSpacingMedium,
-        vertical: 12,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: AppTheme.lightBackground,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(
-              child: Text(
-                emoji,
-                style: const TextStyle(fontSize: 20, height: 1.0),
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AppTheme.textSecondary.withValues(alpha: 0.7),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          DuoSwitch(
-            value: value,
-            onChanged: onChanged,
-            activeColor: activeColor ?? AppTheme.primaryColor,
-          ),
-        ],
       ),
     );
   }

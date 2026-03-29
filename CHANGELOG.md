@@ -1,5 +1,23 @@
 # Talktive Development Changelog
 
+## March 29, 2026 - Settings Polish & Privacy Hardening (Phase 8.91) 🏗️⚡💎
+
+### UI/UX & Settings Polish
+- **Settings Screen Cleanup**: Resolved a critical `RenderFlex` overflow on the Settings screen by removing the "Upgrade Now" button and making the "Try Out" button the primary, full-width call-to-action.
+- **Privacy Control Simplification**: Removed the "Privacy Control" section and its dividers from the UI, creating a cleaner, more focused settings experience.
+- **Iconography Consistency**: Replaced "Upgrade Now" with "Try It Out" globally (including in the `DuoUpgradeHelper` prompt) to align with the non-payment trial strategy.
+- **Aesthetic Refinement**: Updated the "Try Out" button to use the project's primary color, replacing the previous secondary variant for a more prominent appearance.
+- **Unused Code Removal**: Sanitized `settings_screen.dart` by removing unused imports and legacy methods like `_buildDuoListTile`.
+
+### Backend Privacy & Subscription Hardening
+- **Forced Privacy Defaults**: Hardened the Serverpod backend by forcing `showOnlineStatus`, `showReadReceipts`, `showTypingIndicator`, and `allowDiscovery` to `true` in `ResidentService.updatePrivacy`. This ensures Plus members receive consistent value from features like "Online Indicator."
+- **Endpoint Enforcement**: Updated `ResidentEndpoint.updateOnlineSettings` to ensure `showOnlineStatus` is always enforced as `true` on the server.
+- **Trial Unlimited Access**: Maintained the 24-hour trial duration but ensured it can be started multiple times, facilitating a "try-before-you-buy" experience without payment integration.
+
+### Technical & Stability
+- **Verified Full-Stack Operation**: Successfully ran and validated the Serverpod server, Flutter Web (Port 8083), and Android Emulator simultaneously with zero compilation errors or runtime crashes.
+- **Sanitized Imports**: Resolved unused import warnings in `settings_screen.dart`, `lounge_chat_screen.dart`, and `chat_screen_mixin.dart`.
+
 ## March 29, 2026 - Full-Stack Consolidation & Orchestration (Phase 8.90) 🏗️⚡💎
 
 ### Backend Architectural Refinement

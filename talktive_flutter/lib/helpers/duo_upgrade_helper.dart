@@ -21,7 +21,7 @@ class DuoUpgradeHelper {
           ],
         ),
         content: Text(
-          '$featureName is a Plus feature. Upgrade now to unlock it and support the community!',
+          '$featureName is a Plus feature. Try it out for free and support the community!',
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontFamily: 'Rubik',
@@ -44,13 +44,10 @@ class DuoUpgradeHelper {
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              // Navigate to Settings > Plus features
-              // We assume /settings is the path
-              // But settings screen is a child of Activity usually
-              // For simplicity, we just tell them to go to Settings
+              // Navigate to Settings
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Visit Activity > Settings to upgrade! 🚀'),
+                  content: Text('Visit Activity > Settings to try it out! 🚀'),
                   behavior: SnackBarBehavior.floating,
                 ),
               );
@@ -64,7 +61,7 @@ class DuoUpgradeHelper {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
             child: const Text(
-              'Upgrade Now',
+              'Try It Out',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Rubik',

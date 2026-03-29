@@ -138,9 +138,15 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 ## Recent Fixes
 
 
-- **Premium Trial System & Feature Gating (Mar 2026)**:
-  - **Try-Before-You-Buy**: Implemented a 24-hour Premium Trial system allowing residents to explore all Talktive Plus features (Custom Avatar, Voice Messages, Advanced Search, Chat Persistence) before subscribing.
-  - **Backend Orchestration**: Added `premiumTrialExpires` and `trialCount` to the `Resident` model. Introduced `ResidentService.isPlusMember` to unify permission checks for both paid and trial users.
+- **Privacy & Premium Polish (Mar 2026)**: 
+  - **Settings Refinement**: Resolved `RenderFlex` overflow on the Settings screen by removing redundant "Upgrade Now" buttons.
+  - **Simplified Privacy UI**: Removed the "Privacy Control" section from settings to provide a cleaner discovery experience.
+  - **Premium Value Hardening**: Forced backend privacy defaults (`showOnlineStatus`, `showReadReceipts`, etc.) to `true`. This ensures Plus users consistently receive feature value (like online indicators) even for free users, while keeping premium feature toggles active for Plus members.
+  - **Iconography Consistency**: Replaced all "Upgrade Now" CTAs with "Try It Out" globally to align with the payment-free trial strategy.
+  - **Full-Stack Verification**: Successfully validated and ran Serverpod, Flutter Web, and Android Emulator simultaneously.
+
+- **Premium Trial System & Feature Gating (Mar 2026)**: 
+  - **Try-Before-You-Buy**: Implemented a 24-hour Premium Trial system allowing residents to explore all Talktive Plus features (Custom Avatar, Voice Messages, Advanced Search, Chat Persistence) before subscribing.  - **Backend Orchestration**: Added `premiumTrialExpires` and `trialCount` to the `Resident` model. Introduced `ResidentService.isPlusMember` to unify permission checks for both paid and trial users.
   - **Feature Activation**: Trial activation automatically enables all premium-locked settings (Voice, Search, etc.) to ensure a frictionless experience.
   - **Ad-Supported Trial**: Maintained interstitial ads for trial users, ensuring the building's monetization strategy remains intact until a full subscription is purchased.
   - **UI Integration**: Added a "Try Out" button to the Settings screen with a real-time countdown timer for active trials. Updated all client-side feature checks to use the new `isPlus` extension.

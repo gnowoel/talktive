@@ -833,10 +833,11 @@ class ResidentService {
   }) async {
     final bool isPlus = isPlusMember(resident);
 
-    if (showOnlineStatus != null) resident.showOnlineStatus = showOnlineStatus;
-    if (showReadReceipts != null) resident.showReadReceipts = showReadReceipts;
-    if (showTypingIndicator != null)
-      resident.showTypingIndicator = showTypingIndicator;
+    // Force these to be always true to maintain value for Plus users
+    resident.showOnlineStatus = true;
+    resident.showReadReceipts = true;
+    resident.showTypingIndicator = true;
+    resident.allowDiscovery = true;
 
     // Premium Features
     if (showVoiceMessages != null && isPlus)
@@ -845,8 +846,6 @@ class ResidentService {
       resident.showNeighborsDiscovery = showNeighborsDiscovery;
     if (showCustomAvatar != null && isPlus)
       resident.showCustomAvatar = showCustomAvatar;
-    if (allowDiscovery != null && isPlus)
-      resident.allowDiscovery = allowDiscovery;
     if (showImagesInPlaza != null && isPlus)
       resident.showImagesInPlaza = showImagesInPlaza;
     if (showImagesInLounges != null && isPlus)

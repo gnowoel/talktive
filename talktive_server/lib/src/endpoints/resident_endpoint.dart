@@ -286,7 +286,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     required bool showOnlineStatus,
   }) async {
     final resident = await getAuthenticatedResident(session);
-    resident.showOnlineStatus = showOnlineStatus;
+    resident.showOnlineStatus = true;
     return await protocol.Resident.db.updateRow(session, resident);
   }
 

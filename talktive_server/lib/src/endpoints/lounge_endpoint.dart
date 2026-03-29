@@ -4,6 +4,7 @@ import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
 import '../services/lounge_service.dart';
 import '../services/resident_service.dart';
+import '../services/search_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
 
 /// Endpoint for managing interest-based lounges (Clubhouse).
@@ -117,24 +118,24 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     int offset = 0,
   }) async {
     final userId = await getUserIdOptional(session);
+    final currentResident = userId != null
+        ? await ResidentService.getResident(session, userId)
+        : null;
 
-    if (query.trim().isEmpty && userId != null) {
-      final resident = await ResidentService.getResident(session, userId);
-      if (resident != null) {
-        return await LoungeService.getRecommendedLounges(
-          session,
-          resident,
-          limit: limit,
-          offset: offset,
-        );
-      }
+    if (query.trim().isEmpty && currentResident != null) {
+      return await SearchService.getRecommendedLounges(
+        session,
+        currentResident,
+        limit: limit,
+        offset: offset,
+      );
     }
 
-    return await LoungeService.searchLounges(
+    return await SearchService.searchLounges(
       session,
       query,
       limit: limit,
-      offset: offset,
+      currentUser: currentResident ?? await getAuthenticatedResident(session),
     );
   }
 

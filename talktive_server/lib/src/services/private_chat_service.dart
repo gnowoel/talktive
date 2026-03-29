@@ -103,8 +103,12 @@ class PrivateChatService {
       if (currentMember != null &&
           (currentMember.status == protocol.ChannelMemberStatus.left ||
               currentMember.status == protocol.ChannelMemberStatus.declined)) {
-        currentMember.status = protocol.ChannelMemberStatus.joined;
-        await protocol.ChannelMember.db.updateRow(session, currentMember);
+        await ChannelService.updateMemberStatus(
+          session,
+          channelId: privateChat!.channelId,
+          userId: currentUserId,
+          status: protocol.ChannelMemberStatus.joined,
+        );
       }
 
       if (otherMember != null) {
@@ -112,9 +116,13 @@ class PrivateChatService {
           isCurrentlyInvited = true;
         } else if (otherMember.status == protocol.ChannelMemberStatus.left ||
             otherMember.status == protocol.ChannelMemberStatus.declined) {
-          otherMember.status = protocol.ChannelMemberStatus.invited;
-          otherMember.invitedBy = currentUserId;
-          await protocol.ChannelMember.db.updateRow(session, otherMember);
+          await ChannelService.updateMemberStatus(
+            session,
+            channelId: privateChat!.channelId,
+            userId: otherUserId,
+            status: protocol.ChannelMemberStatus.invited,
+            invitedBy: currentUserId,
+          );
           wasJustInvited = true;
         }
       }
@@ -140,27 +148,20 @@ class PrivateChatService {
         ),
       );
 
-      await protocol.ChannelMember.db.insertRow(
+      await ChannelService.updateMemberStatus(
         session,
-        protocol.ChannelMember(
-          channelId: channel.id!,
-          userInfoId: currentUserId,
-          status: protocol.ChannelMemberStatus.joined,
-          joinedAt: DateTime.now(),
-          role: 'owner',
-        ),
+        channelId: channel.id!,
+        userId: currentUserId,
+        status: protocol.ChannelMemberStatus.joined,
+        role: 'owner',
       );
 
-      await protocol.ChannelMember.db.insertRow(
+      await ChannelService.updateMemberStatus(
         session,
-        protocol.ChannelMember(
-          channelId: channel.id!,
-          userInfoId: otherUserId,
-          status: protocol.ChannelMemberStatus.invited,
-          invitedBy: currentUserId,
-          joinedAt: DateTime.now(),
-          role: 'member',
-        ),
+        channelId: channel.id!,
+        userId: otherUserId,
+        status: protocol.ChannelMemberStatus.invited,
+        invitedBy: currentUserId,
       );
 
       await GamificationService.trackProgress(
@@ -409,10 +410,14 @@ class PrivateChatService {
     if (member == null || member.status != protocol.ChannelMemberStatus.invited)
       return;
 
-    member.status = accept
-        ? protocol.ChannelMemberStatus.joined
-        : protocol.ChannelMemberStatus.declined;
-    await protocol.ChannelMember.db.updateRow(session, member);
+    await ChannelService.updateMemberStatus(
+      session,
+      channelId: channelId,
+      userId: userId,
+      status: accept
+          ? protocol.ChannelMemberStatus.joined
+          : protocol.ChannelMemberStatus.declined,
+    );
   }
 
   /// Leaves a private chat.
@@ -421,10 +426,11 @@ class PrivateChatService {
     int channelId,
     UuidValue userId,
   ) async {
-    final member = await ChannelService.getMember(session, channelId, userId);
-    if (member == null) return;
-
-    member.status = protocol.ChannelMemberStatus.left;
-    await protocol.ChannelMember.db.updateRow(session, member);
+    await ChannelService.updateMemberStatus(
+      session,
+      channelId: channelId,
+      userId: userId,
+      status: protocol.ChannelMemberStatus.left,
+    );
   }
 }

@@ -181,4 +181,48 @@ class ChannelService {
 
     return result;
   }
+
+  /// Generic method to update a member's status in a channel.
+  static Future<protocol.ChannelMember> updateMemberStatus(
+    Session session, {
+    required int channelId,
+    required UuidValue userId,
+    required protocol.ChannelMemberStatus status,
+    UuidValue? invitedBy,
+    String? role,
+  }) async {
+    final member = await getMember(session, channelId, userId);
+    if (member != null) {
+      member.status = status;
+      if (invitedBy != null) member.invitedBy = invitedBy;
+      if (role != null) member.role = role;
+      return await protocol.ChannelMember.db.updateRow(session, member);
+    } else {
+      return await protocol.ChannelMember.db.insertRow(
+        session,
+        protocol.ChannelMember(
+          channelId: channelId,
+          userInfoId: userId,
+          status: status,
+          invitedBy: invitedBy,
+          joinedAt: status == protocol.ChannelMemberStatus.joined
+              ? DateTime.now()
+              : null,
+          role: role ?? 'member',
+        ),
+      );
+    }
+  }
+
+  /// Generic method to remove a member from a channel.
+  static Future<void> removeMember(
+    Session session, {
+    required int channelId,
+    required UuidValue userId,
+  }) async {
+    final member = await getMember(session, channelId, userId);
+    if (member != null) {
+      await protocol.ChannelMember.db.deleteRow(session, member);
+    }
+  }
 }

@@ -241,11 +241,27 @@ class SearchService {
       }
     }
 
-    final lounges = await LoungeService.getPopularLounges(
+    final lounges = await protocol.Lounge.db.find(
       session,
-      interest: interest,
-      language: language,
-      country: country,
+      where: (t) {
+        var expr = t.isPublic.equals(true);
+        if (country != null) {
+          expr &= t.country.equals(country);
+        }
+        if (interest != null) {
+          expr &= Expression(
+            'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'',
+          );
+        }
+        if (language != null) {
+          expr &= Expression(
+            'languages::jsonb ? \'${language.replaceAll("'", "''")}\'',
+          );
+        }
+        return expr;
+      },
+      orderBy: (t) => t.memberCount,
+      orderDescending: true,
       limit: limit,
     );
 
@@ -255,6 +271,67 @@ class SearchService {
     }
 
     return lounges;
+  }
+
+  /// Gets personalized lounge recommendations based on resident interests.
+  static Future<List<protocol.Lounge>> getRecommendedLounges(
+    Session session,
+    protocol.Resident resident, {
+    String? interest,
+    String? language,
+    String? country,
+    int limit = 10,
+    int offset = 0,
+  }) async {
+    final searchInterests = interest != null ? [interest] : resident.interests;
+    final interestArray = searchInterests?.isNotEmpty == true
+        ? searchInterests!.map((e) => "'${e.replaceAll("'", "''")}'").join(",")
+        : null;
+
+    final lounges = await protocol.Lounge.db.find(
+      session,
+      where: (t) {
+        var expr = t.isPublic.equals(true);
+        if (country != null) {
+          expr &= t.country.equals(country);
+        }
+        if (language != null) {
+          expr &= Expression(
+            'languages::jsonb ? \'${language.replaceAll("'", "''")}\'',
+          );
+        }
+        if (interestArray != null) {
+          if (interest != null) {
+            expr &= Expression(
+              'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'',
+            );
+          } else {
+            expr &= Expression('interests::jsonb ?| array[$interestArray]');
+          }
+        }
+        return expr;
+      },
+      orderBy: (t) => t.memberCount,
+      orderDescending: true,
+      limit: 100, // Fetch candidates for matching score sorting
+    );
+
+    lounges.sort((a, b) {
+      final aMatch =
+          a.interests
+              ?.where((i) => (resident.interests ?? []).contains(i))
+              .length ??
+          0;
+      final bMatch =
+          b.interests
+              ?.where((i) => (resident.interests ?? []).contains(i))
+              .length ??
+          0;
+      if (aMatch != bMatch) return bMatch.compareTo(aMatch);
+      return b.memberCount.compareTo(a.memberCount);
+    });
+
+    return lounges.skip(offset).take(limit).toList();
   }
 
   /// Get active users (most messages in last 7 days) - OPTIMIZED

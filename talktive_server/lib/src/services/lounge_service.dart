@@ -147,104 +147,6 @@ class LoungeService {
     );
   }
 
-  /// Gets popular lounges (most members).
-  static Future<List<protocol.Lounge>> getPopularLounges(
-    Session session, {
-    String? interest,
-    String? language,
-    String? country,
-    int limit = 10,
-  }) async {
-    return await protocol.Lounge.db.find(
-      session,
-      where: (t) {
-        var expr = t.isPublic.equals(true);
-        if (country != null) {
-          expr &= t.country.equals(country);
-        }
-        if (interest != null) {
-          expr &= Expression(
-            'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'',
-          );
-        }
-        if (language != null) {
-          expr &= Expression(
-            'languages::jsonb ? \'${language.replaceAll("'", "''")}\'',
-          );
-        }
-        return expr;
-      },
-      orderBy: (t) => t.memberCount,
-      orderDescending: true,
-      limit: limit,
-    );
-  }
-
-  /// Gets personalized lounge recommendations based on resident interests.
-  static Future<List<protocol.Lounge>> getRecommendedLounges(
-    Session session,
-    protocol.Resident resident, {
-    String? interest,
-    String? language,
-    String? country,
-    int limit = 10,
-    int offset = 0,
-  }) async {
-    final searchInterests = interest != null ? [interest] : resident.interests;
-    final interestArray = searchInterests?.isNotEmpty == true
-        ? searchInterests!.map((e) => "'${e.replaceAll("'", "''")}'").join(",")
-        : null;
-
-    final lounges = await protocol.Lounge.db.find(
-      session,
-      where: (t) {
-        var expr = t.isPublic.equals(true);
-        if (country != null) {
-          expr &= t.country.equals(country);
-        }
-        if (language != null) {
-          expr &= Expression(
-            'languages::jsonb ? \'${language.replaceAll("'", "''")}\'',
-          );
-        }
-        if (interestArray != null) {
-          // If a specific interest was requested, use strict containment.
-          // Otherwise, if using resident interests, use 'any of' (?| operator)
-          if (interest != null) {
-            expr &= Expression(
-              'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'',
-            );
-          } else {
-            expr &= Expression('interests::jsonb ?| array[$interestArray]');
-          }
-        }
-        return expr;
-      },
-      orderBy: (t) => t.memberCount,
-      orderDescending: true,
-      limit: 100, // Fetch candidates for matching score sorting
-    );
-
-    var filtered = lounges;
-
-    filtered.sort((a, b) {
-      final aMatch =
-          a.interests
-              ?.where((i) => (resident.interests ?? []).contains(i))
-              .length ??
-          0;
-      final bMatch =
-          b.interests
-              ?.where((i) => (resident.interests ?? []).contains(i))
-              .length ??
-          0;
-      if (aMatch != bMatch) return bMatch.compareTo(aMatch);
-      return b.memberCount.compareTo(a.memberCount);
-    });
-
-    return filtered.skip(offset).take(limit).toList();
-  }
-
   /// Applies to join a public lounge.
   static Future<void> applyToLounge(
     Session session, {
@@ -261,12 +163,10 @@ class LoungeService {
       throw protocol.TalktiveException(message: 'Lounge is full');
     }
 
-    final userId = resident.userInfoId;
-
-    final existingMember = await protocol.ChannelMember.db.findFirstRow(
+    final existingMember = await ChannelService.getMember(
       session,
-      where: (t) =>
-          t.channelId.equals(lounge.channelId) & t.userInfoId.equals(userId),
+      lounge.channelId,
+      resident.userInfoId,
     );
 
     if (existingMember != null) {
@@ -280,21 +180,14 @@ class LoungeService {
           message: 'Already applied to this lounge',
         );
       }
-
-      existingMember.status = protocol.ChannelMemberStatus.applied;
-      existingMember.joinedAt = DateTime.now();
-      await protocol.ChannelMember.db.updateRow(session, existingMember);
-    } else {
-      await protocol.ChannelMember.db.insertRow(
-        session,
-        protocol.ChannelMember(
-          channelId: lounge.channelId,
-          userInfoId: userId,
-          status: protocol.ChannelMemberStatus.applied,
-          joinedAt: DateTime.now(),
-        ),
-      );
     }
+
+    await ChannelService.updateMemberStatus(
+      session,
+      channelId: lounge.channelId,
+      userId: resident.userInfoId,
+      status: protocol.ChannelMemberStatus.applied,
+    );
   }
 
   /// Invites a user to a lounge.
@@ -320,10 +213,10 @@ class LoungeService {
       throw protocol.TalktiveException(message: 'You cannot invite this user.');
     }
 
-    final targetMember = await protocol.ChannelMember.db.findFirstRow(
+    final targetMember = await ChannelService.getMember(
       session,
-      where: (t) =>
-          t.channelId.equals(lounge.channelId) & t.userInfoId.equals(targetId),
+      lounge.channelId,
+      targetId,
     );
 
     if (targetMember != null) {
@@ -332,24 +225,24 @@ class LoungeService {
       } else if (targetMember.status == protocol.ChannelMemberStatus.invited) {
         throw protocol.TalktiveException(message: 'User is already invited');
       }
-
-      targetMember.status = protocol.ChannelMemberStatus.invited;
-      targetMember.invitedBy = inviterId;
-      targetMember.joinedAt = DateTime.now();
-      await protocol.ChannelMember.db.updateRow(session, targetMember);
-    } else {
-      await protocol.ChannelMember.db.insertRow(
-        session,
-        protocol.ChannelMember(
-          channelId: lounge.channelId,
-          userInfoId: targetId,
-          status: protocol.ChannelMemberStatus.invited,
-          invitedBy: inviterId,
-          joinedAt: DateTime.now(),
-        ),
-      );
     }
 
+    await ChannelService.updateMemberStatus(
+      session,
+      channelId: lounge.channelId,
+      userId: targetId,
+      status: protocol.ChannelMemberStatus.invited,
+      invitedBy: inviterId,
+    );
+
+    // Track achievement
+    await GamificationService.trackProgress(
+      session,
+      inviterId,
+      'community_connector',
+    );
+
+    // Notify target in background
     TaskUtils.runBackground(session, (backgroundSession) async {
       try {
         await NotificationService.sendLoungeInviteNotification(
@@ -357,7 +250,6 @@ class LoungeService {
           targetId,
           inviter.userName ?? 'Someone',
           lounge.name,
-          lounge.emoji ?? '👥',
           lounge.id!,
         );
       } catch (e) {
@@ -377,28 +269,35 @@ class LoungeService {
     if (lounge == null)
       throw protocol.TalktiveException(message: 'Lounge not found');
 
-    final member = await protocol.ChannelMember.db.findFirstRow(
+    final member = await ChannelService.getMember(
       session,
-      where: (t) =>
-          t.channelId.equals(lounge.channelId) &
-          t.userInfoId.equals(userId) &
-          t.status.equals(protocol.ChannelMemberStatus.invited),
+      lounge.channelId,
+      userId,
     );
 
-    if (member == null)
+    if (member == null || member.status != protocol.ChannelMemberStatus.invited)
       throw protocol.TalktiveException(message: 'No pending invitation found');
 
     if (!accept) {
-      member.status = protocol.ChannelMemberStatus.declined;
-      await protocol.ChannelMember.db.updateRow(session, member);
+      await ChannelService.updateMemberStatus(
+        session,
+        channelId: lounge.channelId,
+        userId: userId,
+        status: protocol.ChannelMemberStatus.declined,
+      );
       return;
     }
 
     if (member.invitedBy == lounge.creatorId) {
       if (lounge.memberCount >= lounge.maxMembers)
         throw protocol.TalktiveException(message: 'Lounge is full');
-      member.status = protocol.ChannelMemberStatus.joined;
-      await protocol.ChannelMember.db.updateRow(session, member);
+
+      await ChannelService.updateMemberStatus(
+        session,
+        channelId: lounge.channelId,
+        userId: userId,
+        status: protocol.ChannelMemberStatus.joined,
+      );
 
       lounge.memberCount += 1;
       await protocol.Lounge.db.updateRow(session, lounge);
@@ -420,8 +319,12 @@ class LoungeService {
       // Award Lounge XP
       await awardLoungeXP(session, lounge.channelId, 5, 'Member joined');
     } else {
-      member.status = protocol.ChannelMemberStatus.applied;
-      await protocol.ChannelMember.db.updateRow(session, member);
+      await ChannelService.updateMemberStatus(
+        session,
+        channelId: lounge.channelId,
+        userId: userId,
+        status: protocol.ChannelMemberStatus.applied,
+      );
     }
   }
 
@@ -441,28 +344,35 @@ class LoungeService {
         message: 'Only the creator can approve applications',
       );
 
-    final pendingMember = await protocol.ChannelMember.db.findFirstRow(
+    final pendingMember = await ChannelService.getMember(
       session,
-      where: (t) =>
-          t.channelId.equals(lounge.channelId) &
-          t.userInfoId.equals(targetId) &
-          t.status.equals(protocol.ChannelMemberStatus.applied),
+      lounge.channelId,
+      targetId,
     );
 
-    if (pendingMember == null)
+    if (pendingMember == null ||
+        pendingMember.status != protocol.ChannelMemberStatus.applied)
       throw protocol.TalktiveException(message: 'No pending application found');
 
     if (!approve) {
-      pendingMember.status = protocol.ChannelMemberStatus.declined;
-      await protocol.ChannelMember.db.updateRow(session, pendingMember);
+      await ChannelService.updateMemberStatus(
+        session,
+        channelId: lounge.channelId,
+        userId: targetId,
+        status: protocol.ChannelMemberStatus.declined,
+      );
       return;
     }
 
     if (lounge.memberCount >= lounge.maxMembers)
       throw protocol.TalktiveException(message: 'Lounge is full');
 
-    pendingMember.status = protocol.ChannelMemberStatus.joined;
-    await protocol.ChannelMember.db.updateRow(session, pendingMember);
+    await ChannelService.updateMemberStatus(
+      session,
+      channelId: lounge.channelId,
+      userId: targetId,
+      status: protocol.ChannelMemberStatus.joined,
+    );
 
     lounge.memberCount += 1;
     await protocol.Lounge.db.updateRow(session, lounge);
@@ -494,18 +404,21 @@ class LoungeService {
     final lounge = await protocol.Lounge.db.findById(session, loungeId);
     if (lounge == null) return;
 
-    final member = await protocol.ChannelMember.db.findFirstRow(
+    final member = await ChannelService.getMember(
       session,
-      where: (t) =>
-          t.channelId.equals(lounge.channelId) &
-          t.userInfoId.equals(userId) &
-          t.status.equals(protocol.ChannelMemberStatus.joined),
+      lounge.channelId,
+      userId,
     );
 
-    if (member == null) return;
+    if (member == null || member.status != protocol.ChannelMemberStatus.joined)
+      return;
 
-    member.status = protocol.ChannelMemberStatus.left;
-    await protocol.ChannelMember.db.updateRow(session, member);
+    await ChannelService.updateMemberStatus(
+      session,
+      channelId: lounge.channelId,
+      userId: userId,
+      status: protocol.ChannelMemberStatus.left,
+    );
 
     lounge.memberCount = (lounge.memberCount - 1).clamp(0, lounge.maxMembers);
     await protocol.Lounge.db.updateRow(session, lounge);

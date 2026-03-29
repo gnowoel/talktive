@@ -1439,6 +1439,14 @@ class EndpointResident extends _i2.EndpointRef {
         {},
       );
 
+  /// Starts a 24-hour premium trial.
+  _i3.Future<_i11.Resident> startPremiumTrial() =>
+      caller.callServerEndpoint<_i11.Resident>(
+        'resident',
+        'startPremiumTrial',
+        {},
+      );
+
   /// Updates privacy settings (Read Receipts, Typing Indicator, Voice, Search, etc).
   _i3.Future<_i11.Resident> updatePrivacySettings({
     bool? showOnlineStatus,

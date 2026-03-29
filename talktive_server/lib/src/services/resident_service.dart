@@ -477,6 +477,7 @@ class ResidentService {
         ageRange: resident.ageRange,
         lastSeen: resident.lastSeen,
         isOnline: isResidentOnline(resident),
+        isPremium: resident.isPremium,
         role: resident.role,
       );
 

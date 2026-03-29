@@ -119,6 +119,7 @@ resident:
   - updateOnlineSettings:
   - purchasePremium:
   - cancelPremium:
+  - startPremiumTrial:
   - updatePrivacySettings:
 search:
   - searchUsers:

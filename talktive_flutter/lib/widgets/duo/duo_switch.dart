@@ -40,8 +40,8 @@ class DuoSwitch extends StatelessWidget {
           color: isDisabled
               ? Colors.grey.shade200
               : value
-                  ? themeColor
-                  : Colors.grey.shade300,
+              ? themeColor
+              : Colors.grey.shade300,
           boxShadow: [
             if (!isDisabled && value)
               BoxShadow(
@@ -72,9 +72,7 @@ class DuoSwitch extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    value
-                        ? (activeEmoji ?? '')
-                        : (inactiveEmoji ?? ''),
+                    value ? (activeEmoji ?? '') : (inactiveEmoji ?? ''),
                     style: const TextStyle(fontSize: 14),
                   ),
                 ),

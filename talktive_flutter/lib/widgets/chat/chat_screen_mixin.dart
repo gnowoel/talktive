@@ -138,13 +138,18 @@ mixin ChatScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
 
     final currentResident = ref.read(currentResidentProvider).value;
     if (currentResident != null && DuoFloorHelper.isMuted(currentResident)) {
-      DuoSnackBarHelper.showError(context, 'Your reputation is too low to send messages');
+      DuoSnackBarHelper.showError(
+        context,
+        'Your reputation is too low to send messages',
+      );
       return;
     }
 
     setState(() => isSending = true);
     try {
-      await ref.read(realtimeChatProvider(channelId).notifier).sendMessage(
+      await ref
+          .read(realtimeChatProvider(channelId).notifier)
+          .sendMessage(
             content: finalContent.isEmpty ? null : finalContent,
             imageUrl: imageUrl,
             mediaUrl: mediaUrl,

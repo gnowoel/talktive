@@ -43,11 +43,7 @@ class PinnedMessageBar extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Icon(
-              Icons.push_pin,
-              color: AppTheme.primaryColor,
-              size: 20,
-            ),
+            const Icon(Icons.push_pin, color: AppTheme.primaryColor, size: 20),
             const SizedBox(width: AppTheme.duoSpacingSmall),
             Expanded(
               child: Column(

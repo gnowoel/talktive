@@ -367,7 +367,8 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                         name: achievementData.name,
                         isUnlocked: achievement.unlocked,
                         isNew: achievement.isNew,
-                        onTap: () => _showAchievementDetail(context, achievement),
+                        onTap: () =>
+                            _showAchievementDetail(context, achievement),
                       ),
                     );
                   },
@@ -376,7 +377,6 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
             ],
           ),
         ).animate(delay: 200.ms).fadeIn().slideY(begin: 0.1);
-
       },
       loading: () => const SizedBox.shrink(),
       error: (_, _) => const SizedBox.shrink(),
@@ -720,9 +720,9 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                     ),
                   ),
                   FractionallySizedBox(
-                    widthFactor: (userAchievement.progress /
-                            achievement.targetValue)
-                        .clamp(0.0, 1.0),
+                    widthFactor:
+                        (userAchievement.progress / achievement.targetValue)
+                            .clamp(0.0, 1.0),
                     child: Container(
                       height: 16,
                       decoration: BoxDecoration(
@@ -766,18 +766,21 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.duoPurple,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
-                  ),
-                  elevation: 4,
-                  shadowColor: AppTheme.duoPurple.withValues(alpha: 0.5),
-                ).copyWith(
-                  elevation: WidgetStateProperty.resolveWith((states) => 4),
-                ),
+                style:
+                    ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.duoPurple,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.duoRadiusMedium,
+                        ),
+                      ),
+                      elevation: 4,
+                      shadowColor: AppTheme.duoPurple.withValues(alpha: 0.5),
+                    ).copyWith(
+                      elevation: WidgetStateProperty.resolveWith((states) => 4),
+                    ),
                 child: const Text(
                   'GOT IT!',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),

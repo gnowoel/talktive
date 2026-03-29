@@ -46,8 +46,9 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
         currentResident != null && !DuoFloorHelper.isMuted(currentResident);
 
     final typingUsers = chatState.value?.typingUsers ?? {};
-    final otherTypingUsers =
-        typingUsers.where((u) => u != currentResident?.userName).toList();
+    final otherTypingUsers = typingUsers
+        .where((u) => u != currentResident?.userName)
+        .toList();
 
     return PopScope(
       canPop: _isExiting,
@@ -61,10 +62,10 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
       child: DuoChatInputLayout(
         typingIndicator:
             (currentResident?.isPlus == true &&
-                    currentResident?.showOthersTypingIndicators == true &&
-                    otherTypingUsers.isNotEmpty)
-                ? DuoTypingIndicator(typingUsers: otherTypingUsers)
-                : null,
+                currentResident?.showOthersTypingIndicators == true &&
+                otherTypingUsers.isNotEmpty)
+            ? DuoTypingIndicator(typingUsers: otherTypingUsers)
+            : null,
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
@@ -86,17 +87,17 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
                   Text(
                     'Global Lounge',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                          fontFamily: 'Poppins',
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                      fontFamily: 'Poppins',
+                    ),
                   ),
                   Text(
                     'Chat with everyone',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.textSecondary,
-                          fontFamily: 'Rubik',
-                        ),
+                      color: AppTheme.textSecondary,
+                      fontFamily: 'Rubik',
+                    ),
                   ),
                 ],
               ),
@@ -115,7 +116,8 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
           children: [
             DuoInfoBanner(
               bannerId: 'plaza_image_rules',
-              text: currentResident != null &&
+              text:
+                  currentResident != null &&
                       DuoFloorHelper.computeFloor(currentResident) >= 2
                   ? '📸 You can now share images in the Global Lounge!'
                   : 'Text only. Floor 2+ residents can share images.',
@@ -125,8 +127,8 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
                 message: chatState.value!.pinnedMessage!,
                 onUnpin: (currentResident?.isStaff ?? false)
                     ? () => ref
-                        .read(realtimeChatProvider(channelId).notifier)
-                        .unpinMessage(chatState.value!.pinnedMessage!.id!)
+                          .read(realtimeChatProvider(channelId).notifier)
+                          .unpinMessage(chatState.value!.pinnedMessage!.id!)
                     : null,
               ),
           ],
@@ -140,7 +142,9 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
 
           if (!currentResident.isPlus) {
             if (mounted) {
-              ref.read(realtimeChatProvider(channelId).notifier).setTyping(false); // Cancel typing
+              ref
+                  .read(realtimeChatProvider(channelId).notifier)
+                  .setTyping(false); // Cancel typing
               // Mixin handles upgrade prompt if we want, but here we keep it custom if needed
             }
             return false;
@@ -200,7 +204,10 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
     );
   }
 
-  Widget _buildMessagesList(RealtimeChatState state, Resident? currentResident) {
+  Widget _buildMessagesList(
+    RealtimeChatState state,
+    Resident? currentResident,
+  ) {
     final messages = state.messages;
     final blockedUsersAsync = ref.watch(blockedUsersProvider);
     final blockedUsers = blockedUsersAsync.value ?? [];
@@ -232,11 +239,11 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
                 child: state.isLoadingMore
                     ? const CircularProgressIndicator(strokeWidth: 2)
                     : state.hasMore
-                        ? const Text(
-                            'Scroll for more messages',
-                            style: TextStyle(color: Colors.grey, fontSize: 12),
-                          )
-                        : const SizedBox.shrink(),
+                    ? const Text(
+                        'Scroll for more messages',
+                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                      )
+                    : const SizedBox.shrink(),
               ),
             );
           }
@@ -247,13 +254,13 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
               message.senderId == currentResident.userInfoId;
 
           return MessageBubble(
-            key: ValueKey(message.id),
-            message: message,
-            isCurrentUser: isCurrentUser,
-            currentResident: currentResident,
-            canPin: currentResident?.isStaff ?? false,
-            canRecall: isCurrentUser || (currentResident?.isStaff ?? false),
-          )
+                key: ValueKey(message.id),
+                message: message,
+                isCurrentUser: isCurrentUser,
+                currentResident: currentResident,
+                canPin: currentResident?.isStaff ?? false,
+                canRecall: isCurrentUser || (currentResident?.isStaff ?? false),
+              )
               .animate()
               .fadeIn(delay: Duration(milliseconds: index * 10))
               .slideX(begin: isCurrentUser ? 0.1 : -0.1, end: 0);

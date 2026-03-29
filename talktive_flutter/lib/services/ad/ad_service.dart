@@ -16,7 +16,7 @@ class AdService {
   bool _isAdReady = false;
   bool _isLoading = false;
   DateTime? _lastAdShown;
-  
+
   // Minimal interval between ads to prevent user frustration
   static const Duration _minInterval = Duration(minutes: 2);
 
@@ -33,7 +33,7 @@ class AdService {
       // Official Google Interstitial Test ID
       return 'ca-app-pub-3940256099942544/1033173712';
     }
-    
+
     debugPrint('[AdService] Using production ad unit ID');
     return AdConfig.interstitialAdUnitId;
   }
@@ -44,7 +44,7 @@ class AdService {
     try {
       await MobileAds.instance.initialize();
       await _consentService.initialize();
-      
+
       // Load first ad after initialization
       _loadInterstitialAd();
     } catch (e) {
@@ -55,7 +55,7 @@ class AdService {
   /// Load a new interstitial ad in the background
   void _loadInterstitialAd() async {
     if (_isLoading || _isAdReady) return;
-    
+
     if (!_consentService.canRequestAds) {
       debugPrint('[AdService] Cannot request ads: No consent');
       return;
@@ -74,17 +74,22 @@ class AdService {
             _interstitialAd = ad;
             _isAdReady = true;
             _isLoading = false;
-            
+
             _setupAdCallbacks(ad);
           },
           onAdFailedToLoad: (error) {
-            debugPrint('[AdService] Interstitial ad failed to load: ${error.message}');
+            debugPrint(
+              '[AdService] Interstitial ad failed to load: ${error.message}',
+            );
             _isLoading = false;
             _interstitialAd = null;
             _isAdReady = false;
-            
+
             // Retry after a delay (30s)
-            Future.delayed(const Duration(seconds: 30), () => _loadInterstitialAd());
+            Future.delayed(
+              const Duration(seconds: 30),
+              () => _loadInterstitialAd(),
+            );
           },
         ),
       );
@@ -119,10 +124,10 @@ class AdService {
   /// Check if an ad should be shown to the current user
   bool _shouldShowAd() {
     final resident = ref.read(currentResidentProvider).value;
-    
+
     // 1. App must have an ad ready
     if (!_isAdReady || _interstitialAd == null) return false;
-    
+
     // 2. User must not be a premium member
     if (resident == null || resident.isPremium) return false;
 
@@ -130,7 +135,9 @@ class AdService {
     if (_lastAdShown != null) {
       final elapsed = DateTime.now().difference(_lastAdShown!);
       if (elapsed < _minInterval) {
-        debugPrint('[AdService] Ad skipped: Cooldown active (${elapsed.inSeconds}s elapsed)');
+        debugPrint(
+          '[AdService] Ad skipped: Cooldown active (${elapsed.inSeconds}s elapsed)',
+        );
         return false;
       }
     }
@@ -149,7 +156,7 @@ class AdService {
 
     debugPrint('[AdService] Showing interstitial ad');
     _lastAdShown = DateTime.now();
-    
+
     // Override callbacks to ensure onAdClosed is triggered
     _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdDismissedFullScreenContent: (ad) {

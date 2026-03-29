@@ -171,8 +171,9 @@ class PlazaScreen extends ConsumerWidget {
                               borderRadius: BorderRadius.circular(6),
                               boxShadow: [
                                 BoxShadow(
-                                  color:
-                                      AppTheme.duoOrange.withValues(alpha: 0.3),
+                                  color: AppTheme.duoOrange.withValues(
+                                    alpha: 0.3,
+                                  ),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
                                 ),

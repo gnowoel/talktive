@@ -236,8 +236,7 @@ class ChatsScreen extends ConsumerWidget {
               showRing: true,
               floorLevel: DuoFloorHelper.computeFloor(chatItem.otherResident),
               isOnline:
-                  (ref.watch(currentResidentProvider).value?.isPlus ??
-                      false) &&
+                  (ref.watch(currentResidentProvider).value?.isPlus ?? false) &&
                   (ref
                           .watch(currentResidentProvider)
                           .value

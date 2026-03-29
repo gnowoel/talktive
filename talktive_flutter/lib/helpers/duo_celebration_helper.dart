@@ -99,17 +99,18 @@ class _CelebrationDialog extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   child: Center(
-                    child: Text(
-                      emoji,
-                      style: const TextStyle(fontSize: 70, height: 1.0),
-                    )
-                        .animate(onPlay: (c) => c.repeat())
-                        .shake(duration: 800.ms, hz: 4)
-                        .scale(
-                          begin: const Offset(0.8, 0.8),
-                          end: const Offset(1.2, 1.2),
-                          curve: Curves.elasticOut,
-                        ),
+                    child:
+                        Text(
+                              emoji,
+                              style: const TextStyle(fontSize: 70, height: 1.0),
+                            )
+                            .animate(onPlay: (c) => c.repeat())
+                            .shake(duration: 800.ms, hz: 4)
+                            .scale(
+                              begin: const Offset(0.8, 0.8),
+                              end: const Offset(1.2, 1.2),
+                              curve: Curves.elasticOut,
+                            ),
                   ),
                 ),
                 const SizedBox(height: AppTheme.duoSpacingLarge),
@@ -135,22 +136,25 @@ class _CelebrationDialog extends StatelessWidget {
                 ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.2, end: 0),
                 const SizedBox(height: AppTheme.duoSpacingXLarge),
                 DuoButton(
-                  text: buttonText ?? 'AWESOME!',
-                  onPressed: () {
-                    HapticFeedback.lightImpact();
-                    Navigator.pop(context);
-                    onConfirm?.call();
-                  },
-                  width: double.infinity,
-                ).animate().fadeIn(delay: 600.ms).scale(begin: const Offset(0.8, 0.8)),
+                      text: buttonText ?? 'AWESOME!',
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        Navigator.pop(context);
+                        onConfirm?.call();
+                      },
+                      width: double.infinity,
+                    )
+                    .animate()
+                    .fadeIn(delay: 600.ms)
+                    .scale(begin: const Offset(0.8, 0.8)),
               ],
             ),
           ).animate().scale(
-                duration: 400.ms,
-                begin: const Offset(0, 0),
-                end: const Offset(1, 1),
-                curve: Curves.elasticOut,
-              ),
+            duration: 400.ms,
+            begin: const Offset(0, 0),
+            end: const Offset(1, 1),
+            curve: Curves.elasticOut,
+          ),
         ],
       ),
     );
@@ -176,14 +180,14 @@ class _ConfettiPiece extends StatelessWidget {
     final endY = startY + (random.nextDouble() * 200 - 100);
 
     return Container(
-      width: 10 + random.nextDouble() * 10,
-      height: 10 + random.nextDouble() * 10,
-      decoration: BoxDecoration(
-        color: color,
-        shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
-        borderRadius: isCircle ? null : BorderRadius.circular(2),
-      ),
-    )
+          width: 10 + random.nextDouble() * 10,
+          height: 10 + random.nextDouble() * 10,
+          decoration: BoxDecoration(
+            color: color,
+            shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
+            borderRadius: isCircle ? null : BorderRadius.circular(2),
+          ),
+        )
         .animate(onPlay: (c) => c.repeat())
         .move(
           begin: Offset(startX, startY),

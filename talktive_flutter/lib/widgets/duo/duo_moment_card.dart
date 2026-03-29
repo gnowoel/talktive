@@ -87,82 +87,91 @@ class DuoMomentCard extends StatelessWidget {
               // Photo
               if (moment.imageUrl.isNotEmpty)
                 ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(AppTheme.duoRadiusMedium),
-                ),
-                child: Container(
-                  width: double.infinity,
-                  constraints: const BoxConstraints(
-                    minHeight: 200,
-                    maxHeight: 450,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(AppTheme.duoRadiusMedium),
                   ),
-                  color: AppTheme.lightBackground,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      // Blurred background
-                      Positioned.fill(
-                        child: ImageFiltered(
-                          imageFilter: ImageFilter.blur(
-                            sigmaX: 20,
-                            sigmaY: 20,
-                          ),
-                          child: Image.network(
-                            UrlHelper.resolve(moment.imageUrl),
-                            fit: BoxFit.cover,
-                            opacity: const AlwaysStoppedAnimation(0.3),
-                            errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                  child: Container(
+                    width: double.infinity,
+                    constraints: const BoxConstraints(
+                      minHeight: 200,
+                      maxHeight: 450,
+                    ),
+                    color: AppTheme.lightBackground,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // Blurred background
+                        Positioned.fill(
+                          child: ImageFiltered(
+                            imageFilter: ImageFilter.blur(
+                              sigmaX: 20,
+                              sigmaY: 20,
+                            ),
+                            child: Image.network(
+                              UrlHelper.resolve(moment.imageUrl),
+                              fit: BoxFit.cover,
+                              opacity: const AlwaysStoppedAnimation(0.3),
+                              errorBuilder: (_, _, _) =>
+                                  const SizedBox.shrink(),
+                            ),
                           ),
                         ),
-                      ),
-                      // Main sharp image
-                      Hero(
-                        tag: 'moment_image_${moment.id}',
-                        child: Image.network(
-                          UrlHelper.resolve(moment.imageUrl),
-                          width: double.infinity,
-                          fit: BoxFit.contain,
-                          errorBuilder: (_, _, _) => Container(
-                            height: 220,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  AppTheme.secondaryColor.withValues(alpha: 0.15),
-                                  AppTheme.secondaryColor.withValues(alpha: 0.05),
+                        // Main sharp image
+                        Hero(
+                          tag: 'moment_image_${moment.id}',
+                          child: Image.network(
+                            UrlHelper.resolve(moment.imageUrl),
+                            width: double.infinity,
+                            fit: BoxFit.contain,
+                            errorBuilder: (_, _, _) => Container(
+                              height: 220,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    AppTheme.secondaryColor.withValues(
+                                      alpha: 0.15,
+                                    ),
+                                    AppTheme.secondaryColor.withValues(
+                                      alpha: 0.05,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    '📷',
+                                    style: TextStyle(
+                                      fontSize: 48,
+                                      color: AppTheme.secondaryColor.withValues(
+                                        alpha: 0.5,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Image unavailable',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: AppTheme.secondaryColor.withValues(
+                                        alpha: 0.7,
+                                      ),
+                                      fontFamily: 'Rubik',
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  '📷',
-                                  style: TextStyle(
-                                    fontSize: 48,
-                                    color: AppTheme.secondaryColor.withValues(alpha: 0.5),
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Image unavailable',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: AppTheme.secondaryColor.withValues(alpha: 0.7),
-                                    fontFamily: 'Rubik',
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
 
               // Caption
               if (moment.caption != null && moment.caption!.isNotEmpty)

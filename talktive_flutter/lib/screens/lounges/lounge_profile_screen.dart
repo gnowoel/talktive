@@ -177,10 +177,7 @@ class LoungeProfileScreen extends ConsumerWidget {
                       children: [
                         const Row(
                           children: [
-                            Text(
-                              '✋',
-                              style: TextStyle(fontSize: 16),
-                            ),
+                            Text('✋', style: TextStyle(fontSize: 16)),
                             SizedBox(width: 8),
                             Text(
                               'Please follow these guidelines:',
@@ -415,8 +412,6 @@ class LoungeProfileScreen extends ConsumerWidget {
       ],
     );
   }
-
-
 
   Widget _buildCreatorSection(
     BuildContext context,

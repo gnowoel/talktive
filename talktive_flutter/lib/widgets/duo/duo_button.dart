@@ -123,120 +123,144 @@ class _DuoButtonState extends State<DuoButton> {
         scale: _isPressed ? 0.94 : 1.0,
         duration: const Duration(milliseconds: 100),
         curve: Curves.easeOutBack,
-        child: Container(
-          width: widget.width,
-          padding: padding,
-          decoration: BoxDecoration(
-            gradient: (isSecondary || isGhost)
-                ? null
-                : LinearGradient(
-                    colors: isDisabled
-                        ? [Colors.grey.shade300, Colors.grey.shade400]
-                        : [buttonColor, _darkenColor(buttonColor, 0.08)],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                ),
-            color: isGhost
-                ? Colors.transparent
-                : isSecondary
-                ? (isDisabled ? Colors.grey.shade200 : Colors.white)
-                : null,
-            borderRadius: BorderRadius.circular(borderRadius),
-            border: isGhost
-                ? Border.all(
-                    color: isDisabled ? Colors.grey.shade300 : buttonColor,
-                    width: 2.5,
-                  )
-                : isSecondary
-                ? Border.all(
-                    color: isDisabled ? Colors.grey.shade300 : buttonColor.withValues(alpha: 0.3),
-                    width: 2.5,
-                  )
-                : Border.all(
-                    color: _darkenColor(buttonColor, 0.15),
-                    width: 1,
-                  ),
-            boxShadow: (isDisabled || isGhost)
-                ? null
-                : [
-                    BoxShadow(
-                      color: _darkenColor(buttonColor, 0.2),
-                      offset: Offset(0, _isPressed ? 1 : 4.5),
-                      spreadRadius: 0,
-                      blurRadius: 0,
-                    ),
-                  ],
-          ),
-          child: widget.isLoading
-              ? Center(
-                  child: SizedBox(
-                    height: iconSize,
-                    width: iconSize,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.5,
-                      valueColor: AlwaysStoppedAnimation<Color>(textColor),
-                    ),
-                  ),
-                )
-              : Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (widget.icon != null || widget.emoji != null) ...[
-                      widget.icon != null
-                          ? Icon(widget.icon, color: textColor, size: iconSize)
-                          : Text(
-                              widget.emoji!,
-                              style: TextStyle(fontSize: iconSize, height: 1.0),
+        child:
+            Container(
+                  width: widget.width,
+                  padding: padding,
+                  decoration: BoxDecoration(
+                    gradient: (isSecondary || isGhost)
+                        ? null
+                        : LinearGradient(
+                            colors: isDisabled
+                                ? [Colors.grey.shade300, Colors.grey.shade400]
+                                : [
+                                    buttonColor,
+                                    _darkenColor(buttonColor, 0.08),
+                                  ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                    color: isGhost
+                        ? Colors.transparent
+                        : isSecondary
+                        ? (isDisabled ? Colors.grey.shade200 : Colors.white)
+                        : null,
+                    borderRadius: BorderRadius.circular(borderRadius),
+                    border: isGhost
+                        ? Border.all(
+                            color: isDisabled
+                                ? Colors.grey.shade300
+                                : buttonColor,
+                            width: 2.5,
+                          )
+                        : isSecondary
+                        ? Border.all(
+                            color: isDisabled
+                                ? Colors.grey.shade300
+                                : buttonColor.withValues(alpha: 0.3),
+                            width: 2.5,
+                          )
+                        : Border.all(
+                            color: _darkenColor(buttonColor, 0.15),
+                            width: 1,
+                          ),
+                    boxShadow: (isDisabled || isGhost)
+                        ? null
+                        : [
+                            BoxShadow(
+                              color: _darkenColor(buttonColor, 0.2),
+                              offset: Offset(0, _isPressed ? 1 : 4.5),
+                              spreadRadius: 0,
+                              blurRadius: 0,
                             ),
-                      const SizedBox(width: AppTheme.duoSpacingSmall),
-                    ],
-                    Text(
-                      widget.text,
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: fontSize,
-                        fontWeight: FontWeight.w900,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    if (widget.secondaryIcon != null ||
-                        widget.secondaryEmoji != null) ...[
-                      const SizedBox(width: 8),
-                      (widget.secondaryIcon != null
-                              ? Icon(
-                                  widget.secondaryIcon,
-                                  color: textColor.withValues(
-                                    alpha: (isSecondary || isGhost) ? 1.0 : 0.9,
-                                  ),
-                                  size: iconSize * 0.9,
-                                )
-                              : Text(
-                                  widget.secondaryEmoji!,
-                                  style: TextStyle(fontSize: iconSize * 0.9),
-                                ))
-                          .animate(
-                            onPlay: (controller) =>
-                                controller.repeat(reverse: true),
-                          )
-                          .scale(
-                            duration: 800.ms,
-                            begin: const Offset(1, 1),
-                            end: const Offset(1.2, 1.2),
-                          )
-                          .shimmer(duration: 1500.ms),
-                    ],
-                  ],
+                          ],
+                  ),
+                  child: widget.isLoading
+                      ? Center(
+                          child: SizedBox(
+                            height: iconSize,
+                            width: iconSize,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                textColor,
+                              ),
+                            ),
+                          ),
+                        )
+                      : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (widget.icon != null ||
+                                widget.emoji != null) ...[
+                              widget.icon != null
+                                  ? Icon(
+                                      widget.icon,
+                                      color: textColor,
+                                      size: iconSize,
+                                    )
+                                  : Text(
+                                      widget.emoji!,
+                                      style: TextStyle(
+                                        fontSize: iconSize,
+                                        height: 1.0,
+                                      ),
+                                    ),
+                              const SizedBox(width: AppTheme.duoSpacingSmall),
+                            ],
+                            Text(
+                              widget.text,
+                              style: TextStyle(
+                                color: textColor,
+                                fontSize: fontSize,
+                                fontWeight: FontWeight.w900,
+                                fontFamily: 'Poppins',
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            if (widget.secondaryIcon != null ||
+                                widget.secondaryEmoji != null) ...[
+                              const SizedBox(width: 8),
+                              (widget.secondaryIcon != null
+                                      ? Icon(
+                                          widget.secondaryIcon,
+                                          color: textColor.withValues(
+                                            alpha: (isSecondary || isGhost)
+                                                ? 1.0
+                                                : 0.9,
+                                          ),
+                                          size: iconSize * 0.9,
+                                        )
+                                      : Text(
+                                          widget.secondaryEmoji!,
+                                          style: TextStyle(
+                                            fontSize: iconSize * 0.9,
+                                          ),
+                                        ))
+                                  .animate(
+                                    onPlay: (controller) =>
+                                        controller.repeat(reverse: true),
+                                  )
+                                  .scale(
+                                    duration: 800.ms,
+                                    begin: const Offset(1, 1),
+                                    end: const Offset(1.2, 1.2),
+                                  )
+                                  .shimmer(duration: 1500.ms),
+                            ],
+                          ],
+                        ),
+                )
+                .animate(
+                  target: (!isDisabled && !isSecondary && !isGhost) ? 1.0 : 0.0,
+                  onPlay: (controller) => controller.repeat(reverse: false),
+                )
+                .shimmer(
+                  delay: 3.seconds,
+                  duration: 1.seconds,
+                  color: Colors.white.withValues(alpha: 0.2),
                 ),
-        ).animate(
-          target: (!isDisabled && !isSecondary && !isGhost) ? 1.0 : 0.0,
-          onPlay: (controller) => controller.repeat(reverse: false),
-        ).shimmer(
-          delay: 3.seconds,
-          duration: 1.seconds,
-          color: Colors.white.withValues(alpha: 0.2),
-        ),
       ),
     );
   }

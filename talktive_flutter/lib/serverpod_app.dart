@@ -21,7 +21,8 @@ class _ServerpodAppContent extends ConsumerStatefulWidget {
   const _ServerpodAppContent();
 
   @override
-  ConsumerState<_ServerpodAppContent> createState() => _ServerpodAppContentState();
+  ConsumerState<_ServerpodAppContent> createState() =>
+      _ServerpodAppContentState();
 }
 
 class _ServerpodAppContentState extends ConsumerState<_ServerpodAppContent> {

@@ -216,8 +216,9 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen>
         currentResident != null && !DuoFloorHelper.isMuted(currentResident);
 
     final typingUsers = chatState.value?.typingUsers ?? {};
-    final otherTypingUsers =
-        typingUsers.where((u) => u != currentResident?.userName).toList();
+    final otherTypingUsers = typingUsers
+        .where((u) => u != currentResident?.userName)
+        .toList();
 
     return PopScope(
       canPop: _isExiting,
@@ -231,8 +232,8 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen>
       child: DuoChatInputLayout(
         typingIndicator:
             (currentResident?.isPlus == true && otherTypingUsers.isNotEmpty)
-                ? DuoTypingIndicator(typingUsers: otherTypingUsers)
-                : null,
+            ? DuoTypingIndicator(typingUsers: otherTypingUsers)
+            : null,
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
@@ -263,8 +264,9 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen>
                         AppTheme.duoBlueGradient[1].withValues(alpha: 0.2),
                       ],
                     ),
-                    borderRadius:
-                        BorderRadius.circular(AppTheme.duoRadiusSmall),
+                    borderRadius: BorderRadius.circular(
+                      AppTheme.duoRadiusSmall,
+                    ),
                   ),
                   child: Center(
                     child: Text(
@@ -280,19 +282,19 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen>
                     children: [
                       Text(
                         widget.lounge.name,
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                  fontFamily: 'Poppins',
-                                ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                              fontFamily: 'Poppins',
+                            ),
                       ),
                       Text(
                         '${widget.lounge.memberCount} members',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Colors.grey[600],
-                              fontFamily: 'Rubik',
-                            ),
+                          color: Colors.grey[600],
+                          fontFamily: 'Rubik',
+                        ),
                       ),
                     ],
                   ),
@@ -422,7 +424,8 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen>
                     PopupMenuItem(
                       value: 'admin_private',
                       enabled:
-                          widget.lounge.isPublic && !widget.lounge.isStaffLocked,
+                          widget.lounge.isPublic &&
+                          !widget.lounge.isStaffLocked,
                       child: Row(
                         children: [
                           Icon(
@@ -472,11 +475,12 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen>
         header: (chatState.value?.pinnedMessage != null)
             ? PinnedMessageBar(
                 message: chatState.value!.pinnedMessage!,
-                onUnpin: (currentResident?.isStaff ?? false) ||
+                onUnpin:
+                    (currentResident?.isStaff ?? false) ||
                         (currentResident?.userInfoId == widget.lounge.creatorId)
                     ? () => ref
-                        .read(realtimeChatProvider(channelId).notifier)
-                        .unpinMessage(chatState.value!.pinnedMessage!.id!)
+                          .read(realtimeChatProvider(channelId).notifier)
+                          .unpinMessage(chatState.value!.pinnedMessage!.id!)
                     : null,
               )
             : null,
@@ -617,7 +621,10 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen>
     );
   }
 
-  Widget _buildMessagesList(RealtimeChatState state, Resident? currentResident) {
+  Widget _buildMessagesList(
+    RealtimeChatState state,
+    Resident? currentResident,
+  ) {
     final messages = state.messages;
     final blockedUsersAsync = ref.watch(blockedUsersProvider);
     final blockedUsers = blockedUsersAsync.value ?? [];
@@ -655,11 +662,11 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen>
                 child: state.isLoadingMore
                     ? const CircularProgressIndicator(strokeWidth: 2)
                     : state.hasMore
-                        ? const Text(
-                            'Scroll for more messages',
-                            style: TextStyle(color: Colors.grey, fontSize: 12),
-                          )
-                        : const SizedBox.shrink(),
+                    ? const Text(
+                        'Scroll for more messages',
+                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                      )
+                    : const SizedBox.shrink(),
               ),
             );
           }
@@ -670,28 +677,30 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen>
               message.senderId == currentResident.userInfoId;
 
           return MessageBubble(
-            key: ValueKey(message.id),
-            message: message,
-            isCurrentUser: isCurrentUser,
-            currentResident: currentResident,
-            onMention: (name) {
-              final current = messageController.text;
-              if (current.isEmpty || current.endsWith(' ')) {
-                messageController.text = '$current@$name ';
-              } else {
-                messageController.text = '$current @$name ';
-              }
-              messageController.selection = TextSelection.fromPosition(
-                TextPosition(offset: messageController.text.length),
-              );
-            },
-            otherMemberNames: memberNames,
-            canPin: (currentResident?.isStaff ?? false) ||
-                (currentResident?.userInfoId == widget.lounge.creatorId),
-            canRecall: isCurrentUser ||
-                (currentResident?.isStaff ?? false) ||
-                (currentResident?.userInfoId == widget.lounge.creatorId),
-          )
+                key: ValueKey(message.id),
+                message: message,
+                isCurrentUser: isCurrentUser,
+                currentResident: currentResident,
+                onMention: (name) {
+                  final current = messageController.text;
+                  if (current.isEmpty || current.endsWith(' ')) {
+                    messageController.text = '$current@$name ';
+                  } else {
+                    messageController.text = '$current @$name ';
+                  }
+                  messageController.selection = TextSelection.fromPosition(
+                    TextPosition(offset: messageController.text.length),
+                  );
+                },
+                otherMemberNames: memberNames,
+                canPin:
+                    (currentResident?.isStaff ?? false) ||
+                    (currentResident?.userInfoId == widget.lounge.creatorId),
+                canRecall:
+                    isCurrentUser ||
+                    (currentResident?.isStaff ?? false) ||
+                    (currentResident?.userInfoId == widget.lounge.creatorId),
+              )
               .animate(delay: Duration(milliseconds: index * 10))
               .fadeIn(duration: 200.ms)
               .slideX(begin: isCurrentUser ? 0.1 : -0.1, end: 0);

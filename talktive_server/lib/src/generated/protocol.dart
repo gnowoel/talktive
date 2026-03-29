@@ -2706,6 +2706,14 @@ class Protocol extends _i1.SerializationManagerServer {
               : null)
           as T;
     }
+    if (t == _i1.getType<List<_i44.UserAchievementView>?>()) {
+      return (data != null
+              ? (data as List)
+                    .map((e) => deserialize<_i44.UserAchievementView>(e))
+                    .toList()
+              : null)
+          as T;
+    }
     if (t == List<_i49.AdminReportSummary>) {
       return (data as List)
               .map((e) => deserialize<_i49.AdminReportSummary>(e))

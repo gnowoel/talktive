@@ -6,7 +6,6 @@ import 'package:flutter/rendering.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-
 // ignore: depend_on_referenced_packages
 import 'package:flutter_web_plugins/url_strategy.dart' show usePathUrlStrategy;
 
@@ -42,7 +41,6 @@ Future<void> main() async {
   await GoogleSignIn.instance.initialize(
     clientId: kIsWeb ? AuthConfig.webClientId : null,
   );
-
 
   // Initialize Serverpod Client
   await initializeServerpodClient();

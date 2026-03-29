@@ -12,6 +12,7 @@ import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_stat_card.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_button.dart';
+import '../../widgets/duo/duo_badge.dart';
 import 'blocked_users_screen.dart';
 import '../../providers/user_profile_provider.dart';
 
@@ -185,6 +186,9 @@ class ProfileScreen extends ConsumerWidget {
             ).animate().fadeIn(delay: 150.ms).slideY(begin: 0.1, end: 0),
           ],
 
+          // Badges section
+          _buildBadgesSection(context, ref, resident),
+
           // Moments Button (Prominent placement)
           _buildMomentsButton(
             context,
@@ -206,6 +210,101 @@ class ProfileScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildBadgesSection(
+    BuildContext context,
+    WidgetRef ref,
+    Resident? resident,
+  ) {
+    if (resident == null) return const SizedBox();
+
+    final profileView = ref
+        .watch(userProfileProvider(resident.userInfoId.toString()))
+        .value;
+    final topAchievements = profileView?.topAchievements ?? [];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.duoSpacingLarge,
+        vertical: AppTheme.duoSpacingSmall,
+      ),
+      child: DuoCard(
+        padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Top Badges',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () => context.push('/activity'),
+                  child: const Text(
+                    'View All',
+                    style: TextStyle(
+                      color: AppTheme.duoPurple,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppTheme.duoSpacingMedium),
+            if (topAchievements.isEmpty)
+              Row(
+                children: [
+                  const Text('🥚', style: TextStyle(fontSize: 32)),
+                  const SizedBox(width: AppTheme.duoSpacingMedium),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'No badges yet',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins',
+                            fontSize: 14,
+                          ),
+                        ),
+                        Text(
+                          'Send messages to unlock your first badge!',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                            fontFamily: 'Rubik',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              )
+            else
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: topAchievements.map((ua) {
+                  return DuoBadge(
+                    emoji: ua.achievement.emoji,
+                    name: ua.achievement.name,
+                    isUnlocked: ua.unlocked,
+                    onTap: () => context.push('/activity'),
+                  );
+                }).toList(),
+              ),
+          ],
+        ),
+      ),
+    ).animate().fadeIn(delay: 180.ms).slideY(begin: 0.1, end: 0);
   }
 
   Widget _buildMomentsButton(

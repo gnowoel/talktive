@@ -623,7 +623,9 @@ class SettingsScreen extends ConsumerWidget {
                     : AppTheme.primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: isLocked ? Colors.grey[200]! : AppTheme.primaryColor.withValues(alpha: 0.2),
+                  color: isLocked
+                      ? Colors.grey[200]!
+                      : AppTheme.primaryColor.withValues(alpha: 0.2),
                 ),
               ),
               child: Center(

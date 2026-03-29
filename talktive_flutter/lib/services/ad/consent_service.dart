@@ -67,19 +67,22 @@ class ConsentService {
   /// Show the consent form if required
   Future<void> showConsentFormIfRequired() async {
     if (_currentStatus == ConsentStatus.required) {
-      final isAvailable = await ConsentInformation.instance.isConsentFormAvailable();
+      final isAvailable = await ConsentInformation.instance
+          .isConsentFormAvailable();
       if (isAvailable) {
         final completer = Completer<void>();
         ConsentForm.loadConsentForm(
           (ConsentForm consentForm) {
             consentForm.show((FormError? error) async {
-              _currentStatus = await ConsentInformation.instance.getConsentStatus();
-              _canRequestAds = await ConsentInformation.instance.canRequestAds();
-              
+              _currentStatus = await ConsentInformation.instance
+                  .getConsentStatus();
+              _canRequestAds = await ConsentInformation.instance
+                  .canRequestAds();
+
               final prefs = await SharedPreferences.getInstance();
               await prefs.setInt(_statusKey, _currentStatus.index);
               await prefs.setBool(_canRequestKey, _canRequestAds);
-              
+
               completer.complete();
             });
           },
@@ -103,4 +106,6 @@ class ConsentService {
   }
 }
 
-final consentServiceProvider = Provider<ConsentService>((ref) => ConsentService());
+final consentServiceProvider = Provider<ConsentService>(
+  (ref) => ConsentService(),
+);

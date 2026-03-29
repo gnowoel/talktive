@@ -224,29 +224,30 @@ class DuoAvatar extends StatelessWidget {
           Positioned(
             right: 0,
             bottom: 0,
-            child: Container(
-              width: size * 0.32,
-              height: size * 0.32,
-              decoration: BoxDecoration(
-                color: AppTheme.duoGreen,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2.5),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.duoGreen.withValues(alpha: 0.4),
-                    blurRadius: 6,
-                    spreadRadius: 1,
-                  ),
-                ],
-              ),
-            )
-            .animate(onPlay: (c) => c.repeat(reverse: true))
-            .scale(
-              begin: const Offset(1, 1),
-              end: const Offset(1.2, 1.2),
-              duration: 800.ms,
-              curve: Curves.easeInOut,
-            ),
+            child:
+                Container(
+                      width: size * 0.32,
+                      height: size * 0.32,
+                      decoration: BoxDecoration(
+                        color: AppTheme.duoGreen,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2.5),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.duoGreen.withValues(alpha: 0.4),
+                            blurRadius: 6,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                    )
+                    .animate(onPlay: (c) => c.repeat(reverse: true))
+                    .scale(
+                      begin: const Offset(1, 1),
+                      end: const Offset(1.2, 1.2),
+                      duration: 800.ms,
+                      curve: Curves.easeInOut,
+                    ),
           ),
         ],
       );

@@ -70,9 +70,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
 
   @override
   Widget build(BuildContext context) {
-    final chatDetailsAsync = ref.watch(
-      privateChatDetailsProvider(channelId),
-    );
+    final chatDetailsAsync = ref.watch(privateChatDetailsProvider(channelId));
 
     // Listen for real-time updates to mark as read if user is viewing
     ref.listen(realtimeChatProvider(channelId), (previous, next) {
@@ -131,18 +129,24 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
           final otherFloor = DuoFloorHelper.computeFloor(otherResident);
           final otherMood = details.otherUserMood;
 
-          final canSend = currentResident != null &&
+          final canSend =
+              currentResident != null &&
               !DuoFloorHelper.isMuted(currentResident);
 
           final typingUsers = chatState.value?.typingUsers ?? {};
-          final otherTypingUsers =
-              typingUsers.where((u) => u != currentResident?.userName).toList();
+          final otherTypingUsers = typingUsers
+              .where((u) => u != currentResident?.userName)
+              .toList();
 
           return DuoChatInputLayout(
-            typingIndicator: (currentResident?.isPlus == true &&
+            typingIndicator:
+                (currentResident?.isPlus == true &&
                     currentResident?.showOthersTypingIndicators == true &&
                     otherTypingUsers.isNotEmpty)
-                ? DuoTypingIndicator(typingUsers: otherTypingUsers, isPrivate: true)
+                ? DuoTypingIndicator(
+                    typingUsers: otherTypingUsers,
+                    isPrivate: true,
+                  )
                 : null,
             appBar: AppBar(
               backgroundColor: Colors.white,
@@ -170,9 +174,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
                       children: [
                         Text(
                           otherName,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
+                          style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black,
@@ -181,11 +183,11 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
                         ),
                         Text(
                           otherFloor > 0 ? 'Floor $otherFloor' : 'New Resident',
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppTheme.textSecondary,
-                                    fontFamily: 'Rubik',
-                                  ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: AppTheme.textSecondary,
+                                fontFamily: 'Rubik',
+                              ),
                         ),
                       ],
                     ),
@@ -196,7 +198,9 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
                 DuoRefreshButton(
                   color: Colors.black,
                   onRefresh: () {
-                    ref.read(realtimeChatProvider(channelId).notifier).refresh();
+                    ref
+                        .read(realtimeChatProvider(channelId).notifier)
+                        .refresh();
                   },
                 ),
                 if (currentResident?.keepPrivateChats == true)
@@ -225,9 +229,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
                                 : 'Chat ephemerality restored. ✨',
                           );
                           // Invalidate to refresh the Details (specifically the channel object)
-                          ref.invalidate(
-                            privateChatDetailsProvider(channelId),
-                          );
+                          ref.invalidate(privateChatDetailsProvider(channelId));
                         }
                       } catch (e) {
                         if (context.mounted) {
@@ -444,9 +446,8 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
                   textAlign: TextAlign.center,
                 ),
                 TextButton(
-                  onPressed: () => ref.invalidate(
-                    privateChatDetailsProvider(channelId),
-                  ),
+                  onPressed: () =>
+                      ref.invalidate(privateChatDetailsProvider(channelId)),
                   child: const Text('Retry'),
                 ),
               ],
@@ -546,11 +547,11 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
                 child: state.isLoadingMore
                     ? const CircularProgressIndicator(strokeWidth: 2)
                     : state.hasMore
-                        ? const Text(
-                            'Scroll for more messages',
-                            style: TextStyle(color: Colors.grey, fontSize: 12),
-                          )
-                        : const SizedBox.shrink(),
+                    ? const Text(
+                        'Scroll for more messages',
+                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                      )
+                    : const SizedBox.shrink(),
               ),
             );
           }
@@ -570,26 +571,26 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
           }
 
           return MessageBubble(
-            key: ValueKey(message.id),
-            message: message,
-            isCurrentUser: isCurrentUser,
-            currentResident: currentResident,
-            onMention: (name) {
-              final current = messageController.text;
-              if (current.isEmpty || current.endsWith(' ')) {
-                messageController.text = '$current@$name ';
-              } else {
-                messageController.text = '$current @$name ';
-              }
-              messageController.selection = TextSelection.fromPosition(
-                TextPosition(offset: messageController.text.length),
-              );
-            },
-            otherMemberNames: [otherName],
-            isRead: isRead,
-            canPin: true, // Both participants can pin in private chats
-            canRecall: isCurrentUser,
-          )
+                key: ValueKey(message.id),
+                message: message,
+                isCurrentUser: isCurrentUser,
+                currentResident: currentResident,
+                onMention: (name) {
+                  final current = messageController.text;
+                  if (current.isEmpty || current.endsWith(' ')) {
+                    messageController.text = '$current@$name ';
+                  } else {
+                    messageController.text = '$current @$name ';
+                  }
+                  messageController.selection = TextSelection.fromPosition(
+                    TextPosition(offset: messageController.text.length),
+                  );
+                },
+                otherMemberNames: [otherName],
+                isRead: isRead,
+                canPin: true, // Both participants can pin in private chats
+                canRecall: isCurrentUser,
+              )
               .animate(delay: Duration(milliseconds: index * 10))
               .fadeIn(duration: 200.ms)
               .slideY(begin: 0.1, end: 0);

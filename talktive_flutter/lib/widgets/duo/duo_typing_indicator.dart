@@ -20,10 +20,10 @@ class DuoTypingIndicator extends StatelessWidget {
     final text = isPrivate
         ? '${typingUsers[0]} is typing...'
         : typingUsers.length == 1
-            ? '${typingUsers[0]} is typing...'
-            : typingUsers.length == 2
-                ? '${typingUsers[0]} and ${typingUsers[1]} are typing...'
-                : '${typingUsers[0]} and ${typingUsers.length - 1} others typing...';
+        ? '${typingUsers[0]} is typing...'
+        : typingUsers.length == 2
+        ? '${typingUsers[0]} and ${typingUsers[1]} are typing...'
+        : '${typingUsers[0]} and ${typingUsers.length - 1} others typing...';
 
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -65,21 +65,18 @@ class DuoTypingIndicator extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: List.generate(3, (index) {
           return Container(
-            width: 4,
-            height: 4,
-            margin: const EdgeInsets.symmetric(horizontal: 1.5),
-            decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withValues(alpha: 0.6),
-              shape: BoxShape.circle,
-            ),
-          )
-          .animate(onPlay: (controller) => controller.repeat())
-          .fadeIn(
-            delay: (index * 200).ms,
-            duration: 400.ms,
-          )
-          .then()
-          .fadeOut(duration: 400.ms);
+                width: 4,
+                height: 4,
+                margin: const EdgeInsets.symmetric(horizontal: 1.5),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor.withValues(alpha: 0.6),
+                  shape: BoxShape.circle,
+                ),
+              )
+              .animate(onPlay: (controller) => controller.repeat())
+              .fadeIn(delay: (index * 200).ms, duration: 400.ms)
+              .then()
+              .fadeOut(duration: 400.ms);
         }),
       ),
     );

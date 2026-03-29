@@ -13,7 +13,8 @@
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
 import 'moment.dart' as _i2;
 import 'resident_role.dart' as _i3;
-import 'package:talktive_client/src/protocol/protocol.dart' as _i4;
+import 'user_achievement_view.dart' as _i4;
+import 'package:talktive_client/src/protocol/protocol.dart' as _i5;
 
 /// User profile view data
 abstract class UserProfileView implements _i1.SerializableModel {
@@ -46,6 +47,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
     bool? isOnline,
     bool? isPremium,
     required this.role,
+    this.topAchievements,
   }) : isOnline = isOnline ?? false,
        isPremium = isPremium ?? false;
 
@@ -78,6 +80,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
     bool? isOnline,
     bool? isPremium,
     required _i3.ResidentRole role,
+    List<_i4.UserAchievementView>? topAchievements,
   }) = _UserProfileViewImpl;
 
   factory UserProfileView.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -101,19 +104,19 @@ abstract class UserProfileView implements _i1.SerializableModel {
       mutualLounges: jsonSerialization['mutualLounges'] as int,
       recentMoments: jsonSerialization['recentMoments'] == null
           ? null
-          : _i4.Protocol().deserialize<List<_i2.Moment>>(
+          : _i5.Protocol().deserialize<List<_i2.Moment>>(
               jsonSerialization['recentMoments'],
             ),
       level: jsonSerialization['level'] as int?,
       xp: jsonSerialization['xp'] as int?,
       interests: jsonSerialization['interests'] == null
           ? null
-          : _i4.Protocol().deserialize<List<String>>(
+          : _i5.Protocol().deserialize<List<String>>(
               jsonSerialization['interests'],
             ),
       languages: jsonSerialization['languages'] == null
           ? null
-          : _i4.Protocol().deserialize<List<String>>(
+          : _i5.Protocol().deserialize<List<String>>(
               jsonSerialization['languages'],
             ),
       gender: jsonSerialization['gender'] as String?,
@@ -130,6 +133,11 @@ abstract class UserProfileView implements _i1.SerializableModel {
           ? null
           : _i1.BoolJsonExtension.fromJson(jsonSerialization['isPremium']),
       role: _i3.ResidentRole.fromJson((jsonSerialization['role'] as String)),
+      topAchievements: jsonSerialization['topAchievements'] == null
+          ? null
+          : _i5.Protocol().deserialize<List<_i4.UserAchievementView>>(
+              jsonSerialization['topAchievements'],
+            ),
     );
   }
 
@@ -189,6 +197,8 @@ abstract class UserProfileView implements _i1.SerializableModel {
 
   _i3.ResidentRole role;
 
+  List<_i4.UserAchievementView>? topAchievements;
+
   /// Returns a shallow copy of this [UserProfileView]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -221,6 +231,7 @@ abstract class UserProfileView implements _i1.SerializableModel {
     bool? isOnline,
     bool? isPremium,
     _i3.ResidentRole? role,
+    List<_i4.UserAchievementView>? topAchievements,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -255,6 +266,10 @@ abstract class UserProfileView implements _i1.SerializableModel {
       'isOnline': isOnline,
       'isPremium': isPremium,
       'role': role.toJson(),
+      if (topAchievements != null)
+        'topAchievements': topAchievements?.toJson(
+          valueToJson: (v) => v.toJson(),
+        ),
     };
   }
 
@@ -296,6 +311,7 @@ class _UserProfileViewImpl extends UserProfileView {
     bool? isOnline,
     bool? isPremium,
     required _i3.ResidentRole role,
+    List<_i4.UserAchievementView>? topAchievements,
   }) : super._(
          userId: userId,
          userName: userName,
@@ -325,6 +341,7 @@ class _UserProfileViewImpl extends UserProfileView {
          isOnline: isOnline,
          isPremium: isPremium,
          role: role,
+         topAchievements: topAchievements,
        );
 
   /// Returns a shallow copy of this [UserProfileView]
@@ -360,6 +377,7 @@ class _UserProfileViewImpl extends UserProfileView {
     bool? isOnline,
     bool? isPremium,
     _i3.ResidentRole? role,
+    Object? topAchievements = _Undefined,
   }) {
     return UserProfileView(
       userId: userId ?? this.userId,
@@ -396,6 +414,9 @@ class _UserProfileViewImpl extends UserProfileView {
       isOnline: isOnline ?? this.isOnline,
       isPremium: isPremium ?? this.isPremium,
       role: role ?? this.role,
+      topAchievements: topAchievements is List<_i4.UserAchievementView>?
+          ? topAchievements
+          : this.topAchievements?.map((e0) => e0.copyWith()).toList(),
     );
   }
 }

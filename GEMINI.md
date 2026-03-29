@@ -237,6 +237,12 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 - **Enhanced Welcoming Aesthetic (Mar 2026)**: Restored inviting labels and unified iconography across all core screens (Plaza, Moments, Chats, Activity). Renamed "Global Chat" to "Global Lounge" for better building-metaphor alignment. Standardized header icons (Plaza: `account_balance`, Moments: `photo_camera`, Chats: `chat_bubble`) to better match their respective emojis and intent.
 - **Emoji-First UI Transformation (Mar 2026)**: Systematically replaced "dull" Material Icons with vibrant emojis across core navigation, onboarding, and profile screens. This creates a more dynamic, entertainment-focused experience that aligns with the Duolingo-inspired playful aesthetic. Re-introducedEmojis for discovery cards, stat widgets, and UI empty states while maintaining Material Icons for critical system actions (Back, Close, Send). Expanded `DuoButton` to support `secondaryEmoji` for celebrating user progress.
 
+- **Profile & Discovery UX Overhaul (Mar 2026)**:
+  - **Dynamic Badge Integration**: Integrated the new achievement system into `ProfileScreen` (Self), `UserProfileViewScreen` (Others), and `PeepholeScreen` (Invite Preview). Users now see their top 3 most recently unlocked badges, creating a strong sense of progression and social proof.
+  - **First Impression Polish**: Enhanced the `PeepholeScreen` with a "View Full Profile" link and better contrast, ensuring residents have all the context they need before accepting private chat invites.
+  - **Achievement Tracking Expansion**: Automated tracking for "Helpful" (reporting users) and "Trusted" (maintaining a perfect 100 Trust Score for 7 days) badges, ensuring positive community behavior is programmatically rewarded.
+  - **Server-Side Protocol Enrichment**: Updated the `UserProfileView` protocol and `ResidentService` to efficiently include top achievements in a single database round-trip.
+
 ## Useful Commands
 
 - **Start Server**: `dart bin/main.dart --apply-migrations`

@@ -9,6 +9,7 @@ import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_floor_badge.dart';
+import '../../widgets/duo/duo_badge.dart';
 
 import 'package:go_router/go_router.dart';
 import '../../providers/user_profile_provider.dart';
@@ -187,6 +188,11 @@ class PeepholeScreen extends ConsumerWidget {
                     ],
                   ),
 
+                  const SizedBox(height: AppTheme.duoSpacingMedium),
+
+                  // Badges section (Quick preview)
+                  _buildBadgesSection(profileAsync.value),
+
                   const SizedBox(height: AppTheme.duoSpacingLarge),
 
                   // Bio
@@ -299,7 +305,33 @@ class PeepholeScreen extends ConsumerWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 40),
+                  const SizedBox(height: AppTheme.duoSpacingLarge),
+
+                  // View Full Profile Link
+                  TextButton(
+                    onPressed: () {
+                      context.push(
+                        '/user/$otherUserId',
+                        extra: {
+                          'userName': otherUserName,
+                          'userAvatar': chatItem.otherUserAvatar,
+                          'userFloor': DuoFloorHelper.computeFloor(
+                            otherResident,
+                          ),
+                        },
+                      );
+                    },
+                    child: const Text(
+                      'View Full Profile',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
 
                   // Actions
                   DuoButton(
@@ -420,6 +452,45 @@ class PeepholeScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildBadgesSection(UserProfileView? profile) {
+    final topAchievements = profile?.topAchievements ?? [];
+    if (topAchievements.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      children: [
+        const Text(
+          'Top Badges',
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Poppins',
+          ),
+        ),
+        const SizedBox(height: 12),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: topAchievements.map((ua) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Transform.scale(
+                  scale: 0.8, // Slightly smaller for peephole
+                  child: DuoBadge(
+                    emoji: ua.achievement.emoji,
+                    name: ua.achievement.name,
+                    isUnlocked: ua.unlocked,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
     );
   }
 

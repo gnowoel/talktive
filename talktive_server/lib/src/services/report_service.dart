@@ -105,6 +105,17 @@ class ReportService {
     // 4. Update the target resident
     await protocol.Resident.db.updateRow(session, target);
 
+    // 5. Track achievement for reporter
+    try {
+      await GamificationService.trackProgress(
+        session,
+        reporter.userInfoId,
+        'helpful',
+      );
+    } catch (e) {
+      session.log('Failed to track achievement (helpful): $e');
+    }
+
     return savedReport;
   }
 

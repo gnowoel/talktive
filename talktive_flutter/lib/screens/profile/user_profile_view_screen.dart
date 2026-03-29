@@ -7,6 +7,7 @@ import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_stat_card.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_input.dart';
+import '../../widgets/duo/duo_badge.dart';
 import '../../providers/blocked_users_provider.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
@@ -353,6 +354,9 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
             ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1, end: 0),
           ],
 
+          // Badges section
+          _buildBadgesSection(profile),
+
           const SizedBox(height: AppTheme.duoSpacingLarge),
 
           // Action Button (Vouch)
@@ -463,6 +467,39 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
         );
       },
     );
+  }
+
+  Widget _buildBadgesSection(UserProfileView? profile) {
+    final topAchievements = profile?.topAchievements ?? [];
+    if (topAchievements.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: AppTheme.duoSpacingLarge),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Top Badges',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
+            ),
+          ),
+          const SizedBox(height: AppTheme.duoSpacingMedium),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: topAchievements.map((ua) {
+              return DuoBadge(
+                emoji: ua.achievement.emoji,
+                name: ua.achievement.name,
+                isUnlocked: ua.unlocked,
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: 220.ms).slideY(begin: 0.1, end: 0);
   }
 
   Widget _buildVouchButton(UserProfileView? profile) {

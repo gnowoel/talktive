@@ -432,6 +432,7 @@ class ResidentService {
           where: (t) =>
               t.userId.equals(targetId) & t.unlockedAt.notEquals(null),
         ),
+        GamificationService.getUserAchievementViews(session, targetId),
       ]);
 
       final recentMomentsFuture = protocol.Moment.db.find(
@@ -447,8 +448,24 @@ class ResidentService {
         recentMomentsFuture,
       ]);
 
-      final stats = results[0] as List<int>;
+      final stats = results[0] as List<dynamic>;
       final recentMoments = results[1] as List<protocol.Moment>;
+      final allAchievements = stats[3] as List<protocol.UserAchievementView>;
+
+      // Get top 3 unlocked achievements (newest first) for quick view
+      final unlockedAchievements = allAchievements
+          .where((a) => a.unlocked)
+          .toList();
+      
+      // Sort by unlockedAt descending
+      unlockedAchievements.sort((a, b) {
+        if (a.unlockedAt == null && b.unlockedAt == null) return 0;
+        if (a.unlockedAt == null) return 1;
+        if (b.unlockedAt == null) return -1;
+        return b.unlockedAt!.compareTo(a.unlockedAt!);
+      });
+
+      final topAchievements = unlockedAchievements.take(3).toList();
 
       profile = protocol.UserProfileView(
         userId: targetId,
@@ -459,9 +476,9 @@ class ResidentService {
         trustScore: resident.trustScore,
         level: resident.level,
         xp: resident.xp,
-        totalMessages: stats[0],
-        totalMoments: stats[1],
-        achievementsUnlocked: stats[2],
+        totalMessages: stats[0] as int,
+        totalMoments: stats[1] as int,
+        achievementsUnlocked: stats[2] as int,
         currentStreak: resident.currentStreak,
         longestStreak: resident.longestStreak,
         isBlocked: false, // Default for cache
@@ -479,6 +496,7 @@ class ResidentService {
         isOnline: isResidentOnline(resident),
         isPremium: resident.isPremium,
         role: resident.role,
+        topAchievements: topAchievements,
       );
 
       // Cache for 2 minutes

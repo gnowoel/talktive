@@ -38,7 +38,9 @@ class RealtimeChatState {
   }) {
     return RealtimeChatState(
       messages: messages ?? this.messages,
-      pinnedMessage: clearPinnedMessage ? null : (pinnedMessage ?? this.pinnedMessage),
+      pinnedMessage: clearPinnedMessage
+          ? null
+          : (pinnedMessage ?? this.pinnedMessage),
       typingUsers: typingUsers ?? this.typingUsers,
       lastReadStatus: lastReadStatus ?? this.lastReadStatus,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
@@ -97,7 +99,10 @@ class RealtimeChat extends _$RealtimeChat {
       final freshMessagesFuture = _fetchMessages();
       final pinnedMessageFuture = client.message.getPinnedMessage(_channelId);
 
-      final results = await Future.wait([freshMessagesFuture, pinnedMessageFuture]);
+      final results = await Future.wait([
+        freshMessagesFuture,
+        pinnedMessageFuture,
+      ]);
       final freshMessages = results[0] as List<Message>;
       final pinnedMessage = results[1] as Message?;
 
@@ -185,18 +190,21 @@ class RealtimeChat extends _$RealtimeChat {
     if (state.value == null) return;
 
     final currentState = state.value!;
-    
+
     // Check if this is a pinned message update
     Message? updatedPinnedMessage = currentState.pinnedMessage;
     if (newMessage.isPinned) {
       updatedPinnedMessage = newMessage;
-    } else if (currentState.pinnedMessage?.id == newMessage.id && !newMessage.isPinned) {
+    } else if (currentState.pinnedMessage?.id == newMessage.id &&
+        !newMessage.isPinned) {
       // It was unpinned
       updatedPinnedMessage = null;
     }
 
-    final int index = currentState.messages.indexWhere((m) => m.id == newMessage.id);
-    
+    final int index = currentState.messages.indexWhere(
+      (m) => m.id == newMessage.id,
+    );
+
     List<Message> updatedMessages;
     if (index != -1) {
       // Update existing message

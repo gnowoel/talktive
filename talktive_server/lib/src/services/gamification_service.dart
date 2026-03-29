@@ -124,6 +124,11 @@ class GamificationService {
         today,
       );
 
+      // Track 'trusted' achievement if trustScore is 100
+      if (resident.trustScore >= 100) {
+        await trackProgress(session, resident.userInfoId, 'trusted');
+      }
+
       if (save) {
         await ResidentService.updateResident(session, resident);
       }

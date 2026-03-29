@@ -27,9 +27,7 @@ class ServerpodNotificationService {
         android: initializationSettingsAndroid,
       );
 
-      await _notificationsPlugin.initialize(
-        settings: initializationSettings,
-      );
+      await _notificationsPlugin.initialize(settings: initializationSettings);
 
       // Create high importance channel
       const androidNotificationChannel = AndroidNotificationChannel(

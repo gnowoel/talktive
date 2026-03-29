@@ -21,16 +21,18 @@ extension AdNavigationExtensions on BuildContext {
     }
 
     final adService = ref.read(adServiceProvider);
-    
+
     // Attempt to show the ad, then pop the screen
-    await adService.showInterstitialAd(onAdClosed: () {
-      if (mounted) {
-        if (canPop()) {
-          pop();
-        } else {
-          Navigator.of(this).maybePop();
+    await adService.showInterstitialAd(
+      onAdClosed: () {
+        if (mounted) {
+          if (canPop()) {
+            pop();
+          } else {
+            Navigator.of(this).maybePop();
+          }
         }
-      }
-    });
+      },
+    );
   }
 }

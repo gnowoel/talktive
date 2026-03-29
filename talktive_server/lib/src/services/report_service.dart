@@ -2,6 +2,7 @@ import 'package:serverpod/serverpod.dart' hide Message;
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import 'apartment_service.dart';
 import 'notification_service.dart';
+import 'gamification_service.dart';
 
 /// Service for managing reports and automated moderation.
 class ReportService {

@@ -41,6 +41,8 @@ fields:
   # Online & Subscription
   lastSeen: DateTime?
   isPremium: bool, default=false
+  premiumTrialExpires: DateTime?
+  trialCount: int, default=0
   showOnlineStatus: bool, default=true
   showReadReceipts: bool, default=true
   showTypingIndicator: bool, default=true

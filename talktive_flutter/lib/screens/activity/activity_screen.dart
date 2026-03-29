@@ -313,8 +313,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
 
         final achievements = data.achievements;
         final unlocked = achievements.where((a) => a.unlocked).toList();
-        return Container(
-          width: double.infinity,
+        return DuoCard(
           margin: const EdgeInsets.fromLTRB(
             AppTheme.duoSpacingMedium,
             0,
@@ -322,12 +321,6 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
             AppTheme.duoSpacingMedium,
           ),
           padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(AppTheme.duoRadiusLarge),
-            border: Border.all(color: Colors.grey[200]!, width: 2),
-            boxShadow: AppTheme.duoCardShadow,
-          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -355,7 +348,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
               ),
               const SizedBox(height: AppTheme.duoSpacingSmall),
               SizedBox(
-                height: 130,
+                height: 140,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: achievements.length,
@@ -383,6 +376,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
             ],
           ),
         ).animate(delay: 200.ms).fadeIn().slideY(begin: 0.1);
+
       },
       loading: () => const SizedBox.shrink(),
       error: (_, _) => const SizedBox.shrink(),

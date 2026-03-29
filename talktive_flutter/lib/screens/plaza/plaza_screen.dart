@@ -332,34 +332,56 @@ class PlazaScreen extends ConsumerWidget {
   }
 
   Widget _buildOldVersionInfo(BuildContext context) {
-    return DuoCard(
+    return Container(
       padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
-      color: Colors.grey[50],
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppTheme.duoYellow.withValues(alpha: 0.12),
+            AppTheme.duoOrange.withValues(alpha: 0.06),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(AppTheme.duoRadiusLarge),
+        border: Border.all(
+          color: AppTheme.duoYellow.withValues(alpha: 0.3),
+          width: 1.5,
+        ),
+        boxShadow: AppTheme.duoCardShadow,
+      ),
       child: Column(
         children: [
-          const Text('🕰️', style: TextStyle(fontSize: 32)),
-          const SizedBox(height: 12),
-          const Text(
-            'Looking for the old version?',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              fontFamily: 'Poppins',
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('🕰️', style: TextStyle(fontSize: 28)),
+              const SizedBox(width: 10),
+              Text(
+                'Looking for the old version?',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                  fontFamily: 'Poppins',
+                  color: Colors.brown[700],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
-          const Text(
-            'The legacy version is still available via web.',
+          const SizedBox(height: 6),
+          Text(
+            'The legacy web version is still available.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 13,
-              color: Colors.grey,
+              fontSize: 12,
+              color: Colors.brown[400],
               fontFamily: 'Rubik',
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           DuoButton(
             text: 'Open Web App',
+            color: AppTheme.duoOrange,
             onPressed: () async {
               final url = Uri.parse('https://open.talktive.app/');
               if (await canLaunchUrl(url)) {

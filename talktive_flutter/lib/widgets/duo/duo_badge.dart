@@ -142,11 +142,11 @@ class DuoBadge extends StatelessWidget {
           const SizedBox(height: AppTheme.duoSpacingSmall),
           // Badge name
           SizedBox(
-            width: 80,
+            width: 90,
             child: Text(
               name,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 fontFamily: 'Rubik',
                 fontWeight: isUnlocked ? FontWeight.w800 : FontWeight.w600,
                 color: isUnlocked ? Colors.black87 : Colors.grey[500],

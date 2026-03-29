@@ -450,9 +450,19 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                   jsonDecode(notification.data!) as Map<String, dynamic>;
               final route = data['route'] as String?;
 
-              // Skip redundant navigation if we're already on the activity screen
+              // Improved navigation for shell-aware routes
               if (route != null && route != '/activity') {
-                context.push(route);
+                final isMainTab =
+                    route == '/plaza' ||
+                    route == '/moments' ||
+                    route == '/chats' ||
+                    route == '/lounges';
+
+                if (isMainTab) {
+                  context.go(route);
+                } else {
+                  context.push(route);
+                }
               }
             } catch (e) {
               debugPrint('Error parsing notification data: $e');

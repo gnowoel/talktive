@@ -246,7 +246,7 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                 ),
                 GestureDetector(
-                  onTap: () => context.push('/activity'),
+                  onTap: () => context.go('/activity'),
                   child: const Text(
                     'View All',
                     style: TextStyle(
@@ -297,7 +297,7 @@ class ProfileScreen extends ConsumerWidget {
                     emoji: ua.achievement.emoji,
                     name: ua.achievement.name,
                     isUnlocked: ua.unlocked,
-                    onTap: () => context.push('/activity'),
+                    onTap: () => context.go('/activity'),
                   );
                 }).toList(),
               ),

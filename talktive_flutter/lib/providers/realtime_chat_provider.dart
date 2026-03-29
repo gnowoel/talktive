@@ -81,8 +81,6 @@ class RealtimeChat extends _$RealtimeChat {
           true, // Optimistically assume there's more until fetch fails/finishes
     );
 
-    // ... try to get other user's last read status ...
-
     // 2. Fetch fresh messages and pinned message in background
     _fetchAndSyncMessages();
 

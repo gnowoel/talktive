@@ -118,7 +118,6 @@ class DuoAvatar extends StatelessWidget {
         ),
       );
     }
-    // ... rest of method unchanged
 
     Widget finalAvatar = avatarCore;
 

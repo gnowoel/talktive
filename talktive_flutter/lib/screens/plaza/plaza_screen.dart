@@ -10,6 +10,7 @@ import '../../config/theme.dart';
 import '../../widgets/duo/duo_card.dart';
 import '../../widgets/duo/duo_page_scaffold.dart';
 import '../../widgets/duo/duo_button.dart';
+import '../../helpers/duo_floor_helper.dart';
 
 /// The Plaza (Home) screen - The building's social heart.
 class PlazaScreen extends ConsumerWidget {
@@ -57,6 +58,11 @@ class PlazaScreen extends ConsumerWidget {
     return residentAsync.when(
       data: (resident) {
         if (resident == null) return const SizedBox.shrink();
+
+        final xpProgress = DuoFloorHelper.getXPProgress(resident);
+        final xpNeeded = DuoFloorHelper.getXPNeeded(resident);
+        final progressPercent = (xpProgress / xpNeeded).clamp(0.0, 1.0);
+
         return Container(
           width: double.infinity,
           margin: const EdgeInsets.all(AppTheme.duoSpacingMedium),
@@ -68,6 +74,7 @@ class PlazaScreen extends ConsumerWidget {
             boxShadow: AppTheme.duoCardShadow,
           ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
@@ -78,7 +85,7 @@ class PlazaScreen extends ConsumerWidget {
                         Text(
                           'Welcome Home,',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 14,
                             color: Colors.grey[600],
                             fontFamily: 'Rubik',
                           ),
@@ -96,17 +103,93 @@ class PlazaScreen extends ConsumerWidget {
                     ),
                   ),
                   Container(
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: AppTheme.primaryColor.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: const Text('👋', style: TextStyle(fontSize: 32)),
+                        child: const Text('👋', style: TextStyle(fontSize: 28)),
                       )
                       .animate(onPlay: (c) => c.repeat(reverse: true))
                       .shake(duration: 1500.ms, hz: 4),
                 ],
               ),
+              const SizedBox(height: AppTheme.duoSpacingLarge),
+
+              // XP Progress Bar
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Floor ${resident.level}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.primaryColor,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                      Text(
+                        '$xpProgress / $xpNeeded XP',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                          fontFamily: 'Rubik',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      return Stack(
+                        children: [
+                          Container(
+                            height: 12,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
+                          AnimatedContainer(
+                            duration: 800.ms,
+                            curve: Curves.easeOutCubic,
+                            height: 12,
+                            width: constraints.maxWidth * progressPercent,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  AppTheme.duoOrange,
+                                  AppTheme.duoOrange.withValues(alpha: 0.8),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(6),
+                              boxShadow: [
+                                BoxShadow(
+                                  color:
+                                      AppTheme.duoOrange.withValues(alpha: 0.3),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                          ).animate().shimmer(
+                            delay: 1.seconds,
+                            duration: 2.seconds,
+                            color: Colors.white.withValues(alpha: 0.3),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              ),
+
               const SizedBox(height: AppTheme.duoSpacingLarge),
               Row(
                 children: [

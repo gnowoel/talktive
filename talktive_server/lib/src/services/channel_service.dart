@@ -188,11 +188,16 @@ class ChannelService {
     UuidValue? invitedBy,
     String? role,
   }) async {
+    final DateTime now = DateTime.now();
     final member = await getMember(session, channelId, userId);
     if (member != null) {
       member.status = status;
       if (invitedBy != null) member.invitedBy = invitedBy;
       if (role != null) member.role = role;
+      if (status == protocol.ChannelMemberStatus.joined &&
+          member.joinedAt == null) {
+        member.joinedAt = now;
+      }
       return await protocol.ChannelMember.db.updateRow(session, member);
     } else {
       return await protocol.ChannelMember.db.insertRow(
@@ -202,9 +207,7 @@ class ChannelService {
           userInfoId: userId,
           status: status,
           invitedBy: invitedBy,
-          joinedAt: status == protocol.ChannelMemberStatus.joined
-              ? DateTime.now()
-              : null,
+          joinedAt: now, // Always provide joinedAt for non-nullable DB field
           role: role ?? 'member',
         ),
       );

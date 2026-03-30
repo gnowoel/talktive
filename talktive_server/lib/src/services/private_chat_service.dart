@@ -330,9 +330,7 @@ class PrivateChatService {
             otherUserMood: otherResident.mood,
             currentMemberStatus: currentMember.status,
             otherMemberStatus: otherMember?.status,
-            otherUserLastReadAt: otherResident.showReadReceipts
-                ? otherMember?.lastReadAt
-                : null,
+            otherUserLastReadAt: otherMember?.lastReadAt,
             unreadCount: unreadCounts[chat.channelId] ?? 0,
             channel: channelMap[chat.channelId],
           ),
@@ -387,9 +385,7 @@ class PrivateChatService {
       otherUserMood: resident.mood,
       currentMemberStatus: currentMember?.status,
       otherMemberStatus: otherMember?.status,
-      otherUserLastReadAt: resident.showReadReceipts
-          ? otherMember?.lastReadAt
-          : null,
+      otherUserLastReadAt: otherMember?.lastReadAt,
       unreadCount:
           (await ChannelService.batchGetUnreadCounts(session, [
             channelId,

@@ -535,7 +535,7 @@ class SearchService {
         limit: limit,
       ),
       currentUser != null
-          ? LoungeService.getRecommendedLounges(
+          ? getRecommendedLounges(
               session,
               currentUser,
               interest: interest,
@@ -543,7 +543,7 @@ class SearchService {
               country: country,
               limit: limit,
             )
-          : LoungeService.getPopularLounges(
+          : getPopularLounges(
               session,
               interest: interest,
               language: language,

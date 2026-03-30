@@ -80,6 +80,27 @@ Access to public features is restricted by `min(level, trustCap)`.
 
 ---
 
+## 🧪 Quality Assurance & TDD
+
+We follow a **Test-Driven Development (TDD)** approach to ensure architectural stability.
+
+### 1. Testing Tiers
+
+- **Backend Unit Tests**: Pure logic in Service classes (e.g., `GamificationService` math).
+- **Backend Integration Tests**: Full endpoint flows using `withServerpod` for real database interaction.
+- **Frontend Provider Tests**: Verifying state changes in Riverpod providers.
+- **Frontend Widget Tests**: UI consistency for the `Duo` component library.
+
+### 2. TDD Workflow
+
+Every new feature or bugfix should follow the **Red-Green-Refactor** cycle:
+
+1. **RED**: Write a failing test defining the requirement.
+2. **GREEN**: Write minimal code to pass the test.
+3. **REFACTOR**: Optimize and align with architectural standards.
+
+---
+
 ## 💡 Troubleshooting
 
 - **Google Sign-In Errors**: Ensure you use `localhost` (not `127.0.0.1`) and port `8083`.

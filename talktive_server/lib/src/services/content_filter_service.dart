@@ -1,4 +1,5 @@
 import 'package:serverpod/serverpod.dart';
+import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import '../services/input_validation_service.dart';
 import '../utils/validation_result.dart';
 
@@ -121,7 +122,7 @@ class ContentFilterService {
     try {
       final cache = session.caches.global;
       final key = 'lastmsg:$userId';
-      final entry = await cache.get<CacheString>(key);
+      final entry = await cache.get<protocol.CacheString>(key);
       if (entry != null && entry.value == content) {
         return true; // Same message as last one
       }
@@ -129,7 +130,7 @@ class ContentFilterService {
       // Store this message for 5 minutes
       await cache.put(
         key,
-        CacheString(value: content),
+        protocol.CacheString(value: content),
         lifetime: const Duration(minutes: 5),
       );
       return false;
@@ -156,7 +157,7 @@ class ContentFilterService {
 
       await session.caches.global.put(
         key,
-        CacheString(value: data),
+        protocol.CacheString(value: data),
         lifetime: const Duration(days: 7),
       );
       session.log('Content flagged: $contentType:$contentId - $reason');

@@ -250,6 +250,7 @@ class LoungeService {
           targetId,
           inviter.userName ?? 'Someone',
           lounge.name,
+          lounge.emoji ?? '👥',
           lounge.id!,
         );
       } catch (e) {

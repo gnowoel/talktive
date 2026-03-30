@@ -850,7 +850,6 @@ class ResidentService {
     // Set trial expiration and increment count
     resident.premiumTrialExpires = DateTime.now().add(duration);
     resident.trialCount += 1;
-
     // Automatically enable all premium settings for trial
     resident.showNeighborsDiscovery = true;
     resident.showCustomAvatar = true;
@@ -883,12 +882,8 @@ class ResidentService {
 
       // Enable all premium features by default on purchase
       resident.showNeighborsDiscovery = true;
-      resident.allowDiscovery = true;
       resident.showCustomAvatar = true;
       resident.showVoiceMessages = true;
-      resident.showReadReceipts = true;
-      resident.showTypingIndicator = true;
-      resident.showOnlineStatus = true;
       resident.showOthersOnlineStatus = true;
       resident.showOthersReadReceipts = true;
       resident.showOthersTypingIndicators = true;

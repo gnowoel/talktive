@@ -242,7 +242,6 @@ class ChatsScreen extends ConsumerWidget {
                           .value
                           ?.showOthersOnlineStatus ??
                       true) &&
-                  chatItem.otherResident.showOnlineStatus &&
                   chatItem.otherResident.lastSeen != null &&
                   DateTime.now()
                           .difference(chatItem.otherResident.lastSeen!)

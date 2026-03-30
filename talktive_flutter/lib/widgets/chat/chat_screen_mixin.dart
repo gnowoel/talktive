@@ -184,8 +184,7 @@ mixin ChatScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
 
   void handleTypingStatus(bool isTyping) {
     final currentResident = ref.read(currentResidentProvider).value;
-    if (currentResident?.isPlus == true &&
-        currentResident?.showTypingIndicator == true) {
+    if (currentResident != null) {
       ref.read(realtimeChatProvider(channelId).notifier).setTyping(isTyping);
     }
   }

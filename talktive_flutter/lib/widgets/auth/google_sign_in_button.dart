@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:google_sign_in_web/web_only.dart' as google_web;
+import 'google_sign_in_web_stub.dart'
+    if (dart.library.js_interop) 'google_sign_in_web_real.dart'
+    as google_web;
 import '../../config/theme.dart';
 
 class GoogleSignInButton extends StatelessWidget {

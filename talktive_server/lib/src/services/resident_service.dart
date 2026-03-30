@@ -794,6 +794,9 @@ class ResidentService {
     resident.showReadReceipts = true;
     resident.showTypingIndicator = true;
     resident.allowDiscovery = true;
+    resident.showOthersOnlineStatus = true;
+    resident.showOthersReadReceipts = true;
+    resident.showOthersTypingIndicators = true;
 
     // Premium Features
     if (showVoiceMessages != null && isPlus)
@@ -810,14 +813,6 @@ class ResidentService {
       resident.showImagesInPrivateChats = showImagesInPrivateChats;
     if (showImagesInMoments != null && isPlus)
       resident.showImagesInMoments = showImagesInMoments;
-
-    // Standard privacy can be toggled by anyone
-    if (showOthersOnlineStatus != null)
-      resident.showOthersOnlineStatus = showOthersOnlineStatus;
-    if (showOthersReadReceipts != null)
-      resident.showOthersReadReceipts = showOthersReadReceipts;
-    if (showOthersTypingIndicators != null)
-      resident.showOthersTypingIndicators = showOthersTypingIndicators;
 
     final bool oldKeepPrivateChats = resident.keepPrivateChats;
     if (keepPrivateChats != null && isPlus)

@@ -3633,16 +3633,9 @@ class _ResidentEndpoint {
 
   _i3.Future<_i11.Resident> updatePrivacySettings(
     _i1.TestSessionBuilder sessionBuilder, {
-    bool? showOnlineStatus,
-    bool? showReadReceipts,
-    bool? showTypingIndicator,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
-    bool? showOthersOnlineStatus,
-    bool? showOthersReadReceipts,
-    bool? showOthersTypingIndicators,
-    bool? allowDiscovery,
     bool? keepPrivateChats,
     bool? showImagesInPlaza,
     bool? showImagesInLounges,
@@ -3661,16 +3654,9 @@ class _ResidentEndpoint {
           endpointPath: 'resident',
           methodName: 'updatePrivacySettings',
           parameters: _i1.testObjectToJson({
-            'showOnlineStatus': showOnlineStatus,
-            'showReadReceipts': showReadReceipts,
-            'showTypingIndicator': showTypingIndicator,
             'showVoiceMessages': showVoiceMessages,
             'showNeighborsDiscovery': showNeighborsDiscovery,
             'showCustomAvatar': showCustomAvatar,
-            'showOthersOnlineStatus': showOthersOnlineStatus,
-            'showOthersReadReceipts': showOthersReadReceipts,
-            'showOthersTypingIndicators': showOthersTypingIndicators,
-            'allowDiscovery': allowDiscovery,
             'keepPrivateChats': keepPrivateChats,
             'showImagesInPlaza': showImagesInPlaza,
             'showImagesInLounges': showImagesInLounges,

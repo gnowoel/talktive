@@ -1333,18 +1333,11 @@ class EndpointResident extends _i2.EndpointRef {
         {'userId': userId},
       );
 
-  /// Updates privacy settings (Read Receipts, Typing Indicator, Voice, Search, etc).
+  /// Updates privacy settings (Voice, Search, etc).
   _i3.Future<_i11.Resident> updatePrivacySettings({
-    bool? showOnlineStatus,
-    bool? showReadReceipts,
-    bool? showTypingIndicator,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
-    bool? showOthersOnlineStatus,
-    bool? showOthersReadReceipts,
-    bool? showOthersTypingIndicators,
-    bool? allowDiscovery,
     bool? keepPrivateChats,
     bool? showImagesInPlaza,
     bool? showImagesInLounges,
@@ -1354,16 +1347,9 @@ class EndpointResident extends _i2.EndpointRef {
     'resident',
     'updatePrivacySettings',
     {
-      'showOnlineStatus': showOnlineStatus,
-      'showReadReceipts': showReadReceipts,
-      'showTypingIndicator': showTypingIndicator,
       'showVoiceMessages': showVoiceMessages,
       'showNeighborsDiscovery': showNeighborsDiscovery,
       'showCustomAvatar': showCustomAvatar,
-      'showOthersOnlineStatus': showOthersOnlineStatus,
-      'showOthersReadReceipts': showOthersReadReceipts,
-      'showOthersTypingIndicators': showOthersTypingIndicators,
-      'allowDiscovery': allowDiscovery,
       'keepPrivateChats': keepPrivateChats,
       'showImagesInPlaza': showImagesInPlaza,
       'showImagesInLounges': showImagesInLounges,

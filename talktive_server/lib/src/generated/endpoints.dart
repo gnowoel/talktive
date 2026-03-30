@@ -2417,21 +2417,6 @@ class Endpoints extends _i1.EndpointDispatch {
         'updatePrivacySettings': _i1.MethodConnector(
           name: 'updatePrivacySettings',
           params: {
-            'showOnlineStatus': _i1.ParameterDescription(
-              name: 'showOnlineStatus',
-              type: _i1.getType<bool?>(),
-              nullable: true,
-            ),
-            'showReadReceipts': _i1.ParameterDescription(
-              name: 'showReadReceipts',
-              type: _i1.getType<bool?>(),
-              nullable: true,
-            ),
-            'showTypingIndicator': _i1.ParameterDescription(
-              name: 'showTypingIndicator',
-              type: _i1.getType<bool?>(),
-              nullable: true,
-            ),
             'showVoiceMessages': _i1.ParameterDescription(
               name: 'showVoiceMessages',
               type: _i1.getType<bool?>(),
@@ -2444,26 +2429,6 @@ class Endpoints extends _i1.EndpointDispatch {
             ),
             'showCustomAvatar': _i1.ParameterDescription(
               name: 'showCustomAvatar',
-              type: _i1.getType<bool?>(),
-              nullable: true,
-            ),
-            'showOthersOnlineStatus': _i1.ParameterDescription(
-              name: 'showOthersOnlineStatus',
-              type: _i1.getType<bool?>(),
-              nullable: true,
-            ),
-            'showOthersReadReceipts': _i1.ParameterDescription(
-              name: 'showOthersReadReceipts',
-              type: _i1.getType<bool?>(),
-              nullable: true,
-            ),
-            'showOthersTypingIndicators': _i1.ParameterDescription(
-              name: 'showOthersTypingIndicators',
-              type: _i1.getType<bool?>(),
-              nullable: true,
-            ),
-            'allowDiscovery': _i1.ParameterDescription(
-              name: 'allowDiscovery',
               type: _i1.getType<bool?>(),
               nullable: true,
             ),
@@ -2500,17 +2465,9 @@ class Endpoints extends _i1.EndpointDispatch {
               ) async => (endpoints['resident'] as _i13.ResidentEndpoint)
                   .updatePrivacySettings(
                     session,
-                    showOnlineStatus: params['showOnlineStatus'],
-                    showReadReceipts: params['showReadReceipts'],
-                    showTypingIndicator: params['showTypingIndicator'],
                     showVoiceMessages: params['showVoiceMessages'],
                     showNeighborsDiscovery: params['showNeighborsDiscovery'],
                     showCustomAvatar: params['showCustomAvatar'],
-                    showOthersOnlineStatus: params['showOthersOnlineStatus'],
-                    showOthersReadReceipts: params['showOthersReadReceipts'],
-                    showOthersTypingIndicators:
-                        params['showOthersTypingIndicators'],
-                    allowDiscovery: params['allowDiscovery'],
                     keepPrivateChats: params['keepPrivateChats'],
                     showImagesInPlaza: params['showImagesInPlaza'],
                     showImagesInLounges: params['showImagesInLounges'],

@@ -190,19 +190,12 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     );
   }
 
-  /// Updates privacy settings (Read Receipts, Typing Indicator, Voice, Search, etc).
+  /// Updates privacy settings (Voice, Search, etc).
   Future<protocol.Resident> updatePrivacySettings(
     Session session, {
-    bool? showOnlineStatus,
-    bool? showReadReceipts,
-    bool? showTypingIndicator,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
-    bool? showOthersOnlineStatus,
-    bool? showOthersReadReceipts,
-    bool? showOthersTypingIndicators,
-    bool? allowDiscovery,
     bool? keepPrivateChats,
     bool? showImagesInPlaza,
     bool? showImagesInLounges,
@@ -214,16 +207,9 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     return await ResidentService.updatePrivacy(
       session,
       resident: resident,
-      showOnlineStatus: showOnlineStatus,
-      showReadReceipts: showReadReceipts,
-      showTypingIndicator: showTypingIndicator,
       showVoiceMessages: showVoiceMessages,
       showNeighborsDiscovery: showNeighborsDiscovery,
       showCustomAvatar: showCustomAvatar,
-      showOthersOnlineStatus: showOthersOnlineStatus,
-      showOthersReadReceipts: showOthersReadReceipts,
-      showOthersTypingIndicators: showOthersTypingIndicators,
-      allowDiscovery: allowDiscovery,
       keepPrivateChats: keepPrivateChats,
       showImagesInPlaza: showImagesInPlaza,
       showImagesInLounges: showImagesInLounges,

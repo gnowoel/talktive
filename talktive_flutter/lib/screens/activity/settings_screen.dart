@@ -105,51 +105,6 @@ class SettingsScreen extends ConsumerWidget {
               ),
               _buildFeatureRow(
                 context,
-                icon: Icons.online_prediction,
-                title: 'Online Indicator',
-                description: 'See when your friends are active in real-time.',
-                isLocked: !resident.isPlus,
-                value: resident.showOthersOnlineStatus,
-                onChanged: resident.isPlus
-                    ? (val) => _updatePrivacySettings(
-                        context,
-                        ref,
-                        showOthersOnlineStatus: val,
-                      )
-                    : null,
-              ),
-              _buildFeatureRow(
-                context,
-                icon: Icons.done_all,
-                title: 'Read Receipts',
-                description: 'See when others have read your messages.',
-                isLocked: !resident.isPlus,
-                value: resident.showOthersReadReceipts,
-                onChanged: resident.isPlus
-                    ? (val) => _updatePrivacySettings(
-                        context,
-                        ref,
-                        showOthersReadReceipts: val,
-                      )
-                    : null,
-              ),
-              _buildFeatureRow(
-                context,
-                icon: Icons.edit,
-                title: 'Typing Indicators',
-                description: 'See when someone is replying to you.',
-                isLocked: !resident.isPlus,
-                value: resident.showOthersTypingIndicators,
-                onChanged: resident.isPlus
-                    ? (val) => _updatePrivacySettings(
-                        context,
-                        ref,
-                        showOthersTypingIndicators: val,
-                      )
-                    : null,
-              ),
-              _buildFeatureRow(
-                context,
                 icon: Icons.history,
                 title: 'Keep Private Chats',
                 description: 'Prevent your private chats from being deleted.',
@@ -203,15 +158,9 @@ class SettingsScreen extends ConsumerWidget {
   Future<void> _updatePrivacySettings(
     BuildContext context,
     WidgetRef ref, {
-    bool? showReadReceipts,
-    bool? showTypingIndicator,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
-    bool? showOthersOnlineStatus,
-    bool? showOthersReadReceipts,
-    bool? showOthersTypingIndicators,
-    bool? allowDiscovery,
     bool? keepPrivateChats,
     bool? showImagesInPlaza,
     bool? showImagesInLounges,
@@ -224,20 +173,10 @@ class SettingsScreen extends ConsumerWidget {
 
     try {
       await client.resident.updatePrivacySettings(
-        showReadReceipts: showReadReceipts ?? resident.showReadReceipts,
-        showTypingIndicator:
-            showTypingIndicator ?? resident.showTypingIndicator,
         showVoiceMessages: showVoiceMessages ?? resident.showVoiceMessages,
         showNeighborsDiscovery:
             showNeighborsDiscovery ?? resident.showNeighborsDiscovery,
         showCustomAvatar: showCustomAvatar ?? resident.showCustomAvatar,
-        showOthersOnlineStatus:
-            showOthersOnlineStatus ?? resident.showOthersOnlineStatus,
-        showOthersReadReceipts:
-            showOthersReadReceipts ?? resident.showOthersReadReceipts,
-        showOthersTypingIndicators:
-            showOthersTypingIndicators ?? resident.showOthersTypingIndicators,
-        allowDiscovery: allowDiscovery ?? resident.allowDiscovery,
         keepPrivateChats: keepPrivateChats ?? resident.keepPrivateChats,
         showImagesInPlaza: showImagesInPlaza ?? resident.showImagesInPlaza,
         showImagesInLounges:
@@ -306,7 +245,7 @@ class SettingsScreen extends ConsumerWidget {
                 onPressed: () async {
                   HapticFeedback.mediumImpact();
                   try {
-                    await client.resident.cancelPremium();
+                    await client.resident.setPremiumStatus(isPremium: false);
                     ref.invalidate(currentResidentProvider);
                     if (!context.mounted) return;
                     DuoSnackBarHelper.showSuccess(

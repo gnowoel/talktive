@@ -1342,10 +1342,6 @@ class EndpointResident extends _i2.EndpointRef {
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
     bool? keepPrivateChats,
-    bool? showImagesInPlaza,
-    bool? showImagesInLounges,
-    bool? showImagesInPrivateChats,
-    bool? showImagesInMoments,
   }) => caller.callServerEndpoint<_i11.Resident>(
     'resident',
     'updatePrivacySettings',
@@ -1357,10 +1353,6 @@ class EndpointResident extends _i2.EndpointRef {
       'showOthersReadReceipts': showOthersReadReceipts,
       'showOthersTypingIndicators': showOthersTypingIndicators,
       'keepPrivateChats': keepPrivateChats,
-      'showImagesInPlaza': showImagesInPlaza,
-      'showImagesInLounges': showImagesInLounges,
-      'showImagesInPrivateChats': showImagesInPrivateChats,
-      'showImagesInMoments': showImagesInMoments,
     },
   );
 

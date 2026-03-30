@@ -50,10 +50,7 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
-    bool? showImagesInPlaza,
-    bool? showImagesInLounges,
-    bool? showImagesInPrivateChats,
-    bool? showImagesInMoments,
+    bool? isTalktivePlus,
     bool? keepPrivateChats,
     this.customAvatarUrl,
   }) : trustScore = trustScore ?? 100,
@@ -73,10 +70,7 @@ abstract class Resident implements _i1.SerializableModel {
        showVoiceMessages = showVoiceMessages ?? true,
        showNeighborsDiscovery = showNeighborsDiscovery ?? true,
        showCustomAvatar = showCustomAvatar ?? true,
-       showImagesInPlaza = showImagesInPlaza ?? true,
-       showImagesInLounges = showImagesInLounges ?? true,
-       showImagesInPrivateChats = showImagesInPrivateChats ?? true,
-       showImagesInMoments = showImagesInMoments ?? true,
+       isTalktivePlus = isTalktivePlus ?? false,
        keepPrivateChats = keepPrivateChats ?? true;
 
   factory Resident({
@@ -114,10 +108,7 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
-    bool? showImagesInPlaza,
-    bool? showImagesInLounges,
-    bool? showImagesInPrivateChats,
-    bool? showImagesInMoments,
+    bool? isTalktivePlus,
     bool? keepPrivateChats,
     String? customAvatarUrl,
   }) = _ResidentImpl;
@@ -226,27 +217,9 @@ abstract class Resident implements _i1.SerializableModel {
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['showCustomAvatar'],
             ),
-      showImagesInPlaza: jsonSerialization['showImagesInPlaza'] == null
+      isTalktivePlus: jsonSerialization['isTalktivePlus'] == null
           ? null
-          : _i1.BoolJsonExtension.fromJson(
-              jsonSerialization['showImagesInPlaza'],
-            ),
-      showImagesInLounges: jsonSerialization['showImagesInLounges'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(
-              jsonSerialization['showImagesInLounges'],
-            ),
-      showImagesInPrivateChats:
-          jsonSerialization['showImagesInPrivateChats'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(
-              jsonSerialization['showImagesInPrivateChats'],
-            ),
-      showImagesInMoments: jsonSerialization['showImagesInMoments'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(
-              jsonSerialization['showImagesInMoments'],
-            ),
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isTalktivePlus']),
       keepPrivateChats: jsonSerialization['keepPrivateChats'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(
@@ -327,13 +300,7 @@ abstract class Resident implements _i1.SerializableModel {
 
   bool showCustomAvatar;
 
-  bool showImagesInPlaza;
-
-  bool showImagesInLounges;
-
-  bool showImagesInPrivateChats;
-
-  bool showImagesInMoments;
+  bool isTalktivePlus;
 
   bool keepPrivateChats;
 
@@ -377,10 +344,7 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
-    bool? showImagesInPlaza,
-    bool? showImagesInLounges,
-    bool? showImagesInPrivateChats,
-    bool? showImagesInMoments,
+    bool? isTalktivePlus,
     bool? keepPrivateChats,
     String? customAvatarUrl,
   });
@@ -424,10 +388,7 @@ abstract class Resident implements _i1.SerializableModel {
       'showVoiceMessages': showVoiceMessages,
       'showNeighborsDiscovery': showNeighborsDiscovery,
       'showCustomAvatar': showCustomAvatar,
-      'showImagesInPlaza': showImagesInPlaza,
-      'showImagesInLounges': showImagesInLounges,
-      'showImagesInPrivateChats': showImagesInPrivateChats,
-      'showImagesInMoments': showImagesInMoments,
+      'isTalktivePlus': isTalktivePlus,
       'keepPrivateChats': keepPrivateChats,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
@@ -477,10 +438,7 @@ class _ResidentImpl extends Resident {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
-    bool? showImagesInPlaza,
-    bool? showImagesInLounges,
-    bool? showImagesInPrivateChats,
-    bool? showImagesInMoments,
+    bool? isTalktivePlus,
     bool? keepPrivateChats,
     String? customAvatarUrl,
   }) : super._(
@@ -518,10 +476,7 @@ class _ResidentImpl extends Resident {
          showVoiceMessages: showVoiceMessages,
          showNeighborsDiscovery: showNeighborsDiscovery,
          showCustomAvatar: showCustomAvatar,
-         showImagesInPlaza: showImagesInPlaza,
-         showImagesInLounges: showImagesInLounges,
-         showImagesInPrivateChats: showImagesInPrivateChats,
-         showImagesInMoments: showImagesInMoments,
+         isTalktivePlus: isTalktivePlus,
          keepPrivateChats: keepPrivateChats,
          customAvatarUrl: customAvatarUrl,
        );
@@ -565,10 +520,7 @@ class _ResidentImpl extends Resident {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
-    bool? showImagesInPlaza,
-    bool? showImagesInLounges,
-    bool? showImagesInPrivateChats,
-    bool? showImagesInMoments,
+    bool? isTalktivePlus,
     bool? keepPrivateChats,
     Object? customAvatarUrl = _Undefined,
   }) {
@@ -624,11 +576,7 @@ class _ResidentImpl extends Resident {
       showNeighborsDiscovery:
           showNeighborsDiscovery ?? this.showNeighborsDiscovery,
       showCustomAvatar: showCustomAvatar ?? this.showCustomAvatar,
-      showImagesInPlaza: showImagesInPlaza ?? this.showImagesInPlaza,
-      showImagesInLounges: showImagesInLounges ?? this.showImagesInLounges,
-      showImagesInPrivateChats:
-          showImagesInPrivateChats ?? this.showImagesInPrivateChats,
-      showImagesInMoments: showImagesInMoments ?? this.showImagesInMoments,
+      isTalktivePlus: isTalktivePlus ?? this.isTalktivePlus,
       keepPrivateChats: keepPrivateChats ?? this.keepPrivateChats,
       customAvatarUrl: customAvatarUrl is String?
           ? customAvatarUrl

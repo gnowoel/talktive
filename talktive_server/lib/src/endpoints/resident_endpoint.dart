@@ -200,10 +200,6 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
     bool? keepPrivateChats,
-    bool? showImagesInPlaza,
-    bool? showImagesInLounges,
-    bool? showImagesInPrivateChats,
-    bool? showImagesInMoments,
   }) async {
     final resident = await getAuthenticatedResident(session);
 
@@ -217,10 +213,6 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
       showOthersReadReceipts: showOthersReadReceipts,
       showOthersTypingIndicators: showOthersTypingIndicators,
       keepPrivateChats: keepPrivateChats,
-      showImagesInPlaza: showImagesInPlaza,
-      showImagesInLounges: showImagesInLounges,
-      showImagesInPrivateChats: showImagesInPrivateChats,
-      showImagesInMoments: showImagesInMoments,
     );
   }
 

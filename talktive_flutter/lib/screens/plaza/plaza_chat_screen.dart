@@ -161,14 +161,6 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
         },
         onTypingStatusChanged: handleTypingStatus,
         onImagePick: () async {
-          if (currentResident?.showImagesInPlaza != true) {
-            DuoSnackBarHelper.showWarning(
-              context,
-              'Enable image sharing in Settings! 📸',
-            );
-            return;
-          }
-
           pickAndSendImage(floorRestriction: 2);
         },
         enabled: canSend,

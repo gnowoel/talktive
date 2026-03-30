@@ -1,0 +1,120 @@
+{
+  "__className__": "serverpod.DatabaseMigration",
+  "actions": [
+    {
+      "__className__": "serverpod.DatabaseMigrationAction",
+      "type": "alterTable",
+      "alterTable": {
+        "__className__": "serverpod.TableMigration",
+        "name": "resident",
+        "schema": "public",
+        "addColumns": [
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "isTalktivePlus",
+            "columnType": 1,
+            "isNullable": false,
+            "columnDefault": "false",
+            "dartType": "bool"
+          }
+        ],
+        "deleteColumns": [
+          "showImagesInPlaza",
+          "showImagesInLounges",
+          "showImagesInPrivateChats",
+          "showImagesInMoments"
+        ],
+        "modifyColumns": [],
+        "addIndexes": [],
+        "deleteIndexes": [],
+        "addForeignKeys": [],
+        "deleteForeignKeys": [],
+        "warnings": [
+          {
+            "__className__": "serverpod.DatabaseMigrationWarning",
+            "type": "columnDropped",
+            "message": "Column \"showImagesInPlaza\" of table \"resident\" will be dropped.",
+            "table": "resident",
+            "columns": [
+              "showImagesInPlaza"
+            ],
+            "destrucive": true
+          },
+          {
+            "__className__": "serverpod.DatabaseMigrationWarning",
+            "type": "columnDropped",
+            "message": "Column \"showImagesInLounges\" of table \"resident\" will be dropped.",
+            "table": "resident",
+            "columns": [
+              "showImagesInLounges"
+            ],
+            "destrucive": true
+          },
+          {
+            "__className__": "serverpod.DatabaseMigrationWarning",
+            "type": "columnDropped",
+            "message": "Column \"showImagesInPrivateChats\" of table \"resident\" will be dropped.",
+            "table": "resident",
+            "columns": [
+              "showImagesInPrivateChats"
+            ],
+            "destrucive": true
+          },
+          {
+            "__className__": "serverpod.DatabaseMigrationWarning",
+            "type": "columnDropped",
+            "message": "Column \"showImagesInMoments\" of table \"resident\" will be dropped.",
+            "table": "resident",
+            "columns": [
+              "showImagesInMoments"
+            ],
+            "destrucive": true
+          }
+        ]
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "__className__": "serverpod.DatabaseMigrationWarning",
+      "type": "columnDropped",
+      "message": "Column \"showImagesInPlaza\" of table \"resident\" will be dropped.",
+      "table": "resident",
+      "columns": [
+        "showImagesInPlaza"
+      ],
+      "destrucive": true
+    },
+    {
+      "__className__": "serverpod.DatabaseMigrationWarning",
+      "type": "columnDropped",
+      "message": "Column \"showImagesInLounges\" of table \"resident\" will be dropped.",
+      "table": "resident",
+      "columns": [
+        "showImagesInLounges"
+      ],
+      "destrucive": true
+    },
+    {
+      "__className__": "serverpod.DatabaseMigrationWarning",
+      "type": "columnDropped",
+      "message": "Column \"showImagesInPrivateChats\" of table \"resident\" will be dropped.",
+      "table": "resident",
+      "columns": [
+        "showImagesInPrivateChats"
+      ],
+      "destrucive": true
+    },
+    {
+      "__className__": "serverpod.DatabaseMigrationWarning",
+      "type": "columnDropped",
+      "message": "Column \"showImagesInMoments\" of table \"resident\" will be dropped.",
+      "table": "resident",
+      "columns": [
+        "showImagesInMoments"
+      ],
+      "destrucive": true
+    }
+  ],
+  "migrationApiVersion": 1
+}

@@ -2452,26 +2452,6 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<bool?>(),
               nullable: true,
             ),
-            'showImagesInPlaza': _i1.ParameterDescription(
-              name: 'showImagesInPlaza',
-              type: _i1.getType<bool?>(),
-              nullable: true,
-            ),
-            'showImagesInLounges': _i1.ParameterDescription(
-              name: 'showImagesInLounges',
-              type: _i1.getType<bool?>(),
-              nullable: true,
-            ),
-            'showImagesInPrivateChats': _i1.ParameterDescription(
-              name: 'showImagesInPrivateChats',
-              type: _i1.getType<bool?>(),
-              nullable: true,
-            ),
-            'showImagesInMoments': _i1.ParameterDescription(
-              name: 'showImagesInMoments',
-              type: _i1.getType<bool?>(),
-              nullable: true,
-            ),
           },
           call:
               (
@@ -2488,11 +2468,6 @@ class Endpoints extends _i1.EndpointDispatch {
                     showOthersTypingIndicators:
                         params['showOthersTypingIndicators'],
                     keepPrivateChats: params['keepPrivateChats'],
-                    showImagesInPlaza: params['showImagesInPlaza'],
-                    showImagesInLounges: params['showImagesInLounges'],
-                    showImagesInPrivateChats:
-                        params['showImagesInPrivateChats'],
-                    showImagesInMoments: params['showImagesInMoments'],
                   ),
         ),
         'setPremiumStatus': _i1.MethodConnector(

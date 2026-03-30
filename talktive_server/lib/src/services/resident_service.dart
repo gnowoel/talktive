@@ -780,10 +780,6 @@ class ResidentService {
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
     bool? keepPrivateChats,
-    bool? showImagesInPlaza,
-    bool? showImagesInLounges,
-    bool? showImagesInPrivateChats,
-    bool? showImagesInMoments,
   }) async {
     final bool isPlus = isPlusMember(resident);
 
@@ -796,18 +792,6 @@ class ResidentService {
     }
     if (showCustomAvatar != null && isPlus) {
       resident.showCustomAvatar = showCustomAvatar;
-    }
-    if (showImagesInPlaza != null && isPlus) {
-      resident.showImagesInPlaza = showImagesInPlaza;
-    }
-    if (showImagesInLounges != null && isPlus) {
-      resident.showImagesInLounges = showImagesInLounges;
-    }
-    if (showImagesInPrivateChats != null && isPlus) {
-      resident.showImagesInPrivateChats = showImagesInPrivateChats;
-    }
-    if (showImagesInMoments != null && isPlus) {
-      resident.showImagesInMoments = showImagesInMoments;
     }
 
     // Inbound Premium Settings (part of what they paid for)
@@ -855,10 +839,6 @@ class ResidentService {
     resident.showCustomAvatar = true;
     resident.showVoiceMessages = true;
     resident.keepPrivateChats = true;
-    resident.showImagesInPlaza = true;
-    resident.showImagesInLounges = true;
-    resident.showImagesInPrivateChats = true;
-    resident.showImagesInMoments = true;
 
     return await updateResident(session, resident);
   }
@@ -888,10 +868,6 @@ class ResidentService {
       resident.showOthersReadReceipts = true;
       resident.showOthersTypingIndicators = true;
       resident.keepPrivateChats = true;
-      resident.showImagesInPlaza = true;
-      resident.showImagesInLounges = true;
-      resident.showImagesInPrivateChats = true;
-      resident.showImagesInMoments = true;
     } else {
       // Automatically disable all premium settings if subscription expires/cancels
       // ONLY if they don't have an active trial either
@@ -901,10 +877,6 @@ class ResidentService {
         resident.showCustomAvatar = false;
         resident.showVoiceMessages = false;
         resident.showNeighborsDiscovery = false;
-        resident.showImagesInPlaza = false;
-        resident.showImagesInLounges = false;
-        resident.showImagesInPrivateChats = false;
-        resident.showImagesInMoments = false;
 
         final updated = await updateResident(session, resident);
 

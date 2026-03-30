@@ -210,10 +210,6 @@ class SettingsScreen extends ConsumerWidget {
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
     bool? keepPrivateChats,
-    bool? showImagesInPlaza,
-    bool? showImagesInLounges,
-    bool? showImagesInPrivateChats,
-    bool? showImagesInMoments,
   }) async {
     HapticFeedback.selectionClick();
     final resident = ref.read(currentResidentProvider).value;
@@ -232,13 +228,6 @@ class SettingsScreen extends ConsumerWidget {
         showOthersTypingIndicators:
             showOthersTypingIndicators ?? resident.showOthersTypingIndicators,
         keepPrivateChats: keepPrivateChats ?? resident.keepPrivateChats,
-        showImagesInPlaza: showImagesInPlaza ?? resident.showImagesInPlaza,
-        showImagesInLounges:
-            showImagesInLounges ?? resident.showImagesInLounges,
-        showImagesInPrivateChats:
-            showImagesInPrivateChats ?? resident.showImagesInPrivateChats,
-        showImagesInMoments:
-            showImagesInMoments ?? resident.showImagesInMoments,
       );
       ref.invalidate(currentResidentProvider);
       if (!context.mounted) return;

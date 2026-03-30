@@ -374,14 +374,6 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
             },
             onTypingStatusChanged: handleTypingStatus,
             onImagePick: () async {
-              if (currentResident?.showImagesInPrivateChats != true) {
-                DuoSnackBarHelper.showWarning(
-                  context,
-                  'Enable image sharing in Settings! 📸',
-                );
-                return;
-              }
-
               pickAndSendImage();
             },
             enabled: canSend,

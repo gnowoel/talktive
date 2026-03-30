@@ -507,14 +507,6 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen>
         },
         onTypingStatusChanged: handleTypingStatus,
         onImagePick: () async {
-          if (currentResident?.showImagesInLounges != true) {
-            DuoSnackBarHelper.showWarning(
-              context,
-              'Enable image sharing in Settings! 📸',
-            );
-            return;
-          }
-
           pickAndSendImage(floorRestriction: 2);
         },
         enabled: canSend,

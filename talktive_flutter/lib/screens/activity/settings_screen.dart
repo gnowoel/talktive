@@ -12,6 +12,8 @@ import '../../helpers/duo_snackbar_helper.dart';
 import '../../helpers/duo_upgrade_helper.dart';
 import '../../helpers/resident_ext.dart';
 import '../../serverpod_client.dart';
+import '../../services/ad/ad_service.dart';
+import '../../services/ad/consent_service.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -52,10 +54,18 @@ class SettingsScreen extends ConsumerWidget {
                 context,
                 icon: Icons.block,
                 title: 'No Ads',
-                description: 'A completely ad-free experience (Coming Soon).',
+                description: resident.isTrialActive
+                    ? 'Ads remain active during trials to support the community.'
+                    : 'A completely ad-free experience for Talktive Plus.',
                 isLocked: !resident.isPremium,
-                value: resident.isPremium,
-                onChanged: null,
+                value: resident.hideAds,
+                onChanged: resident.isPremium
+                    ? (val) => _updatePrivacySettings(
+                        context,
+                        ref,
+                        hideAds: val,
+                      )
+                    : null,
               ),
               _buildFeatureRow(
                 context,
@@ -163,6 +173,46 @@ class SettingsScreen extends ConsumerWidget {
                       )
                     : null,
               ),
+              const SizedBox(height: AppTheme.duoSpacingLarge),
+              _buildSectionHeader(context, 'Ad Preferences'),
+              DuoCard(
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.privacy_tip,
+                    size: 28,
+                    color: AppTheme.duoPurple,
+                  ),
+                  title: const Text(
+                    'Ad Consent Settings',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: const Text('Re-configure how ads are personalized'),
+                  trailing: const Icon(
+                    Icons.chevron_right,
+                    size: 24,
+                    color: AppTheme.textSecondary,
+                  ),
+                  onTap: () async {
+                    HapticFeedback.mediumImpact();
+                    try {
+                      final adService = ref.read(adServiceProvider);
+                      // In our AdService, consent logic is handled by ConsentService
+                      // We need to access the consentServiceProvider's service
+                      final consentService = ref.read(consentServiceProvider);
+                      await consentService.showPrivacyOptions();
+                      DuoSnackBarHelper.showSuccess(
+                        context,
+                        'Preferences updated! ✨',
+                      );
+                    } catch (e) {
+                      DuoSnackBarHelper.showError(
+                        context,
+                        'Failed to load privacy options',
+                      );
+                    }
+                  },
+                ),
+              ),
               if (resident.isStaff) ...[
                 const SizedBox(height: AppTheme.duoSpacingLarge),
                 _buildSectionHeader(context, 'Staff Tools'),
@@ -203,6 +253,7 @@ class SettingsScreen extends ConsumerWidget {
   Future<void> _updatePrivacySettings(
     BuildContext context,
     WidgetRef ref, {
+    bool? hideAds,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
@@ -217,6 +268,7 @@ class SettingsScreen extends ConsumerWidget {
 
     try {
       await client.resident.updatePrivacySettings(
+        hideAds: hideAds ?? resident.hideAds,
         showVoiceMessages: showVoiceMessages ?? resident.showVoiceMessages,
         showNeighborsDiscovery:
             showNeighborsDiscovery ?? resident.showNeighborsDiscovery,

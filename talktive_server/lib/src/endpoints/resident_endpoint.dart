@@ -195,6 +195,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
   /// Updates privacy settings (Others, Voice, Search, etc).
   Future<protocol.Resident> updatePrivacySettings(
     Session session, {
+    bool? hideAds,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
@@ -208,6 +209,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     return await ResidentService.updatePrivacy(
       session,
       resident: resident,
+      hideAds: hideAds,
       showVoiceMessages: showVoiceMessages,
       showNeighborsDiscovery: showNeighborsDiscovery,
       showCustomAvatar: showCustomAvatar,

@@ -42,11 +42,13 @@ abstract class Resident implements _i1.SerializableModel {
     _i2.ResidentRole? role,
     this.lastSeen,
     bool? isPremium,
+    bool? isTalktivePlus,
     this.premiumTrialExpires,
     int? trialCount,
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? hideAds,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
@@ -62,10 +64,12 @@ abstract class Resident implements _i1.SerializableModel {
        ageRange = ageRange ?? '18-24',
        role = role ?? _i2.ResidentRole.user,
        isPremium = isPremium ?? false,
+       isTalktivePlus = isTalktivePlus ?? false,
        trialCount = trialCount ?? 0,
        showOthersOnlineStatus = showOthersOnlineStatus ?? true,
        showOthersReadReceipts = showOthersReadReceipts ?? true,
        showOthersTypingIndicators = showOthersTypingIndicators ?? true,
+       hideAds = hideAds ?? false,
        showVoiceMessages = showVoiceMessages ?? true,
        showNeighborsDiscovery = showNeighborsDiscovery ?? true,
        showCustomAvatar = showCustomAvatar ?? true,
@@ -98,11 +102,13 @@ abstract class Resident implements _i1.SerializableModel {
     _i2.ResidentRole? role,
     DateTime? lastSeen,
     bool? isPremium,
+    bool? isTalktivePlus,
     DateTime? premiumTrialExpires,
     int? trialCount,
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? hideAds,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
@@ -174,6 +180,9 @@ abstract class Resident implements _i1.SerializableModel {
       isPremium: jsonSerialization['isPremium'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(jsonSerialization['isPremium']),
+      isTalktivePlus: jsonSerialization['isTalktivePlus'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isTalktivePlus']),
       premiumTrialExpires: jsonSerialization['premiumTrialExpires'] == null
           ? null
           : _i1.DateTimeJsonExtension.fromJson(
@@ -198,6 +207,9 @@ abstract class Resident implements _i1.SerializableModel {
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['showOthersTypingIndicators'],
             ),
+      hideAds: jsonSerialization['hideAds'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['hideAds']),
       showVoiceMessages: jsonSerialization['showVoiceMessages'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(
@@ -278,6 +290,8 @@ abstract class Resident implements _i1.SerializableModel {
 
   bool isPremium;
 
+  bool isTalktivePlus;
+
   DateTime? premiumTrialExpires;
 
   int trialCount;
@@ -287,6 +301,8 @@ abstract class Resident implements _i1.SerializableModel {
   bool showOthersReadReceipts;
 
   bool showOthersTypingIndicators;
+
+  bool hideAds;
 
   bool showVoiceMessages;
 
@@ -328,11 +344,13 @@ abstract class Resident implements _i1.SerializableModel {
     _i2.ResidentRole? role,
     DateTime? lastSeen,
     bool? isPremium,
+    bool? isTalktivePlus,
     DateTime? premiumTrialExpires,
     int? trialCount,
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? hideAds,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
@@ -370,12 +388,14 @@ abstract class Resident implements _i1.SerializableModel {
       'role': role.toJson(),
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isPremium': isPremium,
+      'isTalktivePlus': isTalktivePlus,
       if (premiumTrialExpires != null)
         'premiumTrialExpires': premiumTrialExpires?.toJson(),
       'trialCount': trialCount,
       'showOthersOnlineStatus': showOthersOnlineStatus,
       'showOthersReadReceipts': showOthersReadReceipts,
       'showOthersTypingIndicators': showOthersTypingIndicators,
+      'hideAds': hideAds,
       'showVoiceMessages': showVoiceMessages,
       'showNeighborsDiscovery': showNeighborsDiscovery,
       'showCustomAvatar': showCustomAvatar,
@@ -420,11 +440,13 @@ class _ResidentImpl extends Resident {
     _i2.ResidentRole? role,
     DateTime? lastSeen,
     bool? isPremium,
+    bool? isTalktivePlus,
     DateTime? premiumTrialExpires,
     int? trialCount,
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? hideAds,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
@@ -457,11 +479,13 @@ class _ResidentImpl extends Resident {
          role: role,
          lastSeen: lastSeen,
          isPremium: isPremium,
+         isTalktivePlus: isTalktivePlus,
          premiumTrialExpires: premiumTrialExpires,
          trialCount: trialCount,
          showOthersOnlineStatus: showOthersOnlineStatus,
          showOthersReadReceipts: showOthersReadReceipts,
          showOthersTypingIndicators: showOthersTypingIndicators,
+         hideAds: hideAds,
          showVoiceMessages: showVoiceMessages,
          showNeighborsDiscovery: showNeighborsDiscovery,
          showCustomAvatar: showCustomAvatar,
@@ -500,11 +524,13 @@ class _ResidentImpl extends Resident {
     _i2.ResidentRole? role,
     Object? lastSeen = _Undefined,
     bool? isPremium,
+    bool? isTalktivePlus,
     Object? premiumTrialExpires = _Undefined,
     int? trialCount,
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? hideAds,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
@@ -549,6 +575,7 @@ class _ResidentImpl extends Resident {
       role: role ?? this.role,
       lastSeen: lastSeen is DateTime? ? lastSeen : this.lastSeen,
       isPremium: isPremium ?? this.isPremium,
+      isTalktivePlus: isTalktivePlus ?? this.isTalktivePlus,
       premiumTrialExpires: premiumTrialExpires is DateTime?
           ? premiumTrialExpires
           : this.premiumTrialExpires,
@@ -559,6 +586,7 @@ class _ResidentImpl extends Resident {
           showOthersReadReceipts ?? this.showOthersReadReceipts,
       showOthersTypingIndicators:
           showOthersTypingIndicators ?? this.showOthersTypingIndicators,
+      hideAds: hideAds ?? this.hideAds,
       showVoiceMessages: showVoiceMessages ?? this.showVoiceMessages,
       showNeighborsDiscovery:
           showNeighborsDiscovery ?? this.showNeighborsDiscovery,

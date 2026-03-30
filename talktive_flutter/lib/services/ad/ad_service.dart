@@ -132,8 +132,17 @@ class AdService {
     // 1. App must have an ad ready
     if (!_isAdReady || _interstitialAd == null) return false;
 
-    // 2. User must not be a premium member
-    if (resident == null || resident.isPremium) return false;
+    // 2. Handle Premium and Ad preferences
+    if (resident != null) {
+      // If user is a paying premium member AND they've toggled "No Ads"
+      if (resident.isPremium && resident.hideAds) {
+        debugPrint('[AdService] Ad skipped: Premium user opted out of ads');
+        return false;
+      }
+
+      // Note: Trial users (isTrialActive == true) will always see ads
+      // regardless of their hideAds setting, as per PRODUCT_STRATEGY.md
+    }
 
     // 3. Must respect the cooldown interval
     if (_lastAdShown != null) {

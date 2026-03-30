@@ -2417,6 +2417,11 @@ class Endpoints extends _i1.EndpointDispatch {
         'updatePrivacySettings': _i1.MethodConnector(
           name: 'updatePrivacySettings',
           params: {
+            'hideAds': _i1.ParameterDescription(
+              name: 'hideAds',
+              type: _i1.getType<bool?>(),
+              nullable: true,
+            ),
             'showVoiceMessages': _i1.ParameterDescription(
               name: 'showVoiceMessages',
               type: _i1.getType<bool?>(),
@@ -2460,6 +2465,7 @@ class Endpoints extends _i1.EndpointDispatch {
               ) async => (endpoints['resident'] as _i13.ResidentEndpoint)
                   .updatePrivacySettings(
                     session,
+                    hideAds: params['hideAds'],
                     showVoiceMessages: params['showVoiceMessages'],
                     showNeighborsDiscovery: params['showNeighborsDiscovery'],
                     showCustomAvatar: params['showCustomAvatar'],

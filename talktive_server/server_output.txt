@@ -1,0 +1,46 @@
+SERVERPOD version: 3.4.5, dart: 3.11.4 (stable) (Tue Mar 24 01:02:20 2026 -0700) on "macos_arm64", time: 2026-03-30 15:59:31.763062Z
+runMode: development
+serverId: default
+role: monolith
+loggingMode: normal
+applyMigrations: true
+applyRepairMigration: false
+SERVERPOD initialized, time: 2026-03-30 15:59:31.802650Z
+TIME                        ID         TYPE           CONTEXT                  DETAILS
+--------------------------- ---------- -------------- ------------------------ ------------------------------
+2026-03-30 15:59:31.902844Z  563043888 INTERNAL       n/a                      queries=2, duration=89ms
+✅ FCM Service initialized successfully for project: talktive3-58486
+2026-03-30 15:59:31.990051Z ERROR: Failed to apply database migrations.
+2026-03-30 15:59:31.990051Z ERROR: Exception: DB has migration version 20260330141514342 registered but it is not found in the project files.
+#0      MigrationManager._getVersionsToApply (package:serverpod/src/database/migrations/migration_manager.dart:170:7)
+#1      MigrationManager._loadMigrationSQL (package:serverpod/src/database/migrations/migration_manager.dart:207:27)
+#2      MigrationManager._migrateToLatestModule (package:serverpod/src/database/migrations/migration_manager.dart:234:30)
+#3      MigrationManager.migrateToLatest.<anonymous closure> (package:serverpod/src/database/migrations/migration_manager.dart:132:33)
+<asynchronous suspension>
+#4      PostgresDatabaseMigrationRunner.runMigrations.<anonymous closure> (package:serverpod/src/database/adapters/postgres/postgres_migration_runner.dart:34:9)
+<asynchronous suspension>
+#5      PgConnectionImplementation.runTx.<anonymous closure> (package:postgres/src/v3/connection.dart:591:24)
+<asynchronous suspension>
+#6      Pool.withResource (package:pool/pool.dart:127:14)
+<asynchronous suspension>
+#7      PoolImplementation.withConnection (package:postgres/src/pool/pool_impl.dart:153:16)
+<asynchronous suspension>
+#8      Database.transaction (package:serverpod/src/database/database.dart:514:12)
+<asynchronous suspension>
+#9      PostgresDatabaseMigrationRunner.runMigrations (package:serverpod/src/database/adapters/postgres/postgres_migration_runner.dart:27:5)
+<asynchronous suspension>
+#10     MigrationManager._withMigrationLock (package:serverpod/src/database/migrations/migration_manager.dart:298:5)
+<asynchronous suspension>
+#11     MigrationManager.migrateToLatest (package:serverpod/src/database/migrations/migration_manager.dart:107:5)
+<asynchronous suspension>
+#12     Serverpod._applyMigrations (package:serverpod/src/server/serverpod.dart:852:33)
+<asynchronous suspension>
+#13     Serverpod._unguardedStart (package:serverpod/src/server/serverpod.dart:710:7)
+<asynchronous suspension>
+#14     Serverpod.start.<anonymous closure> (package:serverpod/src/server/serverpod.dart:673:9)
+<asynchronous suspension>
+#15     Serverpod.start (package:serverpod/src/server/serverpod.dart:672:7)
+<asynchronous suspension>
+#16     run (package:talktive_server/server.dart:135:3)
+<asynchronous suspension>
+

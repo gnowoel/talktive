@@ -1335,6 +1335,7 @@ class EndpointResident extends _i2.EndpointRef {
 
   /// Updates privacy settings (Others, Voice, Search, etc).
   _i3.Future<_i11.Resident> updatePrivacySettings({
+    bool? hideAds,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
@@ -1346,6 +1347,7 @@ class EndpointResident extends _i2.EndpointRef {
     'resident',
     'updatePrivacySettings',
     {
+      'hideAds': hideAds,
       'showVoiceMessages': showVoiceMessages,
       'showNeighborsDiscovery': showNeighborsDiscovery,
       'showCustomAvatar': showCustomAvatar,

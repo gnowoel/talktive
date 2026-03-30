@@ -1,0 +1,54 @@
+SERVERPOD version: 3.4.5, dart: 3.11.4 (stable) (Tue Mar 24 01:02:20 2026 -0700) on "macos_arm64", time: 2026-03-30 16:04:39.800173Z
+runMode: development
+serverId: default
+role: monolith
+loggingMode: normal
+applyMigrations: true
+applyRepairMigration: false
+SERVERPOD initialized, time: 2026-03-30 16:04:39.839661Z
+TIME                        ID         TYPE           CONTEXT                  DETAILS
+--------------------------- ---------- -------------- ------------------------ ------------------------------
+2026-03-30 16:04:39.936608Z  248946722 INTERNAL       n/a                      queries=2, duration=85.7ms
+✅ FCM Service initialized successfully for project: talktive3-58486
+Failed to apply migration 20260330160329938.
+DatabaseQueryException: { message: syntax error at or near "EXISTS", code: 42601, position: 349 }
+2026-03-30 16:04:40.028061Z ERROR: Failed to apply database migrations.
+2026-03-30 16:04:40.028061Z ERROR: DatabaseQueryException: { message: syntax error at or near "EXISTS", code: 42601, position: 349 }
+package:postgres/src/v3/connection.dart 930:37                                        _PgResultStreamSubscription.handleError
+package:postgres/src/v3/connection.dart 530:21                                        PgConnectionImplementation._handleMessage
+dart:async/zone_root.dart 48:47                                                       _rootRunUnary
+dart:async/zone.dart 733:19                                                           _CustomZone.runUnary
+dart:async/zone.dart 633:7                                                            _CustomZone.runUnaryGuarded
+dart:async/stream_impl.dart 381:11                                                    _BufferingStreamSubscription._sendData
+dart:async/stream_impl.dart 312:7                                                     _BufferingStreamSubscription._add
+dart:async/stream_controller.dart 798:19                                              _SyncStreamControllerDispatch._sendData
+dart:async/stream_controller.dart 663:7                                               _StreamController._add
+dart:async/stream_controller.dart 618:5                                               _StreamController.add
+dart:async/stream.dart 823:20                                                         Stream.asyncMap.<fn>.add
+dart:async/zone_root.dart 48:47                                                       _rootRunUnary
+dart:async/zone.dart 733:19                                                           _CustomZone.runUnary
+dart:async/stream_impl.dart 215:3                                                     _BufferingStreamSubscription.resume
+===== asynchronous gap ===========================
+package:postgres/src/v3/connection.dart 871:44                                        new _PgResultStreamSubscription.simpleQueryProtocol
+package:postgres/src/v3/connection.dart 165:61                                        _PgSessionBase.execute
+package:postgres/src/pool/pool_impl.dart 309:24                                       _PoolConnection.execute
+package:postgres/src/pool/pool_impl.dart 64:34                                        PoolImplementation.execute.<fn>
+package:postgres/src/pool/pool_impl.dart 153:24                                       PoolImplementation.withConnection
+package:serverpod/src/database/adapters/postgres/database_connection.dart 562:20      PostgresDatabaseConnection._query
+package:serverpod/src/database/adapters/postgres/database_connection.dart 642:18      PostgresDatabaseConnection.simpleExecute
+package:serverpod/src/database/migrations/migration_manager.dart 239:9                MigrationManager._migrateToLatestModule
+package:serverpod/src/database/migrations/migration_manager.dart 132:27               MigrationManager.migrateToLatest.<fn>
+package:serverpod/src/database/adapters/postgres/postgres_migration_runner.dart 34:9  PostgresDatabaseMigrationRunner.runMigrations.<fn>
+package:postgres/src/v3/connection.dart 591:24                                        PgConnectionImplementation.runTx.<fn>
+package:pool/pool.dart 127:14                                                         Pool.withResource
+package:postgres/src/pool/pool_impl.dart 153:16                                       PoolImplementation.withConnection
+package:serverpod/src/database/database.dart 514:12                                   Database.transaction
+package:serverpod/src/database/adapters/postgres/postgres_migration_runner.dart 27:5  PostgresDatabaseMigrationRunner.runMigrations
+package:serverpod/src/database/migrations/migration_manager.dart 298:5                MigrationManager._withMigrationLock
+package:serverpod/src/database/migrations/migration_manager.dart 107:5                MigrationManager.migrateToLatest
+package:serverpod/src/server/serverpod.dart 852:33                                    Serverpod._applyMigrations
+package:serverpod/src/server/serverpod.dart 710:7                                     Serverpod._unguardedStart
+package:serverpod/src/server/serverpod.dart 673:9                                     Serverpod.start.<fn>
+package:serverpod/src/server/serverpod.dart 672:7                                     Serverpod.start
+package:talktive_server/server.dart 135:3                                             run
+

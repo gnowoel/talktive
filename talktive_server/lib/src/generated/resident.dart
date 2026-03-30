@@ -43,11 +43,13 @@ abstract class Resident
     _i2.ResidentRole? role,
     this.lastSeen,
     bool? isPremium,
+    bool? isTalktivePlus,
     this.premiumTrialExpires,
     int? trialCount,
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? hideAds,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
@@ -63,10 +65,12 @@ abstract class Resident
        ageRange = ageRange ?? '18-24',
        role = role ?? _i2.ResidentRole.user,
        isPremium = isPremium ?? false,
+       isTalktivePlus = isTalktivePlus ?? false,
        trialCount = trialCount ?? 0,
        showOthersOnlineStatus = showOthersOnlineStatus ?? true,
        showOthersReadReceipts = showOthersReadReceipts ?? true,
        showOthersTypingIndicators = showOthersTypingIndicators ?? true,
+       hideAds = hideAds ?? false,
        showVoiceMessages = showVoiceMessages ?? true,
        showNeighborsDiscovery = showNeighborsDiscovery ?? true,
        showCustomAvatar = showCustomAvatar ?? true,
@@ -99,11 +103,13 @@ abstract class Resident
     _i2.ResidentRole? role,
     DateTime? lastSeen,
     bool? isPremium,
+    bool? isTalktivePlus,
     DateTime? premiumTrialExpires,
     int? trialCount,
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? hideAds,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
@@ -175,6 +181,9 @@ abstract class Resident
       isPremium: jsonSerialization['isPremium'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(jsonSerialization['isPremium']),
+      isTalktivePlus: jsonSerialization['isTalktivePlus'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isTalktivePlus']),
       premiumTrialExpires: jsonSerialization['premiumTrialExpires'] == null
           ? null
           : _i1.DateTimeJsonExtension.fromJson(
@@ -199,6 +208,9 @@ abstract class Resident
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['showOthersTypingIndicators'],
             ),
+      hideAds: jsonSerialization['hideAds'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(jsonSerialization['hideAds']),
       showVoiceMessages: jsonSerialization['showVoiceMessages'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(
@@ -281,6 +293,8 @@ abstract class Resident
 
   bool isPremium;
 
+  bool isTalktivePlus;
+
   DateTime? premiumTrialExpires;
 
   int trialCount;
@@ -290,6 +304,8 @@ abstract class Resident
   bool showOthersReadReceipts;
 
   bool showOthersTypingIndicators;
+
+  bool hideAds;
 
   bool showVoiceMessages;
 
@@ -334,11 +350,13 @@ abstract class Resident
     _i2.ResidentRole? role,
     DateTime? lastSeen,
     bool? isPremium,
+    bool? isTalktivePlus,
     DateTime? premiumTrialExpires,
     int? trialCount,
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? hideAds,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
@@ -376,12 +394,14 @@ abstract class Resident
       'role': role.toJson(),
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isPremium': isPremium,
+      'isTalktivePlus': isTalktivePlus,
       if (premiumTrialExpires != null)
         'premiumTrialExpires': premiumTrialExpires?.toJson(),
       'trialCount': trialCount,
       'showOthersOnlineStatus': showOthersOnlineStatus,
       'showOthersReadReceipts': showOthersReadReceipts,
       'showOthersTypingIndicators': showOthersTypingIndicators,
+      'hideAds': hideAds,
       'showVoiceMessages': showVoiceMessages,
       'showNeighborsDiscovery': showNeighborsDiscovery,
       'showCustomAvatar': showCustomAvatar,
@@ -421,12 +441,14 @@ abstract class Resident
       'role': role.toJson(),
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isPremium': isPremium,
+      'isTalktivePlus': isTalktivePlus,
       if (premiumTrialExpires != null)
         'premiumTrialExpires': premiumTrialExpires?.toJson(),
       'trialCount': trialCount,
       'showOthersOnlineStatus': showOthersOnlineStatus,
       'showOthersReadReceipts': showOthersReadReceipts,
       'showOthersTypingIndicators': showOthersTypingIndicators,
+      'hideAds': hideAds,
       'showVoiceMessages': showVoiceMessages,
       'showNeighborsDiscovery': showNeighborsDiscovery,
       'showCustomAvatar': showCustomAvatar,
@@ -495,11 +517,13 @@ class _ResidentImpl extends Resident {
     _i2.ResidentRole? role,
     DateTime? lastSeen,
     bool? isPremium,
+    bool? isTalktivePlus,
     DateTime? premiumTrialExpires,
     int? trialCount,
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? hideAds,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
@@ -532,11 +556,13 @@ class _ResidentImpl extends Resident {
          role: role,
          lastSeen: lastSeen,
          isPremium: isPremium,
+         isTalktivePlus: isTalktivePlus,
          premiumTrialExpires: premiumTrialExpires,
          trialCount: trialCount,
          showOthersOnlineStatus: showOthersOnlineStatus,
          showOthersReadReceipts: showOthersReadReceipts,
          showOthersTypingIndicators: showOthersTypingIndicators,
+         hideAds: hideAds,
          showVoiceMessages: showVoiceMessages,
          showNeighborsDiscovery: showNeighborsDiscovery,
          showCustomAvatar: showCustomAvatar,
@@ -575,11 +601,13 @@ class _ResidentImpl extends Resident {
     _i2.ResidentRole? role,
     Object? lastSeen = _Undefined,
     bool? isPremium,
+    bool? isTalktivePlus,
     Object? premiumTrialExpires = _Undefined,
     int? trialCount,
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
+    bool? hideAds,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
@@ -624,6 +652,7 @@ class _ResidentImpl extends Resident {
       role: role ?? this.role,
       lastSeen: lastSeen is DateTime? ? lastSeen : this.lastSeen,
       isPremium: isPremium ?? this.isPremium,
+      isTalktivePlus: isTalktivePlus ?? this.isTalktivePlus,
       premiumTrialExpires: premiumTrialExpires is DateTime?
           ? premiumTrialExpires
           : this.premiumTrialExpires,
@@ -634,6 +663,7 @@ class _ResidentImpl extends Resident {
           showOthersReadReceipts ?? this.showOthersReadReceipts,
       showOthersTypingIndicators:
           showOthersTypingIndicators ?? this.showOthersTypingIndicators,
+      hideAds: hideAds ?? this.hideAds,
       showVoiceMessages: showVoiceMessages ?? this.showVoiceMessages,
       showNeighborsDiscovery:
           showNeighborsDiscovery ?? this.showNeighborsDiscovery,
@@ -787,6 +817,11 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
     value,
   );
 
+  _i1.ColumnValue<bool, bool> isTalktivePlus(bool value) => _i1.ColumnValue(
+    table.isTalktivePlus,
+    value,
+  );
+
   _i1.ColumnValue<DateTime, DateTime> premiumTrialExpires(DateTime? value) =>
       _i1.ColumnValue(
         table.premiumTrialExpires,
@@ -815,6 +850,11 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
         table.showOthersTypingIndicators,
         value,
       );
+
+  _i1.ColumnValue<bool, bool> hideAds(bool value) => _i1.ColumnValue(
+    table.hideAds,
+    value,
+  );
 
   _i1.ColumnValue<bool, bool> showVoiceMessages(bool value) => _i1.ColumnValue(
     table.showVoiceMessages,
@@ -958,6 +998,11 @@ class ResidentTable extends _i1.Table<int?> {
       this,
       hasDefault: true,
     );
+    isTalktivePlus = _i1.ColumnBool(
+      'isTalktivePlus',
+      this,
+      hasDefault: true,
+    );
     premiumTrialExpires = _i1.ColumnDateTime(
       'premiumTrialExpires',
       this,
@@ -979,6 +1024,11 @@ class ResidentTable extends _i1.Table<int?> {
     );
     showOthersTypingIndicators = _i1.ColumnBool(
       'showOthersTypingIndicators',
+      this,
+      hasDefault: true,
+    );
+    hideAds = _i1.ColumnBool(
+      'hideAds',
       this,
       hasDefault: true,
     );
@@ -1060,6 +1110,8 @@ class ResidentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnBool isPremium;
 
+  late final _i1.ColumnBool isTalktivePlus;
+
   late final _i1.ColumnDateTime premiumTrialExpires;
 
   late final _i1.ColumnInt trialCount;
@@ -1069,6 +1121,8 @@ class ResidentTable extends _i1.Table<int?> {
   late final _i1.ColumnBool showOthersReadReceipts;
 
   late final _i1.ColumnBool showOthersTypingIndicators;
+
+  late final _i1.ColumnBool hideAds;
 
   late final _i1.ColumnBool showVoiceMessages;
 
@@ -1108,11 +1162,13 @@ class ResidentTable extends _i1.Table<int?> {
     role,
     lastSeen,
     isPremium,
+    isTalktivePlus,
     premiumTrialExpires,
     trialCount,
     showOthersOnlineStatus,
     showOthersReadReceipts,
     showOthersTypingIndicators,
+    hideAds,
     showVoiceMessages,
     showNeighborsDiscovery,
     showCustomAvatar,

@@ -819,6 +819,7 @@ class ResidentService {
   }
 
   static void _disableExpiredPlusSettings(protocol.Resident resident) {
+    resident.hideAds = false;
     resident.keepPrivateChats = false;
     resident.showCustomAvatar = false;
     resident.showVoiceMessages = false;
@@ -829,6 +830,7 @@ class ResidentService {
   static Future<protocol.Resident> updatePrivacy(
     Session session, {
     required protocol.Resident resident,
+    bool? hideAds,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
@@ -841,6 +843,11 @@ class ResidentService {
 
     final bool oldKeepPrivateChats = resident.keepPrivateChats;
 
+    _setPlusSetting(
+      hideAds,
+      isPlus,
+      (value) => resident.hideAds = value,
+    );
     _setPlusSetting(
       showVoiceMessages,
       isPlus,

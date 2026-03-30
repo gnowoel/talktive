@@ -38,6 +38,7 @@ fields:
   # Online & Subscription
   lastSeen: DateTime?
   isPremium: bool, default=false
+  isTalktivePlus: bool, default=false
   premiumTrialExpires: DateTime?
   trialCount: int, default=0
 
@@ -47,6 +48,7 @@ fields:
   showOthersTypingIndicators: bool, default=true
 
   # Premium Feature Toggles
+  hideAds: bool, default=false
   showVoiceMessages: bool, default=true
   showNeighborsDiscovery: bool, default=true
   showCustomAvatar: bool, default=true

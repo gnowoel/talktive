@@ -1,0 +1,14 @@
+SERVERPOD version: 3.4.5, dart: 3.11.4 (stable) (Tue Mar 24 01:02:20 2026 -0700) on "macos_arm64", time: 2026-03-30 16:06:22.941720Z
+runMode: development
+serverId: default
+role: monolith
+loggingMode: normal
+applyMigrations: true
+applyRepairMigration: false
+SERVERPOD initialized, time: 2026-03-30 16:06:22.980699Z
+TIME                        ID         TYPE           CONTEXT                  DETAILS
+--------------------------- ---------- -------------- ------------------------ ------------------------------
+2026-03-30 16:06:23.083680Z  550654025 INTERNAL       n/a                      queries=2, duration=91.9ms
+✅ FCM Service initialized successfully for project: talktive3-58486
+Latest database migration already applied.
+2026-03-30 16:06:23.422655Z WebServer  INFO: Webserver listening on http://localhost:8082

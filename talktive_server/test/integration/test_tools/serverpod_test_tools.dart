@@ -3633,6 +3633,7 @@ class _ResidentEndpoint {
 
   _i3.Future<_i11.Resident> updatePrivacySettings(
     _i1.TestSessionBuilder sessionBuilder, {
+    bool? hideAds,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
@@ -3653,6 +3654,7 @@ class _ResidentEndpoint {
           endpointPath: 'resident',
           methodName: 'updatePrivacySettings',
           parameters: _i1.testObjectToJson({
+            'hideAds': hideAds,
             'showVoiceMessages': showVoiceMessages,
             'showNeighborsDiscovery': showNeighborsDiscovery,
             'showCustomAvatar': showCustomAvatar,

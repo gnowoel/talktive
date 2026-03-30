@@ -437,7 +437,6 @@ class SearchService {
       where: (t) =>
           t.userInfoId.notEquals(userId) &
           t.suspended.equals(false) &
-          t.allowDiscovery.equals(true) &
           Expression('interests::jsonb ?| array[$interestList]'),
       orderBy: (t) => t.lastSeen,
       orderDescending: true,
@@ -479,7 +478,6 @@ class SearchService {
       where: (t) =>
           t.userInfoId.notEquals(userId) &
           t.suspended.equals(false) &
-          t.allowDiscovery.equals(true) &
           Expression('languages::jsonb ?| array[$languageList]'),
       orderBy: (t) => t.lastSeen,
       orderDescending: true,

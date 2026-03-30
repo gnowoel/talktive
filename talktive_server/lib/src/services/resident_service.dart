@@ -285,7 +285,9 @@ class ResidentService {
       createdAt: DateTime.now(),
       lastSeen: DateTime.now(),
       isPremium: false,
-      allowDiscovery: true,
+      showOthersOnlineStatus: true,
+      showOthersReadReceipts: true,
+      showOthersTypingIndicators: true,
       customAvatarUrl: customAvatarUrl,
     );
 
@@ -851,7 +853,6 @@ class ResidentService {
 
     // Automatically enable all premium settings for trial
     resident.showNeighborsDiscovery = true;
-    resident.allowDiscovery = true;
     resident.showCustomAvatar = true;
     resident.showVoiceMessages = true;
     resident.keepPrivateChats = true;

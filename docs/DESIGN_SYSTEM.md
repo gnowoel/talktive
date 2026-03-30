@@ -14,12 +14,13 @@ These structural elements are unified by an **inviting, friendly tone**—using 
 
 ---
 
-## 🎭 Ephemeral & Privacy-First Discovery
+## 🎭 Live & Transparent Discovery
 
-Our discovery system follows the **"Ephemeral First"** philosophy. We prioritize the "now" over the "archive" to protect resident privacy and encourage authentic interaction:
+Talktive is a "Live Residence." To ensure the building feels vibrant and provides maximum value to our community, we follow a **"Live First"** philosophy:
 
-- **Moments are Snapshots**: Moments are visible in the feed but are not searchable. They are ephemeral snapshots of life, meant to be experienced as they happen.
-- **Privacy-Tiers**: Public spaces (Lounges) are easily discoverable to encourage community, while Resident profiles are protected behind a **Premium Discovery** wall.
+- **Always Visible**: Outbound privacy toggles (hiding your own status) have been removed. Every resident contributes to the "Live" feel of the building.
+- **Universal Discovery**: All residents are searchable by default. This encourages spontaneous encounters in the Plaza and Lounges.
+- **Inbound Premium Controls**: While visibility is universal, **Talktive Plus** members have the exclusive ability to control their _own_ view of the building (e.g., toggling their visibility of others' online status, read receipts, and typing indicators).
 - **The Global Lobby**: New residents are always guided back to the **Plaza** and the **Global Lounge**—the digital "front door" where the community meets.
 
 ### Tiered Content Ephemerality

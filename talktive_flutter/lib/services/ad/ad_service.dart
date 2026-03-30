@@ -47,6 +47,7 @@ class AdService {
     debugPrint('[AdService] Initializing Mobile Ads SDK...');
     try {
       await MobileAds.instance.initialize();
+      // Ensure initialization completes before checking status
       await _consentService.initialize();
 
       // Show consent form if required (e.g. for GDPR/CCPA)

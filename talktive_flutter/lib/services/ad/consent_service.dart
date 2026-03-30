@@ -43,7 +43,7 @@ class ConsentService {
             ? ConsentDebugSettings(
                 debugGeography: DebugGeography.debugGeographyEea,
                 // The ID from your logs: B3EEABB8EE11C2BE770B684D95219ECB
-                testDeviceIds: ['B3EEABB8EE11C2BE770B684D95219ECB'],
+                testIdentifiers: ['B3EEABB8EE11C2BE770B684D95219ECB'],
               )
             : null,
       );

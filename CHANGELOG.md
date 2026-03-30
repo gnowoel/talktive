@@ -19,10 +19,12 @@
 - **Subscription Model Simplification**: Removed the redundant persisted `isTalktivePlus` flag and centralized entitlement checks around paid-or-trial membership plus per-feature settings.
 - **Universal Discovery**: Enabled universal searchability for all residents.
 
-### Frontend Simplification
+### Frontend & UI Polish
 
 - **Social Relationship Provider**: Consolidated `blockedUsersProvider` and `userLikesProvider` into a single, reactive `socialRelationshipsStateProvider`.
 - **UI Reactivity**: Updated `DuoAvatar` and `RealtimeChat` to strictly respect Plus membership status before showing live indicators.
+- **Google Sign-In Web Stability**: Fixed a initialization race condition in the GIS 7.2.0 client.
+- **Ad Service Stabilization**: Improved initialization flow and updated `ConsentService` to use `testIdentifiers` for development testing.
 
 ### Documentation Streamlining
 

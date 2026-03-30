@@ -21,8 +21,6 @@ import '../../providers/client_provider.dart';
 import '../../widgets/duo/duo_chat_layout.dart';
 import '../../widgets/duo/duo_refresh_button.dart';
 import '../../widgets/duo/duo_typing_indicator.dart';
-import '../../services/media_service.dart';
-import 'package:image_picker/image_picker.dart';
 import 'lounge_profile_screen.dart';
 import '../../providers/private_chat_provider.dart';
 import '../../utils/ad_navigation_utils.dart';
@@ -349,7 +347,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen>
                 final isCreator =
                     currentResident?.userInfoId == widget.lounge.creatorId;
                 return [
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'profile',
                     child: Row(
                       children: [

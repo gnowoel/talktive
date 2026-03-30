@@ -633,18 +633,20 @@ class ResidentService {
     }
 
     final target = await getResident(session, targetId);
-    if (target == null)
+    if (target == null) {
       throw protocol.TalktiveException(message: 'Target resident not found');
+    }
 
     // One-Vouch Rule
     final existingLike = await protocol.UserLike.db.findFirstRow(
       session,
       where: (t) => t.senderId.equals(senderId) & t.receiverId.equals(targetId),
     );
-    if (existingLike != null)
+    if (existingLike != null) {
       throw protocol.TalktiveException(
         message: 'You have already vouched for this resident.',
       );
+    }
 
     // Blocking Check
     final isBlocked = await ResidentService.isBlocked(
@@ -713,15 +715,17 @@ class ResidentService {
     required UuidValue targetId,
   }) async {
     final target = await getResident(session, targetId);
-    if (target == null)
+    if (target == null) {
       throw protocol.TalktiveException(message: 'Target resident not found');
+    }
 
     final existingLike = await protocol.UserLike.db.findFirstRow(
       session,
       where: (t) => t.senderId.equals(senderId) & t.receiverId.equals(targetId),
     );
-    if (existingLike == null)
+    if (existingLike == null) {
       throw protocol.TalktiveException(message: 'Vouch not found');
+    }
 
     await protocol.UserLike.db.deleteRow(session, existingLike);
 
@@ -768,7 +772,59 @@ class ResidentService {
     return false;
   }
 
-  /// Updates privacy settings for a resident.
+  static bool canUseCustomAvatar(protocol.Resident resident) =>
+      _hasEnabledPlusSetting(resident, resident.showCustomAvatar);
+
+  static bool canUseVoiceMessages(protocol.Resident resident) =>
+      _hasEnabledPlusSetting(resident, resident.showVoiceMessages);
+
+  static bool canUseNeighborDiscovery(protocol.Resident resident) =>
+      _hasEnabledPlusSetting(resident, resident.showNeighborsDiscovery);
+
+  static bool canSeeOthersOnlineStatus(protocol.Resident resident) =>
+      _hasEnabledPlusSetting(resident, resident.showOthersOnlineStatus);
+
+  static bool canSeeOthersReadReceipts(protocol.Resident resident) =>
+      _hasEnabledPlusSetting(resident, resident.showOthersReadReceipts);
+
+  static bool canSeeOthersTypingIndicators(protocol.Resident resident) =>
+      _hasEnabledPlusSetting(resident, resident.showOthersTypingIndicators);
+
+  static bool canKeepPrivateChats(protocol.Resident resident) =>
+      _hasEnabledPlusSetting(resident, resident.keepPrivateChats);
+
+  static bool _hasEnabledPlusSetting(
+    protocol.Resident resident,
+    bool enabled,
+  ) => isPlusMember(resident) && enabled;
+
+  static void _setPlusSetting(
+    bool? value,
+    bool isPlus,
+    void Function(bool value) apply,
+  ) {
+    if (value != null && isPlus) {
+      apply(value);
+    }
+  }
+
+  static void _enableAllPlusSettings(protocol.Resident resident) {
+    resident.showNeighborsDiscovery = true;
+    resident.showCustomAvatar = true;
+    resident.showVoiceMessages = true;
+    resident.showOthersOnlineStatus = true;
+    resident.showOthersReadReceipts = true;
+    resident.showOthersTypingIndicators = true;
+    resident.keepPrivateChats = true;
+  }
+
+  static void _disableExpiredPlusSettings(protocol.Resident resident) {
+    resident.keepPrivateChats = false;
+    resident.showCustomAvatar = false;
+    resident.showVoiceMessages = false;
+    resident.showNeighborsDiscovery = false;
+  }
+
   /// Updates privacy settings for a resident.
   static Future<protocol.Resident> updatePrivacy(
     Session session, {
@@ -783,32 +839,43 @@ class ResidentService {
   }) async {
     final bool isPlus = isPlusMember(resident);
 
-    // Premium Features (respect user choice if they are Plus)
-    if (showVoiceMessages != null && isPlus) {
-      resident.showVoiceMessages = showVoiceMessages;
-    }
-    if (showNeighborsDiscovery != null && isPlus) {
-      resident.showNeighborsDiscovery = showNeighborsDiscovery;
-    }
-    if (showCustomAvatar != null && isPlus) {
-      resident.showCustomAvatar = showCustomAvatar;
-    }
-
-    // Inbound Premium Settings (part of what they paid for)
-    if (showOthersOnlineStatus != null && isPlus) {
-      resident.showOthersOnlineStatus = showOthersOnlineStatus;
-    }
-    if (showOthersReadReceipts != null && isPlus) {
-      resident.showOthersReadReceipts = showOthersReadReceipts;
-    }
-    if (showOthersTypingIndicators != null && isPlus) {
-      resident.showOthersTypingIndicators = showOthersTypingIndicators;
-    }
-
     final bool oldKeepPrivateChats = resident.keepPrivateChats;
-    if (keepPrivateChats != null && isPlus) {
-      resident.keepPrivateChats = keepPrivateChats;
-    }
+
+    _setPlusSetting(
+      showVoiceMessages,
+      isPlus,
+      (value) => resident.showVoiceMessages = value,
+    );
+    _setPlusSetting(
+      showNeighborsDiscovery,
+      isPlus,
+      (value) => resident.showNeighborsDiscovery = value,
+    );
+    _setPlusSetting(
+      showCustomAvatar,
+      isPlus,
+      (value) => resident.showCustomAvatar = value,
+    );
+    _setPlusSetting(
+      showOthersOnlineStatus,
+      isPlus,
+      (value) => resident.showOthersOnlineStatus = value,
+    );
+    _setPlusSetting(
+      showOthersReadReceipts,
+      isPlus,
+      (value) => resident.showOthersReadReceipts = value,
+    );
+    _setPlusSetting(
+      showOthersTypingIndicators,
+      isPlus,
+      (value) => resident.showOthersTypingIndicators = value,
+    );
+    _setPlusSetting(
+      keepPrivateChats,
+      isPlus,
+      (value) => resident.keepPrivateChats = value,
+    );
 
     final updatedResident = await updateResident(session, resident);
 
@@ -834,11 +901,7 @@ class ResidentService {
     // Set trial expiration and increment count
     resident.premiumTrialExpires = DateTime.now().add(duration);
     resident.trialCount += 1;
-    // Automatically enable all premium settings for trial
-    resident.showNeighborsDiscovery = true;
-    resident.showCustomAvatar = true;
-    resident.showVoiceMessages = true;
-    resident.keepPrivateChats = true;
+    _enableAllPlusSettings(resident);
 
     return await updateResident(session, resident);
   }
@@ -859,24 +922,13 @@ class ResidentService {
     if (isPremium) {
       // Clear trial once they pay
       resident.premiumTrialExpires = null;
-
-      // Enable all premium features by default on purchase
-      resident.showNeighborsDiscovery = true;
-      resident.showCustomAvatar = true;
-      resident.showVoiceMessages = true;
-      resident.showOthersOnlineStatus = true;
-      resident.showOthersReadReceipts = true;
-      resident.showOthersTypingIndicators = true;
-      resident.keepPrivateChats = true;
+      _enableAllPlusSettings(resident);
     } else {
       // Automatically disable all premium settings if subscription expires/cancels
       // ONLY if they don't have an active trial either
       if (!isPlusMember(resident)) {
         final bool oldKeepPrivateChats = resident.keepPrivateChats;
-        resident.keepPrivateChats = false;
-        resident.showCustomAvatar = false;
-        resident.showVoiceMessages = false;
-        resident.showNeighborsDiscovery = false;
+        _disableExpiredPlusSettings(resident);
 
         final updated = await updateResident(session, resident);
 

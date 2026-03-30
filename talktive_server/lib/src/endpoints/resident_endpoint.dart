@@ -120,7 +120,8 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     resident.languages = languages ?? resident.languages;
 
     // Premium check for custom avatar
-    if (customAvatarUrl != null && !ResidentService.isPlusMember(resident)) {
+    if (customAvatarUrl != null &&
+        !ResidentService.canUseCustomAvatar(resident)) {
       throw protocol.TalktiveException(
         message: 'Custom avatars are a Premium feature.',
         code: 'PREMIUM_REQUIRED',
@@ -155,7 +156,8 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
 
     final resident = await getAuthenticatedResident(session);
 
-    if (customAvatarUrl != null && !ResidentService.isPlusMember(resident)) {
+    if (customAvatarUrl != null &&
+        !ResidentService.canUseCustomAvatar(resident)) {
       throw protocol.TalktiveException(
         message: 'Custom avatars are a Premium feature.',
         code: 'PREMIUM_REQUIRED',

@@ -1,7 +1,6 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import 'cache_service.dart';
-import 'lounge_service.dart';
 import 'resident_service.dart';
 import 'dart:convert';
 
@@ -74,7 +73,7 @@ class SearchService {
           code: 'PREMIUM_REQUIRED',
         );
       }
-      if (!currentUser.showNeighborsDiscovery) {
+      if (!ResidentService.canUseNeighborDiscovery(currentUser)) {
         throw protocol.TalktiveException(
           message: 'Advanced Search is disabled in Settings.',
           code: 'FEATURE_DISABLED',

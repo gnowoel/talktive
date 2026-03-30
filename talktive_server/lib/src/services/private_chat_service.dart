@@ -105,7 +105,7 @@ class PrivateChatService {
               currentMember.status == protocol.ChannelMemberStatus.declined)) {
         await ChannelService.updateMemberStatus(
           session,
-          channelId: privateChat!.channelId,
+          channelId: privateChat.channelId,
           userId: currentUserId,
           status: protocol.ChannelMemberStatus.joined,
         );
@@ -118,7 +118,7 @@ class PrivateChatService {
             otherMember.status == protocol.ChannelMemberStatus.declined) {
           await ChannelService.updateMemberStatus(
             session,
-            channelId: privateChat!.channelId,
+            channelId: privateChat.channelId,
             userId: otherUserId,
             status: protocol.ChannelMemberStatus.invited,
             invitedBy: currentUserId,
@@ -268,6 +268,11 @@ class PrivateChatService {
     Session session,
     UuidValue userId,
   ) async {
+    final currentResident = await ResidentService.getResident(session, userId);
+    final canSeeReadReceipts =
+        currentResident != null &&
+        ResidentService.canSeeOthersReadReceipts(currentResident);
+
     final chats = await protocol.PrivateChat.db.find(
       session,
       where: (t) =>
@@ -330,7 +335,9 @@ class PrivateChatService {
             otherUserMood: otherResident.mood,
             currentMemberStatus: currentMember.status,
             otherMemberStatus: otherMember?.status,
-            otherUserLastReadAt: otherMember?.lastReadAt,
+            otherUserLastReadAt: canSeeReadReceipts
+                ? otherMember?.lastReadAt
+                : null,
             unreadCount: unreadCounts[chat.channelId] ?? 0,
             channel: channelMap[chat.channelId],
           ),
@@ -346,6 +353,14 @@ class PrivateChatService {
     int channelId,
     UuidValue currentUserId,
   ) async {
+    final currentResident = await ResidentService.getResident(
+      session,
+      currentUserId,
+    );
+    final canSeeReadReceipts =
+        currentResident != null &&
+        ResidentService.canSeeOthersReadReceipts(currentResident);
+
     final chat = await protocol.PrivateChat.db.findFirstRow(
       session,
       where: (t) => t.channelId.equals(channelId),
@@ -385,7 +400,7 @@ class PrivateChatService {
       otherUserMood: resident.mood,
       currentMemberStatus: currentMember?.status,
       otherMemberStatus: otherMember?.status,
-      otherUserLastReadAt: otherMember?.lastReadAt,
+      otherUserLastReadAt: canSeeReadReceipts ? otherMember?.lastReadAt : null,
       unreadCount:
           (await ChannelService.batchGetUnreadCounts(session, [
             channelId,
@@ -403,8 +418,10 @@ class PrivateChatService {
     bool accept,
   ) async {
     final member = await ChannelService.getMember(session, channelId, userId);
-    if (member == null || member.status != protocol.ChannelMemberStatus.invited)
+    if (member == null ||
+        member.status != protocol.ChannelMemberStatus.invited) {
       return;
+    }
 
     await ChannelService.updateMemberStatus(
       session,

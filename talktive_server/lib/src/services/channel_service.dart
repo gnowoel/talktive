@@ -1,6 +1,5 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
-import 'resident_service.dart';
 
 /// Generic service for managing Channels and ChannelMembers.
 /// This consolidates logic used by Private Chats, Lounges, and the Plaza.
@@ -194,10 +193,6 @@ class ChannelService {
       member.status = status;
       if (invitedBy != null) member.invitedBy = invitedBy;
       if (role != null) member.role = role;
-      if (status == protocol.ChannelMemberStatus.joined &&
-          member.joinedAt == null) {
-        member.joinedAt = now;
-      }
       return await protocol.ChannelMember.db.updateRow(session, member);
     } else {
       return await protocol.ChannelMember.db.insertRow(
@@ -207,7 +202,7 @@ class ChannelService {
           userInfoId: userId,
           status: status,
           invitedBy: invitedBy,
-          joinedAt: now, // Always provide joinedAt for non-nullable DB field
+          joinedAt: now,
           role: role ?? 'member',
         ),
       );

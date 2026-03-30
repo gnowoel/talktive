@@ -233,11 +233,10 @@ class RealtimeChat extends _$RealtimeChat {
     if (state.value == null) return;
     final currentState = state.value!;
 
-    // Respect inbound premium privacy settings
+    // Respect inbound premium privacy settings (Plus only)
     final resident = ref.read(currentResidentProvider).value;
-    final canSeeTyping = resident?.isPlus == true
-        ? resident!.showOthersTypingIndicators
-        : true;
+    final canSeeTyping =
+        resident?.isPlus == true && resident!.showOthersTypingIndicators;
 
     if (!canSeeTyping) return;
 
@@ -255,11 +254,10 @@ class RealtimeChat extends _$RealtimeChat {
     if (state.value == null) return;
     final currentState = state.value!;
 
-    // Respect inbound premium privacy settings
+    // Respect inbound premium privacy settings (Plus only)
     final resident = ref.read(currentResidentProvider).value;
-    final canSeeReadReceipts = resident?.isPlus == true
-        ? resident!.showOthersReadReceipts
-        : true;
+    final canSeeReadReceipts =
+        resident?.isPlus == true && resident!.showOthersReadReceipts;
 
     if (!canSeeReadReceipts) return;
 

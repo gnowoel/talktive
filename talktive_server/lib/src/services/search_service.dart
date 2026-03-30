@@ -68,7 +68,7 @@ class SearchService {
         isPremium != null;
 
     if (hasQuery || hasFilters) {
-      if (!currentUser.isPremium) {
+      if (!ResidentService.isPlusMember(currentUser)) {
         throw protocol.TalktiveException(
           message: 'Advanced Search is a Talktive Plus feature.',
           code: 'PREMIUM_REQUIRED',
@@ -162,7 +162,7 @@ class SearchService {
     final hasFilters = interest != null || language != null || country != null;
 
     if (hasQuery || hasFilters) {
-      if (!currentUser.isPremium) {
+      if (!ResidentService.isPlusMember(currentUser)) {
         throw protocol.TalktiveException(
           message: 'Advanced Search is a Talktive Plus feature.',
           code: 'PREMIUM_REQUIRED',

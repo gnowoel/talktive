@@ -48,9 +48,8 @@ class DuoAvatar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final resident = ref.watch(currentResidentProvider).value;
-    final canSeeOnline = resident?.isPlus == true
-        ? resident!.showOthersOnlineStatus
-        : true;
+    final canSeeOnline =
+        resident?.isPlus == true && resident!.showOthersOnlineStatus;
 
     final widget = _buildAvatar(context, canSeeOnline: canSeeOnline);
 

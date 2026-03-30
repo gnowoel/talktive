@@ -1,0 +1,111 @@
+{
+  "__className__": "serverpod.DatabaseMigration",
+  "actions": [
+    {
+      "__className__": "serverpod.DatabaseMigrationAction",
+      "type": "alterTable",
+      "alterTable": {
+        "__className__": "serverpod.TableMigration",
+        "name": "resident",
+        "schema": "public",
+        "addColumns": [],
+        "deleteColumns": [
+          "showOnlineStatus",
+          "showReadReceipts",
+          "showTypingIndicator",
+          "allowDiscovery"
+        ],
+        "modifyColumns": [],
+        "addIndexes": [],
+        "deleteIndexes": [],
+        "addForeignKeys": [],
+        "deleteForeignKeys": [],
+        "warnings": [
+          {
+            "__className__": "serverpod.DatabaseMigrationWarning",
+            "type": "columnDropped",
+            "message": "Column \"showOnlineStatus\" of table \"resident\" will be dropped.",
+            "table": "resident",
+            "columns": [
+              "showOnlineStatus"
+            ],
+            "destrucive": true
+          },
+          {
+            "__className__": "serverpod.DatabaseMigrationWarning",
+            "type": "columnDropped",
+            "message": "Column \"showReadReceipts\" of table \"resident\" will be dropped.",
+            "table": "resident",
+            "columns": [
+              "showReadReceipts"
+            ],
+            "destrucive": true
+          },
+          {
+            "__className__": "serverpod.DatabaseMigrationWarning",
+            "type": "columnDropped",
+            "message": "Column \"showTypingIndicator\" of table \"resident\" will be dropped.",
+            "table": "resident",
+            "columns": [
+              "showTypingIndicator"
+            ],
+            "destrucive": true
+          },
+          {
+            "__className__": "serverpod.DatabaseMigrationWarning",
+            "type": "columnDropped",
+            "message": "Column \"allowDiscovery\" of table \"resident\" will be dropped.",
+            "table": "resident",
+            "columns": [
+              "allowDiscovery"
+            ],
+            "destrucive": true
+          }
+        ]
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "__className__": "serverpod.DatabaseMigrationWarning",
+      "type": "columnDropped",
+      "message": "Column \"showOnlineStatus\" of table \"resident\" will be dropped.",
+      "table": "resident",
+      "columns": [
+        "showOnlineStatus"
+      ],
+      "destrucive": true
+    },
+    {
+      "__className__": "serverpod.DatabaseMigrationWarning",
+      "type": "columnDropped",
+      "message": "Column \"showReadReceipts\" of table \"resident\" will be dropped.",
+      "table": "resident",
+      "columns": [
+        "showReadReceipts"
+      ],
+      "destrucive": true
+    },
+    {
+      "__className__": "serverpod.DatabaseMigrationWarning",
+      "type": "columnDropped",
+      "message": "Column \"showTypingIndicator\" of table \"resident\" will be dropped.",
+      "table": "resident",
+      "columns": [
+        "showTypingIndicator"
+      ],
+      "destrucive": true
+    },
+    {
+      "__className__": "serverpod.DatabaseMigrationWarning",
+      "type": "columnDropped",
+      "message": "Column \"allowDiscovery\" of table \"resident\" will be dropped.",
+      "table": "resident",
+      "columns": [
+        "allowDiscovery"
+      ],
+      "destrucive": true
+    }
+  ],
+  "migrationApiVersion": 1
+}

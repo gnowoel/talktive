@@ -105,6 +105,51 @@ class SettingsScreen extends ConsumerWidget {
               ),
               _buildFeatureRow(
                 context,
+                icon: Icons.online_prediction,
+                title: 'Online Indicator',
+                description: 'See when your friends are active in real-time.',
+                isLocked: !resident.isPlus,
+                value: resident.showOthersOnlineStatus,
+                onChanged: resident.isPlus
+                    ? (val) => _updatePrivacySettings(
+                        context,
+                        ref,
+                        showOthersOnlineStatus: val,
+                      )
+                    : null,
+              ),
+              _buildFeatureRow(
+                context,
+                icon: Icons.done_all,
+                title: 'Read Receipts',
+                description: 'See when others have read your messages.',
+                isLocked: !resident.isPlus,
+                value: resident.showOthersReadReceipts,
+                onChanged: resident.isPlus
+                    ? (val) => _updatePrivacySettings(
+                        context,
+                        ref,
+                        showOthersReadReceipts: val,
+                      )
+                    : null,
+              ),
+              _buildFeatureRow(
+                context,
+                icon: Icons.edit,
+                title: 'Typing Indicators',
+                description: 'See when someone is replying to you.',
+                isLocked: !resident.isPlus,
+                value: resident.showOthersTypingIndicators,
+                onChanged: resident.isPlus
+                    ? (val) => _updatePrivacySettings(
+                        context,
+                        ref,
+                        showOthersTypingIndicators: val,
+                      )
+                    : null,
+              ),
+              _buildFeatureRow(
+                context,
                 icon: Icons.history,
                 title: 'Keep Private Chats',
                 description: 'Prevent your private chats from being deleted.',
@@ -161,6 +206,9 @@ class SettingsScreen extends ConsumerWidget {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
     bool? keepPrivateChats,
     bool? showImagesInPlaza,
     bool? showImagesInLounges,
@@ -177,6 +225,12 @@ class SettingsScreen extends ConsumerWidget {
         showNeighborsDiscovery:
             showNeighborsDiscovery ?? resident.showNeighborsDiscovery,
         showCustomAvatar: showCustomAvatar ?? resident.showCustomAvatar,
+        showOthersOnlineStatus:
+            showOthersOnlineStatus ?? resident.showOthersOnlineStatus,
+        showOthersReadReceipts:
+            showOthersReadReceipts ?? resident.showOthersReadReceipts,
+        showOthersTypingIndicators:
+            showOthersTypingIndicators ?? resident.showOthersTypingIndicators,
         keepPrivateChats: keepPrivateChats ?? resident.keepPrivateChats,
         showImagesInPlaza: showImagesInPlaza ?? resident.showImagesInPlaza,
         showImagesInLounges:

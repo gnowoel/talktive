@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../config/theme.dart';
 import '../../helpers/url_helper.dart';
+import '../../helpers/resident_ext.dart';
+import '../../providers/current_resident_provider.dart';
 import 'package:talktive/helpers/duo_trust_score_helper.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 /// Duolingo-style avatar with gradient ring and optional mood or floor overlays.
-class DuoAvatar extends StatelessWidget {
+class DuoAvatar extends ConsumerWidget {
   final String? imageUrl;
   final String? placeholderEmoji;
   final double size;
@@ -43,8 +46,13 @@ class DuoAvatar extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final widget = _buildAvatar(context);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final resident = ref.watch(currentResidentProvider).value;
+    final canSeeOnline = resident?.isPlus == true
+        ? resident!.showOthersOnlineStatus
+        : true;
+
+    final widget = _buildAvatar(context, canSeeOnline: canSeeOnline);
 
     if (onTap != null) {
       return InkWell(
@@ -57,7 +65,7 @@ class DuoAvatar extends StatelessWidget {
     return widget;
   }
 
-  Widget _buildAvatar(BuildContext context) {
+  Widget _buildAvatar(BuildContext context, {bool canSeeOnline = true}) {
     final ringWidth = size > 60 ? 3.0 : 2.0;
     final badgeSize = size > 60 ? 24.0 : 18.0;
     final hasImageUrl = imageUrl != null && _isNetworkUrl(imageUrl!);
@@ -216,7 +224,7 @@ class DuoAvatar extends StatelessWidget {
       );
     }
 
-    if (isOnline != null && isOnline!) {
+    if (isOnline != null && isOnline! && canSeeOnline) {
       return Stack(
         clipBehavior: Clip.none,
         children: [

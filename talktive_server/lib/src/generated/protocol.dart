@@ -1786,21 +1786,21 @@ class Protocol extends _i1.SerializationManagerServer {
           columnDefault: '0',
         ),
         _i2.ColumnDefinition(
-          name: 'showOnlineStatus',
+          name: 'showOthersOnlineStatus',
           columnType: _i2.ColumnType.boolean,
           isNullable: false,
           dartType: 'bool',
           columnDefault: 'true',
         ),
         _i2.ColumnDefinition(
-          name: 'showReadReceipts',
+          name: 'showOthersReadReceipts',
           columnType: _i2.ColumnType.boolean,
           isNullable: false,
           dartType: 'bool',
           columnDefault: 'true',
         ),
         _i2.ColumnDefinition(
-          name: 'showTypingIndicator',
+          name: 'showOthersTypingIndicators',
           columnType: _i2.ColumnType.boolean,
           isNullable: false,
           dartType: 'bool',
@@ -1815,13 +1815,6 @@ class Protocol extends _i1.SerializationManagerServer {
         ),
         _i2.ColumnDefinition(
           name: 'showNeighborsDiscovery',
-          columnType: _i2.ColumnType.boolean,
-          isNullable: false,
-          dartType: 'bool',
-          columnDefault: 'true',
-        ),
-        _i2.ColumnDefinition(
-          name: 'allowDiscovery',
           columnType: _i2.ColumnType.boolean,
           isNullable: false,
           dartType: 'bool',
@@ -1857,27 +1850,6 @@ class Protocol extends _i1.SerializationManagerServer {
         ),
         _i2.ColumnDefinition(
           name: 'showImagesInMoments',
-          columnType: _i2.ColumnType.boolean,
-          isNullable: false,
-          dartType: 'bool',
-          columnDefault: 'true',
-        ),
-        _i2.ColumnDefinition(
-          name: 'showOthersOnlineStatus',
-          columnType: _i2.ColumnType.boolean,
-          isNullable: false,
-          dartType: 'bool',
-          columnDefault: 'true',
-        ),
-        _i2.ColumnDefinition(
-          name: 'showOthersReadReceipts',
-          columnType: _i2.ColumnType.boolean,
-          isNullable: false,
-          dartType: 'bool',
-          columnDefault: 'true',
-        ),
-        _i2.ColumnDefinition(
-          name: 'showOthersTypingIndicators',
           columnType: _i2.ColumnType.boolean,
           isNullable: false,
           dartType: 'bool',
@@ -1929,10 +1901,6 @@ class Protocol extends _i1.SerializationManagerServer {
           indexName: 'resident_search_idx',
           tableSpace: null,
           elements: [
-            _i2.IndexElementDefinition(
-              type: _i2.IndexElementDefinitionType.column,
-              definition: 'allowDiscovery',
-            ),
             _i2.IndexElementDefinition(
               type: _i2.IndexElementDefinitionType.column,
               definition: 'lastSeen',

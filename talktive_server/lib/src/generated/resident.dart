@@ -45,20 +45,16 @@ abstract class Resident
     bool? isPremium,
     this.premiumTrialExpires,
     int? trialCount,
-    bool? showOnlineStatus,
-    bool? showReadReceipts,
-    bool? showTypingIndicator,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
-    bool? allowDiscovery,
     bool? showCustomAvatar,
     bool? showImagesInPlaza,
     bool? showImagesInLounges,
     bool? showImagesInPrivateChats,
     bool? showImagesInMoments,
-    bool? showOthersOnlineStatus,
-    bool? showOthersReadReceipts,
-    bool? showOthersTypingIndicators,
     bool? keepPrivateChats,
     this.customAvatarUrl,
   }) : trustScore = trustScore ?? 100,
@@ -72,20 +68,16 @@ abstract class Resident
        role = role ?? _i2.ResidentRole.user,
        isPremium = isPremium ?? false,
        trialCount = trialCount ?? 0,
-       showOnlineStatus = showOnlineStatus ?? true,
-       showReadReceipts = showReadReceipts ?? true,
-       showTypingIndicator = showTypingIndicator ?? true,
+       showOthersOnlineStatus = showOthersOnlineStatus ?? true,
+       showOthersReadReceipts = showOthersReadReceipts ?? true,
+       showOthersTypingIndicators = showOthersTypingIndicators ?? true,
        showVoiceMessages = showVoiceMessages ?? true,
        showNeighborsDiscovery = showNeighborsDiscovery ?? true,
-       allowDiscovery = allowDiscovery ?? true,
        showCustomAvatar = showCustomAvatar ?? true,
        showImagesInPlaza = showImagesInPlaza ?? true,
        showImagesInLounges = showImagesInLounges ?? true,
        showImagesInPrivateChats = showImagesInPrivateChats ?? true,
        showImagesInMoments = showImagesInMoments ?? true,
-       showOthersOnlineStatus = showOthersOnlineStatus ?? true,
-       showOthersReadReceipts = showOthersReadReceipts ?? true,
-       showOthersTypingIndicators = showOthersTypingIndicators ?? true,
        keepPrivateChats = keepPrivateChats ?? true;
 
   factory Resident({
@@ -117,20 +109,16 @@ abstract class Resident
     bool? isPremium,
     DateTime? premiumTrialExpires,
     int? trialCount,
-    bool? showOnlineStatus,
-    bool? showReadReceipts,
-    bool? showTypingIndicator,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
-    bool? allowDiscovery,
     bool? showCustomAvatar,
     bool? showImagesInPlaza,
     bool? showImagesInLounges,
     bool? showImagesInPrivateChats,
     bool? showImagesInMoments,
-    bool? showOthersOnlineStatus,
-    bool? showOthersReadReceipts,
-    bool? showOthersTypingIndicators,
     bool? keepPrivateChats,
     String? customAvatarUrl,
   }) = _ResidentImpl;
@@ -205,20 +193,23 @@ abstract class Resident
               jsonSerialization['premiumTrialExpires'],
             ),
       trialCount: jsonSerialization['trialCount'] as int?,
-      showOnlineStatus: jsonSerialization['showOnlineStatus'] == null
+      showOthersOnlineStatus:
+          jsonSerialization['showOthersOnlineStatus'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(
-              jsonSerialization['showOnlineStatus'],
+              jsonSerialization['showOthersOnlineStatus'],
             ),
-      showReadReceipts: jsonSerialization['showReadReceipts'] == null
+      showOthersReadReceipts:
+          jsonSerialization['showOthersReadReceipts'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(
-              jsonSerialization['showReadReceipts'],
+              jsonSerialization['showOthersReadReceipts'],
             ),
-      showTypingIndicator: jsonSerialization['showTypingIndicator'] == null
+      showOthersTypingIndicators:
+          jsonSerialization['showOthersTypingIndicators'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(
-              jsonSerialization['showTypingIndicator'],
+              jsonSerialization['showOthersTypingIndicators'],
             ),
       showVoiceMessages: jsonSerialization['showVoiceMessages'] == null
           ? null
@@ -231,9 +222,6 @@ abstract class Resident
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['showNeighborsDiscovery'],
             ),
-      allowDiscovery: jsonSerialization['allowDiscovery'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(jsonSerialization['allowDiscovery']),
       showCustomAvatar: jsonSerialization['showCustomAvatar'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(
@@ -259,24 +247,6 @@ abstract class Resident
           ? null
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['showImagesInMoments'],
-            ),
-      showOthersOnlineStatus:
-          jsonSerialization['showOthersOnlineStatus'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(
-              jsonSerialization['showOthersOnlineStatus'],
-            ),
-      showOthersReadReceipts:
-          jsonSerialization['showOthersReadReceipts'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(
-              jsonSerialization['showOthersReadReceipts'],
-            ),
-      showOthersTypingIndicators:
-          jsonSerialization['showOthersTypingIndicators'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(
-              jsonSerialization['showOthersTypingIndicators'],
             ),
       keepPrivateChats: jsonSerialization['keepPrivateChats'] == null
           ? null
@@ -348,17 +318,15 @@ abstract class Resident
 
   int trialCount;
 
-  bool showOnlineStatus;
+  bool showOthersOnlineStatus;
 
-  bool showReadReceipts;
+  bool showOthersReadReceipts;
 
-  bool showTypingIndicator;
+  bool showOthersTypingIndicators;
 
   bool showVoiceMessages;
 
   bool showNeighborsDiscovery;
-
-  bool allowDiscovery;
 
   bool showCustomAvatar;
 
@@ -369,12 +337,6 @@ abstract class Resident
   bool showImagesInPrivateChats;
 
   bool showImagesInMoments;
-
-  bool showOthersOnlineStatus;
-
-  bool showOthersReadReceipts;
-
-  bool showOthersTypingIndicators;
 
   bool keepPrivateChats;
 
@@ -415,20 +377,16 @@ abstract class Resident
     bool? isPremium,
     DateTime? premiumTrialExpires,
     int? trialCount,
-    bool? showOnlineStatus,
-    bool? showReadReceipts,
-    bool? showTypingIndicator,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
-    bool? allowDiscovery,
     bool? showCustomAvatar,
     bool? showImagesInPlaza,
     bool? showImagesInLounges,
     bool? showImagesInPrivateChats,
     bool? showImagesInMoments,
-    bool? showOthersOnlineStatus,
-    bool? showOthersReadReceipts,
-    bool? showOthersTypingIndicators,
     bool? keepPrivateChats,
     String? customAvatarUrl,
   });
@@ -466,20 +424,16 @@ abstract class Resident
       if (premiumTrialExpires != null)
         'premiumTrialExpires': premiumTrialExpires?.toJson(),
       'trialCount': trialCount,
-      'showOnlineStatus': showOnlineStatus,
-      'showReadReceipts': showReadReceipts,
-      'showTypingIndicator': showTypingIndicator,
+      'showOthersOnlineStatus': showOthersOnlineStatus,
+      'showOthersReadReceipts': showOthersReadReceipts,
+      'showOthersTypingIndicators': showOthersTypingIndicators,
       'showVoiceMessages': showVoiceMessages,
       'showNeighborsDiscovery': showNeighborsDiscovery,
-      'allowDiscovery': allowDiscovery,
       'showCustomAvatar': showCustomAvatar,
       'showImagesInPlaza': showImagesInPlaza,
       'showImagesInLounges': showImagesInLounges,
       'showImagesInPrivateChats': showImagesInPrivateChats,
       'showImagesInMoments': showImagesInMoments,
-      'showOthersOnlineStatus': showOthersOnlineStatus,
-      'showOthersReadReceipts': showOthersReadReceipts,
-      'showOthersTypingIndicators': showOthersTypingIndicators,
       'keepPrivateChats': keepPrivateChats,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
@@ -519,20 +473,16 @@ abstract class Resident
       if (premiumTrialExpires != null)
         'premiumTrialExpires': premiumTrialExpires?.toJson(),
       'trialCount': trialCount,
-      'showOnlineStatus': showOnlineStatus,
-      'showReadReceipts': showReadReceipts,
-      'showTypingIndicator': showTypingIndicator,
+      'showOthersOnlineStatus': showOthersOnlineStatus,
+      'showOthersReadReceipts': showOthersReadReceipts,
+      'showOthersTypingIndicators': showOthersTypingIndicators,
       'showVoiceMessages': showVoiceMessages,
       'showNeighborsDiscovery': showNeighborsDiscovery,
-      'allowDiscovery': allowDiscovery,
       'showCustomAvatar': showCustomAvatar,
       'showImagesInPlaza': showImagesInPlaza,
       'showImagesInLounges': showImagesInLounges,
       'showImagesInPrivateChats': showImagesInPrivateChats,
       'showImagesInMoments': showImagesInMoments,
-      'showOthersOnlineStatus': showOthersOnlineStatus,
-      'showOthersReadReceipts': showOthersReadReceipts,
-      'showOthersTypingIndicators': showOthersTypingIndicators,
       'keepPrivateChats': keepPrivateChats,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
@@ -600,20 +550,16 @@ class _ResidentImpl extends Resident {
     bool? isPremium,
     DateTime? premiumTrialExpires,
     int? trialCount,
-    bool? showOnlineStatus,
-    bool? showReadReceipts,
-    bool? showTypingIndicator,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
-    bool? allowDiscovery,
     bool? showCustomAvatar,
     bool? showImagesInPlaza,
     bool? showImagesInLounges,
     bool? showImagesInPrivateChats,
     bool? showImagesInMoments,
-    bool? showOthersOnlineStatus,
-    bool? showOthersReadReceipts,
-    bool? showOthersTypingIndicators,
     bool? keepPrivateChats,
     String? customAvatarUrl,
   }) : super._(
@@ -645,20 +591,16 @@ class _ResidentImpl extends Resident {
          isPremium: isPremium,
          premiumTrialExpires: premiumTrialExpires,
          trialCount: trialCount,
-         showOnlineStatus: showOnlineStatus,
-         showReadReceipts: showReadReceipts,
-         showTypingIndicator: showTypingIndicator,
+         showOthersOnlineStatus: showOthersOnlineStatus,
+         showOthersReadReceipts: showOthersReadReceipts,
+         showOthersTypingIndicators: showOthersTypingIndicators,
          showVoiceMessages: showVoiceMessages,
          showNeighborsDiscovery: showNeighborsDiscovery,
-         allowDiscovery: allowDiscovery,
          showCustomAvatar: showCustomAvatar,
          showImagesInPlaza: showImagesInPlaza,
          showImagesInLounges: showImagesInLounges,
          showImagesInPrivateChats: showImagesInPrivateChats,
          showImagesInMoments: showImagesInMoments,
-         showOthersOnlineStatus: showOthersOnlineStatus,
-         showOthersReadReceipts: showOthersReadReceipts,
-         showOthersTypingIndicators: showOthersTypingIndicators,
          keepPrivateChats: keepPrivateChats,
          customAvatarUrl: customAvatarUrl,
        );
@@ -696,20 +638,16 @@ class _ResidentImpl extends Resident {
     bool? isPremium,
     Object? premiumTrialExpires = _Undefined,
     int? trialCount,
-    bool? showOnlineStatus,
-    bool? showReadReceipts,
-    bool? showTypingIndicator,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
-    bool? allowDiscovery,
     bool? showCustomAvatar,
     bool? showImagesInPlaza,
     bool? showImagesInLounges,
     bool? showImagesInPrivateChats,
     bool? showImagesInMoments,
-    bool? showOthersOnlineStatus,
-    bool? showOthersReadReceipts,
-    bool? showOthersTypingIndicators,
     bool? keepPrivateChats,
     Object? customAvatarUrl = _Undefined,
   }) {
@@ -755,25 +693,21 @@ class _ResidentImpl extends Resident {
           ? premiumTrialExpires
           : this.premiumTrialExpires,
       trialCount: trialCount ?? this.trialCount,
-      showOnlineStatus: showOnlineStatus ?? this.showOnlineStatus,
-      showReadReceipts: showReadReceipts ?? this.showReadReceipts,
-      showTypingIndicator: showTypingIndicator ?? this.showTypingIndicator,
-      showVoiceMessages: showVoiceMessages ?? this.showVoiceMessages,
-      showNeighborsDiscovery:
-          showNeighborsDiscovery ?? this.showNeighborsDiscovery,
-      allowDiscovery: allowDiscovery ?? this.allowDiscovery,
-      showCustomAvatar: showCustomAvatar ?? this.showCustomAvatar,
-      showImagesInPlaza: showImagesInPlaza ?? this.showImagesInPlaza,
-      showImagesInLounges: showImagesInLounges ?? this.showImagesInLounges,
-      showImagesInPrivateChats:
-          showImagesInPrivateChats ?? this.showImagesInPrivateChats,
-      showImagesInMoments: showImagesInMoments ?? this.showImagesInMoments,
       showOthersOnlineStatus:
           showOthersOnlineStatus ?? this.showOthersOnlineStatus,
       showOthersReadReceipts:
           showOthersReadReceipts ?? this.showOthersReadReceipts,
       showOthersTypingIndicators:
           showOthersTypingIndicators ?? this.showOthersTypingIndicators,
+      showVoiceMessages: showVoiceMessages ?? this.showVoiceMessages,
+      showNeighborsDiscovery:
+          showNeighborsDiscovery ?? this.showNeighborsDiscovery,
+      showCustomAvatar: showCustomAvatar ?? this.showCustomAvatar,
+      showImagesInPlaza: showImagesInPlaza ?? this.showImagesInPlaza,
+      showImagesInLounges: showImagesInLounges ?? this.showImagesInLounges,
+      showImagesInPrivateChats:
+          showImagesInPrivateChats ?? this.showImagesInPrivateChats,
+      showImagesInMoments: showImagesInMoments ?? this.showImagesInMoments,
       keepPrivateChats: keepPrivateChats ?? this.keepPrivateChats,
       customAvatarUrl: customAvatarUrl is String?
           ? customAvatarUrl
@@ -934,19 +868,21 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
     value,
   );
 
-  _i1.ColumnValue<bool, bool> showOnlineStatus(bool value) => _i1.ColumnValue(
-    table.showOnlineStatus,
-    value,
-  );
-
-  _i1.ColumnValue<bool, bool> showReadReceipts(bool value) => _i1.ColumnValue(
-    table.showReadReceipts,
-    value,
-  );
-
-  _i1.ColumnValue<bool, bool> showTypingIndicator(bool value) =>
+  _i1.ColumnValue<bool, bool> showOthersOnlineStatus(bool value) =>
       _i1.ColumnValue(
-        table.showTypingIndicator,
+        table.showOthersOnlineStatus,
+        value,
+      );
+
+  _i1.ColumnValue<bool, bool> showOthersReadReceipts(bool value) =>
+      _i1.ColumnValue(
+        table.showOthersReadReceipts,
+        value,
+      );
+
+  _i1.ColumnValue<bool, bool> showOthersTypingIndicators(bool value) =>
+      _i1.ColumnValue(
+        table.showOthersTypingIndicators,
         value,
       );
 
@@ -960,11 +896,6 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
         table.showNeighborsDiscovery,
         value,
       );
-
-  _i1.ColumnValue<bool, bool> allowDiscovery(bool value) => _i1.ColumnValue(
-    table.allowDiscovery,
-    value,
-  );
 
   _i1.ColumnValue<bool, bool> showCustomAvatar(bool value) => _i1.ColumnValue(
     table.showCustomAvatar,
@@ -991,24 +922,6 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
   _i1.ColumnValue<bool, bool> showImagesInMoments(bool value) =>
       _i1.ColumnValue(
         table.showImagesInMoments,
-        value,
-      );
-
-  _i1.ColumnValue<bool, bool> showOthersOnlineStatus(bool value) =>
-      _i1.ColumnValue(
-        table.showOthersOnlineStatus,
-        value,
-      );
-
-  _i1.ColumnValue<bool, bool> showOthersReadReceipts(bool value) =>
-      _i1.ColumnValue(
-        table.showOthersReadReceipts,
-        value,
-      );
-
-  _i1.ColumnValue<bool, bool> showOthersTypingIndicators(bool value) =>
-      _i1.ColumnValue(
-        table.showOthersTypingIndicators,
         value,
       );
 
@@ -1147,18 +1060,18 @@ class ResidentTable extends _i1.Table<int?> {
       this,
       hasDefault: true,
     );
-    showOnlineStatus = _i1.ColumnBool(
-      'showOnlineStatus',
+    showOthersOnlineStatus = _i1.ColumnBool(
+      'showOthersOnlineStatus',
       this,
       hasDefault: true,
     );
-    showReadReceipts = _i1.ColumnBool(
-      'showReadReceipts',
+    showOthersReadReceipts = _i1.ColumnBool(
+      'showOthersReadReceipts',
       this,
       hasDefault: true,
     );
-    showTypingIndicator = _i1.ColumnBool(
-      'showTypingIndicator',
+    showOthersTypingIndicators = _i1.ColumnBool(
+      'showOthersTypingIndicators',
       this,
       hasDefault: true,
     );
@@ -1169,11 +1082,6 @@ class ResidentTable extends _i1.Table<int?> {
     );
     showNeighborsDiscovery = _i1.ColumnBool(
       'showNeighborsDiscovery',
-      this,
-      hasDefault: true,
-    );
-    allowDiscovery = _i1.ColumnBool(
-      'allowDiscovery',
       this,
       hasDefault: true,
     );
@@ -1199,21 +1107,6 @@ class ResidentTable extends _i1.Table<int?> {
     );
     showImagesInMoments = _i1.ColumnBool(
       'showImagesInMoments',
-      this,
-      hasDefault: true,
-    );
-    showOthersOnlineStatus = _i1.ColumnBool(
-      'showOthersOnlineStatus',
-      this,
-      hasDefault: true,
-    );
-    showOthersReadReceipts = _i1.ColumnBool(
-      'showOthersReadReceipts',
-      this,
-      hasDefault: true,
-    );
-    showOthersTypingIndicators = _i1.ColumnBool(
-      'showOthersTypingIndicators',
       this,
       hasDefault: true,
     );
@@ -1284,17 +1177,15 @@ class ResidentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnInt trialCount;
 
-  late final _i1.ColumnBool showOnlineStatus;
+  late final _i1.ColumnBool showOthersOnlineStatus;
 
-  late final _i1.ColumnBool showReadReceipts;
+  late final _i1.ColumnBool showOthersReadReceipts;
 
-  late final _i1.ColumnBool showTypingIndicator;
+  late final _i1.ColumnBool showOthersTypingIndicators;
 
   late final _i1.ColumnBool showVoiceMessages;
 
   late final _i1.ColumnBool showNeighborsDiscovery;
-
-  late final _i1.ColumnBool allowDiscovery;
 
   late final _i1.ColumnBool showCustomAvatar;
 
@@ -1305,12 +1196,6 @@ class ResidentTable extends _i1.Table<int?> {
   late final _i1.ColumnBool showImagesInPrivateChats;
 
   late final _i1.ColumnBool showImagesInMoments;
-
-  late final _i1.ColumnBool showOthersOnlineStatus;
-
-  late final _i1.ColumnBool showOthersReadReceipts;
-
-  late final _i1.ColumnBool showOthersTypingIndicators;
 
   late final _i1.ColumnBool keepPrivateChats;
 
@@ -1346,20 +1231,16 @@ class ResidentTable extends _i1.Table<int?> {
     isPremium,
     premiumTrialExpires,
     trialCount,
-    showOnlineStatus,
-    showReadReceipts,
-    showTypingIndicator,
+    showOthersOnlineStatus,
+    showOthersReadReceipts,
+    showOthersTypingIndicators,
     showVoiceMessages,
     showNeighborsDiscovery,
-    allowDiscovery,
     showCustomAvatar,
     showImagesInPlaza,
     showImagesInLounges,
     showImagesInPrivateChats,
     showImagesInMoments,
-    showOthersOnlineStatus,
-    showOthersReadReceipts,
-    showOthersTypingIndicators,
     keepPrivateChats,
     customAvatarUrl,
   ];

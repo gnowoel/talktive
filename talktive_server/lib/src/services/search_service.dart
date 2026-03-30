@@ -16,7 +16,7 @@ class SearchService {
     String? ageRange,
     bool? isPremium,
   }) {
-    var expr = t.suspended.equals(false) & t.allowDiscovery.equals(true);
+    var expr = t.suspended.equals(false);
 
     if (query != null && query.trim().isNotEmpty) {
       final q = query.trim();

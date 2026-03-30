@@ -44,20 +44,16 @@ abstract class Resident implements _i1.SerializableModel {
     bool? isPremium,
     this.premiumTrialExpires,
     int? trialCount,
-    bool? showOnlineStatus,
-    bool? showReadReceipts,
-    bool? showTypingIndicator,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
-    bool? allowDiscovery,
     bool? showCustomAvatar,
     bool? showImagesInPlaza,
     bool? showImagesInLounges,
     bool? showImagesInPrivateChats,
     bool? showImagesInMoments,
-    bool? showOthersOnlineStatus,
-    bool? showOthersReadReceipts,
-    bool? showOthersTypingIndicators,
     bool? keepPrivateChats,
     this.customAvatarUrl,
   }) : trustScore = trustScore ?? 100,
@@ -71,20 +67,16 @@ abstract class Resident implements _i1.SerializableModel {
        role = role ?? _i2.ResidentRole.user,
        isPremium = isPremium ?? false,
        trialCount = trialCount ?? 0,
-       showOnlineStatus = showOnlineStatus ?? true,
-       showReadReceipts = showReadReceipts ?? true,
-       showTypingIndicator = showTypingIndicator ?? true,
+       showOthersOnlineStatus = showOthersOnlineStatus ?? true,
+       showOthersReadReceipts = showOthersReadReceipts ?? true,
+       showOthersTypingIndicators = showOthersTypingIndicators ?? true,
        showVoiceMessages = showVoiceMessages ?? true,
        showNeighborsDiscovery = showNeighborsDiscovery ?? true,
-       allowDiscovery = allowDiscovery ?? true,
        showCustomAvatar = showCustomAvatar ?? true,
        showImagesInPlaza = showImagesInPlaza ?? true,
        showImagesInLounges = showImagesInLounges ?? true,
        showImagesInPrivateChats = showImagesInPrivateChats ?? true,
        showImagesInMoments = showImagesInMoments ?? true,
-       showOthersOnlineStatus = showOthersOnlineStatus ?? true,
-       showOthersReadReceipts = showOthersReadReceipts ?? true,
-       showOthersTypingIndicators = showOthersTypingIndicators ?? true,
        keepPrivateChats = keepPrivateChats ?? true;
 
   factory Resident({
@@ -116,20 +108,16 @@ abstract class Resident implements _i1.SerializableModel {
     bool? isPremium,
     DateTime? premiumTrialExpires,
     int? trialCount,
-    bool? showOnlineStatus,
-    bool? showReadReceipts,
-    bool? showTypingIndicator,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
-    bool? allowDiscovery,
     bool? showCustomAvatar,
     bool? showImagesInPlaza,
     bool? showImagesInLounges,
     bool? showImagesInPrivateChats,
     bool? showImagesInMoments,
-    bool? showOthersOnlineStatus,
-    bool? showOthersReadReceipts,
-    bool? showOthersTypingIndicators,
     bool? keepPrivateChats,
     String? customAvatarUrl,
   }) = _ResidentImpl;
@@ -204,20 +192,23 @@ abstract class Resident implements _i1.SerializableModel {
               jsonSerialization['premiumTrialExpires'],
             ),
       trialCount: jsonSerialization['trialCount'] as int?,
-      showOnlineStatus: jsonSerialization['showOnlineStatus'] == null
+      showOthersOnlineStatus:
+          jsonSerialization['showOthersOnlineStatus'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(
-              jsonSerialization['showOnlineStatus'],
+              jsonSerialization['showOthersOnlineStatus'],
             ),
-      showReadReceipts: jsonSerialization['showReadReceipts'] == null
+      showOthersReadReceipts:
+          jsonSerialization['showOthersReadReceipts'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(
-              jsonSerialization['showReadReceipts'],
+              jsonSerialization['showOthersReadReceipts'],
             ),
-      showTypingIndicator: jsonSerialization['showTypingIndicator'] == null
+      showOthersTypingIndicators:
+          jsonSerialization['showOthersTypingIndicators'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(
-              jsonSerialization['showTypingIndicator'],
+              jsonSerialization['showOthersTypingIndicators'],
             ),
       showVoiceMessages: jsonSerialization['showVoiceMessages'] == null
           ? null
@@ -230,9 +221,6 @@ abstract class Resident implements _i1.SerializableModel {
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['showNeighborsDiscovery'],
             ),
-      allowDiscovery: jsonSerialization['allowDiscovery'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(jsonSerialization['allowDiscovery']),
       showCustomAvatar: jsonSerialization['showCustomAvatar'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(
@@ -258,24 +246,6 @@ abstract class Resident implements _i1.SerializableModel {
           ? null
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['showImagesInMoments'],
-            ),
-      showOthersOnlineStatus:
-          jsonSerialization['showOthersOnlineStatus'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(
-              jsonSerialization['showOthersOnlineStatus'],
-            ),
-      showOthersReadReceipts:
-          jsonSerialization['showOthersReadReceipts'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(
-              jsonSerialization['showOthersReadReceipts'],
-            ),
-      showOthersTypingIndicators:
-          jsonSerialization['showOthersTypingIndicators'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(
-              jsonSerialization['showOthersTypingIndicators'],
             ),
       keepPrivateChats: jsonSerialization['keepPrivateChats'] == null
           ? null
@@ -345,17 +315,15 @@ abstract class Resident implements _i1.SerializableModel {
 
   int trialCount;
 
-  bool showOnlineStatus;
+  bool showOthersOnlineStatus;
 
-  bool showReadReceipts;
+  bool showOthersReadReceipts;
 
-  bool showTypingIndicator;
+  bool showOthersTypingIndicators;
 
   bool showVoiceMessages;
 
   bool showNeighborsDiscovery;
-
-  bool allowDiscovery;
 
   bool showCustomAvatar;
 
@@ -366,12 +334,6 @@ abstract class Resident implements _i1.SerializableModel {
   bool showImagesInPrivateChats;
 
   bool showImagesInMoments;
-
-  bool showOthersOnlineStatus;
-
-  bool showOthersReadReceipts;
-
-  bool showOthersTypingIndicators;
 
   bool keepPrivateChats;
 
@@ -409,20 +371,16 @@ abstract class Resident implements _i1.SerializableModel {
     bool? isPremium,
     DateTime? premiumTrialExpires,
     int? trialCount,
-    bool? showOnlineStatus,
-    bool? showReadReceipts,
-    bool? showTypingIndicator,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
-    bool? allowDiscovery,
     bool? showCustomAvatar,
     bool? showImagesInPlaza,
     bool? showImagesInLounges,
     bool? showImagesInPrivateChats,
     bool? showImagesInMoments,
-    bool? showOthersOnlineStatus,
-    bool? showOthersReadReceipts,
-    bool? showOthersTypingIndicators,
     bool? keepPrivateChats,
     String? customAvatarUrl,
   });
@@ -460,20 +418,16 @@ abstract class Resident implements _i1.SerializableModel {
       if (premiumTrialExpires != null)
         'premiumTrialExpires': premiumTrialExpires?.toJson(),
       'trialCount': trialCount,
-      'showOnlineStatus': showOnlineStatus,
-      'showReadReceipts': showReadReceipts,
-      'showTypingIndicator': showTypingIndicator,
+      'showOthersOnlineStatus': showOthersOnlineStatus,
+      'showOthersReadReceipts': showOthersReadReceipts,
+      'showOthersTypingIndicators': showOthersTypingIndicators,
       'showVoiceMessages': showVoiceMessages,
       'showNeighborsDiscovery': showNeighborsDiscovery,
-      'allowDiscovery': allowDiscovery,
       'showCustomAvatar': showCustomAvatar,
       'showImagesInPlaza': showImagesInPlaza,
       'showImagesInLounges': showImagesInLounges,
       'showImagesInPrivateChats': showImagesInPrivateChats,
       'showImagesInMoments': showImagesInMoments,
-      'showOthersOnlineStatus': showOthersOnlineStatus,
-      'showOthersReadReceipts': showOthersReadReceipts,
-      'showOthersTypingIndicators': showOthersTypingIndicators,
       'keepPrivateChats': keepPrivateChats,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
@@ -517,20 +471,16 @@ class _ResidentImpl extends Resident {
     bool? isPremium,
     DateTime? premiumTrialExpires,
     int? trialCount,
-    bool? showOnlineStatus,
-    bool? showReadReceipts,
-    bool? showTypingIndicator,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
-    bool? allowDiscovery,
     bool? showCustomAvatar,
     bool? showImagesInPlaza,
     bool? showImagesInLounges,
     bool? showImagesInPrivateChats,
     bool? showImagesInMoments,
-    bool? showOthersOnlineStatus,
-    bool? showOthersReadReceipts,
-    bool? showOthersTypingIndicators,
     bool? keepPrivateChats,
     String? customAvatarUrl,
   }) : super._(
@@ -562,20 +512,16 @@ class _ResidentImpl extends Resident {
          isPremium: isPremium,
          premiumTrialExpires: premiumTrialExpires,
          trialCount: trialCount,
-         showOnlineStatus: showOnlineStatus,
-         showReadReceipts: showReadReceipts,
-         showTypingIndicator: showTypingIndicator,
+         showOthersOnlineStatus: showOthersOnlineStatus,
+         showOthersReadReceipts: showOthersReadReceipts,
+         showOthersTypingIndicators: showOthersTypingIndicators,
          showVoiceMessages: showVoiceMessages,
          showNeighborsDiscovery: showNeighborsDiscovery,
-         allowDiscovery: allowDiscovery,
          showCustomAvatar: showCustomAvatar,
          showImagesInPlaza: showImagesInPlaza,
          showImagesInLounges: showImagesInLounges,
          showImagesInPrivateChats: showImagesInPrivateChats,
          showImagesInMoments: showImagesInMoments,
-         showOthersOnlineStatus: showOthersOnlineStatus,
-         showOthersReadReceipts: showOthersReadReceipts,
-         showOthersTypingIndicators: showOthersTypingIndicators,
          keepPrivateChats: keepPrivateChats,
          customAvatarUrl: customAvatarUrl,
        );
@@ -613,20 +559,16 @@ class _ResidentImpl extends Resident {
     bool? isPremium,
     Object? premiumTrialExpires = _Undefined,
     int? trialCount,
-    bool? showOnlineStatus,
-    bool? showReadReceipts,
-    bool? showTypingIndicator,
+    bool? showOthersOnlineStatus,
+    bool? showOthersReadReceipts,
+    bool? showOthersTypingIndicators,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
-    bool? allowDiscovery,
     bool? showCustomAvatar,
     bool? showImagesInPlaza,
     bool? showImagesInLounges,
     bool? showImagesInPrivateChats,
     bool? showImagesInMoments,
-    bool? showOthersOnlineStatus,
-    bool? showOthersReadReceipts,
-    bool? showOthersTypingIndicators,
     bool? keepPrivateChats,
     Object? customAvatarUrl = _Undefined,
   }) {
@@ -672,25 +614,21 @@ class _ResidentImpl extends Resident {
           ? premiumTrialExpires
           : this.premiumTrialExpires,
       trialCount: trialCount ?? this.trialCount,
-      showOnlineStatus: showOnlineStatus ?? this.showOnlineStatus,
-      showReadReceipts: showReadReceipts ?? this.showReadReceipts,
-      showTypingIndicator: showTypingIndicator ?? this.showTypingIndicator,
-      showVoiceMessages: showVoiceMessages ?? this.showVoiceMessages,
-      showNeighborsDiscovery:
-          showNeighborsDiscovery ?? this.showNeighborsDiscovery,
-      allowDiscovery: allowDiscovery ?? this.allowDiscovery,
-      showCustomAvatar: showCustomAvatar ?? this.showCustomAvatar,
-      showImagesInPlaza: showImagesInPlaza ?? this.showImagesInPlaza,
-      showImagesInLounges: showImagesInLounges ?? this.showImagesInLounges,
-      showImagesInPrivateChats:
-          showImagesInPrivateChats ?? this.showImagesInPrivateChats,
-      showImagesInMoments: showImagesInMoments ?? this.showImagesInMoments,
       showOthersOnlineStatus:
           showOthersOnlineStatus ?? this.showOthersOnlineStatus,
       showOthersReadReceipts:
           showOthersReadReceipts ?? this.showOthersReadReceipts,
       showOthersTypingIndicators:
           showOthersTypingIndicators ?? this.showOthersTypingIndicators,
+      showVoiceMessages: showVoiceMessages ?? this.showVoiceMessages,
+      showNeighborsDiscovery:
+          showNeighborsDiscovery ?? this.showNeighborsDiscovery,
+      showCustomAvatar: showCustomAvatar ?? this.showCustomAvatar,
+      showImagesInPlaza: showImagesInPlaza ?? this.showImagesInPlaza,
+      showImagesInLounges: showImagesInLounges ?? this.showImagesInLounges,
+      showImagesInPrivateChats:
+          showImagesInPrivateChats ?? this.showImagesInPrivateChats,
+      showImagesInMoments: showImagesInMoments ?? this.showImagesInMoments,
       keepPrivateChats: keepPrivateChats ?? this.keepPrivateChats,
       customAvatarUrl: customAvatarUrl is String?
           ? customAvatarUrl

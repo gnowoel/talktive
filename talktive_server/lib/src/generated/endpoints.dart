@@ -2432,6 +2432,21 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<bool?>(),
               nullable: true,
             ),
+            'showOthersOnlineStatus': _i1.ParameterDescription(
+              name: 'showOthersOnlineStatus',
+              type: _i1.getType<bool?>(),
+              nullable: true,
+            ),
+            'showOthersReadReceipts': _i1.ParameterDescription(
+              name: 'showOthersReadReceipts',
+              type: _i1.getType<bool?>(),
+              nullable: true,
+            ),
+            'showOthersTypingIndicators': _i1.ParameterDescription(
+              name: 'showOthersTypingIndicators',
+              type: _i1.getType<bool?>(),
+              nullable: true,
+            ),
             'keepPrivateChats': _i1.ParameterDescription(
               name: 'keepPrivateChats',
               type: _i1.getType<bool?>(),
@@ -2468,6 +2483,10 @@ class Endpoints extends _i1.EndpointDispatch {
                     showVoiceMessages: params['showVoiceMessages'],
                     showNeighborsDiscovery: params['showNeighborsDiscovery'],
                     showCustomAvatar: params['showCustomAvatar'],
+                    showOthersOnlineStatus: params['showOthersOnlineStatus'],
+                    showOthersReadReceipts: params['showOthersReadReceipts'],
+                    showOthersTypingIndicators:
+                        params['showOthersTypingIndicators'],
                     keepPrivateChats: params['keepPrivateChats'],
                     showImagesInPlaza: params['showImagesInPlaza'],
                     showImagesInLounges: params['showImagesInLounges'],

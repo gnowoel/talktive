@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
 import 'client_provider.dart';
+import 'current_resident_provider.dart';
 import '../services/local_chat_cache.dart';
+import '../helpers/resident_ext.dart';
 
 part 'realtime_chat_provider.g.dart';
 
@@ -231,8 +233,13 @@ class RealtimeChat extends _$RealtimeChat {
     if (state.value == null) return;
     final currentState = state.value!;
 
-    // Don't show our own typing status
-    // (Assuming we know our userId context - we can skip if name matches or just let it be)
+    // Respect inbound premium privacy settings
+    final resident = ref.read(currentResidentProvider).value;
+    final canSeeTyping = resident?.isPlus == true
+        ? resident!.showOthersTypingIndicators
+        : true;
+
+    if (!canSeeTyping) return;
 
     final updatedTyping = Set<String>.from(currentState.typingUsers);
     if (indicator.isTyping) {
@@ -247,6 +254,14 @@ class RealtimeChat extends _$RealtimeChat {
   void _handleReadReceipt(ReadReceiptEvent event) {
     if (state.value == null) return;
     final currentState = state.value!;
+
+    // Respect inbound premium privacy settings
+    final resident = ref.read(currentResidentProvider).value;
+    final canSeeReadReceipts = resident?.isPlus == true
+        ? resident!.showOthersReadReceipts
+        : true;
+
+    if (!canSeeReadReceipts) return;
 
     final updatedReadStatus = Map<String, DateTime>.from(
       currentState.lastReadStatus,

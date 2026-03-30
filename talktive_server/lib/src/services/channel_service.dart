@@ -37,18 +37,15 @@ class ChannelService {
       membership.lastReadAt = now;
       await protocol.ChannelMember.db.updateRow(session, membership);
 
-      // Broadcast ReadReceipt if user allows
-      final resident = await ResidentService.getResident(session, userId);
-      if (resident != null && resident.showReadReceipts) {
-        await session.messages.postMessage(
-          'channel_$channelId',
-          protocol.ReadReceiptEvent(
-            channelId: channelId,
-            userId: userId,
-            lastReadAt: now,
-          ),
-        );
-      }
+      // Broadcast ReadReceipt
+      await session.messages.postMessage(
+        'channel_$channelId',
+        protocol.ReadReceiptEvent(
+          channelId: channelId,
+          userId: userId,
+          lastReadAt: now,
+        ),
+      );
     }
   }
 

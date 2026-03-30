@@ -3,27 +3,24 @@ table: resident
 fields:
   userInfoId: UuidValue
   createdAt: DateTime?
-  
+
   # Safety System
   trustScore: int, default=100
   lastReputationIncrease: DateTime?
   mutedUntil: DateTime?
   suspended: bool, default=false
-  
+
   # Gamification System
   xp: int, default=0
   level: int, default=0
-  # NOTE: 'reputation' is now the computed aggregate (formerly known as floor).
-  #   reputation = min(level, trustCap(trustScore), socialCap(likeCount))
-  # See: ReputationService.computeEffectiveFloor()
   currentStreak: int, default=0
   longestStreak: int, default=0
   lastLoginDate: DateTime?
   lastMessageDate: DateTime?
-  
+
   # Legacy (keep for achievements tracking)
   experienceMessageCount: int, default=0
-  
+
   # Profile
   userName: String?
   gender: String?
@@ -34,38 +31,39 @@ fields:
   ageRange: String?, default='18-24'
   interests: List<String>?
   languages: List<String>?
-  
+
   # Admin
   role: ResidentRole, default=user
-  
+
   # Online & Subscription
   lastSeen: DateTime?
   isPremium: bool, default=false
   premiumTrialExpires: DateTime?
   trialCount: int, default=0
-  showOnlineStatus: bool, default=true
-  showReadReceipts: bool, default=true
-  showTypingIndicator: bool, default=true
+
+  # Premium Inbound Settings (Controls what the user sees)
+  showOthersOnlineStatus: bool, default=true
+  showOthersReadReceipts: bool, default=true
+  showOthersTypingIndicators: bool, default=true
+
+  # Premium Feature Toggles
   showVoiceMessages: bool, default=true
   showNeighborsDiscovery: bool, default=true
-  allowDiscovery: bool, default=true
   showCustomAvatar: bool, default=true
   showImagesInPlaza: bool, default=true
   showImagesInLounges: bool, default=true
   showImagesInPrivateChats: bool, default=true
   showImagesInMoments: bool, default=true
-  showOthersOnlineStatus: bool, default=true
-  showOthersReadReceipts: bool, default=true
-  showOthersTypingIndicators: bool, default=true
   keepPrivateChats: bool, default=true
+
   customAvatarUrl: String?
-  
+
 indexes:
   resident_user_idx:
     fields: userInfoId
     unique: true
   resident_search_idx:
-    fields: allowDiscovery, lastSeen
+    fields: lastSeen
   resident_geo_idx:
     fields: country, gender, ageRange
   resident_xp_idx:

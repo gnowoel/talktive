@@ -344,10 +344,9 @@ class ResidentService {
     );
   }
 
-  /// Helper to check if a resident is online based on privacy settings and lastSeen.
+  /// Helper to check if a resident is online based on lastSeen.
   static bool isResidentOnline(protocol.Resident resident) {
-    return resident.showOnlineStatus &&
-        resident.lastSeen != null &&
+    return resident.lastSeen != null &&
         DateTime.now().difference(resident.lastSeen!).inMinutes < 5;
   }
 
@@ -768,19 +767,16 @@ class ResidentService {
   }
 
   /// Updates privacy settings for a resident.
+  /// Updates privacy settings for a resident.
   static Future<protocol.Resident> updatePrivacy(
     Session session, {
     required protocol.Resident resident,
-    bool? showOnlineStatus,
-    bool? showReadReceipts,
-    bool? showTypingIndicator,
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
     bool? showOthersTypingIndicators,
-    bool? allowDiscovery,
     bool? keepPrivateChats,
     bool? showImagesInPlaza,
     bool? showImagesInLounges,
@@ -789,34 +785,44 @@ class ResidentService {
   }) async {
     final bool isPlus = isPlusMember(resident);
 
-    // Force these to be always true to maintain value for Plus users
-    resident.showOnlineStatus = true;
-    resident.showReadReceipts = true;
-    resident.showTypingIndicator = true;
-    resident.allowDiscovery = true;
-    resident.showOthersOnlineStatus = true;
-    resident.showOthersReadReceipts = true;
-    resident.showOthersTypingIndicators = true;
-
-    // Premium Features
-    if (showVoiceMessages != null && isPlus)
+    // Premium Features (respect user choice if they are Plus)
+    if (showVoiceMessages != null && isPlus) {
       resident.showVoiceMessages = showVoiceMessages;
-    if (showNeighborsDiscovery != null && isPlus)
+    }
+    if (showNeighborsDiscovery != null && isPlus) {
       resident.showNeighborsDiscovery = showNeighborsDiscovery;
-    if (showCustomAvatar != null && isPlus)
+    }
+    if (showCustomAvatar != null && isPlus) {
       resident.showCustomAvatar = showCustomAvatar;
-    if (showImagesInPlaza != null && isPlus)
+    }
+    if (showImagesInPlaza != null && isPlus) {
       resident.showImagesInPlaza = showImagesInPlaza;
-    if (showImagesInLounges != null && isPlus)
+    }
+    if (showImagesInLounges != null && isPlus) {
       resident.showImagesInLounges = showImagesInLounges;
-    if (showImagesInPrivateChats != null && isPlus)
+    }
+    if (showImagesInPrivateChats != null && isPlus) {
       resident.showImagesInPrivateChats = showImagesInPrivateChats;
-    if (showImagesInMoments != null && isPlus)
+    }
+    if (showImagesInMoments != null && isPlus) {
       resident.showImagesInMoments = showImagesInMoments;
+    }
+
+    // Inbound Premium Settings (part of what they paid for)
+    if (showOthersOnlineStatus != null && isPlus) {
+      resident.showOthersOnlineStatus = showOthersOnlineStatus;
+    }
+    if (showOthersReadReceipts != null && isPlus) {
+      resident.showOthersReadReceipts = showOthersReadReceipts;
+    }
+    if (showOthersTypingIndicators != null && isPlus) {
+      resident.showOthersTypingIndicators = showOthersTypingIndicators;
+    }
 
     final bool oldKeepPrivateChats = resident.keepPrivateChats;
-    if (keepPrivateChats != null && isPlus)
+    if (keepPrivateChats != null && isPlus) {
       resident.keepPrivateChats = keepPrivateChats;
+    }
 
     final updatedResident = await updateResident(session, resident);
 

@@ -146,15 +146,13 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     final userUuid = await getUserId(session);
     final resident = await getResidentProfile(session, userUuid);
 
-    if (resident.showTypingIndicator) {
-      await ChannelService.sendTypingIndicator(
-        session,
-        channelId,
-        userUuid,
-        resident.userName ?? 'Resident',
-        isTyping,
-      );
-    }
+    await ChannelService.sendTypingIndicator(
+      session,
+      channelId,
+      userUuid,
+      resident.userName ?? 'Resident',
+      isTyping,
+    );
   }
 
   /// Updates the persistence setting of a channel.

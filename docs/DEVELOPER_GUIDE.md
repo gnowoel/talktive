@@ -1,90 +1,87 @@
-# Developer Guide & Troubleshooting
+# Talktive Developer Guide
 
 ## 🛠️ Essential Commands
 
-### Server Management
+### 1. Server Management
 
 - **Start Server**: `dart bin/main.dart --apply-migrations`
-- **Kill Stalled Server**: `lsof -t -i:8080 -i:8081 -i:8082 | xargs kill -9`
 - **Regenerate Code**: `serverpod generate`
 - **Create Migration**: `serverpod create-migration --force`
-- **Reset Database**: `./scripts/reset_db.sh` (Drops public schema for clean recreation)
+- **Reset Database**: `./scripts/reset_db.sh` (Drops public schema)
 
-### Database Cleanup
+### 2. Frontend Build
 
-- **Clear Chats Only**: `./scripts/clear_chats.sh`
-- **Clear Moments Only**: `./scripts/clear_moments.sh`
+- **Code Gen**: `dart run build_runner build --delete-conflicting-outputs`
+- **Run (Web)**: `flutter run -d web-server --web-port 8083 --web-hostname=localhost`
 
 ---
 
-## 💡 Serverpod Learnings
+## 🏗️ Architectural Principles
 
-### 1. Authentication: Int vs UUID
+### 1. Service-Delegated Architecture
 
-Serverpod 3.3.1 defaults to **UUID-based** `AuthUser`. Always use `UuidValue` for foreign keys linking to `UserInfo` or `AuthUser`.
+To maintain a clean and testable codebase, we follow strict delegation:
 
-- `resident.spy.yaml`: `userInfoId: UuidValue`
-- `MessageEndpoint`: Parse `authenticationInfo.userIdentifier` (String) into `UuidValue`.
-
-### 2. Code Generation & Migrations
-
-- **Syntax Errors**: `serverpod generate` halts if _any_ file has syntax errors. Fix Dart errors first.
-- **Force Migration**: Use `--force` when changing column types to bypass data loss warnings.
-
-### 3. Debugging Endpoints
-
-- **Try-Catch**: Wrap endpoint logic in `try-catch` blocks and print stack traces to debug 500 errors.
-- **TalktiveException**: Use `protocol.TalktiveException` for user-facing errors (Lounge not found, access denied, etc.). These are automatically parsed by the frontend's `SnackBarHelper`.
-
-### 4. Client-Side Auth Initialization
-
-Order of operations for Firebase + Serverpod Auth:
-
-1. Instantiate `Client`.
-2. Create `FlutterAuthSessionManager()`.
-3. Assign `client.authSessionManager = sessionManager`.
-4. Await `sessionManager.initialize()`.
-5. Call `client.firebaseIdp.login(idToken: ...)` after Google Sign-In.
-
-### 4.1 Environment Selection
-
-- `AppConfig` centralizes runtime environment settings for both the legacy Firebase app path and the Serverpod app path.
-- Debug builds default to localhost / emulator endpoints.
-- Release builds default to the production Serverpod URL from `talktive_flutter/assets/config.json`.
-- Firebase Emulator Suite usage is controlled centrally and should remain a development-only feature.
-- Optional overrides:
-  - `--dart-define=SERVERPOD_URL=https://api.talktive.app`
-  - `--dart-define=USE_FIREBASE_EMULATORS=false`
-
-### 5. Background Tasks & Performance
-
-- **TaskUtils.runBackground**: For any side-effect that is not critical to the immediate response (Notifications, Achievements, Stats), use `TaskUtils.runBackground(session, (...) async { ... })`. This prevents UI hanging while external network calls (FCM) or secondary database writes are performed.
-- **Session Lifecycle**: Never use a closed request `session` inside a background task. `TaskUtils` correctly creates a temporary `backgroundSession` to handle this safely.
-
-### 6. Consolidated Service-Delegated Architecture
-
-To maintain a clean and testable codebase, follow the Service-Delegation pattern:
-
-- **Endpoints**: Lean controllers that handle authentication and delegate all business logic to Services.
+- **Endpoints**: Lean controllers that handle authentication and argument parsing.
 - **Services**: Contain all domain logic, validation, and side-effects.
-- **SocialEndpoint**: Consolidates all peer-to-peer interactions (Likes, Blocks, Reports) into a single domain.
-- **Discovery**: Lounge and Resident discovery is centralized in `SearchService` to keep `LoungeService` focused on management.
-- **Unified Validation**: Use the `ValidationResult` utility class across all services for consistent error handling and standard `TalktiveException` responses.
+- **Unified Validation**: All services use the `ValidationResult` utility for consistent `TalktiveException` responses.
+
+### 2. High-Performance Infrastructure
+
+Target: **10,000 active users** on a single **2 vCPU / 4GB RAM VPS**.
+
+- **Caching**: Multi-tier strategy (Local Session -> Global Redis -> DB).
+- **Background Tasks**: Use `TaskUtils.runBackground` for all non-critical side-effects (Notifications, XP, Stats).
+- **Batching**: Use batch queries for feeds and unread counts to eliminate N+1 issues.
+
+### 3. Authentication & Identity
+
+- **Provider**: Firebase Auth (Google) linked to Serverpod Auth Core.
+- **User IDs**: Strictly **UUID-based** (`UuidValue`). Never use legacy integer IDs.
+- **Persona Sync**: Resident `userName` is automatically synced to the `AuthUser` profile during creation/update.
 
 ---
 
-## 🚀 Performance & Resource Optimization
+## 📬 Notification Architecture
 
-This project targets a **10,000 user capacity** on a single **2 vCPU / 4GB RAM VPS**. To ensure stability under high load, follow these architectural principles:
+Talktive uses a self-healing, high-throughput notification system.
 
-### 1. Server-Side (High Throughput)
+### 1. Registration
 
-- **Zero N+1 Queries**: Every profile load or list view must be a single efficient query. Use `include` clauses in Serverpod models.
-- **Service-Level Caching**: All high-traffic data (Resident profiles, Lounge members) must flow through service methods that implement the **Redis-Database** caching pattern.
-- **Background Delegation**: All non-critical side effects (Gamification XP, Notifications, Statistics) MUST use `TaskUtils.runBackground`.
+- Clients register FCM tokens via `NotificationEndpoint.registerDeviceToken`.
+- Tokens are stored in the `device_token` table linked to the user's UUID.
 
-### 2. Client-Side (Dynamic UX & Efficiency)
+### 2. Delivery Flow
 
-- **Fluid Animations**: Use `flutter_animate` and haptic feedback to create an interactive, premium experience.
-- **Data Efficiency**: Use the denormalized fields (`senderName`, `senderAvatar`) provided in the message protocol to ensure the UI remains snappy during rapid scrolling.
-- **Asset Compliance**: Adhere to the **5MB image** and **60s voice** limits. This ensures high throughput for all users and maintains server responsiveness during peak hours.
+- All notifications are triggered via `NotificationService` on the backend.
+- Delivery is asynchronous (wrapped in `runBackground`) to prevent endpoint lag.
+- **Parallel Delivery**: `FCMService` triggers calls to multiple devices in parallel via `Future.wait`.
+
+### 3. Self-Healing (Purging)
+
+- The server automatically detects `404 - UNREGISTERED` responses from FCM.
+- Stale tokens are immediately deleted from the database to maintain performance.
+
+---
+
+## 🛡️ Safety System Implementation
+
+### 1. Hybrid Floor
+
+Access to public features is restricted by `min(level, trustCap)`.
+
+- **Level**: Earned via XP.
+- **Trust Score**: Starts at 100. Decreases by -30 per report, increases by +10 per vouch.
+
+### 2. Privacy Hardening
+
+- **Blocking**: Restricts both private messages and push notifications.
+- **Peephole**: Provides a `UserProfileView` (including recent moments and top badges) for safe invite inspection.
+
+---
+
+## 💡 Troubleshooting
+
+- **Google Sign-In Errors**: Ensure you use `localhost` (not `127.0.0.1`) and port `8083`.
+- **Database Mismatch**: If you see `DatabaseQueryException`, run `serverpod generate` and create a new migration.
+- **Redis Connection**: Backend logic gracefully degrades to DB-only if Redis is unavailable, but performance will suffer.

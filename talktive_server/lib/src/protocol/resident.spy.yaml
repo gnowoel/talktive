@@ -50,7 +50,6 @@ fields:
   showVoiceMessages: bool, default=true
   showNeighborsDiscovery: bool, default=true
   showCustomAvatar: bool, default=true
-  isTalktivePlus: bool, default=false
   keepPrivateChats: bool, default=true
 
   customAvatarUrl: String?

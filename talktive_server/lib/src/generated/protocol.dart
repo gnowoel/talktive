@@ -1828,13 +1828,6 @@ class Protocol extends _i1.SerializationManagerServer {
           columnDefault: 'true',
         ),
         _i2.ColumnDefinition(
-          name: 'isTalktivePlus',
-          columnType: _i2.ColumnType.boolean,
-          isNullable: false,
-          dartType: 'bool',
-          columnDefault: 'false',
-        ),
-        _i2.ColumnDefinition(
           name: 'keepPrivateChats',
           columnType: _i2.ColumnType.boolean,
           isNullable: false,

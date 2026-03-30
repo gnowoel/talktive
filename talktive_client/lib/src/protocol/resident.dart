@@ -50,7 +50,6 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
-    bool? isTalktivePlus,
     bool? keepPrivateChats,
     this.customAvatarUrl,
   }) : trustScore = trustScore ?? 100,
@@ -70,7 +69,6 @@ abstract class Resident implements _i1.SerializableModel {
        showVoiceMessages = showVoiceMessages ?? true,
        showNeighborsDiscovery = showNeighborsDiscovery ?? true,
        showCustomAvatar = showCustomAvatar ?? true,
-       isTalktivePlus = isTalktivePlus ?? false,
        keepPrivateChats = keepPrivateChats ?? true;
 
   factory Resident({
@@ -108,7 +106,6 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
-    bool? isTalktivePlus,
     bool? keepPrivateChats,
     String? customAvatarUrl,
   }) = _ResidentImpl;
@@ -217,9 +214,6 @@ abstract class Resident implements _i1.SerializableModel {
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['showCustomAvatar'],
             ),
-      isTalktivePlus: jsonSerialization['isTalktivePlus'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isTalktivePlus']),
       keepPrivateChats: jsonSerialization['keepPrivateChats'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(
@@ -300,8 +294,6 @@ abstract class Resident implements _i1.SerializableModel {
 
   bool showCustomAvatar;
 
-  bool isTalktivePlus;
-
   bool keepPrivateChats;
 
   String? customAvatarUrl;
@@ -344,7 +336,6 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
-    bool? isTalktivePlus,
     bool? keepPrivateChats,
     String? customAvatarUrl,
   });
@@ -388,7 +379,6 @@ abstract class Resident implements _i1.SerializableModel {
       'showVoiceMessages': showVoiceMessages,
       'showNeighborsDiscovery': showNeighborsDiscovery,
       'showCustomAvatar': showCustomAvatar,
-      'isTalktivePlus': isTalktivePlus,
       'keepPrivateChats': keepPrivateChats,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
@@ -438,7 +428,6 @@ class _ResidentImpl extends Resident {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
-    bool? isTalktivePlus,
     bool? keepPrivateChats,
     String? customAvatarUrl,
   }) : super._(
@@ -476,7 +465,6 @@ class _ResidentImpl extends Resident {
          showVoiceMessages: showVoiceMessages,
          showNeighborsDiscovery: showNeighborsDiscovery,
          showCustomAvatar: showCustomAvatar,
-         isTalktivePlus: isTalktivePlus,
          keepPrivateChats: keepPrivateChats,
          customAvatarUrl: customAvatarUrl,
        );
@@ -520,7 +508,6 @@ class _ResidentImpl extends Resident {
     bool? showVoiceMessages,
     bool? showNeighborsDiscovery,
     bool? showCustomAvatar,
-    bool? isTalktivePlus,
     bool? keepPrivateChats,
     Object? customAvatarUrl = _Undefined,
   }) {
@@ -576,7 +563,6 @@ class _ResidentImpl extends Resident {
       showNeighborsDiscovery:
           showNeighborsDiscovery ?? this.showNeighborsDiscovery,
       showCustomAvatar: showCustomAvatar ?? this.showCustomAvatar,
-      isTalktivePlus: isTalktivePlus ?? this.isTalktivePlus,
       keepPrivateChats: keepPrivateChats ?? this.keepPrivateChats,
       customAvatarUrl: customAvatarUrl is String?
           ? customAvatarUrl

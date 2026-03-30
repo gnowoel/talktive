@@ -16,6 +16,7 @@
 - **Always Visible**: Removed all outbound privacy toggles (`showOnlineStatus`, `showReadReceipts`, `showTypingIndicator`, `allowDiscovery`). Every resident now contributes to the building's live atmosphere.
 - **Inbound Premium Gating**: Strictly restricted visibility of live indicators (online dots, receipts, typing bubbles) to **Talktive Plus** members.
 - **Premium Value Hardening**: Restored inbound premium toggles as user-controlled choices for paid members.
+- **Subscription Model Simplification**: Removed the redundant persisted `isTalktivePlus` flag and centralized entitlement checks around paid-or-trial membership plus per-feature settings.
 - **Universal Discovery**: Enabled universal searchability for all residents.
 
 ### Frontend Simplification

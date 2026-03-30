@@ -49,6 +49,9 @@ class AdService {
       await MobileAds.instance.initialize();
       await _consentService.initialize();
 
+      // Show consent form if required (e.g. for GDPR/CCPA)
+      await _consentService.showConsentFormIfRequired();
+
       // Load first ad after initialization
       _loadInterstitialAd();
     } catch (e) {

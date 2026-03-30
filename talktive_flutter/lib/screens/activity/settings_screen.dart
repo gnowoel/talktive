@@ -195,20 +195,19 @@ class SettingsScreen extends ConsumerWidget {
                   onTap: () async {
                     HapticFeedback.mediumImpact();
                     try {
-                      final adService = ref.read(adServiceProvider);
-                      // In our AdService, consent logic is handled by ConsentService
-                      // We need to access the consentServiceProvider's service
                       final consentService = ref.read(consentServiceProvider);
                       await consentService.showPrivacyOptions();
+                      if (!context.mounted) return;
                       DuoSnackBarHelper.showSuccess(
                         context,
                         'Preferences updated! ✨',
                       );
                     } catch (e) {
-                      DuoSnackBarHelper.showError(
-                        context,
-                        'Failed to load privacy options',
-                      );
+                      if (!context.mounted) return;
+                      final message = e.toString().contains('region')
+                          ? 'Privacy settings are not available in your region.'
+                          : 'Failed to load privacy options';
+                      DuoSnackBarHelper.showError(context, message);
                     }
                   },
                 ),

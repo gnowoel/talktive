@@ -135,6 +135,10 @@ The project has successfully migrated from Firebase to Serverpod, featuring a co
 - `FloorUtils` (`lib/utils/floor_utils.dart`): Client-side hybrid floor formula + mute helpers.
 - `BlockedUsersProvider`: Block/unblock users; used in Plaza, Moments, and UserProfileViewScreen.
 
+- **Platform Features:** `docs/PLATFORM_FEATURES.md`
+- **Settings System:** `docs/SETTINGS_SYSTEM.md`
+- **Notification Architecture:** `docs/NOTIFICATION_ARCHITECTURE.md`
+
 
 ## Recent Fixes
 

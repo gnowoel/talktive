@@ -1,6 +1,6 @@
 # Talktive Platform Features & Benefits
 
-This document outlines the features available in the Talktive "Apartment Building" and distinguishes between free community features and **Talktive Plus** premium benefits.
+This document outlines the features available in the Talktive "Apartment Building" and distinguishes between free community features and **Talktive Plus** premium benefits. For details on how to configure these features, see [SETTINGS_SYSTEM.md](./SETTINGS_SYSTEM.md).
 
 ---
 

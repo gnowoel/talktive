@@ -200,10 +200,12 @@ class LoungeService {
     final inviterId = inviter.userInfoId;
     final targetId = target.userInfoId;
 
-    if (inviterId == targetId)
+    if (inviterId == targetId) {
       throw protocol.TalktiveException(message: 'Cannot invite yourself');
-    if (lounge.memberCount >= lounge.maxMembers)
+    }
+    if (lounge.memberCount >= lounge.maxMembers) {
       throw protocol.TalktiveException(message: 'Lounge is full');
+    }
 
     if (await ResidentService.isBlocked(
       session,
@@ -267,8 +269,9 @@ class LoungeService {
     required bool accept,
   }) async {
     final lounge = await protocol.Lounge.db.findById(session, loungeId);
-    if (lounge == null)
+    if (lounge == null) {
       throw protocol.TalktiveException(message: 'Lounge not found');
+    }
 
     final member = await ChannelService.getMember(
       session,
@@ -276,8 +279,9 @@ class LoungeService {
       userId,
     );
 
-    if (member == null || member.status != protocol.ChannelMemberStatus.invited)
+    if (member == null || member.status != protocol.ChannelMemberStatus.invited) {
       throw protocol.TalktiveException(message: 'No pending invitation found');
+    }
 
     if (!accept) {
       await ChannelService.updateMemberStatus(
@@ -290,8 +294,9 @@ class LoungeService {
     }
 
     if (member.invitedBy == lounge.creatorId) {
-      if (lounge.memberCount >= lounge.maxMembers)
+      if (lounge.memberCount >= lounge.maxMembers) {
         throw protocol.TalktiveException(message: 'Lounge is full');
+      }
 
       await ChannelService.updateMemberStatus(
         session,
@@ -309,13 +314,14 @@ class LoungeService {
         'social_butterfly',
       );
       final resident = await ResidentService.getResident(session, userId);
-      if (resident != null)
+      if (resident != null) {
         await GamificationService.awardXP(
           session,
           resident,
           25,
           'Joined lounge',
         );
+      }
 
       // Award Lounge XP
       await awardLoungeXP(session, lounge.channelId, 5, 'Member joined');
@@ -338,12 +344,14 @@ class LoungeService {
     required bool approve,
   }) async {
     final lounge = await protocol.Lounge.db.findById(session, loungeId);
-    if (lounge == null)
+    if (lounge == null) {
       throw protocol.TalktiveException(message: 'Lounge not found');
-    if (lounge.creatorId != creatorId)
+    }
+    if (lounge.creatorId != creatorId) {
       throw protocol.TalktiveException(
         message: 'Only the creator can approve applications',
       );
+    }
 
     final pendingMember = await ChannelService.getMember(
       session,
@@ -352,8 +360,9 @@ class LoungeService {
     );
 
     if (pendingMember == null ||
-        pendingMember.status != protocol.ChannelMemberStatus.applied)
+        pendingMember.status != protocol.ChannelMemberStatus.applied) {
       throw protocol.TalktiveException(message: 'No pending application found');
+    }
 
     if (!approve) {
       await ChannelService.updateMemberStatus(
@@ -365,8 +374,9 @@ class LoungeService {
       return;
     }
 
-    if (lounge.memberCount >= lounge.maxMembers)
+    if (lounge.memberCount >= lounge.maxMembers) {
       throw protocol.TalktiveException(message: 'Lounge is full');
+    }
 
     await ChannelService.updateMemberStatus(
       session,
@@ -384,13 +394,14 @@ class LoungeService {
       'social_butterfly',
     );
     final resident = await ResidentService.getResident(session, targetId);
-    if (resident != null)
+    if (resident != null) {
       await GamificationService.awardXP(
         session,
         resident,
         25,
         'Application approved',
       );
+    }
 
     // Award Lounge XP
     await awardLoungeXP(session, lounge.channelId, 5, 'Member joined');
@@ -411,8 +422,9 @@ class LoungeService {
       userId,
     );
 
-    if (member == null || member.status != protocol.ChannelMemberStatus.joined)
+    if (member == null || member.status != protocol.ChannelMemberStatus.joined) {
       return;
+    }
 
     await ChannelService.updateMemberStatus(
       session,
@@ -429,8 +441,9 @@ class LoungeService {
   static Future<List<protocol.LoungeMemberWithProfile>> getMembersByStatus(
     Session session,
     int channelId,
-    protocol.ChannelMemberStatus status,
-  ) async {
+    protocol.ChannelMemberStatus status, {
+    protocol.Resident? viewer,
+  }) async {
     final members = await protocol.ChannelMember.db.find(
       session,
       where: (t) => t.channelId.equals(channelId) & t.status.equals(status),
@@ -448,7 +461,7 @@ class LoungeService {
           final resident = residentMap[member.userInfoId.toString()];
           if (resident == null) return null;
           return protocol.LoungeMemberWithProfile(
-            resident: resident,
+            resident: ResidentService.gateResident(resident, viewer: viewer),
             status: member.status,
             role: member.role,
             joinedAt: member.joinedAt,
@@ -466,8 +479,9 @@ class LoungeService {
     bool isMuted,
   ) async {
     final lounge = await protocol.Lounge.db.findById(session, loungeId);
-    if (lounge == null)
+    if (lounge == null) {
       throw protocol.TalktiveException(message: 'Lounge not found');
+    }
 
     final member = await protocol.ChannelMember.db.findFirstRow(
       session,
@@ -477,8 +491,9 @@ class LoungeService {
           t.status.equals(protocol.ChannelMemberStatus.joined),
     );
 
-    if (member == null)
+    if (member == null) {
       throw protocol.TalktiveException(message: 'Not a member');
+    }
 
     member.isMuted = isMuted;
     await protocol.ChannelMember.db.updateRow(session, member);
@@ -564,12 +579,14 @@ class LoungeService {
     required UuidValue targetId,
   }) async {
     final lounge = await protocol.Lounge.db.findById(session, loungeId);
-    if (lounge == null)
+    if (lounge == null) {
       throw protocol.TalktiveException(message: 'Lounge not found');
-    if (lounge.creatorId != creatorId)
+    }
+    if (lounge.creatorId != creatorId) {
       throw protocol.TalktiveException(
         message: 'Only the creator can kick members',
       );
+    }
 
     await leaveLounge(session, loungeId: loungeId, userId: targetId);
   }
@@ -629,14 +646,12 @@ class LoungeService {
     }
 
     // 4. Level Check: Did the lounge level up?
-    final nextLevel =
-        (lounge.xp / 100).floor() + 1; // Simplistic: 100 XP per level
+    // We use a cumulative XP system: XP required for level N = (N-1) * 100
+    final totalCumulativeXp = lounge.xp;
+    final nextLevel = (totalCumulativeXp / 100).floor() + 1;
+
     if (nextLevel > lounge.level) {
-      lounge.level = nextLevel; // Update lounge level
-      final xpRequiredForCurrentLevel =
-          (nextLevel - 1) * 100; // XP required to reach the *previous* level
-      lounge.xp -=
-          xpRequiredForCurrentLevel; // Subtract XP for the levels already passed
+      lounge.level = nextLevel;
 
       // Increase capacity on level up: base 50 + (level-1)*20
       lounge.maxMembers = 50 + (lounge.level - 1) * 20;

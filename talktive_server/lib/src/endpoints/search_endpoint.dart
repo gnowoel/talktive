@@ -125,6 +125,7 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
     bool? isPremium,
     int limit = 10,
   }) async {
+    final resident = await getResidentOptional(session);
     return await SearchService.getActiveUsers(
       session,
       gender: gender,
@@ -134,6 +135,7 @@ class SearchEndpoint extends Endpoint with EndpointAuthMixin {
       ageRange: ageRange,
       isPremium: isPremium,
       limit: limit,
+      currentUser: resident,
     );
   }
 }

@@ -112,7 +112,7 @@ class SearchService {
       limit: limit,
     );
 
-    return residents.map((r) => ResidentService.toUserSummary(r)).toList();
+    return residents.map((r) => ResidentService.toUserSummary(r, viewer: currentUser)).toList();
   }
 
   static Expression _buildLoungeFilters(
@@ -343,6 +343,7 @@ class SearchService {
     String? ageRange,
     bool? isPremium,
     int limit = 10,
+    protocol.Resident? currentUser,
   }) async {
     final sevenDaysAgo = DateTime.now().subtract(const Duration(days: 7));
 
@@ -384,11 +385,11 @@ class SearchService {
         limit: limit,
       );
       return fallbackResidents
-          .map((r) => ResidentService.toUserSummary(r))
+          .map((r) => ResidentService.toUserSummary(r, viewer: currentUser))
           .toList();
     }
 
-    return residents.map((r) => ResidentService.toUserSummary(r)).toList();
+    return residents.map((r) => ResidentService.toUserSummary(r, viewer: currentUser)).toList();
   }
 
   /// Search all content (users, lounges, moments)
@@ -449,6 +450,7 @@ class SearchService {
 
       return ResidentService.toUserSummary(
         resident,
+        viewer: currentUser,
         sharedInterests: sharedInterests,
         matchScore: sharedInterests.length,
       );
@@ -490,6 +492,7 @@ class SearchService {
 
       return ResidentService.toUserSummary(
         resident,
+        viewer: currentUser,
         sharedLanguages: sharedLanguages,
         matchScore: sharedLanguages.length,
       );

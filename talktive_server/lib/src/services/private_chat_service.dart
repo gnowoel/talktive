@@ -226,37 +226,24 @@ class PrivateChatService {
           lastMessage.content = content;
           await protocol.Message.db.updateRow(session, lastMessage);
           await session.messages.postMessage('channel_$channelId', lastMessage);
+
+          // Update denormalized preview if needed
+          await ChannelService.updateLastMessage(
+            session,
+            channelId,
+            channelType: channel.type,
+            content: content,
+          );
           return;
         }
       }
 
-      final filteredContent = await MessagingService.validateMessage(
+      // Consolidate messaging logic
+      await MessagingService.sendMessage(
         session,
         sender: sender,
         channel: channel,
         content: content,
-      );
-
-      final message = await protocol.Message.db.insertRow(
-        session,
-        protocol.Message(
-          channelId: channelId,
-          senderId: sender.userInfoId,
-          senderName: sender.userName ?? 'Anonymous',
-          senderAvatar: sender.customAvatarUrl ?? sender.avatar,
-          senderFloor: ApartmentService.computeEffectiveFloor(sender),
-          senderTrustScore: sender.trustScore,
-          isSystem: false,
-          content: filteredContent ?? content,
-          createdAt: DateTime.now(),
-        ),
-      );
-
-      await MessagingService.onMessageSaved(
-        session,
-        message: message,
-        channel: channel,
-        sender: sender,
       );
     } catch (e) {
       session.log('Initial message error: $e', level: LogLevel.warning);
@@ -328,7 +315,10 @@ class PrivateChatService {
         items.add(
           protocol.PrivateChatWithProfile(
             chat: chat,
-            otherResident: otherResident,
+            otherResident: ResidentService.gateResident(
+              otherResident,
+              viewer: currentResident,
+            ),
             otherUserName: otherResident.userName,
             otherUserAvatar:
                 otherResident.customAvatarUrl ?? otherResident.avatar,
@@ -394,7 +384,10 @@ class PrivateChatService {
 
     return protocol.PrivateChatWithProfile(
       chat: chat,
-      otherResident: resident,
+      otherResident: ResidentService.gateResident(
+        resident,
+        viewer: currentResident,
+      ),
       otherUserName: resident.userName,
       otherUserAvatar: resident.customAvatarUrl ?? resident.avatar,
       otherUserMood: resident.mood,

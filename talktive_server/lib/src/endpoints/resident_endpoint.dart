@@ -23,7 +23,11 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
   ) async {
     InputValidationService.validateUuid(userId).throwIfInvalid();
     final userUuid = UuidValue.fromString(userId);
-    return await ResidentService.getResident(session, userUuid);
+    final resident = await ResidentService.getResident(session, userUuid);
+    if (resident == null) return null;
+
+    final viewer = await getAuthenticatedResident(session);
+    return ResidentService.gateResident(resident, viewer: viewer);
   }
 
   /// Initializes a Resident profile for an authenticated user.

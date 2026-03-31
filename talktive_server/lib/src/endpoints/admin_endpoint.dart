@@ -223,8 +223,9 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
   }) async {
     await getStaffProfile(session);
     final detail = await AdminService.getUserDetails(session, userId);
-    if (detail == null)
+    if (detail == null) {
       throw protocol.TalktiveException(message: 'User not found');
+    }
     return detail;
   }
 }

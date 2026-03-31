@@ -599,8 +599,9 @@ class NotificationService {
 
       final recipientIds = <UuidValue>[];
       for (final member in otherMembers) {
-        if (member.isMuted || mentionIdSet.contains(member.userInfoId))
+        if (member.isMuted || mentionIdSet.contains(member.userInfoId)) {
           continue;
+        }
         if (blockedBySet.contains(member.userInfoId)) continue;
         recipientIds.add(member.userInfoId);
       }
@@ -620,7 +621,7 @@ class NotificationService {
 
     await Future.wait([
       ...mentionFutures,
-      if (bulkMemberFuture != null) bulkMemberFuture,
+      ?bulkMemberFuture,
     ]);
   }
 }

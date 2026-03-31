@@ -574,10 +574,12 @@ class GamificationService {
       }
     }
 
-    if (toInsert.isNotEmpty)
+    if (toInsert.isNotEmpty) {
       await protocol.UserAchievement.db.insert(session, toInsert);
-    if (toUpdate.isNotEmpty)
+    }
+    if (toUpdate.isNotEmpty) {
       await protocol.UserAchievement.db.update(session, toUpdate);
+    }
 
     return result;
   }

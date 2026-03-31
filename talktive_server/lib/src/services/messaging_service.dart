@@ -179,14 +179,48 @@ class MessagingService {
       fileSize: fileSize,
     );
 
-    // 2. Build the message object
+    // 2. Apply Outbound Privacy Filtering (Images/Media)
+    String? filteredImageUrl = imageUrl;
+    String? filteredMediaUrl = mediaUrl;
+
+    if (imageUrl != null || mediaUrl != null) {
+      bool allowMedia = true;
+      switch (channel.type) {
+        case protocol.ChannelType.plaza:
+          allowMedia = sender.showImagesInPlaza;
+          break;
+        case protocol.ChannelType.lounge:
+          allowMedia = sender.showImagesInLounges;
+          break;
+        case protocol.ChannelType.private:
+          allowMedia = sender.showImagesInPrivateChats;
+          break;
+      }
+
+      if (!allowMedia) {
+        filteredImageUrl = null;
+        filteredMediaUrl = null;
+      }
+    }
+
+    // Ensure we don't save an entirely empty message if privacy stripped everything
+    String? finalContent = filteredContent;
+    if ((finalContent == null || finalContent.isEmpty) &&
+        filteredImageUrl == null &&
+        filteredMediaUrl == null) {
+      finalContent = '📷 [Image hidden by privacy settings]';
+    }
+
+    // 3. Build the message object
     final message = protocol.Message(
       channelId: channel.id!,
       senderId: sender.userInfoId,
-      content: filteredContent,
-      imageUrl: imageUrl,
-      mediaUrl: mediaUrl,
-      mediaType: mediaType,
+      content: finalContent,
+      imageUrl: filteredImageUrl,
+      mediaUrl: filteredMediaUrl,
+      mediaType: filteredImageUrl != null || filteredMediaUrl != null
+          ? mediaType
+          : null,
       isSystem: isSystem,
       createdAt: DateTime.now(),
       duration: duration,
@@ -332,43 +366,14 @@ class MessagingService {
       );
     }
 
-    bool canPin = false;
-    if (resident.role == protocol.ResidentRole.admin ||
-        resident.role == protocol.ResidentRole.moderator) {
-      if (channel.type != protocol.ChannelType.private) {
-        canPin = true;
-      }
-    }
-
-    if (!canPin) {
-      if (channel.type == protocol.ChannelType.lounge) {
-        final lounge = await protocol.Lounge.db.findFirstRow(
-          session,
-          where: (t) => t.channelId.equals(channel.id!),
-        );
-        if (lounge != null && lounge.creatorId == resident.userInfoId) {
-          canPin = true;
-        }
-      } else if (channel.type == protocol.ChannelType.private) {
-        final privateChat = await protocol.PrivateChat.db.findFirstRow(
-          session,
-          where: (t) => t.channelId.equals(channel.id!),
-        );
-        if (privateChat != null &&
-            (privateChat.participant1Id == resident.userInfoId ||
-                privateChat.participant2Id == resident.userInfoId)) {
-          canPin = true;
-        }
-      }
-    }
-
-    if (!canPin) {
+    if (!await _hasManagementPermission(session, channel, resident)) {
       throw protocol.TalktiveException(
-        message:
-            'Access denied: You do not have permission to pin messages in this channel.',
+        message: 'Access denied: You do not have permission to pin messages in this channel.',
         code: 'ACCESS_DENIED',
       );
     }
+
+    // 1. Unpin existing messages for this channel (only one pinned message at a time)
 
     final existingPinned = await protocol.Message.db.find(
       session,
@@ -432,40 +437,9 @@ class MessagingService {
       );
     }
 
-    bool canUnpin = false;
-    if (resident.role == protocol.ResidentRole.admin ||
-        resident.role == protocol.ResidentRole.moderator) {
-      if (channel.type != protocol.ChannelType.private) {
-        canUnpin = true;
-      }
-    }
-
-    if (!canUnpin) {
-      if (channel.type == protocol.ChannelType.lounge) {
-        final lounge = await protocol.Lounge.db.findFirstRow(
-          session,
-          where: (t) => t.channelId.equals(channel.id!),
-        );
-        if (lounge != null && lounge.creatorId == resident.userInfoId) {
-          canUnpin = true;
-        }
-      } else if (channel.type == protocol.ChannelType.private) {
-        final privateChat = await protocol.PrivateChat.db.findFirstRow(
-          session,
-          where: (t) => t.channelId.equals(channel.id!),
-        );
-        if (privateChat != null &&
-            (privateChat.participant1Id == resident.userInfoId ||
-                privateChat.participant2Id == resident.userInfoId)) {
-          canUnpin = true;
-        }
-      }
-    }
-
-    if (!canUnpin) {
+    if (!await _hasManagementPermission(session, channel, resident)) {
       throw protocol.TalktiveException(
-        message:
-            'Access denied: You do not have permission to unpin messages in this channel.',
+        message: 'Access denied: You do not have permission to unpin messages in this channel.',
         code: 'ACCESS_DENIED',
       );
     }
@@ -513,37 +487,14 @@ class MessagingService {
       );
     }
 
-    bool canRecall = false;
-
-    // 1. Own message can always be recalled
-    if (message.senderId == resident.userInfoId) {
-      canRecall = true;
-    }
-
-    // 2. Staff (Admin/Moderator) can recall in non-private spaces
-    if (!canRecall &&
-        (resident.role == protocol.ResidentRole.admin ||
-            resident.role == protocol.ResidentRole.moderator)) {
-      if (channel.type != protocol.ChannelType.private) {
-        canRecall = true;
-      }
-    }
-
-    // 3. Lounge Creator can recall in their lounge
-    if (!canRecall && channel.type == protocol.ChannelType.lounge) {
-      final lounge = await protocol.Lounge.db.findFirstRow(
-        session,
-        where: (t) => t.channelId.equals(channel.id!),
-      );
-      if (lounge != null && lounge.creatorId == resident.userInfoId) {
-        canRecall = true;
-      }
+    bool canRecall = (message.senderId == resident.userInfoId);
+    if (!canRecall) {
+      canRecall = await _hasManagementPermission(session, channel, resident);
     }
 
     if (!canRecall) {
       throw protocol.TalktiveException(
-        message:
-            'Access denied: You do not have permission to recall this message.',
+        message: 'Access denied: You do not have permission to recall this message.',
         code: 'ACCESS_DENIED',
       );
     }
@@ -564,49 +515,9 @@ class MessagingService {
     );
 
     // Update Denormalized Info (Preview text) if it was the last message
+    // Update Denormalized Preview if needed
     if (channel.type != protocol.ChannelType.plaza) {
-      bool isLast = false;
-      if (channel.type == protocol.ChannelType.private) {
-        final pc = await protocol.PrivateChat.db.findFirstRow(
-          session,
-          where: (t) => t.channelId.equals(channel.id!),
-        );
-        if (pc != null && pc.lastMessageAt != null) {
-          // Approximate check: if recalled message was the latest according to time
-          // Better: We could just check if there's any message newer than this one.
-          final newerMsg = await protocol.Message.db.findFirstRow(
-            session,
-            where: (t) =>
-                t.channelId.equals(channel.id!) &
-                (t.createdAt > message.createdAt),
-          );
-          if (newerMsg == null) isLast = true;
-        }
-      } else if (channel.type == protocol.ChannelType.lounge) {
-        final lounge = await protocol.Lounge.db.findFirstRow(
-          session,
-          where: (t) => t.channelId.equals(channel.id!),
-        );
-        if (lounge != null && lounge.lastMessageAt != null) {
-          final newerMsg = await protocol.Message.db.findFirstRow(
-            session,
-            where: (t) =>
-                t.channelId.equals(channel.id!) &
-                (t.createdAt > message.createdAt),
-          );
-          if (newerMsg == null) isLast = true;
-        }
-      }
-
-      if (isLast) {
-        await ChannelService.updateLastMessage(
-          session,
-          channel.id!,
-          channelType: channel.type,
-          content: 'Message recalled 🔄',
-          updateTimestamp: false,
-        );
-      }
+      await ChannelService.syncLastMessageFromDb(session, channel.id!, channel.type);
     }
 
     // Broadcast update
@@ -616,5 +527,42 @@ class MessagingService {
     );
 
     return updatedMessage;
+  }
+
+  /// Checks if a resident has administrative permission in a specific channel.
+  static Future<bool> _hasManagementPermission(
+    Session session,
+    protocol.Channel channel,
+    protocol.Resident resident,
+  ) async {
+    // 1. Staff (Admin/Moderator) in public spaces
+    if (resident.role == protocol.ResidentRole.admin ||
+        resident.role == protocol.ResidentRole.moderator) {
+      if (channel.type != protocol.ChannelType.private) return true;
+    }
+
+    // 2. Lounge Creator
+    if (channel.type == protocol.ChannelType.lounge) {
+      final lounge = await protocol.Lounge.db.findFirstRow(
+        session,
+        where: (t) => t.channelId.equals(channel.id!),
+      );
+      if (lounge != null && lounge.creatorId == resident.userInfoId) return true;
+    }
+
+    // 3. Private Chat Participants (Both participants are "owners" of the thread)
+    if (channel.type == protocol.ChannelType.private) {
+      final privateChat = await protocol.PrivateChat.db.findFirstRow(
+        session,
+        where: (t) => t.channelId.equals(channel.id!),
+      );
+      if (privateChat != null &&
+          (privateChat.participant1Id == resident.userInfoId ||
+              privateChat.participant2Id == resident.userInfoId)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

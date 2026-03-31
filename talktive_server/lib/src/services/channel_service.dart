@@ -92,9 +92,10 @@ class ChannelService {
     String? imageUrl,
     String? mediaUrl,
     String? mediaType,
+    DateTime? lastAt, // Optional custom timestamp
     bool updateTimestamp = true,
   }) async {
-    final now = DateTime.now();
+    final now = lastAt ?? DateTime.now();
 
     // Determine the preview text
     String? previewText;
@@ -117,9 +118,7 @@ class ChannelService {
         where: (t) => t.channelId.equals(channelId),
       );
       if (privateChat != null) {
-        if (updateTimestamp) {
-          privateChat.lastMessageAt = now;
-        }
+        if (updateTimestamp) privateChat.lastMessageAt = now;
         privateChat.lastMessage = previewText;
         await protocol.PrivateChat.db.updateRow(session, privateChat);
       }
@@ -129,12 +128,49 @@ class ChannelService {
         where: (t) => t.channelId.equals(channelId),
       );
       if (lounge != null) {
-        if (updateTimestamp) {
-          lounge.lastMessageAt = now;
-        }
+        if (updateTimestamp) lounge.lastMessageAt = now;
         lounge.lastMessage = previewText;
         await protocol.Lounge.db.updateRow(session, lounge);
       }
+    }
+  }
+
+  /// Recalculates and updates the last message preview by fetching the latest non-recalled message from the DB.
+  static Future<void> syncLastMessageFromDb(
+    Session session,
+    int channelId,
+    protocol.ChannelType channelType,
+  ) async {
+    if (channelType == protocol.ChannelType.plaza) return;
+
+    final lastMsg = await protocol.Message.db.findFirstRow(
+      session,
+      where: (t) => t.channelId.equals(channelId) & t.isRecalled.equals(false),
+      orderBy: (t) => t.createdAt,
+      orderDescending: true,
+    );
+
+    if (lastMsg != null) {
+      await updateLastMessage(
+        session,
+        channelId,
+        channelType: channelType,
+        content: lastMsg.content,
+        imageUrl: lastMsg.imageUrl,
+        mediaUrl: lastMsg.mediaUrl,
+        mediaType: lastMsg.mediaType,
+        lastAt: lastMsg.createdAt,
+        updateTimestamp: true,
+      );
+    } else {
+      // No messages left or all recalled
+      await updateLastMessage(
+        session,
+        channelId,
+        channelType: channelType,
+        content: null,
+        updateTimestamp: false,
+      );
     }
   }
 

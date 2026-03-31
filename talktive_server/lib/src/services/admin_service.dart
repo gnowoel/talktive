@@ -283,8 +283,9 @@ class AdminService {
     bool? isStaffLocked,
   }) async {
     final lounge = await protocol.Lounge.db.findById(session, loungeId);
-    if (lounge == null)
+    if (lounge == null) {
       throw protocol.TalktiveException(message: 'Lounge not found');
+    }
 
     if (isPublic != null) lounge.isPublic = isPublic;
     if (isStaffLocked != null) lounge.isStaffLocked = isStaffLocked;
@@ -387,8 +388,9 @@ class AdminService {
       session,
       where: (t) => t.userInfoId.equals(userId),
     );
-    if (resident == null)
+    if (resident == null) {
       throw protocol.TalktiveException(message: 'User not found');
+    }
 
     resident.suspended = suspended;
     if (suspended) {
@@ -409,8 +411,9 @@ class AdminService {
       session,
       where: (t) => t.userInfoId.equals(userId),
     );
-    if (resident == null)
+    if (resident == null) {
       throw protocol.TalktiveException(message: 'User not found');
+    }
 
     resident.mutedUntil = until;
     await protocol.Resident.db.updateRow(session, resident);
@@ -426,8 +429,9 @@ class AdminService {
       session,
       where: (t) => t.userInfoId.equals(userId),
     );
-    if (resident == null)
+    if (resident == null) {
       throw protocol.TalktiveException(message: 'User not found');
+    }
 
     resident.role = role;
     await protocol.Resident.db.updateRow(session, resident);
@@ -442,8 +446,9 @@ class AdminService {
       session,
       where: (t) => t.userInfoId.equals(userId),
     );
-    if (resident == null)
+    if (resident == null) {
       throw protocol.TalktiveException(message: 'User not found');
+    }
 
     resident.trustScore = 100;
     resident.mutedUntil = null;

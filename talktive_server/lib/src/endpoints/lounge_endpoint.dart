@@ -193,8 +193,9 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     }
 
     final target = await ResidentService.getResident(session, targetUserId);
-    if (target == null)
+    if (target == null) {
       throw protocol.TalktiveException(message: 'User profile not found');
+    }
 
     await LoungeService.inviteUser(
       session,
@@ -267,11 +268,13 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     Session session,
     int loungeId,
   ) async {
+    final resident = await getAuthenticatedResident(session);
     final lounge = await getLounge(session, loungeId);
     return await LoungeService.getMembersByStatus(
       session,
       lounge.channelId,
       protocol.ChannelMemberStatus.joined,
+      viewer: resident,
     );
   }
 
@@ -289,10 +292,12 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
       );
     }
 
+    final resident = await getAuthenticatedResident(session);
     return await LoungeService.getMembersByStatus(
       session,
       lounge.channelId,
       protocol.ChannelMemberStatus.applied,
+      viewer: resident,
     );
   }
 
@@ -329,30 +334,37 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     }
 
     // Validation
-    if (name != null)
+    if (name != null) {
       InputValidationService.validateLoungeName(name).throwIfInvalid();
-    if (description != null)
+    }
+    if (description != null) {
       InputValidationService.validateLoungeDescription(
         description,
       ).throwIfInvalid();
-    if (maxMembers != null)
+    }
+    if (maxMembers != null) {
       InputValidationService.validateLoungeMemberLimit(
         maxMembers,
       ).throwIfInvalid();
-    if (interests != null)
+    }
+    if (interests != null) {
       InputValidationService.validateStringList(
         interests,
         'Interests',
       ).throwIfInvalid();
-    if (languages != null)
+    }
+    if (languages != null) {
       InputValidationService.validateStringList(
         languages,
         'Languages',
       ).throwIfInvalid();
-    if (country != null)
+    }
+    if (country != null) {
       InputValidationService.validateCountry(country).throwIfInvalid();
-    if (rules != null)
+    }
+    if (rules != null) {
       InputValidationService.validateLoungeRules(rules).throwIfInvalid();
+    }
 
     if (isPublic != null && isPublic && lounge.isStaffLocked) {
       throw protocol.TalktiveException(

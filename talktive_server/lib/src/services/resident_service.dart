@@ -28,11 +28,20 @@ class ResidentService {
     final missingIds = <UuidValue>[];
     final cacheKeyMap = {for (final id in userIds) id: 'resident_$id'};
 
-    // 1. Try Session Cache (Local)
+    // 1. Try Cache Lookups (Session Local -> Global)
     for (final id in userIds) {
-      final cached = await session.caches.local.get<protocol.Resident>(
-        cacheKeyMap[id]!,
-      );
+      final key = cacheKeyMap[id]!;
+      protocol.Resident? cached = await session.caches.local.get<protocol.Resident>(key);
+      
+      if (cached == null) {
+        try {
+          cached = await session.caches.global.get<protocol.Resident>(key);
+          if (cached != null) {
+            await session.caches.local.put(key, cached);
+          }
+        } catch (_) {}
+      }
+
       if (cached != null) {
         result.add(cached);
       } else {
@@ -42,53 +51,19 @@ class ResidentService {
 
     if (missingIds.isEmpty) return result;
 
-    // 2. Try Global Cache for remaining IDs
-    final stillMissingIds = <UuidValue>[];
-    for (final id in List<UuidValue>.from(missingIds)) {
-      protocol.Resident? globalCached;
-      try {
-        globalCached = await session.caches.global.get<protocol.Resident>(
-          cacheKeyMap[id]!,
-        );
-      } catch (e) {
-        // Redis connection failure
-        session.log('Global cache error (get): $e', level: LogLevel.debug);
-      }
-
-      if (globalCached != null) {
-        result.add(globalCached);
-        await session.caches.local.put(cacheKeyMap[id]!, globalCached);
-        missingIds.remove(id);
-      } else {
-        stillMissingIds.add(id);
-      }
-    }
-
-    if (stillMissingIds.isEmpty) return result;
-
-    // 3. Database Fallback for remaining IDs
+    // 2. Database Fallback
     final residentsFromDb = await protocol.Resident.db.find(
       session,
-      where: (t) => t.userInfoId.inSet(stillMissingIds.toSet()),
+      where: (t) => t.userInfoId.inSet(missingIds.toSet()),
     );
 
     for (final resident in residentsFromDb) {
       result.add(resident);
       final key = cacheKeyMap[resident.userInfoId]!;
-      await session.caches.local.put(
-        key,
-        resident,
-        lifetime: const Duration(minutes: 5),
-      );
+      await session.caches.local.put(key, resident, lifetime: const Duration(minutes: 5));
       try {
-        await session.caches.global.put(
-          key,
-          resident,
-          lifetime: const Duration(minutes: 5),
-        );
-      } catch (e) {
-        session.log('Global cache error (put): $e', level: LogLevel.debug);
-      }
+        await session.caches.global.put(key, resident, lifetime: const Duration(minutes: 5));
+      } catch (_) {}
     }
 
     return result;
@@ -323,10 +298,13 @@ class ResidentService {
   /// Converts a Resident to a UserSummary.
   static protocol.UserSummary toUserSummary(
     protocol.Resident resident, {
+    protocol.Resident? viewer,
     List<String>? sharedInterests,
     List<String>? sharedLanguages,
     int? matchScore,
   }) {
+    final canSeeOnline = viewer != null && canSeeOthersOnlineStatus(viewer);
+
     return protocol.UserSummary(
       userId: resident.userInfoId,
       userName: resident.userName,
@@ -338,9 +316,22 @@ class ResidentService {
       sharedLanguages: sharedLanguages,
       matchScore: matchScore,
       ageRange: resident.ageRange,
-      isOnline: isResidentOnline(resident),
+      isOnline: canSeeOnline ? isResidentOnline(resident) : false,
       role: resident.role,
     );
+  }
+
+  /// Returns a gated copy of the resident based on the viewer's permissions.
+  /// Nulls out sensitive fields like lastSeen if the viewer cannot see them.
+  static protocol.Resident gateResident(
+    protocol.Resident target, {
+    protocol.Resident? viewer,
+  }) {
+    if (viewer == null || !canSeeOthersOnlineStatus(viewer)) {
+      // In Serverpod, we use copyWith to avoid mutating the original object if it's cached
+      return target.copyWith(lastSeen: null);
+    }
+    return target;
   }
 
   /// Helper to check if a resident is online based on lastSeen.
@@ -447,7 +438,7 @@ class ResidentService {
         bio: resident.bio,
         ageRange: resident.ageRange,
         lastSeen: resident.lastSeen,
-        isOnline: isResidentOnline(resident),
+        isOnline: false, // Default to false, handled by supplement if viewer exists
         isPremium: resident.isPremium,
         role: resident.role,
         topAchievements: topAchievements,
@@ -458,64 +449,58 @@ class ResidentService {
         await session.caches.global.put(
           baseCacheKey,
           profile,
-          lifetime: Duration(minutes: 2),
+          lifetime: const Duration(minutes: 2),
         );
-      } catch (e) {
-        session.log('Cache error (put profile): $e', level: LogLevel.debug);
-      }
+      } catch (_) {}
     }
 
     // 2. Supplement with viewer-specific state (NOT CACHED globally)
     if (viewerId != null) {
-      final socialDetails = await Future.wait([
-        ResidentService.isBlocked(
-          session,
-          blockerId: viewerId,
-          blockedId: targetId,
-        ),
-        ResidentService.isBlocked(
-          session,
-          blockerId: targetId,
-          blockedId: viewerId,
-        ),
-        protocol.UserLike.db.findFirstRow(
-          session,
-          where: (t) =>
-              t.senderId.equals(viewerId) & t.receiverId.equals(targetId),
-        ),
-        protocol.ChannelMember.db.find(
-          session,
-          where: (t) => t.userInfoId.equals(viewerId),
-        ),
-        protocol.ChannelMember.db.find(
-          session,
-          where: (t) => t.userInfoId.equals(targetId),
-        ),
-      ]);
-
-      final isBlocked = socialDetails[0] as bool;
-      final hasBlockedMe = socialDetails[1] as bool;
-      final isLiked = socialDetails[2] != null;
-
-      final viewerLoungeIds = (socialDetails[3] as List<protocol.ChannelMember>)
-          .map((g) => g.channelId)
-          .toSet();
-      final targetLoungeIds = (socialDetails[4] as List<protocol.ChannelMember>)
-          .map((g) => g.channelId)
-          .toSet();
-      final mutualLoungesCount = viewerLoungeIds
-          .intersection(targetLoungeIds)
-          .length;
-
-      return profile.copyWith(
-        isBlocked: isBlocked,
-        hasBlockedMe: hasBlockedMe,
-        isLiked: isLiked,
-        mutualLounges: mutualLoungesCount,
-      );
+      return await _supplementProfileWithSocialState(session, profile, viewerId, targetId);
     }
 
     return profile;
+  }
+
+  /// Supplements a profile view with data specific to the viewer (blocking, mutual lounges, etc).
+  static Future<protocol.UserProfileView> _supplementProfileWithSocialState(
+    Session session,
+    protocol.UserProfileView profile,
+    UuidValue viewerId,
+    UuidValue targetId,
+  ) async {
+    final results = await Future.wait([
+      ResidentService.isBlocked(session, blockerId: viewerId, blockedId: targetId),
+      ResidentService.isBlocked(session, blockerId: targetId, blockedId: viewerId),
+      protocol.UserLike.db.findFirstRow(
+        session,
+        where: (t) => t.senderId.equals(viewerId) & t.receiverId.equals(targetId),
+      ),
+      protocol.ChannelMember.db.find(session, where: (t) => t.userInfoId.equals(viewerId)),
+      protocol.ChannelMember.db.find(session, where: (t) => t.userInfoId.equals(targetId)),
+    ]);
+
+    final isBlocked = results[0] as bool;
+    final hasBlockedMe = results[1] as bool;
+    final isLiked = results[2] != null;
+
+    final viewerLoungeIds = (results[3] as List<protocol.ChannelMember>).map((m) => m.channelId).toSet();
+    final targetLoungeIds = (results[4] as List<protocol.ChannelMember>).map((m) => m.channelId).toSet();
+    final mutualLoungesCount = viewerLoungeIds.intersection(targetLoungeIds).length;
+
+    final viewerResident = await getResident(session, viewerId);
+    final canSeeOnline = viewerResident != null && canSeeOthersOnlineStatus(viewerResident);
+    final targetResident = await getResident(session, targetId);
+    final isOnline = canSeeOnline && targetResident != null && isResidentOnline(targetResident);
+
+    return profile.copyWith(
+      isBlocked: isBlocked,
+      hasBlockedMe: hasBlockedMe,
+      isLiked: isLiked,
+      mutualLounges: mutualLoungesCount,
+      isOnline: isOnline,
+      lastSeen: canSeeOnline ? profile.lastSeen : null,
+    );
   }
 
   /// Converts a Resident to an AdminUserSummary (for staff views).

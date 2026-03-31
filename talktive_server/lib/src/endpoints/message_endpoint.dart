@@ -3,13 +3,9 @@ import 'package:serverpod/serverpod.dart';
 // Removed redundant Auth Server import
 // Added UUID import
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
-import '../services/apartment_service.dart';
 
 import '../services/input_validation_service.dart';
-import '../services/mention_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
-import '../utils/task_utils.dart';
-import '../services/notification_service.dart';
 import '../services/resident_service.dart';
 import '../services/channel_service.dart';
 import '../services/messaging_service.dart';
@@ -63,9 +59,17 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
 
   /// Subscribes to a channel to receive real-time updates (Messages, Typing, etc).
   Stream<SerializableModel> subscribe(Session session, int channelId) async* {
-    await getUserId(session);
+    final resident = await getAuthenticatedResident(session);
     final streamKey = 'channel_$channelId';
-    yield* session.messages.createStream(streamKey);
+
+    final canSeeTyping = ResidentService.canSeeOthersTypingIndicators(resident);
+    final canSeeRead = ResidentService.canSeeOthersReadReceipts(resident);
+
+    yield* session.messages.createStream(streamKey).where((event) {
+      if (event is protocol.TypingIndicator) return canSeeTyping;
+      if (event is protocol.ReadReceiptEvent) return canSeeRead;
+      return true;
+    }).cast<SerializableModel>();
   }
 
   /// Fetches the history of messages for a channel.

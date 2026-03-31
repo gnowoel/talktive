@@ -1402,11 +1402,11 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
             Expanded(
               flex: (_currentStep == 0 && !isEditing) ? 1 : 2,
               child: DuoButton(
-                text: _currentStep < 6 ? 'Next' : 'Complete Setup',
+                text: _currentStep < 7 ? 'Next' : 'Complete Setup',
                 onPressed: _isLoading ? null : _nextStep,
                 isLoading: _isLoading,
                 variant: DuoButtonVariant.primary,
-                secondaryEmoji: _currentStep < 6 ? null : '🎉',
+                secondaryEmoji: _currentStep < 7 ? null : '🎉',
               ),
             ),
           ],

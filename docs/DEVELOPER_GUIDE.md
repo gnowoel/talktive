@@ -77,6 +77,8 @@ Access to public features is restricted by `min(level, trustCap)`.
 
 - **Blocking**: Restricts both private messages and push notifications.
 - **Peephole**: Provides a `UserProfileView` (including recent moments and top badges) for safe invite inspection.
+- **Inbound Privacy Gating**: We use a "gate-at-the-boundary" pattern. All profile-returning methods must utilize `ResidentService.gateResident(viewer, resident)` to ensure sensitive fields (e.g., `lastSeen`) are only visible to authorized (Plus) members.
+- **Real-Time Filtering**: WebSocket streams in `MessageEndpoint.subscribe` are programmatically filtered to strip `TypingIndicator` and `ReadReceiptEvent` objects for non-Plus subscribers.
 
 ---
 

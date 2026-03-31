@@ -179,46 +179,14 @@ class MessagingService {
       fileSize: fileSize,
     );
 
-    // 2. Apply Outbound Privacy Filtering (Images/Media)
-    String? filteredImageUrl = imageUrl;
-    String? filteredMediaUrl = mediaUrl;
-
-    if (imageUrl != null || mediaUrl != null) {
-      bool allowMedia = true;
-      switch (channel.type) {
-        case protocol.ChannelType.plaza:
-          allowMedia = sender.showImagesInPlaza;
-          break;
-        case protocol.ChannelType.lounge:
-          allowMedia = sender.showImagesInLounges;
-          break;
-        case protocol.ChannelType.private:
-          allowMedia = sender.showImagesInPrivateChats;
-          break;
-      }
-
-      if (!allowMedia) {
-        filteredImageUrl = null;
-        filteredMediaUrl = null;
-      }
-    }
-
-    // Ensure we don't save an entirely empty message if privacy stripped everything
-    String? finalContent = filteredContent;
-    if ((finalContent == null || finalContent.isEmpty) &&
-        filteredImageUrl == null &&
-        filteredMediaUrl == null) {
-      finalContent = '📷 [Image hidden by privacy settings]';
-    }
-
-    // 3. Build the message object
+    // 2. Build the message object (Outbound Privacy Filtering for images/media removed)
     final message = protocol.Message(
       channelId: channel.id!,
       senderId: sender.userInfoId,
-      content: finalContent,
-      imageUrl: filteredImageUrl,
-      mediaUrl: filteredMediaUrl,
-      mediaType: filteredImageUrl != null || filteredMediaUrl != null
+      content: filteredContent,
+      imageUrl: imageUrl,
+      mediaUrl: mediaUrl,
+      mediaType: imageUrl != null || mediaUrl != null
           ? mediaType
           : null,
       isSystem: isSystem,

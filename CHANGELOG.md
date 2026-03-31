@@ -1,5 +1,23 @@
 # Talktive Development Changelog
 
+## March 31, 2026 - Advanced Privacy Gating & Inbound Security (Phase 8.97) 🏗️🛡️💎
+
+### Server-Side Privacy Hardening
+
+- **Inbound Online Status Gating**: Implemented `ResidentService.gateResident` to strictly filter sensitive profile data (like `lastSeen`) based on the viewer's Talktive Plus status.
+- **Real-Time Stream Security**: Hardened `MessageEndpoint` to filter WebSocket broadcasts. `TypingIndicator` and `ReadReceiptEvent` objects are now stripped from the stream for non-Plus members to ensure zero data leakage.
+- **Comprehensive API Filtering**:
+  - **Search & Discovery**: Integrated viewer context into `SearchService` to hide online status in search results.
+  - **Private Chats**: Gated resident profiles in chat listings and detail views.
+  - **Lounge Members**: Applied privacy gating to lounge member lists and pending application views.
+  - **Profile Deep Links**: Secured `getResidentById` to prevent direct online status leaks via raw IDs.
+
+### Technical Integrity
+
+- **Centralized Gating Logic**: Moved all profile filtering into a reusable `ResidentService` utility, ensuring consistent results across all endpoints.
+- **Improved View Models**: Updated `UserProfileView` to consistently handle the `isOnline` and `lastSeen` fields based on inbound permissions.
+- **Consistent Entitlement Checks**: Centralized all Plus-member permission checks (`canSeeOthersOnlineStatus`, etc.) within `ResidentService`.
+
 ## March 30, 2026 - Resident Model Polish & Technical Debt Cleanup (Phase 8.96) 🏗️🧹💎
 
 ### Resident Model Refinement

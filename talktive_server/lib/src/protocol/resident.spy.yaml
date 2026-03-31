@@ -51,12 +51,6 @@ fields:
   showCustomAvatar: bool, default=true
   keepPrivateChats: bool, default=true
 
-  # Privacy Settings (Outbound - controls visibility to others)
-  showImagesInPlaza: bool, default=true
-  showImagesInLounges: bool, default=true
-  showImagesInPrivateChats: bool, default=true
-  showImagesInMoments: bool, default=true
-
   customAvatarUrl: String?
 
 indexes:

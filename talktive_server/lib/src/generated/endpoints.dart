@@ -2408,8 +2408,8 @@ class Endpoints extends _i1.EndpointDispatch {
                     params['userId'],
                   ),
         ),
-        'updatePrivacySettings': _i1.MethodConnector(
-          name: 'updatePrivacySettings',
+        'updatePrivacy': _i1.MethodConnector(
+          name: 'updatePrivacy',
           params: {
             'hideAds': _i1.ParameterDescription(
               name: 'hideAds',
@@ -2421,8 +2421,8 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<bool?>(),
               nullable: true,
             ),
-            'showNeighborsDiscovery': _i1.ParameterDescription(
-              name: 'showNeighborsDiscovery',
+            'showAdvancedDiscovery': _i1.ParameterDescription(
+              name: 'showAdvancedDiscovery',
               type: _i1.getType<bool?>(),
               nullable: true,
             ),
@@ -2457,11 +2457,11 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async => (endpoints['resident'] as _i13.ResidentEndpoint)
-                  .updatePrivacySettings(
+                  .updatePrivacy(
                     session,
                     hideAds: params['hideAds'],
                     showVoiceMessages: params['showVoiceMessages'],
-                    showNeighborsDiscovery: params['showNeighborsDiscovery'],
+                    showAdvancedDiscovery: params['showAdvancedDiscovery'],
                     showCustomAvatar: params['showCustomAvatar'],
                     showOthersOnlineStatus: params['showOthersOnlineStatus'],
                     showOthersReadReceipts: params['showOthersReadReceipts'],

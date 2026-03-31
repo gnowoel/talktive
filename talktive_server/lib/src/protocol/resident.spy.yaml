@@ -51,6 +51,12 @@ fields:
   showCustomAvatar: bool, default=true
   keepPrivateChats: bool, default=true
 
+  # Outbound Privacy Toggles (Temporary restore for DB sync)
+  showImagesInPlaza: bool, default=true
+  showImagesInLounges: bool, default=true
+  showImagesInPrivateChats: bool, default=true
+  showImagesInMoments: bool, default=true
+
   customAvatarUrl: String?
 
 indexes:

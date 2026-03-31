@@ -1332,10 +1332,10 @@ class EndpointResident extends _i2.EndpointRef {
       );
 
   /// Updates privacy settings (Others, Voice, Search, etc).
-  _i3.Future<_i11.Resident> updatePrivacySettings({
+  _i3.Future<_i11.Resident> updatePrivacy({
     bool? hideAds,
     bool? showVoiceMessages,
-    bool? showNeighborsDiscovery,
+    bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
@@ -1343,11 +1343,11 @@ class EndpointResident extends _i2.EndpointRef {
     bool? keepPrivateChats,
   }) => caller.callServerEndpoint<_i11.Resident>(
     'resident',
-    'updatePrivacySettings',
+    'updatePrivacy',
     {
       'hideAds': hideAds,
       'showVoiceMessages': showVoiceMessages,
-      'showNeighborsDiscovery': showNeighborsDiscovery,
+      'showAdvancedDiscovery': showAdvancedDiscovery,
       'showCustomAvatar': showCustomAvatar,
       'showOthersOnlineStatus': showOthersOnlineStatus,
       'showOthersReadReceipts': showOthersReadReceipts,

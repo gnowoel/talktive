@@ -12,7 +12,6 @@ import '../../helpers/duo_snackbar_helper.dart';
 import '../../helpers/duo_upgrade_helper.dart';
 import '../../helpers/resident_ext.dart';
 import '../../serverpod_client.dart';
-import '../../services/ad/ad_service.dart';
 import '../../services/ad/consent_service.dart';
 
 class SettingsScreen extends ConsumerWidget {

@@ -10,7 +10,6 @@ import '../../helpers/duo_snackbar_helper.dart';
 import '../../helpers/duo_floor_helper.dart';
 import '../../helpers/duo_upgrade_helper.dart';
 import '../../helpers/resident_ext.dart';
-import 'package:talktive_client/talktive_client.dart';
 
 mixin ChatScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   final ScrollController scrollController = ScrollController();

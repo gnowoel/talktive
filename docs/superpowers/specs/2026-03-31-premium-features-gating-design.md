@@ -21,7 +21,7 @@ This design ensures that Talktive's premium features (voice messages, custom ava
 The following 8 toggles must be respected:
 1. `showVoiceMessages`
 2. `showCustomAvatar`
-3. `showNeighborsDiscovery` (Universal Discovery policy applies, but toggle allows opting out)
+3. `showAdvancedDiscovery` (Enables Advanced Search with terms/filters; Basic recommendations are free)
 4. `keepPrivateChats`
 5. `hideAds` (Paid only)
 6. `showOthersOnlineStatus`
@@ -36,6 +36,13 @@ The following 8 toggles must be respected:
 ## 3. Architecture
 
 ### 3.1 Backend (Serverpod)
+
+#### SearchService Enhancements
+- **Basic Discovery:** (Recommendation lists) Available to all users regardless of tier.
+- **Advanced Discovery:** (Search with `terms` or `filters`)
+    - Requires `ResidentService.isPlusMember(resident)`.
+    - Requires `resident.showAdvancedDiscovery == true`.
+    - This applies to both **People Search** and **Lounge Search**.
 
 #### Resident Model Update
 - Ensure `premiumTrialExpires` correctly tracks expiration for both trials and paid subscriptions.

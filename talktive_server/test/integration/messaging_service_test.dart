@@ -117,6 +117,27 @@ void main() {
         );
       });
 
+      test('allows voice message for trial Floor 2 user', () async {
+        final session = sessionBuilder.build();
+        
+        testUser.level = 2;
+        testUser.isPremium = false;
+        testUser.premiumTrialExpires = DateTime.now().add(const Duration(days: 7));
+        await protocol.Resident.db.updateRow(session, testUser);
+
+        final result = await MessagingService.validateMessage(
+          session,
+          sender: testUser,
+          channel: plazaChannel,
+          mediaType: 'voice',
+          mediaUrl: 'https://example.com/voice.m4a',
+          duration: 5,
+          fileSize: 1024,
+        );
+
+        expect(result, isNull);
+      });
+
       test('allows voice message for premium Floor 2 user', () async {
         final session = sessionBuilder.build();
         

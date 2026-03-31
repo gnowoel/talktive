@@ -51,6 +51,10 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
     bool? keepPrivateChats,
+    bool? showImagesInPlaza,
+    bool? showImagesInLounges,
+    bool? showImagesInPrivateChats,
+    bool? showImagesInMoments,
     this.customAvatarUrl,
   }) : trustScore = trustScore ?? 100,
        suspended = suspended ?? false,
@@ -69,7 +73,11 @@ abstract class Resident implements _i1.SerializableModel {
        showVoiceMessages = showVoiceMessages ?? true,
        showAdvancedDiscovery = showAdvancedDiscovery ?? true,
        showCustomAvatar = showCustomAvatar ?? true,
-       keepPrivateChats = keepPrivateChats ?? true;
+       keepPrivateChats = keepPrivateChats ?? true,
+       showImagesInPlaza = showImagesInPlaza ?? true,
+       showImagesInLounges = showImagesInLounges ?? true,
+       showImagesInPrivateChats = showImagesInPrivateChats ?? true,
+       showImagesInMoments = showImagesInMoments ?? true;
 
   factory Resident({
     int? id,
@@ -107,6 +115,10 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
     bool? keepPrivateChats,
+    bool? showImagesInPlaza,
+    bool? showImagesInLounges,
+    bool? showImagesInPrivateChats,
+    bool? showImagesInMoments,
     String? customAvatarUrl,
   }) = _ResidentImpl;
 
@@ -219,6 +231,27 @@ abstract class Resident implements _i1.SerializableModel {
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['keepPrivateChats'],
             ),
+      showImagesInPlaza: jsonSerialization['showImagesInPlaza'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showImagesInPlaza'],
+            ),
+      showImagesInLounges: jsonSerialization['showImagesInLounges'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showImagesInLounges'],
+            ),
+      showImagesInPrivateChats:
+          jsonSerialization['showImagesInPrivateChats'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showImagesInPrivateChats'],
+            ),
+      showImagesInMoments: jsonSerialization['showImagesInMoments'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['showImagesInMoments'],
+            ),
       customAvatarUrl: jsonSerialization['customAvatarUrl'] as String?,
     );
   }
@@ -296,6 +329,14 @@ abstract class Resident implements _i1.SerializableModel {
 
   bool keepPrivateChats;
 
+  bool showImagesInPlaza;
+
+  bool showImagesInLounges;
+
+  bool showImagesInPrivateChats;
+
+  bool showImagesInMoments;
+
   String? customAvatarUrl;
 
   /// Returns a shallow copy of this [Resident]
@@ -337,6 +378,10 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
     bool? keepPrivateChats,
+    bool? showImagesInPlaza,
+    bool? showImagesInLounges,
+    bool? showImagesInPrivateChats,
+    bool? showImagesInMoments,
     String? customAvatarUrl,
   });
   @override
@@ -380,6 +425,10 @@ abstract class Resident implements _i1.SerializableModel {
       'showAdvancedDiscovery': showAdvancedDiscovery,
       'showCustomAvatar': showCustomAvatar,
       'keepPrivateChats': keepPrivateChats,
+      'showImagesInPlaza': showImagesInPlaza,
+      'showImagesInLounges': showImagesInLounges,
+      'showImagesInPrivateChats': showImagesInPrivateChats,
+      'showImagesInMoments': showImagesInMoments,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
   }
@@ -429,6 +478,10 @@ class _ResidentImpl extends Resident {
     bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
     bool? keepPrivateChats,
+    bool? showImagesInPlaza,
+    bool? showImagesInLounges,
+    bool? showImagesInPrivateChats,
+    bool? showImagesInMoments,
     String? customAvatarUrl,
   }) : super._(
          id: id,
@@ -466,6 +519,10 @@ class _ResidentImpl extends Resident {
          showAdvancedDiscovery: showAdvancedDiscovery,
          showCustomAvatar: showCustomAvatar,
          keepPrivateChats: keepPrivateChats,
+         showImagesInPlaza: showImagesInPlaza,
+         showImagesInLounges: showImagesInLounges,
+         showImagesInPrivateChats: showImagesInPrivateChats,
+         showImagesInMoments: showImagesInMoments,
          customAvatarUrl: customAvatarUrl,
        );
 
@@ -509,6 +566,10 @@ class _ResidentImpl extends Resident {
     bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
     bool? keepPrivateChats,
+    bool? showImagesInPlaza,
+    bool? showImagesInLounges,
+    bool? showImagesInPrivateChats,
+    bool? showImagesInMoments,
     Object? customAvatarUrl = _Undefined,
   }) {
     return Resident(
@@ -563,6 +624,11 @@ class _ResidentImpl extends Resident {
           showAdvancedDiscovery ?? this.showAdvancedDiscovery,
       showCustomAvatar: showCustomAvatar ?? this.showCustomAvatar,
       keepPrivateChats: keepPrivateChats ?? this.keepPrivateChats,
+      showImagesInPlaza: showImagesInPlaza ?? this.showImagesInPlaza,
+      showImagesInLounges: showImagesInLounges ?? this.showImagesInLounges,
+      showImagesInPrivateChats:
+          showImagesInPrivateChats ?? this.showImagesInPrivateChats,
+      showImagesInMoments: showImagesInMoments ?? this.showImagesInMoments,
       customAvatarUrl: customAvatarUrl is String?
           ? customAvatarUrl
           : this.customAvatarUrl,

@@ -113,9 +113,9 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
   @override
   Widget build(BuildContext context) {
     final resident = ref.watch(currentResidentProvider).value;
-    final isPlus = resident?.isPlus ?? false;
-    final hasSearchFeature =
-        isPlus && (resident?.showNeighborsDiscovery ?? true);
+    final bool isPlus = resident?.isPlus ?? false;
+    final bool hasAdvancedSearch =
+        isPlus && (resident?.showAdvancedDiscovery ?? true);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -136,7 +136,7 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
               children: [
                 Expanded(
                   child: GestureDetector(
-                    onTap: hasSearchFeature
+                    onTap: hasAdvancedSearch
                         ? null
                         : () {
                             if (!isPlus) {
@@ -150,14 +150,14 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
                           },
                     child: DuoInput(
                       controller: _searchController,
-                      hintText: hasSearchFeature
+                      hintText: hasAdvancedSearch
                           ? 'Search Lounges...'
                           : 'Advanced Search (Plus)',
-                      prefixIcon: hasSearchFeature
+                      prefixIcon: hasAdvancedSearch
                           ? Icons.search
                           : Icons.lock_outline,
                       iconColor: AppTheme.duoBlue,
-                      enabled: hasSearchFeature,
+                      enabled: hasAdvancedSearch,
                       onChanged: (val) => _performSearch(val),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
@@ -177,7 +177,7 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
                 ),
                 const SizedBox(width: 8),
                 IconButton(
-                  onPressed: hasSearchFeature
+                  onPressed: hasAdvancedSearch
                       ? _showFilterSheet
                       : () {
                           if (!isPlus) {
@@ -190,7 +190,7 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
                           }
                         },
                   icon: Icon(
-                    hasSearchFeature
+                    hasAdvancedSearch
                         ? Icons.filter_list_rounded
                         : Icons.lock_outline,
                     color: _hasActiveFilters ? AppTheme.duoBlue : Colors.grey,

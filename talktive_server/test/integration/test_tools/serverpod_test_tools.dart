@@ -3629,11 +3629,11 @@ class _ResidentEndpoint {
     });
   }
 
-  _i3.Future<_i11.Resident> updatePrivacySettings(
+  _i3.Future<_i11.Resident> updatePrivacy(
     _i1.TestSessionBuilder sessionBuilder, {
     bool? hideAds,
     bool? showVoiceMessages,
-    bool? showNeighborsDiscovery,
+    bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
@@ -3644,17 +3644,17 @@ class _ResidentEndpoint {
       var _localUniqueSession =
           (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
             endpoint: 'resident',
-            method: 'updatePrivacySettings',
+            method: 'updatePrivacy',
           );
       try {
         var _localCallContext = await _endpointDispatch.getMethodCallContext(
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'resident',
-          methodName: 'updatePrivacySettings',
+          methodName: 'updatePrivacy',
           parameters: _i1.testObjectToJson({
             'hideAds': hideAds,
             'showVoiceMessages': showVoiceMessages,
-            'showNeighborsDiscovery': showNeighborsDiscovery,
+            'showAdvancedDiscovery': showAdvancedDiscovery,
             'showCustomAvatar': showCustomAvatar,
             'showOthersOnlineStatus': showOthersOnlineStatus,
             'showOthersReadReceipts': showOthersReadReceipts,

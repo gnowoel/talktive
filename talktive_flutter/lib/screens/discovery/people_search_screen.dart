@@ -111,9 +111,9 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
   @override
   Widget build(BuildContext context) {
     final currentResident = ref.watch(currentResidentProvider).value;
-    final isPlus = currentResident?.isPlus ?? false;
-    final hasSearchFeature =
-        isPlus && (currentResident?.showNeighborsDiscovery ?? true);
+    final bool isPlus = currentResident?.isPlus ?? false;
+    final bool hasAdvancedSearch =
+        isPlus && (currentResident?.showAdvancedDiscovery ?? true);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -134,7 +134,7 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
               children: [
                 Expanded(
                   child: GestureDetector(
-                    onTap: hasSearchFeature
+                    onTap: hasAdvancedSearch
                         ? null
                         : () {
                             if (!isPlus) {
@@ -148,14 +148,14 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
                           },
                     child: DuoInput(
                       controller: _searchController,
-                      hintText: hasSearchFeature
+                      hintText: hasAdvancedSearch
                           ? 'Search Neighbors...'
                           : 'Advanced Search (Plus)',
-                      prefixIcon: hasSearchFeature
+                      prefixIcon: hasAdvancedSearch
                           ? Icons.search
                           : Icons.lock_outline,
                       iconColor: AppTheme.duoOrange,
-                      enabled: hasSearchFeature,
+                      enabled: hasAdvancedSearch,
                       onChanged: (val) => _performSearch(val),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
@@ -175,7 +175,7 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
                 ),
                 const SizedBox(width: 8),
                 IconButton(
-                  onPressed: hasSearchFeature
+                  onPressed: hasAdvancedSearch
                       ? _showFilterSheet
                       : () {
                           if (!isPlus) {
@@ -188,7 +188,7 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
                           }
                         },
                   icon: Icon(
-                    hasSearchFeature
+                    hasAdvancedSearch
                         ? Icons.filter_list_rounded
                         : Icons.lock_outline,
                     color: _hasActiveFilters

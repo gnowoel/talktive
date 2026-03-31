@@ -107,7 +107,7 @@ resident:
   - updateResident:
   - updateCustomAvatar:
   - getUserProfile:
-  - updatePrivacySettings:
+  - updatePrivacy:
   - setPremiumStatus:
   - startPremiumTrial:
 search:

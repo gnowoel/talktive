@@ -946,20 +946,11 @@ class ResidentService {
       resident.premiumTrialExpires = null;
       _enableAllPlusSettings(resident);
     } else {
-      // Automatically disable all premium settings if subscription expires/cancels
-      // ONLY if they don't have an active trial either
-      if (!isPlusMember(resident)) {
-        final bool oldKeepPrivateChats = resident.keepPrivateChats;
-        _disableExpiredPlusSettings(resident);
-
-        final updated = await updateResident(session, resident);
-
-        // Perform cleanup for kept chats if they were previously enabled
-        if (oldKeepPrivateChats) {
-          await _unkeepAllPrivateChats(session, userId);
-        }
-        return updated;
-      }
+      // When subscription ends, we don't disable settings immediately.
+      // We rely on isPlusMember and isWithinGracePeriod in the respective feature checks.
+      // The background cleanup task in ContentEphemeralityService will handle the actual deletion after 14 days.
+      
+      // We still update the resident record
     }
 
     return await updateResident(session, resident);

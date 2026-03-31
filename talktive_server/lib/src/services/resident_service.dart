@@ -326,7 +326,6 @@ class ResidentService {
     List<String>? sharedInterests,
     List<String>? sharedLanguages,
     int? matchScore,
-    int? messageCount,
   }) {
     return protocol.UserSummary(
       userId: resident.userInfoId,
@@ -338,7 +337,6 @@ class ResidentService {
       sharedInterests: sharedInterests,
       sharedLanguages: sharedLanguages,
       matchScore: matchScore,
-      messageCount: messageCount,
       ageRange: resident.ageRange,
       isOnline: isResidentOnline(resident),
       role: resident.role,

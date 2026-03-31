@@ -473,11 +473,6 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<_i17.ReportStatus>(),
               nullable: false,
             ),
-            'reason': _i1.ParameterDescription(
-              name: 'reason',
-              type: _i1.getType<String?>(),
-              nullable: true,
-            ),
           },
           call:
               (
@@ -488,7 +483,6 @@ class Endpoints extends _i1.EndpointDispatch {
                     session,
                     reportId: params['reportId'],
                     status: params['status'],
-                    reason: params['reason'],
                   ),
         ),
         'suspendUser': _i1.MethodConnector(

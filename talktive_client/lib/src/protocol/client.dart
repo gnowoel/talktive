@@ -352,14 +352,12 @@ class EndpointAdmin extends _i2.EndpointRef {
   _i3.Future<void> resolveReport({
     required int reportId,
     required _i6.ReportStatus status,
-    String? reason,
   }) => caller.callServerEndpoint<void>(
     'admin',
     'resolveReport',
     {
       'reportId': reportId,
       'status': status,
-      'reason': reason,
     },
   );
 

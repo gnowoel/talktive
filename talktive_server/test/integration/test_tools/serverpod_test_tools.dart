@@ -772,7 +772,6 @@ class _AdminEndpoint {
     _i1.TestSessionBuilder sessionBuilder, {
     required int reportId,
     required _i6.ReportStatus status,
-    String? reason,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -788,7 +787,6 @@ class _AdminEndpoint {
           parameters: _i1.testObjectToJson({
             'reportId': reportId,
             'status': status,
-            'reason': reason,
           }),
           serializationManager: _serializationManager,
         );

@@ -23,7 +23,6 @@ abstract class Report implements _i1.SerializableModel {
     this.messageId,
     required this.createdAt,
     _i2.ReportStatus? status,
-    this.adminNotes,
     this.resolvedAt,
   }) : status = status ?? _i2.ReportStatus.pending;
 
@@ -36,7 +35,6 @@ abstract class Report implements _i1.SerializableModel {
     int? messageId,
     required DateTime createdAt,
     _i2.ReportStatus? status,
-    String? adminNotes,
     DateTime? resolvedAt,
   }) = _ReportImpl;
 
@@ -58,7 +56,6 @@ abstract class Report implements _i1.SerializableModel {
       status: jsonSerialization['status'] == null
           ? null
           : _i2.ReportStatus.fromJson((jsonSerialization['status'] as String)),
-      adminNotes: jsonSerialization['adminNotes'] as String?,
       resolvedAt: jsonSerialization['resolvedAt'] == null
           ? null
           : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['resolvedAt']),
@@ -84,8 +81,6 @@ abstract class Report implements _i1.SerializableModel {
 
   _i2.ReportStatus status;
 
-  String? adminNotes;
-
   DateTime? resolvedAt;
 
   /// Returns a shallow copy of this [Report]
@@ -100,7 +95,6 @@ abstract class Report implements _i1.SerializableModel {
     int? messageId,
     DateTime? createdAt,
     _i2.ReportStatus? status,
-    String? adminNotes,
     DateTime? resolvedAt,
   });
   @override
@@ -115,7 +109,6 @@ abstract class Report implements _i1.SerializableModel {
       if (messageId != null) 'messageId': messageId,
       'createdAt': createdAt.toJson(),
       'status': status.toJson(),
-      if (adminNotes != null) 'adminNotes': adminNotes,
       if (resolvedAt != null) 'resolvedAt': resolvedAt?.toJson(),
     };
   }
@@ -138,7 +131,6 @@ class _ReportImpl extends Report {
     int? messageId,
     required DateTime createdAt,
     _i2.ReportStatus? status,
-    String? adminNotes,
     DateTime? resolvedAt,
   }) : super._(
          id: id,
@@ -149,7 +141,6 @@ class _ReportImpl extends Report {
          messageId: messageId,
          createdAt: createdAt,
          status: status,
-         adminNotes: adminNotes,
          resolvedAt: resolvedAt,
        );
 
@@ -166,7 +157,6 @@ class _ReportImpl extends Report {
     Object? messageId = _Undefined,
     DateTime? createdAt,
     _i2.ReportStatus? status,
-    Object? adminNotes = _Undefined,
     Object? resolvedAt = _Undefined,
   }) {
     return Report(
@@ -178,7 +168,6 @@ class _ReportImpl extends Report {
       messageId: messageId is int? ? messageId : this.messageId,
       createdAt: createdAt ?? this.createdAt,
       status: status ?? this.status,
-      adminNotes: adminNotes is String? ? adminNotes : this.adminNotes,
       resolvedAt: resolvedAt is DateTime? ? resolvedAt : this.resolvedAt,
     );
   }

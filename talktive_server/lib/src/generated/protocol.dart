@@ -1518,12 +1518,6 @@ class Protocol extends _i1.SerializationManagerServer {
           columnDefault: '\'pending\'::text',
         ),
         _i2.ColumnDefinition(
-          name: 'adminNotes',
-          columnType: _i2.ColumnType.text,
-          isNullable: true,
-          dartType: 'String?',
-        ),
-        _i2.ColumnDefinition(
           name: 'resolvedAt',
           columnType: _i2.ColumnType.timestampWithoutTimeZone,
           isNullable: true,

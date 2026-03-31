@@ -8,7 +8,6 @@ fields:
   messageId: int?
   createdAt: DateTime
   status: ReportStatus, default=pending
-  adminNotes: String?
   resolvedAt: DateTime?
 indexes:
   report_target_idx:

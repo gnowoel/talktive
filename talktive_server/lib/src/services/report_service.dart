@@ -195,12 +195,11 @@ class ReportService {
     }
   }
 
-  /// Resolves a report with optional admin note.
+  /// Resolves a report.
   static Future<protocol.Report> resolveReport(
     Session session, {
     required int reportId,
     required protocol.ReportStatus status,
-    String? adminNotes,
   }) async {
     final report = await protocol.Report.db.findById(session, reportId);
     if (report == null) {
@@ -208,7 +207,6 @@ class ReportService {
     }
 
     report.status = status;
-    report.adminNotes = adminNotes;
     report.resolvedAt = DateTime.now();
 
     return await protocol.Report.db.updateRow(session, report);

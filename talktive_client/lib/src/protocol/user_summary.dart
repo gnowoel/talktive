@@ -26,7 +26,6 @@ abstract class UserSummary implements _i1.SerializableModel {
     this.sharedInterests,
     this.sharedLanguages,
     this.matchScore,
-    this.messageCount,
     this.ageRange,
     bool? isOnline,
     this.role,
@@ -42,7 +41,6 @@ abstract class UserSummary implements _i1.SerializableModel {
     List<String>? sharedInterests,
     List<String>? sharedLanguages,
     int? matchScore,
-    int? messageCount,
     String? ageRange,
     bool? isOnline,
     _i2.ResidentRole? role,
@@ -67,7 +65,6 @@ abstract class UserSummary implements _i1.SerializableModel {
               jsonSerialization['sharedLanguages'],
             ),
       matchScore: jsonSerialization['matchScore'] as int?,
-      messageCount: jsonSerialization['messageCount'] as int?,
       ageRange: jsonSerialization['ageRange'] as String?,
       isOnline: jsonSerialization['isOnline'] == null
           ? null
@@ -96,8 +93,6 @@ abstract class UserSummary implements _i1.SerializableModel {
 
   int? matchScore;
 
-  int? messageCount;
-
   String? ageRange;
 
   bool isOnline;
@@ -117,7 +112,6 @@ abstract class UserSummary implements _i1.SerializableModel {
     List<String>? sharedInterests,
     List<String>? sharedLanguages,
     int? matchScore,
-    int? messageCount,
     String? ageRange,
     bool? isOnline,
     _i2.ResidentRole? role,
@@ -135,7 +129,6 @@ abstract class UserSummary implements _i1.SerializableModel {
       if (sharedInterests != null) 'sharedInterests': sharedInterests?.toJson(),
       if (sharedLanguages != null) 'sharedLanguages': sharedLanguages?.toJson(),
       if (matchScore != null) 'matchScore': matchScore,
-      if (messageCount != null) 'messageCount': messageCount,
       if (ageRange != null) 'ageRange': ageRange,
       'isOnline': isOnline,
       if (role != null) 'role': role?.toJson(),
@@ -161,7 +154,6 @@ class _UserSummaryImpl extends UserSummary {
     List<String>? sharedInterests,
     List<String>? sharedLanguages,
     int? matchScore,
-    int? messageCount,
     String? ageRange,
     bool? isOnline,
     _i2.ResidentRole? role,
@@ -175,7 +167,6 @@ class _UserSummaryImpl extends UserSummary {
          sharedInterests: sharedInterests,
          sharedLanguages: sharedLanguages,
          matchScore: matchScore,
-         messageCount: messageCount,
          ageRange: ageRange,
          isOnline: isOnline,
          role: role,
@@ -195,7 +186,6 @@ class _UserSummaryImpl extends UserSummary {
     Object? sharedInterests = _Undefined,
     Object? sharedLanguages = _Undefined,
     Object? matchScore = _Undefined,
-    Object? messageCount = _Undefined,
     Object? ageRange = _Undefined,
     bool? isOnline,
     Object? role = _Undefined,
@@ -214,7 +204,6 @@ class _UserSummaryImpl extends UserSummary {
           ? sharedLanguages
           : this.sharedLanguages?.map((e0) => e0).toList(),
       matchScore: matchScore is int? ? matchScore : this.matchScore,
-      messageCount: messageCount is int? ? messageCount : this.messageCount,
       ageRange: ageRange is String? ? ageRange : this.ageRange,
       isOnline: isOnline ?? this.isOnline,
       role: role is _i2.ResidentRole? ? role : this.role,

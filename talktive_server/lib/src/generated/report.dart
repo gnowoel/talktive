@@ -23,7 +23,6 @@ abstract class Report implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     this.messageId,
     required this.createdAt,
     _i2.ReportStatus? status,
-    this.adminNotes,
     this.resolvedAt,
   }) : status = status ?? _i2.ReportStatus.pending;
 
@@ -36,7 +35,6 @@ abstract class Report implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     int? messageId,
     required DateTime createdAt,
     _i2.ReportStatus? status,
-    String? adminNotes,
     DateTime? resolvedAt,
   }) = _ReportImpl;
 
@@ -58,7 +56,6 @@ abstract class Report implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       status: jsonSerialization['status'] == null
           ? null
           : _i2.ReportStatus.fromJson((jsonSerialization['status'] as String)),
-      adminNotes: jsonSerialization['adminNotes'] as String?,
       resolvedAt: jsonSerialization['resolvedAt'] == null
           ? null
           : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['resolvedAt']),
@@ -86,8 +83,6 @@ abstract class Report implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
 
   _i2.ReportStatus status;
 
-  String? adminNotes;
-
   DateTime? resolvedAt;
 
   @override
@@ -105,7 +100,6 @@ abstract class Report implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     int? messageId,
     DateTime? createdAt,
     _i2.ReportStatus? status,
-    String? adminNotes,
     DateTime? resolvedAt,
   });
   @override
@@ -120,7 +114,6 @@ abstract class Report implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       if (messageId != null) 'messageId': messageId,
       'createdAt': createdAt.toJson(),
       'status': status.toJson(),
-      if (adminNotes != null) 'adminNotes': adminNotes,
       if (resolvedAt != null) 'resolvedAt': resolvedAt?.toJson(),
     };
   }
@@ -137,7 +130,6 @@ abstract class Report implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       if (messageId != null) 'messageId': messageId,
       'createdAt': createdAt.toJson(),
       'status': status.toJson(),
-      if (adminNotes != null) 'adminNotes': adminNotes,
       if (resolvedAt != null) 'resolvedAt': resolvedAt?.toJson(),
     };
   }
@@ -184,7 +176,6 @@ class _ReportImpl extends Report {
     int? messageId,
     required DateTime createdAt,
     _i2.ReportStatus? status,
-    String? adminNotes,
     DateTime? resolvedAt,
   }) : super._(
          id: id,
@@ -195,7 +186,6 @@ class _ReportImpl extends Report {
          messageId: messageId,
          createdAt: createdAt,
          status: status,
-         adminNotes: adminNotes,
          resolvedAt: resolvedAt,
        );
 
@@ -212,7 +202,6 @@ class _ReportImpl extends Report {
     Object? messageId = _Undefined,
     DateTime? createdAt,
     _i2.ReportStatus? status,
-    Object? adminNotes = _Undefined,
     Object? resolvedAt = _Undefined,
   }) {
     return Report(
@@ -224,7 +213,6 @@ class _ReportImpl extends Report {
       messageId: messageId is int? ? messageId : this.messageId,
       createdAt: createdAt ?? this.createdAt,
       status: status ?? this.status,
-      adminNotes: adminNotes is String? ? adminNotes : this.adminNotes,
       resolvedAt: resolvedAt is DateTime? ? resolvedAt : this.resolvedAt,
     );
   }
@@ -274,11 +262,6 @@ class ReportUpdateTable extends _i1.UpdateTable<ReportTable> {
     value,
   );
 
-  _i1.ColumnValue<String, String> adminNotes(String? value) => _i1.ColumnValue(
-    table.adminNotes,
-    value,
-  );
-
   _i1.ColumnValue<DateTime, DateTime> resolvedAt(DateTime? value) =>
       _i1.ColumnValue(
         table.resolvedAt,
@@ -319,10 +302,6 @@ class ReportTable extends _i1.Table<int?> {
       _i1.EnumSerialization.byName,
       hasDefault: true,
     );
-    adminNotes = _i1.ColumnString(
-      'adminNotes',
-      this,
-    );
     resolvedAt = _i1.ColumnDateTime(
       'resolvedAt',
       this,
@@ -345,8 +324,6 @@ class ReportTable extends _i1.Table<int?> {
 
   late final _i1.ColumnEnum<_i2.ReportStatus> status;
 
-  late final _i1.ColumnString adminNotes;
-
   late final _i1.ColumnDateTime resolvedAt;
 
   @override
@@ -359,7 +336,6 @@ class ReportTable extends _i1.Table<int?> {
     messageId,
     createdAt,
     status,
-    adminNotes,
     resolvedAt,
   ];
 }

@@ -54,14 +54,12 @@ class AdminEndpoint extends Endpoint with EndpointAuthMixin {
     Session session, {
     required int reportId,
     required protocol.ReportStatus status,
-    String? reason,
   }) async {
     await getStaffProfile(session);
     await ReportService.resolveReport(
       session,
       reportId: reportId,
       status: status,
-      adminNotes: reason,
     );
   }
 

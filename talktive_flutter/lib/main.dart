@@ -16,6 +16,7 @@ import 'config/auth_config.dart';
 import 'serverpod_client.dart';
 import 'services/edge_to_edge_manager.dart';
 import 'services/background_messaging_handler.dart';
+import 'services/voice_service.dart';
 import 'version_selector.dart';
 
 Future<void> main() async {
@@ -39,6 +40,13 @@ Future<void> main() async {
     await EdgeToEdgeManager.initialize();
   } catch (e) {
     debugPrint('Main: EdgeToEdge initialization failed: $e');
+  }
+
+  // Initialize VoiceService for audio focus and proximity events
+  try {
+    await VoiceService.init();
+  } catch (e) {
+    debugPrint('Main: VoiceService initialization failed: $e');
   }
 
   await GoogleSignIn.instance.initialize(

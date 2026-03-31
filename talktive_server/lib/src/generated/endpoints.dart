@@ -1459,6 +1459,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<int?>(),
               nullable: true,
             ),
+            'amplitudes': _i1.ParameterDescription(
+              name: 'amplitudes',
+              type: _i1.getType<List<int>?>(),
+              nullable: true,
+            ),
             'fileSize': _i1.ParameterDescription(
               name: 'fileSize',
               type: _i1.getType<int?>(),
@@ -1483,6 +1488,7 @@ class Endpoints extends _i1.EndpointDispatch {
                     mediaUrl: params['mediaUrl'],
                     mediaType: params['mediaType'],
                     duration: params['duration'],
+                    amplitudes: params['amplitudes'],
                     fileSize: params['fileSize'],
                     isSystem: params['isSystem'],
                   ),

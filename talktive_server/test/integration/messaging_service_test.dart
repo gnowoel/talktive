@@ -2,7 +2,6 @@ import 'package:test/test.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import 'package:talktive_server/src/services/messaging_service.dart';
-import 'package:talktive_server/src/services/apartment_service.dart';
 import 'test_tools/serverpod_test_tools.dart';
 
 void main() {

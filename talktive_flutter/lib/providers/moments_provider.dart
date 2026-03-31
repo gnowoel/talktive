@@ -29,18 +29,48 @@ class Moments extends _$Moments {
     }
   }
 
+  /// Updates a moment in the local state without re-fetching
+  void updateMomentLocally(int momentId, Moment Function(Moment) update) {
+    state.whenData((moments) {
+      final index = moments.indexWhere((m) => m.id == momentId);
+      if (index != -1) {
+        final newList = List<Moment>.from(moments);
+        newList[index] = update(newList[index]);
+        state = AsyncValue.data(newList);
+      }
+    });
+  }
+
   /// Toggles like on a moment
   Future<void> toggleLike(int momentId, bool currentlyLiked) async {
     final client = ref.read(clientProvider);
 
-    if (currentlyLiked) {
-      await client.moment.unlikeMoment(momentId);
-    } else {
-      await client.moment.likeMoment(momentId);
-    }
+    // Optimistically update the count in the local list
+    updateMomentLocally(momentId, (moment) {
+      return moment.copyWith(
+        likesCount: currentlyLiked
+            ? (moment.likesCount > 0 ? moment.likesCount - 1 : 0)
+            : moment.likesCount + 1,
+      );
+    });
 
-    // Optimistically update the UI
-    await refresh();
+    try {
+      if (currentlyLiked) {
+        await client.moment.unlikeMoment(momentId);
+      } else {
+        await client.moment.likeMoment(momentId);
+      }
+    } catch (e) {
+      // Revert the local count change if the backend call fails
+      updateMomentLocally(momentId, (moment) {
+        return moment.copyWith(
+          likesCount: currentlyLiked
+              ? moment.likesCount + 1
+              : (moment.likesCount > 0 ? moment.likesCount - 1 : 0),
+        );
+      });
+      rethrow;
+    }
   }
 }
 

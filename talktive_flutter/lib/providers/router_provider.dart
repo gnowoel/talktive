@@ -128,8 +128,8 @@ GoRouter router(Ref ref) {
       GoRoute(
         path: '/moments/detail',
         builder: (context, state) {
-          final moment = state.extra as Moment;
-          return MomentDetailScreen(moment: moment);
+          final momentId = state.extra as int;
+          return MomentDetailScreen(momentId: momentId);
         },
       ),
       GoRoute(

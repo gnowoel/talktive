@@ -15,9 +15,9 @@ import '../../helpers/url_helper.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
 
 class MomentDetailScreen extends ConsumerStatefulWidget {
-  final Moment moment;
+  final int momentId;
 
-  const MomentDetailScreen({super.key, required this.moment});
+  const MomentDetailScreen({super.key, required this.momentId});
 
   @override
   ConsumerState<MomentDetailScreen> createState() => _MomentDetailScreenState();
@@ -35,24 +35,26 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
   }
 
   Future<void> _toggleLike() async {
+    if (_isLiking) return;
     setState(() => _isLiking = true);
-    try {
-      final likedMoments = ref.read(momentLikesProvider).value ?? {};
-      final isLiked = likedMoments.contains(widget.moment.id!);
 
-      if (isLiked) {
-        await ref
-            .read(momentsProvider.notifier)
-            .toggleLike(widget.moment.id!, true);
-        ref.read(momentLikesProvider.notifier).toggleLike(widget.moment.id!);
-      } else {
-        await ref
-            .read(momentsProvider.notifier)
-            .toggleLike(widget.moment.id!, false);
-        ref.read(momentLikesProvider.notifier).toggleLike(widget.moment.id!);
-      }
+    try {
+      final isLiked =
+          ref.read(momentLikesProvider).value?.contains(widget.momentId) ??
+              false;
+
+      // Optimistically update the user's like list
+      ref.read(momentLikesProvider.notifier).toggleLike(widget.momentId);
+
+      // Perform the server call and update the moment's like count
+      await ref
+          .read(momentsProvider.notifier)
+          .toggleLike(widget.momentId, isLiked);
+
       HapticFeedback.mediumImpact();
     } catch (e) {
+      // Revert the user's like list if the call fails
+      ref.read(momentLikesProvider.notifier).toggleLike(widget.momentId);
       if (mounted) {
         DuoSnackBarHelper.showError(context, 'Failed to update like: $e');
       }
@@ -66,8 +68,8 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
     setState(() => _isSending = true);
     try {
       await ref
-          .read(momentCommentsProvider(widget.moment.id!).notifier)
-          .addComment(widget.moment.id!, text);
+          .read(momentCommentsProvider(widget.momentId).notifier)
+          .addComment(widget.momentId, text);
       _commentController.clear();
       HapticFeedback.lightImpact();
       if (mounted) {
@@ -85,9 +87,21 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final commentsAsync = ref.watch(momentCommentsProvider(widget.moment.id!));
+    final momentsAsync = ref.watch(momentsProvider);
+    final moment = momentsAsync.value?.firstWhere(
+      (m) => m.id == widget.momentId,
+      orElse: () => throw Exception('Moment not found'),
+    );
+
+    if (moment == null) {
+      return const Scaffold(
+        body: Center(child: DuoLoadingIndicator()),
+      );
+    }
+
+    final commentsAsync = ref.watch(momentCommentsProvider(widget.momentId));
     final isLikedAsync = ref.watch(momentLikesProvider);
-    final isLiked = isLikedAsync.value?.contains(widget.moment.id!) ?? false;
+    final isLiked = isLikedAsync.value?.contains(widget.momentId) ?? false;
 
     return DuoChatInputLayout(
       backgroundColor: Colors.white,
@@ -111,10 +125,10 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildAuthorHeader(),
-                _buildImage(context),
-                _buildCaption(),
-                _buildStats(isLiked),
+                _buildAuthorHeader(moment),
+                _buildImage(context, moment),
+                _buildCaption(moment),
+                _buildStats(moment, isLiked),
                 const Divider(
                   height: 1,
                   thickness: 1,
@@ -131,15 +145,15 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
     );
   }
 
-  Widget _buildAuthorHeader() {
+  Widget _buildAuthorHeader(Moment moment) {
     return Padding(
       padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
       child: Row(
         children: [
           DuoAvatar(
-            imageUrl: widget.moment.authorAvatar,
-            mood: widget.moment.authorMood,
-            trustScore: widget.moment.authorTrustScore,
+            imageUrl: moment.authorAvatar,
+            mood: moment.authorMood,
+            trustScore: moment.authorTrustScore,
             size: 44,
             showRing: true,
           ),
@@ -151,18 +165,18 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    widget.moment.authorName,
+                    moment.authorName,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
                   const SizedBox(width: 8),
-                  DuoFloorBadge(floor: widget.moment.authorFloor),
+                  DuoFloorBadge(floor: moment.authorFloor),
                 ],
               ),
               Text(
-                formatTimestamp(widget.moment.createdAt),
+                formatTimestamp(moment.createdAt),
                 style: const TextStyle(
                   color: AppTheme.textSecondary,
                   fontSize: 13,
@@ -175,10 +189,10 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
     );
   }
 
-  Widget _buildImage(BuildContext context) {
+  Widget _buildImage(BuildContext context, Moment moment) {
     return GestureDetector(
       onTap: () {
-        context.push('/gallery', extra: widget.moment.imageUrl);
+        context.push('/gallery', extra: moment.imageUrl);
       },
       child: Container(
         width: double.infinity,
@@ -192,7 +206,7 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
               child: ImageFiltered(
                 imageFilter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
                 child: Image.network(
-                  UrlHelper.resolve(widget.moment.imageUrl),
+                  UrlHelper.resolve(moment.imageUrl),
                   fit: BoxFit.cover,
                   opacity: const AlwaysStoppedAnimation(0.4),
                 ),
@@ -200,9 +214,9 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
             ),
             // Hero Image
             Hero(
-              tag: 'moment_image_${widget.moment.id}',
+              tag: 'moment_image_${moment.id}',
               child: Image.network(
-                UrlHelper.resolve(widget.moment.imageUrl),
+                UrlHelper.resolve(moment.imageUrl),
                 fit: BoxFit.contain,
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
@@ -216,20 +230,20 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
     );
   }
 
-  Widget _buildCaption() {
-    if (widget.moment.caption == null || widget.moment.caption!.isEmpty) {
+  Widget _buildCaption(Moment moment) {
+    if (moment.caption == null || moment.caption!.isEmpty) {
       return const SizedBox.shrink();
     }
     return Padding(
       padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
       child: Text(
-        widget.moment.caption!,
+        moment.caption!,
         style: const TextStyle(fontSize: 16, height: 1.5),
       ),
     );
   }
 
-  Widget _buildStats(bool isLiked) {
+  Widget _buildStats(Moment moment, bool isLiked) {
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: AppTheme.duoSpacingMedium,
@@ -246,7 +260,7 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
             onPressed: _isLiking ? null : _toggleLike,
           ),
           Text(
-            '${widget.moment.likesCount}',
+            '${moment.likesCount}',
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -262,7 +276,7 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
           ),
           const SizedBox(width: 8),
           Text(
-            '${widget.moment.commentsCount}',
+            '${moment.commentsCount}',
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,

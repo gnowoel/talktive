@@ -454,14 +454,14 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
                     _toggleLike(moment, likedMoments.contains(moment.id)),
                 onComment: () {
                   HapticFeedback.lightImpact();
-                  context.push('/moments/detail', extra: moment);
+                  context.push('/moments/detail', extra: moment.id);
                 },
                 onAuthorTap: () {
                   context.push('/user/${moment.authorId}');
                 },
                 onTap: () {
                   HapticFeedback.lightImpact();
-                  context.push('/moments/detail', extra: moment);
+                  context.push('/moments/detail', extra: moment.id);
                 },
               );
             },

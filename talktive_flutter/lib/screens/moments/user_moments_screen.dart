@@ -104,7 +104,7 @@ class UserMomentsScreen extends ConsumerWidget {
                   },
                   onComment: () {
                     HapticFeedback.lightImpact();
-                    context.push('/moments/detail', extra: moment);
+                    context.push('/moments/detail', extra: moment.id);
                   },
                   onAuthorTap: () {
                     // Already on the user's collection, but we can navigate to profile
@@ -114,7 +114,7 @@ class UserMomentsScreen extends ConsumerWidget {
                   },
                   onTap: () {
                     HapticFeedback.lightImpact();
-                    context.push('/moments/detail', extra: moment);
+                    context.push('/moments/detail', extra: moment.id);
                   },
                 );
               },

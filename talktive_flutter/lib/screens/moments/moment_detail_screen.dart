@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../config/theme.dart';
@@ -256,7 +257,20 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
               isLiked ? Icons.favorite : Icons.favorite_border,
               color: isLiked ? AppTheme.duoRed : AppTheme.textSecondary,
               size: 28,
-            ),
+            )
+                .animate(target: isLiked ? 1 : 0)
+                .scale(
+                  begin: const Offset(1, 1),
+                  end: const Offset(1.2, 1.2),
+                  duration: 200.ms,
+                  curve: Curves.easeOutBack,
+                )
+                .then()
+                .scale(
+                  begin: const Offset(1.2, 1.2),
+                  end: const Offset(1, 1),
+                  duration: 100.ms,
+                ),
             onPressed: _isLiking ? null : _toggleLike,
           ),
           Text(

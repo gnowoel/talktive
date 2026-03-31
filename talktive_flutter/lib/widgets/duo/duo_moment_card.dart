@@ -202,6 +202,7 @@ class DuoMomentCard extends StatelessWidget {
                       isActive: isLiked,
                       onTap: onLike,
                       color: AppTheme.duoRed,
+                      shouldAnimate: true,
                     ),
                     const SizedBox(width: AppTheme.duoSpacingMedium),
                     _buildActionButton(
@@ -228,6 +229,7 @@ class DuoMomentCard extends StatelessWidget {
     required bool isActive,
     required VoidCallback onTap,
     required Color color,
+    bool shouldAnimate = false,
   }) {
     return InkWell(
       onTap: onTap,
@@ -240,7 +242,20 @@ class DuoMomentCard extends StatelessWidget {
               icon,
               size: 20,
               color: isActive ? color : AppTheme.textSecondary,
-            ),
+            )
+                .animate(target: shouldAnimate && isActive ? 1 : 0)
+                .scale(
+                  begin: const Offset(1, 1),
+                  end: const Offset(1.2, 1.2),
+                  duration: 200.ms,
+                  curve: Curves.easeOutBack,
+                )
+                .then()
+                .scale(
+                  begin: const Offset(1.2, 1.2),
+                  end: const Offset(1, 1),
+                  duration: 100.ms,
+                ),
             if (count > 0) ...[
               const SizedBox(width: 4),
               Text(

@@ -47,7 +47,7 @@ fields:
   # Premium Feature Toggles
   hideAds: bool, default=false
   showVoiceMessages: bool, default=true
-  showNeighborsDiscovery: bool, default=true
+  showAdvancedDiscovery: bool, default=true
   showCustomAvatar: bool, default=true
   keepPrivateChats: bool, default=true
 

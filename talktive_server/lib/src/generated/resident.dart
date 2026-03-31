@@ -49,7 +49,7 @@ abstract class Resident
     bool? showOthersTypingIndicators,
     bool? hideAds,
     bool? showVoiceMessages,
-    bool? showNeighborsDiscovery,
+    bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
     bool? keepPrivateChats,
     this.customAvatarUrl,
@@ -68,7 +68,7 @@ abstract class Resident
        showOthersTypingIndicators = showOthersTypingIndicators ?? true,
        hideAds = hideAds ?? false,
        showVoiceMessages = showVoiceMessages ?? true,
-       showNeighborsDiscovery = showNeighborsDiscovery ?? true,
+       showAdvancedDiscovery = showAdvancedDiscovery ?? true,
        showCustomAvatar = showCustomAvatar ?? true,
        keepPrivateChats = keepPrivateChats ?? true;
 
@@ -105,7 +105,7 @@ abstract class Resident
     bool? showOthersTypingIndicators,
     bool? hideAds,
     bool? showVoiceMessages,
-    bool? showNeighborsDiscovery,
+    bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
     bool? keepPrivateChats,
     String? customAvatarUrl,
@@ -205,11 +205,10 @@ abstract class Resident
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['showVoiceMessages'],
             ),
-      showNeighborsDiscovery:
-          jsonSerialization['showNeighborsDiscovery'] == null
+      showAdvancedDiscovery: jsonSerialization['showAdvancedDiscovery'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(
-              jsonSerialization['showNeighborsDiscovery'],
+              jsonSerialization['showAdvancedDiscovery'],
             ),
       showCustomAvatar: jsonSerialization['showCustomAvatar'] == null
           ? null
@@ -294,7 +293,7 @@ abstract class Resident
 
   bool showVoiceMessages;
 
-  bool showNeighborsDiscovery;
+  bool showAdvancedDiscovery;
 
   bool showCustomAvatar;
 
@@ -341,7 +340,7 @@ abstract class Resident
     bool? showOthersTypingIndicators,
     bool? hideAds,
     bool? showVoiceMessages,
-    bool? showNeighborsDiscovery,
+    bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
     bool? keepPrivateChats,
     String? customAvatarUrl,
@@ -384,7 +383,7 @@ abstract class Resident
       'showOthersTypingIndicators': showOthersTypingIndicators,
       'hideAds': hideAds,
       'showVoiceMessages': showVoiceMessages,
-      'showNeighborsDiscovery': showNeighborsDiscovery,
+      'showAdvancedDiscovery': showAdvancedDiscovery,
       'showCustomAvatar': showCustomAvatar,
       'keepPrivateChats': keepPrivateChats,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
@@ -429,7 +428,7 @@ abstract class Resident
       'showOthersTypingIndicators': showOthersTypingIndicators,
       'hideAds': hideAds,
       'showVoiceMessages': showVoiceMessages,
-      'showNeighborsDiscovery': showNeighborsDiscovery,
+      'showAdvancedDiscovery': showAdvancedDiscovery,
       'showCustomAvatar': showCustomAvatar,
       'keepPrivateChats': keepPrivateChats,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
@@ -502,7 +501,7 @@ class _ResidentImpl extends Resident {
     bool? showOthersTypingIndicators,
     bool? hideAds,
     bool? showVoiceMessages,
-    bool? showNeighborsDiscovery,
+    bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
     bool? keepPrivateChats,
     String? customAvatarUrl,
@@ -539,7 +538,7 @@ class _ResidentImpl extends Resident {
          showOthersTypingIndicators: showOthersTypingIndicators,
          hideAds: hideAds,
          showVoiceMessages: showVoiceMessages,
-         showNeighborsDiscovery: showNeighborsDiscovery,
+         showAdvancedDiscovery: showAdvancedDiscovery,
          showCustomAvatar: showCustomAvatar,
          keepPrivateChats: keepPrivateChats,
          customAvatarUrl: customAvatarUrl,
@@ -582,7 +581,7 @@ class _ResidentImpl extends Resident {
     bool? showOthersTypingIndicators,
     bool? hideAds,
     bool? showVoiceMessages,
-    bool? showNeighborsDiscovery,
+    bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
     bool? keepPrivateChats,
     Object? customAvatarUrl = _Undefined,
@@ -635,8 +634,8 @@ class _ResidentImpl extends Resident {
           showOthersTypingIndicators ?? this.showOthersTypingIndicators,
       hideAds: hideAds ?? this.hideAds,
       showVoiceMessages: showVoiceMessages ?? this.showVoiceMessages,
-      showNeighborsDiscovery:
-          showNeighborsDiscovery ?? this.showNeighborsDiscovery,
+      showAdvancedDiscovery:
+          showAdvancedDiscovery ?? this.showAdvancedDiscovery,
       showCustomAvatar: showCustomAvatar ?? this.showCustomAvatar,
       keepPrivateChats: keepPrivateChats ?? this.keepPrivateChats,
       customAvatarUrl: customAvatarUrl is String?
@@ -820,9 +819,9 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
     value,
   );
 
-  _i1.ColumnValue<bool, bool> showNeighborsDiscovery(bool value) =>
+  _i1.ColumnValue<bool, bool> showAdvancedDiscovery(bool value) =>
       _i1.ColumnValue(
-        table.showNeighborsDiscovery,
+        table.showAdvancedDiscovery,
         value,
       );
 
@@ -986,8 +985,8 @@ class ResidentTable extends _i1.Table<int?> {
       this,
       hasDefault: true,
     );
-    showNeighborsDiscovery = _i1.ColumnBool(
-      'showNeighborsDiscovery',
+    showAdvancedDiscovery = _i1.ColumnBool(
+      'showAdvancedDiscovery',
       this,
       hasDefault: true,
     );
@@ -1071,7 +1070,7 @@ class ResidentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnBool showVoiceMessages;
 
-  late final _i1.ColumnBool showNeighborsDiscovery;
+  late final _i1.ColumnBool showAdvancedDiscovery;
 
   late final _i1.ColumnBool showCustomAvatar;
 
@@ -1113,7 +1112,7 @@ class ResidentTable extends _i1.Table<int?> {
     showOthersTypingIndicators,
     hideAds,
     showVoiceMessages,
-    showNeighborsDiscovery,
+    showAdvancedDiscovery,
     showCustomAvatar,
     keepPrivateChats,
     customAvatarUrl,

@@ -35,14 +35,13 @@ class LoungesScreen extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           IconButton(
-            icon: const Icon(Icons.search, size: 28, color: Colors.white),
+            icon: const Icon(Icons.search),
             onPressed: () {
               HapticFeedback.lightImpact();
               context.push('/discovery/lounges');
             },
           ),
           DuoRefreshButton(
-            color: Colors.white,
             onRefresh: () async => ref.invalidate(loungeListProvider),
           ),
         ],
@@ -55,7 +54,19 @@ class LoungesScreen extends ConsumerWidget {
         child: const Icon(Icons.add, size: 32, color: Colors.white),
       ).animate().scale(delay: 300.ms, duration: 200.ms),
       body: loungesAsync.when(
-        data: (lounges) => _buildLoungeList(context, ref, lounges),
+        data: (lounges) {
+          if (lounges.isEmpty) {
+            return DuoEmptyState(
+              emoji: '🏘️',
+              title: 'Quiet Clubhouse',
+              subtitle: 'No lounges yet. Why not create one?',
+              buttonText: 'Open a Lounge',
+              onButtonPressed: () => _showCreateDialog(context, ref),
+              themeColor: AppTheme.duoBlue,
+            );
+          }
+          return _buildLoungeList(context, ref, lounges);
+        },
         loading: () => const DuoLoadingIndicator(),
         error: (error, _) => DuoEmptyState(
           emoji: '🔌',
@@ -63,6 +74,7 @@ class LoungesScreen extends ConsumerWidget {
           subtitle: 'The clubhouse door is stuck. Try again?',
           onButtonPressed: () => ref.invalidate(loungeListProvider),
           buttonText: 'Retry',
+          themeColor: AppTheme.duoBlue,
         ),
       ),
     );

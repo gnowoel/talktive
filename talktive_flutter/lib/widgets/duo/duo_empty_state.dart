@@ -11,6 +11,7 @@ class DuoEmptyState extends StatelessWidget {
   final String subtitle;
   final String? buttonText;
   final VoidCallback? onButtonPressed;
+  final Color? themeColor;
 
   const DuoEmptyState({
     super.key,
@@ -23,12 +24,15 @@ class DuoEmptyState extends StatelessWidget {
     String? actionLabel, // Alias for buttonText
     VoidCallback? onButtonPressed,
     VoidCallback? onActionPressed, // Alias for onButtonPressed
+    this.themeColor,
   }) : subtitle = subtitle ?? message ?? '',
        buttonText = buttonText ?? actionLabel,
        onButtonPressed = onButtonPressed ?? onActionPressed;
 
   @override
   Widget build(BuildContext context) {
+    final effectiveColor = themeColor ?? AppTheme.primaryColor;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppTheme.duoSpacingXLarge),
@@ -43,8 +47,8 @@ class DuoEmptyState extends StatelessWidget {
                     shape: BoxShape.circle,
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.primaryColor.withValues(alpha: 0.1),
-                        AppTheme.secondaryColor.withValues(alpha: 0.1),
+                        effectiveColor.withValues(alpha: 0.1),
+                        effectiveColor.withValues(alpha: 0.2),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -52,7 +56,7 @@ class DuoEmptyState extends StatelessWidget {
                   ),
                   child: Center(
                     child: icon != null
-                        ? Icon(icon, size: 64, color: AppTheme.primaryColor)
+                        ? Icon(icon, size: 64, color: effectiveColor)
                         : Text(
                             emoji ?? '',
                             style: const TextStyle(fontSize: 64),
@@ -94,7 +98,11 @@ class DuoEmptyState extends StatelessWidget {
             // Optional button
             if (buttonText != null && onButtonPressed != null) ...[
               const SizedBox(height: AppTheme.duoSpacingXLarge),
-              DuoButton(text: buttonText!, onPressed: onButtonPressed)
+              DuoButton(
+                text: buttonText!,
+                onPressed: onButtonPressed,
+                color: themeColor,
+              )
                   .animate()
                   .fadeIn(delay: 300.ms)
                   .scale(begin: const Offset(0.8, 0.8)),

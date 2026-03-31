@@ -93,7 +93,11 @@ class DuoHeader extends StatelessWidget {
             ),
           ),
           // Optional trailing widget
-          ?trailing,
+          if (trailing != null)
+            IconTheme(
+              data: IconThemeData(color: textColor, size: 28),
+              child: trailing!,
+            ),
         ],
       ),
     );

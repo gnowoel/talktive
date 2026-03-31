@@ -414,6 +414,7 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
             subtitle: 'Share your first photo!',
             buttonText: 'Create Moment',
             onButtonPressed: _handleCreatePressed,
+            themeColor: AppTheme.secondaryColor,
           );
         }
 
@@ -422,11 +423,12 @@ class _MomentsScreenState extends ConsumerState<MomentsScreen> {
             .toList();
 
         if (filteredMoments.isEmpty && moments.isNotEmpty) {
-          return const DuoEmptyState(
+          return DuoEmptyState(
             icon: Icons.visibility_off,
             title: 'No moments to show',
             subtitle:
                 'The only moments available are from users you have blocked.',
+            themeColor: AppTheme.secondaryColor,
           );
         }
 

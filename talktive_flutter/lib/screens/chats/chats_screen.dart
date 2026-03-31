@@ -33,7 +33,7 @@ class ChatsScreen extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           IconButton(
-            icon: const Icon(Icons.search, size: 28, color: Colors.white),
+            icon: const Icon(Icons.search),
             onPressed: () {
               HapticFeedback.lightImpact();
               context.push('/discovery/people');
@@ -143,6 +143,7 @@ class ChatsScreen extends ConsumerWidget {
         onButtonPressed: () {
           context.go('/plaza');
         },
+        themeColor: AppTheme.duoOrange,
       ),
     );
   }
@@ -157,6 +158,7 @@ class ChatsScreen extends ConsumerWidget {
         onButtonPressed: () {
           ref.read(privateChatListProvider.notifier).refresh();
         },
+        themeColor: AppTheme.duoOrange,
       ),
     );
   }

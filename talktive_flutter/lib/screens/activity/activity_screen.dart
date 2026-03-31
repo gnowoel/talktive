@@ -74,7 +74,6 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
               ),
               const SizedBox(width: AppTheme.duoSpacingSmall),
               DuoRefreshButton(
-                color: Colors.white,
                 onRefresh: () async {
                   await ref.read(activityHistoryProvider.notifier).refresh();
                   await ref.read(gamificationProvider.notifier).refresh();

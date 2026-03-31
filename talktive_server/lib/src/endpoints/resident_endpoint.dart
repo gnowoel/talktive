@@ -197,11 +197,11 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Updates privacy settings (Others, Voice, Search, etc).
-  Future<protocol.Resident> updatePrivacySettings(
+  Future<protocol.Resident> updatePrivacy(
     Session session, {
     bool? hideAds,
     bool? showVoiceMessages,
-    bool? showNeighborsDiscovery,
+    bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
@@ -210,12 +210,36 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
   }) async {
     final resident = await getAuthenticatedResident(session);
 
+    // Tier Enforcement
+    if (hideAds == true && !ResidentService.isPaidMember(resident)) {
+      throw protocol.TalktiveException(
+        message: 'Hiding ads is a Paid-only feature.',
+        code: 'PREMIUM_REQUIRED',
+      );
+    }
+
+    final isPlus = ResidentService.isPlusMember(resident);
+    if (!isPlus) {
+      if (showVoiceMessages == true ||
+          showAdvancedDiscovery == true ||
+          showCustomAvatar == true ||
+          showOthersOnlineStatus == true ||
+          showOthersReadReceipts == true ||
+          showOthersTypingIndicators == true ||
+          keepPrivateChats == true) {
+        throw protocol.TalktiveException(
+          message: 'Premium privacy settings require a Plus membership.',
+          code: 'PREMIUM_REQUIRED',
+        );
+      }
+    }
+
     return await ResidentService.updatePrivacy(
       session,
       resident: resident,
       hideAds: hideAds,
       showVoiceMessages: showVoiceMessages,
-      showNeighborsDiscovery: showNeighborsDiscovery,
+      showAdvancedDiscovery: showAdvancedDiscovery,
       showCustomAvatar: showCustomAvatar,
       showOthersOnlineStatus: showOthersOnlineStatus,
       showOthersReadReceipts: showOthersReadReceipts,

@@ -115,7 +115,7 @@ class MessagingService {
       }
 
       // Voice message premium check
-      if (mediaType == 'voice' && !sender.isPremium) {
+      if (mediaType == 'voice' && !ResidentService.isPlusMember(sender)) {
         throw protocol.TalktiveException(
           message:
               'Voice messages are a Premium feature. 🎙️ Upgrade in Settings!',

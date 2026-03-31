@@ -744,9 +744,42 @@ class ResidentService {
     }
   }
 
+  /// Checks if a resident is a paid member.
+  static bool isPaidMember(protocol.Resident resident) => resident.isPremium;
+
+  /// Checks if a resident is within the 14-day data retention grace period.
+  static bool isWithinGracePeriod(protocol.Resident resident) {
+    if (isPlusMember(resident)) return true;
+
+    // Check if within 14 days after trial expired
+    if (resident.premiumTrialExpires != null) {
+      final now = DateTime.now();
+      final graceExpiry =
+          resident.premiumTrialExpires!.add(const Duration(days: 14));
+      return now.isBefore(graceExpiry);
+    }
+
+    return false;
+  }
+
+  /// Applies default settings based on the user's tier.
+  static void applyTierDefaults(protocol.Resident resident) {
+    if (isPaidMember(resident)) {
+      _enableAllPlusSettings(resident);
+      resident.hideAds = true;
+    } else if (isPlusMember(resident)) {
+      // Trial members
+      _enableAllPlusSettings(resident);
+      resident.hideAds = false; // Ads still shown on trial
+    } else {
+      // Regular members
+      _disableExpiredPlusSettings(resident);
+    }
+  }
+
   /// Helper to check if a resident is a Plus member (either paid or trial).
   static bool isPlusMember(protocol.Resident resident) {
-    if (resident.isPremium) return true;
+    if (isPaidMember(resident)) return true;
     if (resident.premiumTrialExpires != null &&
         resident.premiumTrialExpires!.isAfter(DateTime.now())) {
       return true;
@@ -760,8 +793,8 @@ class ResidentService {
   static bool canUseVoiceMessages(protocol.Resident resident) =>
       _hasEnabledPlusSetting(resident, resident.showVoiceMessages);
 
-  static bool canUseNeighborDiscovery(protocol.Resident resident) =>
-      _hasEnabledPlusSetting(resident, resident.showNeighborsDiscovery);
+  static bool canUseAdvancedDiscovery(protocol.Resident resident) =>
+      _hasEnabledPlusSetting(resident, resident.showAdvancedDiscovery);
 
   static bool canSeeOthersOnlineStatus(protocol.Resident resident) =>
       _hasEnabledPlusSetting(resident, resident.showOthersOnlineStatus);
@@ -791,7 +824,7 @@ class ResidentService {
   }
 
   static void _enableAllPlusSettings(protocol.Resident resident) {
-    resident.showNeighborsDiscovery = true;
+    resident.showAdvancedDiscovery = true;
     resident.showCustomAvatar = true;
     resident.showVoiceMessages = true;
     resident.showOthersOnlineStatus = true;
@@ -805,7 +838,7 @@ class ResidentService {
     resident.keepPrivateChats = false;
     resident.showCustomAvatar = false;
     resident.showVoiceMessages = false;
-    resident.showNeighborsDiscovery = false;
+    resident.showAdvancedDiscovery = false;
   }
 
   /// Updates privacy settings for a resident.
@@ -814,7 +847,7 @@ class ResidentService {
     required protocol.Resident resident,
     bool? hideAds,
     bool? showVoiceMessages,
-    bool? showNeighborsDiscovery,
+    bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
@@ -836,9 +869,9 @@ class ResidentService {
       (value) => resident.showVoiceMessages = value,
     );
     _setPlusSetting(
-      showNeighborsDiscovery,
+      showAdvancedDiscovery,
       isPlus,
-      (value) => resident.showNeighborsDiscovery = value,
+      (value) => resident.showAdvancedDiscovery = value,
     );
     _setPlusSetting(
       showCustomAvatar,

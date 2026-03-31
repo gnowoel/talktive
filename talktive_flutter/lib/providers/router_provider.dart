@@ -128,8 +128,20 @@ GoRouter router(Ref ref) {
       GoRoute(
         path: '/moments/detail',
         builder: (context, state) {
-          final momentId = state.extra as int;
-          return MomentDetailScreen(momentId: momentId);
+          final extra = state.extra;
+          if (extra is int) {
+            return MomentDetailScreen(momentId: extra);
+          }
+          if (extra is Moment) {
+            return MomentDetailScreen(momentId: extra.id!);
+          }
+          // Support for deep linking via query parameter
+          final queryId = state.uri.queryParameters['id'];
+          if (queryId != null) {
+            final id = int.tryParse(queryId);
+            if (id != null) return MomentDetailScreen(momentId: id);
+          }
+          throw Exception('Moment ID is required for /moments/detail');
         },
       ),
       GoRoute(

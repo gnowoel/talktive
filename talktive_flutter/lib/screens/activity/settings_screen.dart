@@ -100,16 +100,16 @@ class SettingsScreen extends ConsumerWidget {
               _buildFeatureRow(
                 context,
                 icon: Icons.person_search,
-                title: 'Advanced Search',
+                title: 'Advanced Discovery',
                 description:
                     'Search neighbors and lounges using terms and filters.',
                 isLocked: !resident.isPlus,
-                value: resident.showNeighborsDiscovery,
+                value: resident.showAdvancedDiscovery,
                 onChanged: resident.isPlus
                     ? (val) => _updatePrivacySettings(
                         context,
                         ref,
-                        showNeighborsDiscovery: val,
+                        showAdvancedDiscovery: val,
                       )
                     : null,
               ),
@@ -254,7 +254,7 @@ class SettingsScreen extends ConsumerWidget {
     WidgetRef ref, {
     bool? hideAds,
     bool? showVoiceMessages,
-    bool? showNeighborsDiscovery,
+    bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
     bool? showOthersOnlineStatus,
     bool? showOthersReadReceipts,
@@ -266,11 +266,11 @@ class SettingsScreen extends ConsumerWidget {
     if (resident == null) return;
 
     try {
-      await client.resident.updatePrivacySettings(
+      await client.resident.updatePrivacy(
         hideAds: hideAds ?? resident.hideAds,
         showVoiceMessages: showVoiceMessages ?? resident.showVoiceMessages,
-        showNeighborsDiscovery:
-            showNeighborsDiscovery ?? resident.showNeighborsDiscovery,
+        showAdvancedDiscovery:
+            showAdvancedDiscovery ?? resident.showAdvancedDiscovery,
         showCustomAvatar: showCustomAvatar ?? resident.showCustomAvatar,
         showOthersOnlineStatus:
             showOthersOnlineStatus ?? resident.showOthersOnlineStatus,

@@ -271,7 +271,6 @@ class ResidentService {
       longestStreak: 0,
       trustScore: ApartmentService.TRUST_SCORE_START,
       suspended: false,
-      experienceMessageCount: 0,
       userName: name,
       gender: gender,
       country: country,

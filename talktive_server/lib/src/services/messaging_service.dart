@@ -276,7 +276,6 @@ class MessagingService {
       'Sent message',
       save: false,
     );
-    sender.experienceMessageCount += 1;
     await GamificationService.updateMessageStreak(
       session,
       sender,

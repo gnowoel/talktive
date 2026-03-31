@@ -1691,13 +1691,6 @@ class Protocol extends _i1.SerializationManagerServer {
           dartType: 'DateTime?',
         ),
         _i2.ColumnDefinition(
-          name: 'experienceMessageCount',
-          columnType: _i2.ColumnType.bigint,
-          isNullable: false,
-          dartType: 'int',
-          columnDefault: '0',
-        ),
-        _i2.ColumnDefinition(
           name: 'userName',
           columnType: _i2.ColumnType.text,
           isNullable: true,
@@ -1767,13 +1760,6 @@ class Protocol extends _i1.SerializationManagerServer {
         ),
         _i2.ColumnDefinition(
           name: 'isPremium',
-          columnType: _i2.ColumnType.boolean,
-          isNullable: false,
-          dartType: 'bool',
-          columnDefault: 'false',
-        ),
-        _i2.ColumnDefinition(
-          name: 'isTalktivePlus',
           columnType: _i2.ColumnType.boolean,
           isNullable: false,
           dartType: 'bool',

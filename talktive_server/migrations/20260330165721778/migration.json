@@ -1,0 +1,69 @@
+{
+  "__className__": "serverpod.DatabaseMigration",
+  "actions": [
+    {
+      "__className__": "serverpod.DatabaseMigrationAction",
+      "type": "alterTable",
+      "alterTable": {
+        "__className__": "serverpod.TableMigration",
+        "name": "resident",
+        "schema": "public",
+        "addColumns": [],
+        "deleteColumns": [
+          "experienceMessageCount",
+          "isTalktivePlus"
+        ],
+        "modifyColumns": [],
+        "addIndexes": [],
+        "deleteIndexes": [],
+        "addForeignKeys": [],
+        "deleteForeignKeys": [],
+        "warnings": [
+          {
+            "__className__": "serverpod.DatabaseMigrationWarning",
+            "type": "columnDropped",
+            "message": "Column \"experienceMessageCount\" of table \"resident\" will be dropped.",
+            "table": "resident",
+            "columns": [
+              "experienceMessageCount"
+            ],
+            "destrucive": true
+          },
+          {
+            "__className__": "serverpod.DatabaseMigrationWarning",
+            "type": "columnDropped",
+            "message": "Column \"isTalktivePlus\" of table \"resident\" will be dropped.",
+            "table": "resident",
+            "columns": [
+              "isTalktivePlus"
+            ],
+            "destrucive": true
+          }
+        ]
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "__className__": "serverpod.DatabaseMigrationWarning",
+      "type": "columnDropped",
+      "message": "Column \"experienceMessageCount\" of table \"resident\" will be dropped.",
+      "table": "resident",
+      "columns": [
+        "experienceMessageCount"
+      ],
+      "destrucive": true
+    },
+    {
+      "__className__": "serverpod.DatabaseMigrationWarning",
+      "type": "columnDropped",
+      "message": "Column \"isTalktivePlus\" of table \"resident\" will be dropped.",
+      "table": "resident",
+      "columns": [
+        "isTalktivePlus"
+      ],
+      "destrucive": true
+    }
+  ],
+  "migrationApiVersion": 1
+}

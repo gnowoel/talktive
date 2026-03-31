@@ -16,7 +16,6 @@ void main() {
         userInfoId: UuidValue.fromString(uuid.v4()),
         level: 10, // High activity
         trustScore: 100, // Balanced reputation
-        experienceMessageCount: 0,
       );
       // We don't necessarily need to insert it for pure formula tests, 
       // but for restoration tests we do.

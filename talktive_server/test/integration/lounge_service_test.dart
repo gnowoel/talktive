@@ -19,7 +19,6 @@ void main() {
         userInfoId: UuidValue.fromString(uuid.v4()),
         level: 5,
         trustScore: 100,
-        experienceMessageCount: 0,
       ));
 
       // Create joiner
@@ -27,7 +26,6 @@ void main() {
         userInfoId: UuidValue.fromString(uuid.v4()),
         level: 1,
         trustScore: 100,
-        experienceMessageCount: 0,
       ));
     });
 

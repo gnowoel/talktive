@@ -18,8 +18,6 @@ fields:
   lastLoginDate: DateTime?
   lastMessageDate: DateTime?
 
-  # Legacy (keep for achievements tracking)
-  experienceMessageCount: int, default=0
 
   # Profile
   userName: String?
@@ -38,7 +36,6 @@ fields:
   # Online & Subscription
   lastSeen: DateTime?
   isPremium: bool, default=false
-  isTalktivePlus: bool, default=false
   premiumTrialExpires: DateTime?
   trialCount: int, default=0
 

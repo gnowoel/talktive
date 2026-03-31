@@ -15,7 +15,6 @@ void main() {
         userInfoId: UuidValue.fromString('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d'),
         level: 1,
         trustScore: 100,
-        experienceMessageCount: 0,
         role: protocol.ResidentRole.user,
       );
       testUser = await protocol.Resident.db.insertRow(session, resident);

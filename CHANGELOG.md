@@ -1,5 +1,18 @@
 # Talktive Development Changelog
 
+## March 30, 2026 - Resident Model Polish & Technical Debt Cleanup (Phase 8.96) 🏗️🧹💎
+
+### Resident Model Refinement
+
+- **Legacy Field Removal**: Excised `experienceMessageCount` and `isTalktivePlus` from the core `Resident` protocol (`resident.spy.yaml`).
+- **Subscription Entitlement Centralization**: Transitioned from a persisted database flag to a dynamic entitlement check based on active membership and trial status.
+- **Database Synchronization**: Successfully applied migrations to drop deprecated columns from the production and test database schemas.
+
+### Test Environment Stabilization
+
+- **Unit Test Fixes**: Resolved compilation errors in `ContentFilterService` tests by correctly importing `ValidationResult` and updating field references (`error` instead of `reason`).
+- **Integration Test Cleanliness**: Removed all stale references to legacy fields in `resident_endpoint_test.dart` and `gamification_service_test.dart`.
+
 ## March 30, 2026 - Consolidated Social & Privacy Overhaul (Phase 8.95) 🏗️🛡️💎
 
 ### Backend Architectural Consolidation

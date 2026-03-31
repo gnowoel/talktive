@@ -19,7 +19,6 @@ void main() {
         level: 1,
         xp: 0,
         trustScore: 100,
-        experienceMessageCount: 0,
         role: protocol.ResidentRole.user,
       );
       testUser = await protocol.Resident.db.insertRow(session, res);

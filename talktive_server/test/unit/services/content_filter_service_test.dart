@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:talktive_server/src/services/content_filter_service.dart';
+import 'package:talktive_server/src/utils/validation_result.dart';
 
 void main() {
   group('ContentFilterService - Profanity Detection', () {
@@ -135,11 +136,11 @@ void main() {
       final valid = ValidationResult(isValid: true, filteredContent: 'test');
       expect(valid.isValid, true);
       expect(valid.filteredContent, 'test');
-      expect(valid.reason, isNull);
+      expect(valid.error, isNull);
 
-      final invalid = ValidationResult(isValid: false, reason: 'spam');
+      final invalid = ValidationResult(isValid: false, error: 'spam');
       expect(invalid.isValid, false);
-      expect(invalid.reason, 'spam');
+      expect(invalid.error, 'spam');
       expect(invalid.filteredContent, isNull);
     });
   });

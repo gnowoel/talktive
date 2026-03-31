@@ -30,7 +30,6 @@ abstract class Resident
     int? longestStreak,
     this.lastLoginDate,
     this.lastMessageDate,
-    int? experienceMessageCount,
     this.userName,
     this.gender,
     this.country,
@@ -43,7 +42,6 @@ abstract class Resident
     _i2.ResidentRole? role,
     this.lastSeen,
     bool? isPremium,
-    bool? isTalktivePlus,
     this.premiumTrialExpires,
     int? trialCount,
     bool? showOthersOnlineStatus,
@@ -61,11 +59,9 @@ abstract class Resident
        level = level ?? 0,
        currentStreak = currentStreak ?? 0,
        longestStreak = longestStreak ?? 0,
-       experienceMessageCount = experienceMessageCount ?? 0,
        ageRange = ageRange ?? '18-24',
        role = role ?? _i2.ResidentRole.user,
        isPremium = isPremium ?? false,
-       isTalktivePlus = isTalktivePlus ?? false,
        trialCount = trialCount ?? 0,
        showOthersOnlineStatus = showOthersOnlineStatus ?? true,
        showOthersReadReceipts = showOthersReadReceipts ?? true,
@@ -90,7 +86,6 @@ abstract class Resident
     int? longestStreak,
     DateTime? lastLoginDate,
     DateTime? lastMessageDate,
-    int? experienceMessageCount,
     String? userName,
     String? gender,
     String? country,
@@ -103,7 +98,6 @@ abstract class Resident
     _i2.ResidentRole? role,
     DateTime? lastSeen,
     bool? isPremium,
-    bool? isTalktivePlus,
     DateTime? premiumTrialExpires,
     int? trialCount,
     bool? showOthersOnlineStatus,
@@ -153,8 +147,6 @@ abstract class Resident
           : _i1.DateTimeJsonExtension.fromJson(
               jsonSerialization['lastMessageDate'],
             ),
-      experienceMessageCount:
-          jsonSerialization['experienceMessageCount'] as int?,
       userName: jsonSerialization['userName'] as String?,
       gender: jsonSerialization['gender'] as String?,
       country: jsonSerialization['country'] as String?,
@@ -181,9 +173,6 @@ abstract class Resident
       isPremium: jsonSerialization['isPremium'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(jsonSerialization['isPremium']),
-      isTalktivePlus: jsonSerialization['isTalktivePlus'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(jsonSerialization['isTalktivePlus']),
       premiumTrialExpires: jsonSerialization['premiumTrialExpires'] == null
           ? null
           : _i1.DateTimeJsonExtension.fromJson(
@@ -267,8 +256,6 @@ abstract class Resident
 
   DateTime? lastMessageDate;
 
-  int experienceMessageCount;
-
   String? userName;
 
   String? gender;
@@ -292,8 +279,6 @@ abstract class Resident
   DateTime? lastSeen;
 
   bool isPremium;
-
-  bool isTalktivePlus;
 
   DateTime? premiumTrialExpires;
 
@@ -337,7 +322,6 @@ abstract class Resident
     int? longestStreak,
     DateTime? lastLoginDate,
     DateTime? lastMessageDate,
-    int? experienceMessageCount,
     String? userName,
     String? gender,
     String? country,
@@ -350,7 +334,6 @@ abstract class Resident
     _i2.ResidentRole? role,
     DateTime? lastSeen,
     bool? isPremium,
-    bool? isTalktivePlus,
     DateTime? premiumTrialExpires,
     int? trialCount,
     bool? showOthersOnlineStatus,
@@ -381,7 +364,6 @@ abstract class Resident
       'longestStreak': longestStreak,
       if (lastLoginDate != null) 'lastLoginDate': lastLoginDate?.toJson(),
       if (lastMessageDate != null) 'lastMessageDate': lastMessageDate?.toJson(),
-      'experienceMessageCount': experienceMessageCount,
       if (userName != null) 'userName': userName,
       if (gender != null) 'gender': gender,
       if (country != null) 'country': country,
@@ -394,7 +376,6 @@ abstract class Resident
       'role': role.toJson(),
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isPremium': isPremium,
-      'isTalktivePlus': isTalktivePlus,
       if (premiumTrialExpires != null)
         'premiumTrialExpires': premiumTrialExpires?.toJson(),
       'trialCount': trialCount,
@@ -428,7 +409,6 @@ abstract class Resident
       'longestStreak': longestStreak,
       if (lastLoginDate != null) 'lastLoginDate': lastLoginDate?.toJson(),
       if (lastMessageDate != null) 'lastMessageDate': lastMessageDate?.toJson(),
-      'experienceMessageCount': experienceMessageCount,
       if (userName != null) 'userName': userName,
       if (gender != null) 'gender': gender,
       if (country != null) 'country': country,
@@ -441,7 +421,6 @@ abstract class Resident
       'role': role.toJson(),
       if (lastSeen != null) 'lastSeen': lastSeen?.toJson(),
       'isPremium': isPremium,
-      'isTalktivePlus': isTalktivePlus,
       if (premiumTrialExpires != null)
         'premiumTrialExpires': premiumTrialExpires?.toJson(),
       'trialCount': trialCount,
@@ -504,7 +483,6 @@ class _ResidentImpl extends Resident {
     int? longestStreak,
     DateTime? lastLoginDate,
     DateTime? lastMessageDate,
-    int? experienceMessageCount,
     String? userName,
     String? gender,
     String? country,
@@ -517,7 +495,6 @@ class _ResidentImpl extends Resident {
     _i2.ResidentRole? role,
     DateTime? lastSeen,
     bool? isPremium,
-    bool? isTalktivePlus,
     DateTime? premiumTrialExpires,
     int? trialCount,
     bool? showOthersOnlineStatus,
@@ -543,7 +520,6 @@ class _ResidentImpl extends Resident {
          longestStreak: longestStreak,
          lastLoginDate: lastLoginDate,
          lastMessageDate: lastMessageDate,
-         experienceMessageCount: experienceMessageCount,
          userName: userName,
          gender: gender,
          country: country,
@@ -556,7 +532,6 @@ class _ResidentImpl extends Resident {
          role: role,
          lastSeen: lastSeen,
          isPremium: isPremium,
-         isTalktivePlus: isTalktivePlus,
          premiumTrialExpires: premiumTrialExpires,
          trialCount: trialCount,
          showOthersOnlineStatus: showOthersOnlineStatus,
@@ -588,7 +563,6 @@ class _ResidentImpl extends Resident {
     int? longestStreak,
     Object? lastLoginDate = _Undefined,
     Object? lastMessageDate = _Undefined,
-    int? experienceMessageCount,
     Object? userName = _Undefined,
     Object? gender = _Undefined,
     Object? country = _Undefined,
@@ -601,7 +575,6 @@ class _ResidentImpl extends Resident {
     _i2.ResidentRole? role,
     Object? lastSeen = _Undefined,
     bool? isPremium,
-    bool? isTalktivePlus,
     Object? premiumTrialExpires = _Undefined,
     int? trialCount,
     bool? showOthersOnlineStatus,
@@ -634,8 +607,6 @@ class _ResidentImpl extends Resident {
       lastMessageDate: lastMessageDate is DateTime?
           ? lastMessageDate
           : this.lastMessageDate,
-      experienceMessageCount:
-          experienceMessageCount ?? this.experienceMessageCount,
       userName: userName is String? ? userName : this.userName,
       gender: gender is String? ? gender : this.gender,
       country: country is String? ? country : this.country,
@@ -652,7 +623,6 @@ class _ResidentImpl extends Resident {
       role: role ?? this.role,
       lastSeen: lastSeen is DateTime? ? lastSeen : this.lastSeen,
       isPremium: isPremium ?? this.isPremium,
-      isTalktivePlus: isTalktivePlus ?? this.isTalktivePlus,
       premiumTrialExpires: premiumTrialExpires is DateTime?
           ? premiumTrialExpires
           : this.premiumTrialExpires,
@@ -746,12 +716,6 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
         value,
       );
 
-  _i1.ColumnValue<int, int> experienceMessageCount(int value) =>
-      _i1.ColumnValue(
-        table.experienceMessageCount,
-        value,
-      );
-
   _i1.ColumnValue<String, String> userName(String? value) => _i1.ColumnValue(
     table.userName,
     value,
@@ -814,11 +778,6 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
 
   _i1.ColumnValue<bool, bool> isPremium(bool value) => _i1.ColumnValue(
     table.isPremium,
-    value,
-  );
-
-  _i1.ColumnValue<bool, bool> isTalktivePlus(bool value) => _i1.ColumnValue(
-    table.isTalktivePlus,
     value,
   );
 
@@ -941,11 +900,6 @@ class ResidentTable extends _i1.Table<int?> {
       'lastMessageDate',
       this,
     );
-    experienceMessageCount = _i1.ColumnInt(
-      'experienceMessageCount',
-      this,
-      hasDefault: true,
-    );
     userName = _i1.ColumnString(
       'userName',
       this,
@@ -995,11 +949,6 @@ class ResidentTable extends _i1.Table<int?> {
     );
     isPremium = _i1.ColumnBool(
       'isPremium',
-      this,
-      hasDefault: true,
-    );
-    isTalktivePlus = _i1.ColumnBool(
-      'isTalktivePlus',
       this,
       hasDefault: true,
     );
@@ -1084,8 +1033,6 @@ class ResidentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnDateTime lastMessageDate;
 
-  late final _i1.ColumnInt experienceMessageCount;
-
   late final _i1.ColumnString userName;
 
   late final _i1.ColumnString gender;
@@ -1109,8 +1056,6 @@ class ResidentTable extends _i1.Table<int?> {
   late final _i1.ColumnDateTime lastSeen;
 
   late final _i1.ColumnBool isPremium;
-
-  late final _i1.ColumnBool isTalktivePlus;
 
   late final _i1.ColumnDateTime premiumTrialExpires;
 
@@ -1149,7 +1094,6 @@ class ResidentTable extends _i1.Table<int?> {
     longestStreak,
     lastLoginDate,
     lastMessageDate,
-    experienceMessageCount,
     userName,
     gender,
     country,
@@ -1162,7 +1106,6 @@ class ResidentTable extends _i1.Table<int?> {
     role,
     lastSeen,
     isPremium,
-    isTalktivePlus,
     premiumTrialExpires,
     trialCount,
     showOthersOnlineStatus,

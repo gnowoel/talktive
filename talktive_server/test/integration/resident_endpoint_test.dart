@@ -35,7 +35,6 @@ void main() {
           ),
           level: 1,
           trustScore: 100,
-          experienceMessageCount: 0,
           gender: 'male',
           country: 'US',
           bio: 'Test bio',
@@ -80,7 +79,6 @@ void main() {
           ),
           level: 1,
           trustScore: 100,
-          experienceMessageCount: 0,
         );
         await Resident.db.insertRow(session, testResident);
 
@@ -112,7 +110,6 @@ void main() {
           ),
           level: 1,
           trustScore: 100,
-          experienceMessageCount: 0,
           gender: 'other',
           country: 'US',
           bio: 'Testing',
@@ -123,7 +120,7 @@ void main() {
 
         expect(resident.level, 1);
         expect(resident.trustScore, 100);
-        expect(resident.experienceMessageCount, 0);
+
         expect(resident.role, ResidentRole.user);
         expect(resident.suspended, false);
       });
@@ -145,7 +142,6 @@ void main() {
             userInfoId: UuidValue.fromString(floorUuids[floor]),
             level: floor,
             trustScore: 100,
-            experienceMessageCount: floor * 10,
           );
           await Resident.db.insertRow(session, resident);
 
@@ -155,7 +151,7 @@ void main() {
           );
 
           expect(retrieved!.level, floor);
-          expect(retrieved.experienceMessageCount, floor * 10);
+
         }
       });
 
@@ -177,7 +173,6 @@ void main() {
             userInfoId: UuidValue.fromString(creditUuids[i]),
             level: 1,
             trustScore: testCases[i],
-            experienceMessageCount: 0,
           );
           await Resident.db.insertRow(session, resident);
 
@@ -215,7 +210,6 @@ void main() {
             userInfoId: UuidValue.fromString(genderUuids[i]),
             level: 1,
             trustScore: 100,
-            experienceMessageCount: 0,
             gender: genders[i],
           );
           await Resident.db.insertRow(session, resident);
@@ -238,7 +232,6 @@ void main() {
           ),
           level: 1,
           trustScore: 100,
-          experienceMessageCount: 0,
           interests: [
             'travel',
             'languages',
@@ -273,7 +266,6 @@ void main() {
           ),
           level: 1,
           trustScore: 100,
-          experienceMessageCount: 0,
           bio: longBio,
         );
         await Resident.db.insertRow(session, resident);
@@ -296,7 +288,6 @@ void main() {
           ),
           level: 1,
           trustScore: 100,
-          experienceMessageCount: 0,
           bio: 'Hello! 你好! مرحبا! Привет! 🎉',
           avatar: '🌟',
         );
@@ -323,7 +314,6 @@ void main() {
           ),
           level: 1,
           trustScore: 100,
-          experienceMessageCount: 0,
         );
         await Resident.db.insertRow(session, resident);
 
@@ -339,7 +329,6 @@ void main() {
           ),
           level: 1,
           trustScore: 100,
-          experienceMessageCount: 0,
         );
         await Resident.db.insertRow(session, resident);
 
@@ -354,8 +343,6 @@ void main() {
             'a3b4c5d6-e7f8-4a5b-8c1d-2e3f4a5b6c7d',
           ),
           level: 1,
-          trustScore: 100,
-          experienceMessageCount: 0,
           role: ResidentRole.admin,
         );
         await Resident.db.insertRow(session, resident);
@@ -372,7 +359,6 @@ void main() {
           ),
           level: 1,
           trustScore: -100,
-          experienceMessageCount: 0,
           suspended: true,
         );
         await Resident.db.insertRow(session, resident);

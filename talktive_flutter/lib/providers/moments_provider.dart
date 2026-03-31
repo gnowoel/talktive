@@ -153,15 +153,27 @@ class MomentComments extends _$MomentComments {
   /// Adds a comment to the moment
   Future<void> addComment(int momentId, String text) async {
     final client = ref.read(clientProvider);
-    await client.moment.addComment(momentId, text);
 
-    // Refresh comments
-    state = const AsyncValue.loading();
+    // Optimistically update the comments count in the moments list
+    ref.read(momentsProvider.notifier).updateMomentLocally(momentId, (moment) {
+      return moment.copyWith(commentsCount: moment.commentsCount + 1);
+    });
+
     try {
+      await client.moment.addComment(momentId, text);
+
+      // Refresh comments to get the permanent ID and full comment data
       final comments = await fetchComments(momentId);
       state = AsyncValue.data(comments);
-    } catch (e, stack) {
-      state = AsyncValue.error(e, stack);
+    } catch (e) {
+      // Revert the local count change if the backend call fails
+      ref.read(momentsProvider.notifier).updateMomentLocally(momentId, (moment) {
+        return moment.copyWith(
+          commentsCount:
+              moment.commentsCount > 0 ? moment.commentsCount - 1 : 0,
+        );
+      });
+      rethrow;
     }
   }
 

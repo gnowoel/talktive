@@ -112,6 +112,7 @@ void main() {
             mediaType: 'voice',
             mediaUrl: 'https://example.com/voice.m4a',
             duration: 5,
+            amplitudes: [1, 2, 3],
           ),
           throwsA(isA<protocol.TalktiveException>().having((e) => e.code, 'code', 'PREMIUM_REQUIRED')),
         );
@@ -132,6 +133,7 @@ void main() {
           mediaType: 'voice',
           mediaUrl: 'https://example.com/voice.m4a',
           duration: 5,
+          amplitudes: [1, 2, 3],
           fileSize: 1024,
         );
 
@@ -152,10 +154,62 @@ void main() {
           mediaType: 'voice',
           mediaUrl: 'https://example.com/voice.m4a',
           duration: 5,
+          amplitudes: [1, 2, 3],
           fileSize: 1024,
         );
 
         expect(result, isNull);
+      });
+
+      test('allows voice message with valid amplitudes', () async {
+        final session = sessionBuilder.build();
+        
+        testUser.level = 2;
+        testUser.isPremium = true;
+        await protocol.Resident.db.updateRow(session, testUser);
+
+        final result = await MessagingService.validateMessage(
+          session,
+          sender: testUser,
+          channel: plazaChannel,
+          mediaType: 'voice',
+          mediaUrl: 'https://example.com/voice.m4a',
+          duration: 5,
+          amplitudes: [10, 20, 30, 40, 50],
+          fileSize: 1024,
+        );
+
+        expect(result, isNull);
+      });
+    });
+
+    group('sendMessage', () {
+      test('correctly saves a voice message with amplitudes', () async {
+        final session = sessionBuilder.build();
+        
+        testUser.level = 2;
+        testUser.isPremium = true;
+        await protocol.Resident.db.updateRow(session, testUser);
+
+        final amplitudes = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+        final savedMessage = await MessagingService.sendMessage(
+          session,
+          sender: testUser,
+          channel: plazaChannel,
+          mediaType: 'voice',
+          mediaUrl: 'https://example.com/voice.m4a',
+          duration: 10,
+          amplitudes: amplitudes,
+          fileSize: 2048,
+        );
+
+        expect(savedMessage.id, isNotNull);
+        expect(savedMessage.amplitudes, equals(amplitudes));
+        
+        // Verify it's actually in the database
+        final retrievedMessage = await protocol.Message.db.findById(session, savedMessage.id!);
+        expect(retrievedMessage, isNotNull);
+        expect(retrievedMessage!.amplitudes, equals(amplitudes));
       });
     });
 

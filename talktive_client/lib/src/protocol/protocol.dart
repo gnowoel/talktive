@@ -464,6 +464,15 @@ class Protocol extends _i1.SerializationManager {
               : null)
           as T;
     }
+    if (t == List<int>) {
+      return (data as List).map((e) => deserialize<int>(e)).toList() as T;
+    }
+    if (t == _i1.getType<List<int>?>()) {
+      return (data != null
+              ? (data as List).map((e) => deserialize<int>(e)).toList()
+              : null)
+          as T;
+    }
     if (t == _i1.getType<List<_i26.Moment>?>()) {
       return (data != null
               ? (data as List).map((e) => deserialize<_i26.Moment>(e)).toList()

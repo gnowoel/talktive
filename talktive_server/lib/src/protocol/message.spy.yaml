@@ -12,6 +12,7 @@ fields:
   pinnedAt: DateTime?
   createdAt: DateTime
   duration: int?
+  amplitudes: List<int>?
   fileSize: int?
   isRecalled: bool, default=false
   recalledAt: DateTime?

@@ -11,6 +11,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
+import 'package:talktive_client/src/protocol/protocol.dart' as _i2;
 
 abstract class Message implements _i1.SerializableModel {
   Message._({
@@ -26,6 +27,7 @@ abstract class Message implements _i1.SerializableModel {
     this.pinnedAt,
     required this.createdAt,
     this.duration,
+    this.amplitudes,
     this.fileSize,
     bool? isRecalled,
     this.recalledAt,
@@ -50,6 +52,7 @@ abstract class Message implements _i1.SerializableModel {
     DateTime? pinnedAt,
     required DateTime createdAt,
     int? duration,
+    List<int>? amplitudes,
     int? fileSize,
     bool? isRecalled,
     DateTime? recalledAt,
@@ -82,6 +85,11 @@ abstract class Message implements _i1.SerializableModel {
         jsonSerialization['createdAt'],
       ),
       duration: jsonSerialization['duration'] as int?,
+      amplitudes: jsonSerialization['amplitudes'] == null
+          ? null
+          : _i2.Protocol().deserialize<List<int>>(
+              jsonSerialization['amplitudes'],
+            ),
       fileSize: jsonSerialization['fileSize'] as int?,
       isRecalled: jsonSerialization['isRecalled'] == null
           ? null
@@ -124,6 +132,8 @@ abstract class Message implements _i1.SerializableModel {
 
   int? duration;
 
+  List<int>? amplitudes;
+
   int? fileSize;
 
   bool isRecalled;
@@ -156,6 +166,7 @@ abstract class Message implements _i1.SerializableModel {
     DateTime? pinnedAt,
     DateTime? createdAt,
     int? duration,
+    List<int>? amplitudes,
     int? fileSize,
     bool? isRecalled,
     DateTime? recalledAt,
@@ -181,6 +192,7 @@ abstract class Message implements _i1.SerializableModel {
       if (pinnedAt != null) 'pinnedAt': pinnedAt?.toJson(),
       'createdAt': createdAt.toJson(),
       if (duration != null) 'duration': duration,
+      if (amplitudes != null) 'amplitudes': amplitudes?.toJson(),
       if (fileSize != null) 'fileSize': fileSize,
       'isRecalled': isRecalled,
       if (recalledAt != null) 'recalledAt': recalledAt?.toJson(),
@@ -214,6 +226,7 @@ class _MessageImpl extends Message {
     DateTime? pinnedAt,
     required DateTime createdAt,
     int? duration,
+    List<int>? amplitudes,
     int? fileSize,
     bool? isRecalled,
     DateTime? recalledAt,
@@ -235,6 +248,7 @@ class _MessageImpl extends Message {
          pinnedAt: pinnedAt,
          createdAt: createdAt,
          duration: duration,
+         amplitudes: amplitudes,
          fileSize: fileSize,
          isRecalled: isRecalled,
          recalledAt: recalledAt,
@@ -262,6 +276,7 @@ class _MessageImpl extends Message {
     Object? pinnedAt = _Undefined,
     DateTime? createdAt,
     Object? duration = _Undefined,
+    Object? amplitudes = _Undefined,
     Object? fileSize = _Undefined,
     bool? isRecalled,
     Object? recalledAt = _Undefined,
@@ -284,6 +299,9 @@ class _MessageImpl extends Message {
       pinnedAt: pinnedAt is DateTime? ? pinnedAt : this.pinnedAt,
       createdAt: createdAt ?? this.createdAt,
       duration: duration is int? ? duration : this.duration,
+      amplitudes: amplitudes is List<int>?
+          ? amplitudes
+          : this.amplitudes?.map((e0) => e0).toList(),
       fileSize: fileSize is int? ? fileSize : this.fileSize,
       isRecalled: isRecalled ?? this.isRecalled,
       recalledAt: recalledAt is DateTime? ? recalledAt : this.recalledAt,

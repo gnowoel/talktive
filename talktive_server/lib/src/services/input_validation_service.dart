@@ -25,6 +25,7 @@ class InputValidationService {
   static const int maxImageSizeBytes = 5 * 1024 * 1024; // 5MB
   static const int maxVoiceDurationSeconds = 60; // 1 minute
   static const int maxAvatarSizeBytes = 2 * 1024 * 1024; // 2MB
+  static const int maxAmplitudesLength = 100;
 
   /// Validates a user name or lounge name.
   static ValidationResult validateName(
@@ -290,6 +291,21 @@ class InputValidationService {
     if (durationSeconds <= 0) {
       return ValidationResult.failure('Voice message is too short.');
     }
+    return ValidationResult.success();
+  }
+
+  /// Validates voice message amplitudes.
+  static ValidationResult validateAmplitudes(List<int>? amplitudes) {
+    if (amplitudes == null || amplitudes.isEmpty) {
+      return ValidationResult.failure('Voice message is missing amplitudes.');
+    }
+
+    if (amplitudes.length > maxAmplitudesLength) {
+      return ValidationResult.failure(
+        'Amplitudes length cannot exceed $maxAmplitudesLength items.',
+      );
+    }
+
     return ValidationResult.success();
   }
 

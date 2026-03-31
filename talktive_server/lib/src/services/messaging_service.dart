@@ -24,6 +24,7 @@ class MessagingService {
     String? mediaUrl,
     String? mediaType,
     int? duration,
+    List<int>? amplitudes,
     int? fileSize,
   }) async {
     final senderUuid = sender.userInfoId;
@@ -51,6 +52,10 @@ class MessagingService {
 
     if (mediaType == 'voice' && duration != null) {
       InputValidationService.validateVoiceDuration(duration).throwIfInvalid();
+    }
+
+    if (mediaType == 'voice') {
+      InputValidationService.validateAmplitudes(amplitudes).throwIfInvalid();
     }
 
     // 3. Content Validation (profanity and spam filtering)
@@ -163,6 +168,7 @@ class MessagingService {
     String? mediaUrl,
     String? mediaType,
     int? duration,
+    List<int>? amplitudes,
     int? fileSize,
     bool isSystem = false,
   }) async {
@@ -176,6 +182,7 @@ class MessagingService {
       mediaUrl: mediaUrl,
       mediaType: mediaType,
       duration: duration,
+      amplitudes: amplitudes,
       fileSize: fileSize,
     );
 
@@ -192,6 +199,7 @@ class MessagingService {
       isSystem: isSystem,
       createdAt: DateTime.now(),
       duration: duration,
+      amplitudes: amplitudes,
       fileSize: fileSize,
       senderName: sender.userName ?? 'Resident',
       senderAvatar: sender.customAvatarUrl ?? sender.avatar,

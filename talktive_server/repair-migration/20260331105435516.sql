@@ -1,21 +1,13 @@
 BEGIN;
 
---
--- ACTION ALTER TABLE
---
-ALTER TABLE "resident" DROP COLUMN "showImagesInPlaza";
-ALTER TABLE "resident" DROP COLUMN "showImagesInLounges";
-ALTER TABLE "resident" DROP COLUMN "showImagesInPrivateChats";
-ALTER TABLE "resident" DROP COLUMN "showImagesInMoments";
-CREATE INDEX "resident_search_idx" ON "resident" USING btree ("lastSeen");
 
 --
 -- MIGRATION VERSION FOR talktive
 --
 INSERT INTO "serverpod_migrations" ("module", "version", "timestamp")
-    VALUES ('talktive', '20260331021100269', now())
+    VALUES ('talktive', '20260331094244913', now())
     ON CONFLICT ("module")
-    DO UPDATE SET "version" = '20260331021100269', "timestamp" = now();
+    DO UPDATE SET "version" = '20260331094244913', "timestamp" = now();
 
 --
 -- MIGRATION VERSION FOR serverpod
@@ -53,9 +45,9 @@ INSERT INTO "serverpod_migrations" ("module", "version", "timestamp")
 -- MIGRATION VERSION FOR _repair
 --
 INSERT INTO "serverpod_migrations" ("module", "version", "timestamp")
-    VALUES ('_repair', '20260331034033932', now())
+    VALUES ('_repair', '20260331105435516', now())
     ON CONFLICT ("module")
-    DO UPDATE SET "version" = '20260331034033932', "timestamp" = now();
+    DO UPDATE SET "version" = '20260331105435516', "timestamp" = now();
 
 
 COMMIT;

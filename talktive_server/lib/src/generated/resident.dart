@@ -52,10 +52,6 @@ abstract class Resident
     bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
     bool? keepPrivateChats,
-    bool? showImagesInPlaza,
-    bool? showImagesInLounges,
-    bool? showImagesInPrivateChats,
-    bool? showImagesInMoments,
     this.customAvatarUrl,
   }) : trustScore = trustScore ?? 100,
        suspended = suspended ?? false,
@@ -74,11 +70,7 @@ abstract class Resident
        showVoiceMessages = showVoiceMessages ?? true,
        showAdvancedDiscovery = showAdvancedDiscovery ?? true,
        showCustomAvatar = showCustomAvatar ?? true,
-       keepPrivateChats = keepPrivateChats ?? true,
-       showImagesInPlaza = showImagesInPlaza ?? true,
-       showImagesInLounges = showImagesInLounges ?? true,
-       showImagesInPrivateChats = showImagesInPrivateChats ?? true,
-       showImagesInMoments = showImagesInMoments ?? true;
+       keepPrivateChats = keepPrivateChats ?? true;
 
   factory Resident({
     int? id,
@@ -116,10 +108,6 @@ abstract class Resident
     bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
     bool? keepPrivateChats,
-    bool? showImagesInPlaza,
-    bool? showImagesInLounges,
-    bool? showImagesInPrivateChats,
-    bool? showImagesInMoments,
     String? customAvatarUrl,
   }) = _ResidentImpl;
 
@@ -232,27 +220,6 @@ abstract class Resident
           : _i1.BoolJsonExtension.fromJson(
               jsonSerialization['keepPrivateChats'],
             ),
-      showImagesInPlaza: jsonSerialization['showImagesInPlaza'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(
-              jsonSerialization['showImagesInPlaza'],
-            ),
-      showImagesInLounges: jsonSerialization['showImagesInLounges'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(
-              jsonSerialization['showImagesInLounges'],
-            ),
-      showImagesInPrivateChats:
-          jsonSerialization['showImagesInPrivateChats'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(
-              jsonSerialization['showImagesInPrivateChats'],
-            ),
-      showImagesInMoments: jsonSerialization['showImagesInMoments'] == null
-          ? null
-          : _i1.BoolJsonExtension.fromJson(
-              jsonSerialization['showImagesInMoments'],
-            ),
       customAvatarUrl: jsonSerialization['customAvatarUrl'] as String?,
     );
   }
@@ -332,14 +299,6 @@ abstract class Resident
 
   bool keepPrivateChats;
 
-  bool showImagesInPlaza;
-
-  bool showImagesInLounges;
-
-  bool showImagesInPrivateChats;
-
-  bool showImagesInMoments;
-
   String? customAvatarUrl;
 
   @override
@@ -384,10 +343,6 @@ abstract class Resident
     bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
     bool? keepPrivateChats,
-    bool? showImagesInPlaza,
-    bool? showImagesInLounges,
-    bool? showImagesInPrivateChats,
-    bool? showImagesInMoments,
     String? customAvatarUrl,
   });
   @override
@@ -431,10 +386,6 @@ abstract class Resident
       'showAdvancedDiscovery': showAdvancedDiscovery,
       'showCustomAvatar': showCustomAvatar,
       'keepPrivateChats': keepPrivateChats,
-      'showImagesInPlaza': showImagesInPlaza,
-      'showImagesInLounges': showImagesInLounges,
-      'showImagesInPrivateChats': showImagesInPrivateChats,
-      'showImagesInMoments': showImagesInMoments,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
   }
@@ -480,10 +431,6 @@ abstract class Resident
       'showAdvancedDiscovery': showAdvancedDiscovery,
       'showCustomAvatar': showCustomAvatar,
       'keepPrivateChats': keepPrivateChats,
-      'showImagesInPlaza': showImagesInPlaza,
-      'showImagesInLounges': showImagesInLounges,
-      'showImagesInPrivateChats': showImagesInPrivateChats,
-      'showImagesInMoments': showImagesInMoments,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
     };
   }
@@ -557,10 +504,6 @@ class _ResidentImpl extends Resident {
     bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
     bool? keepPrivateChats,
-    bool? showImagesInPlaza,
-    bool? showImagesInLounges,
-    bool? showImagesInPrivateChats,
-    bool? showImagesInMoments,
     String? customAvatarUrl,
   }) : super._(
          id: id,
@@ -598,10 +541,6 @@ class _ResidentImpl extends Resident {
          showAdvancedDiscovery: showAdvancedDiscovery,
          showCustomAvatar: showCustomAvatar,
          keepPrivateChats: keepPrivateChats,
-         showImagesInPlaza: showImagesInPlaza,
-         showImagesInLounges: showImagesInLounges,
-         showImagesInPrivateChats: showImagesInPrivateChats,
-         showImagesInMoments: showImagesInMoments,
          customAvatarUrl: customAvatarUrl,
        );
 
@@ -645,10 +584,6 @@ class _ResidentImpl extends Resident {
     bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
     bool? keepPrivateChats,
-    bool? showImagesInPlaza,
-    bool? showImagesInLounges,
-    bool? showImagesInPrivateChats,
-    bool? showImagesInMoments,
     Object? customAvatarUrl = _Undefined,
   }) {
     return Resident(
@@ -703,11 +638,6 @@ class _ResidentImpl extends Resident {
           showAdvancedDiscovery ?? this.showAdvancedDiscovery,
       showCustomAvatar: showCustomAvatar ?? this.showCustomAvatar,
       keepPrivateChats: keepPrivateChats ?? this.keepPrivateChats,
-      showImagesInPlaza: showImagesInPlaza ?? this.showImagesInPlaza,
-      showImagesInLounges: showImagesInLounges ?? this.showImagesInLounges,
-      showImagesInPrivateChats:
-          showImagesInPrivateChats ?? this.showImagesInPrivateChats,
-      showImagesInMoments: showImagesInMoments ?? this.showImagesInMoments,
       customAvatarUrl: customAvatarUrl is String?
           ? customAvatarUrl
           : this.customAvatarUrl,
@@ -905,29 +835,6 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
     value,
   );
 
-  _i1.ColumnValue<bool, bool> showImagesInPlaza(bool value) => _i1.ColumnValue(
-    table.showImagesInPlaza,
-    value,
-  );
-
-  _i1.ColumnValue<bool, bool> showImagesInLounges(bool value) =>
-      _i1.ColumnValue(
-        table.showImagesInLounges,
-        value,
-      );
-
-  _i1.ColumnValue<bool, bool> showImagesInPrivateChats(bool value) =>
-      _i1.ColumnValue(
-        table.showImagesInPrivateChats,
-        value,
-      );
-
-  _i1.ColumnValue<bool, bool> showImagesInMoments(bool value) =>
-      _i1.ColumnValue(
-        table.showImagesInMoments,
-        value,
-      );
-
   _i1.ColumnValue<String, String> customAvatarUrl(String? value) =>
       _i1.ColumnValue(
         table.customAvatarUrl,
@@ -1093,26 +1000,6 @@ class ResidentTable extends _i1.Table<int?> {
       this,
       hasDefault: true,
     );
-    showImagesInPlaza = _i1.ColumnBool(
-      'showImagesInPlaza',
-      this,
-      hasDefault: true,
-    );
-    showImagesInLounges = _i1.ColumnBool(
-      'showImagesInLounges',
-      this,
-      hasDefault: true,
-    );
-    showImagesInPrivateChats = _i1.ColumnBool(
-      'showImagesInPrivateChats',
-      this,
-      hasDefault: true,
-    );
-    showImagesInMoments = _i1.ColumnBool(
-      'showImagesInMoments',
-      this,
-      hasDefault: true,
-    );
     customAvatarUrl = _i1.ColumnString(
       'customAvatarUrl',
       this,
@@ -1189,14 +1076,6 @@ class ResidentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnBool keepPrivateChats;
 
-  late final _i1.ColumnBool showImagesInPlaza;
-
-  late final _i1.ColumnBool showImagesInLounges;
-
-  late final _i1.ColumnBool showImagesInPrivateChats;
-
-  late final _i1.ColumnBool showImagesInMoments;
-
   late final _i1.ColumnString customAvatarUrl;
 
   @override
@@ -1236,10 +1115,6 @@ class ResidentTable extends _i1.Table<int?> {
     showAdvancedDiscovery,
     showCustomAvatar,
     keepPrivateChats,
-    showImagesInPlaza,
-    showImagesInLounges,
-    showImagesInPrivateChats,
-    showImagesInMoments,
     customAvatarUrl,
   ];
 }

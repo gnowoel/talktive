@@ -13,6 +13,7 @@ class ContentEphemeralityService {
   static const plazaMessageLifetime = Duration(hours: 24);
   static const loungeMessageLifetime = Duration(days: 14);
   static const privateChatMessageLifetime = Duration(days: 30);
+  static const privateChatGracePeriod = Duration(days: 14);
   static const momentLifetime = Duration(days: 7);
   static const readNotificationLifetime = Duration(days: 1);
   static const unreadNotificationLifetime = Duration(days: 30);
@@ -158,10 +159,13 @@ class ContentEphemeralityService {
     );
 
     final userUuids = memberships.map((m) => m.userInfoId).toSet();
+    final graceCutoff = DateTime.now().subtract(privateChatGracePeriod);
     final residentsWithPersistence = await protocol.Resident.db.find(
       session,
       where: (t) =>
-          t.userInfoId.inSet(userUuids) & t.keepPrivateChats.equals(true),
+          t.userInfoId.inSet(userUuids) &
+          (t.keepPrivateChats.equals(true) |
+              (t.premiumTrialExpires > graceCutoff)),
     );
 
     final persistentUserIds = residentsWithPersistence

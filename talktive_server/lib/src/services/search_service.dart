@@ -73,7 +73,7 @@ class SearchService {
           code: 'PREMIUM_REQUIRED',
         );
       }
-      if (!ResidentService.canUseNeighborDiscovery(currentUser)) {
+      if (!ResidentService.canUseAdvancedDiscovery(currentUser)) {
         throw protocol.TalktiveException(
           message: 'Advanced Search is disabled in Settings.',
           code: 'FEATURE_DISABLED',
@@ -165,6 +165,12 @@ class SearchService {
         throw protocol.TalktiveException(
           message: 'Advanced Search is a Talktive Plus feature.',
           code: 'PREMIUM_REQUIRED',
+        );
+      }
+      if (!ResidentService.canUseAdvancedDiscovery(currentUser)) {
+        throw protocol.TalktiveException(
+          message: 'Advanced Search is disabled in Settings.',
+          code: 'FEATURE_DISABLED',
         );
       }
     }

@@ -1,5 +1,24 @@
 # Talktive Development Changelog
 
+## March 31, 2026 - Notification & Unread Count Verification (Phase 8.98) 🏗️🔔✅
+
+### Notification & Deep Linking Verification
+
+- **Comprehensive Route Audit**: Verified that all push notification payloads (`route` field) correctly match the `GoRouter` configuration in the Flutter app.
+- **Deep Link Reliability**: Confirmed that `FCMManager` on the client handles notification taps correctly, including from a terminated state, ensuring users land on the intended screen (e.g., `/chats/thread/:id`).
+- **In-App Toast Logic**: Validated that foreground notifications trigger a consistent `DuoNotificationToast` while respecting the user's current location to avoid redundant popups.
+
+### Unread Count Integrity
+
+- **Server-Side Accuracy**: Verified the `batchGetUnreadCounts` SQL logic, ensuring it correctly calculates unread messages based on the `lastReadAt` timestamp and sender exclusion.
+- **Client-Side Reactivity**: Confirmed that `TotalUnreadCounts` provider correctly aggregates counts for both private chats and lounges, while respecting muted status.
+- **Real-Time Synchronization**: Validated that `markChannelAsRead` properly resets unread counts and broadcasts read receipts to other participants.
+
+### Technical Quality Assurance
+
+- **New Integration Test**: Implemented `notification_and_unread_test.dart` to verify the end-to-end flow of unread count increments, resets, and notification payload generation.
+- **Test Environment Stabilization**: Fixed UUID validation issues and updated test models to match the latest schema requirements (e.g., `isSystem`, `senderFloor`).
+
 ## March 31, 2026 - Advanced Privacy Gating & Inbound Security (Phase 8.97) 🏗️🛡️💎
 
 ### Server-Side Privacy Hardening

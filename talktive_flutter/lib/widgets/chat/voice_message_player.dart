@@ -180,29 +180,21 @@ class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      trackHeight: 4,
-                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                      overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
-                      activeTrackColor: themeColor,
-                      inactiveTrackColor: inactiveColor,
-                      thumbColor: themeColor,
-                      overlayColor: themeColor.withValues(alpha: 0.2),
-                    ),
-                    child: Slider(
+                  const SizedBox(height: 4),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(2),
+                    child: LinearProgressIndicator(
                       value: _duration.inMilliseconds > 0
                           ? (_position.inMilliseconds / _duration.inMilliseconds).clamp(0.0, 1.0)
                           : 0.0,
-                      onChanged: (value) {
-                        if (_player != null && _duration != Duration.zero) {
-                          _player!.seek(_duration * value);
-                        }
-                      },
+                      backgroundColor: inactiveColor,
+                      valueColor: AlwaysStoppedAnimation<Color>(themeColor),
+                      minHeight: 4,
                     ),
                   ),
+                  const SizedBox(height: 8),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [

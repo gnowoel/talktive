@@ -2300,7 +2300,6 @@ class _MessageEndpoint {
     String? mediaUrl,
     String? mediaType,
     int? duration,
-    List<int>? amplitudes,
     int? fileSize,
     required bool isSystem,
   }) async {
@@ -2322,7 +2321,6 @@ class _MessageEndpoint {
             'mediaUrl': mediaUrl,
             'mediaType': mediaType,
             'duration': duration,
-            'amplitudes': amplitudes,
             'fileSize': fileSize,
             'isSystem': isSystem,
           }),

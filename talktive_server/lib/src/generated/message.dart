@@ -11,7 +11,6 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _i1;
-import 'package:talktive_server/src/generated/protocol.dart' as _i2;
 
 abstract class Message
     implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
@@ -28,7 +27,6 @@ abstract class Message
     this.pinnedAt,
     required this.createdAt,
     this.duration,
-    this.amplitudes,
     this.fileSize,
     bool? isRecalled,
     this.recalledAt,
@@ -53,7 +51,6 @@ abstract class Message
     DateTime? pinnedAt,
     required DateTime createdAt,
     int? duration,
-    List<int>? amplitudes,
     int? fileSize,
     bool? isRecalled,
     DateTime? recalledAt,
@@ -86,11 +83,6 @@ abstract class Message
         jsonSerialization['createdAt'],
       ),
       duration: jsonSerialization['duration'] as int?,
-      amplitudes: jsonSerialization['amplitudes'] == null
-          ? null
-          : _i2.Protocol().deserialize<List<int>>(
-              jsonSerialization['amplitudes'],
-            ),
       fileSize: jsonSerialization['fileSize'] as int?,
       isRecalled: jsonSerialization['isRecalled'] == null
           ? null
@@ -135,8 +127,6 @@ abstract class Message
 
   int? duration;
 
-  List<int>? amplitudes;
-
   int? fileSize;
 
   bool isRecalled;
@@ -172,7 +162,6 @@ abstract class Message
     DateTime? pinnedAt,
     DateTime? createdAt,
     int? duration,
-    List<int>? amplitudes,
     int? fileSize,
     bool? isRecalled,
     DateTime? recalledAt,
@@ -198,7 +187,6 @@ abstract class Message
       if (pinnedAt != null) 'pinnedAt': pinnedAt?.toJson(),
       'createdAt': createdAt.toJson(),
       if (duration != null) 'duration': duration,
-      if (amplitudes != null) 'amplitudes': amplitudes?.toJson(),
       if (fileSize != null) 'fileSize': fileSize,
       'isRecalled': isRecalled,
       if (recalledAt != null) 'recalledAt': recalledAt?.toJson(),
@@ -226,7 +214,6 @@ abstract class Message
       if (pinnedAt != null) 'pinnedAt': pinnedAt?.toJson(),
       'createdAt': createdAt.toJson(),
       if (duration != null) 'duration': duration,
-      if (amplitudes != null) 'amplitudes': amplitudes?.toJson(),
       if (fileSize != null) 'fileSize': fileSize,
       'isRecalled': isRecalled,
       if (recalledAt != null) 'recalledAt': recalledAt?.toJson(),
@@ -284,7 +271,6 @@ class _MessageImpl extends Message {
     DateTime? pinnedAt,
     required DateTime createdAt,
     int? duration,
-    List<int>? amplitudes,
     int? fileSize,
     bool? isRecalled,
     DateTime? recalledAt,
@@ -306,7 +292,6 @@ class _MessageImpl extends Message {
          pinnedAt: pinnedAt,
          createdAt: createdAt,
          duration: duration,
-         amplitudes: amplitudes,
          fileSize: fileSize,
          isRecalled: isRecalled,
          recalledAt: recalledAt,
@@ -334,7 +319,6 @@ class _MessageImpl extends Message {
     Object? pinnedAt = _Undefined,
     DateTime? createdAt,
     Object? duration = _Undefined,
-    Object? amplitudes = _Undefined,
     Object? fileSize = _Undefined,
     bool? isRecalled,
     Object? recalledAt = _Undefined,
@@ -357,9 +341,6 @@ class _MessageImpl extends Message {
       pinnedAt: pinnedAt is DateTime? ? pinnedAt : this.pinnedAt,
       createdAt: createdAt ?? this.createdAt,
       duration: duration is int? ? duration : this.duration,
-      amplitudes: amplitudes is List<int>?
-          ? amplitudes
-          : this.amplitudes?.map((e0) => e0).toList(),
       fileSize: fileSize is int? ? fileSize : this.fileSize,
       isRecalled: isRecalled ?? this.isRecalled,
       recalledAt: recalledAt is DateTime? ? recalledAt : this.recalledAt,
@@ -432,12 +413,6 @@ class MessageUpdateTable extends _i1.UpdateTable<MessageTable> {
     table.duration,
     value,
   );
-
-  _i1.ColumnValue<List<int>, List<int>> amplitudes(List<int>? value) =>
-      _i1.ColumnValue(
-        table.amplitudes,
-        value,
-      );
 
   _i1.ColumnValue<int, int> fileSize(int? value) => _i1.ColumnValue(
     table.fileSize,
@@ -530,10 +505,6 @@ class MessageTable extends _i1.Table<int?> {
       'duration',
       this,
     );
-    amplitudes = _i1.ColumnSerializable<List<int>>(
-      'amplitudes',
-      this,
-    );
     fileSize = _i1.ColumnInt(
       'fileSize',
       this,
@@ -593,8 +564,6 @@ class MessageTable extends _i1.Table<int?> {
 
   late final _i1.ColumnInt duration;
 
-  late final _i1.ColumnSerializable<List<int>> amplitudes;
-
   late final _i1.ColumnInt fileSize;
 
   late final _i1.ColumnBool isRecalled;
@@ -625,7 +594,6 @@ class MessageTable extends _i1.Table<int?> {
     pinnedAt,
     createdAt,
     duration,
-    amplitudes,
     fileSize,
     isRecalled,
     recalledAt,

@@ -20,7 +20,6 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     String? mediaUrl,
     String? mediaType,
     int? duration,
-    List<int>? amplitudes,
     int? fileSize,
     bool isSystem = false,
   }) async {
@@ -48,7 +47,6 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
         mediaUrl: mediaUrl,
         mediaType: mediaType,
         duration: duration,
-        amplitudes: amplitudes,
         fileSize: fileSize,
         isSystem: isSystem,
       );

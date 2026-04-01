@@ -864,7 +864,6 @@ class EndpointMessage extends _i2.EndpointRef {
     String? mediaUrl,
     String? mediaType,
     int? duration,
-    List<int>? amplitudes,
     int? fileSize,
     required bool isSystem,
   }) => caller.callServerEndpoint<_i17.Message>(
@@ -877,7 +876,6 @@ class EndpointMessage extends _i2.EndpointRef {
       'mediaUrl': mediaUrl,
       'mediaType': mediaType,
       'duration': duration,
-      'amplitudes': amplitudes,
       'fileSize': fileSize,
       'isSystem': isSystem,
     },

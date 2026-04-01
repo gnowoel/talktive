@@ -1442,7 +1442,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Text('❌', style: TextStyle(fontSize: 18)),
+                    icon: const Icon(Icons.close, size: 22),
                   ),
                 ],
               ),

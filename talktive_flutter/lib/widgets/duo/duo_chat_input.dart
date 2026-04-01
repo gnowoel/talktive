@@ -507,8 +507,8 @@ class _DuoChatInputState extends State<DuoChatInput> {
           }
         });
       },
-      onLongPressEnd: (_) => _handleDragEnd(),
-      onLongPressCancel: () => _handleDragEnd(),
+      onLongPressEnd: kIsWeb ? null : (_) => _handleDragEnd(),
+      onLongPressCancel: kIsWeb ? null : () => _handleDragEnd(),
       onTap: (widget.enabled && !widget.isSending && !widget.isLoading)
           ? () {
               debugPrint(

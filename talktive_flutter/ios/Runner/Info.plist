@@ -68,6 +68,8 @@
 	<string>This app requires access to the photo library.</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>This identifier will be used to deliver personalized ads to you.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Talktive needs microphone access so you can send voice messages to your neighbors.</string>
 	<!-- AdMob App ID - Update this to your production iOS AdMob App ID -->
 	<!-- Get the iOS App ID from your AdMob console - it will be different from Android -->
 	<key>GADApplicationIdentifier</key>

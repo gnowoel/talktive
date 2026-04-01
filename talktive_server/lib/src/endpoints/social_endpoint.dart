@@ -56,6 +56,10 @@ class SocialEndpoint extends Endpoint with EndpointAuthMixin {
     final blockerId = await getUserId(session);
     final targetId = UuidValue.fromString(userId);
 
+    if (blockerId == targetId) {
+      throw protocol.TalktiveException(message: 'You cannot block yourself.');
+    }
+
     await ResidentService.setBlockStatus(
       session,
       blockerId: blockerId,

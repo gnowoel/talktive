@@ -4,6 +4,8 @@ import 'package:serverpod_auth_idp_server/core.dart';
 import 'package:serverpod_auth_idp_server/providers/firebase.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart' as jwt;
 
+import '../generated/protocol.dart';
+
 /// A custom FirebaseIdpConfig that targets the local Firebase Emulator.
 class EmulatorFirebaseIdpConfig extends FirebaseIdpConfig {
   const EmulatorFirebaseIdpConfig({
@@ -63,6 +65,29 @@ class EmulatorFirebaseIdp implements FirebaseIdp {
       session.db,
       transaction,
       (final transaction) async {
+        final details = await utils.fetchAccountDetails(
+          session,
+          idToken: idToken,
+        );
+        final existingAccount = await FirebaseAccount.db.findFirstRow(
+          session,
+          where: (t) => t.userIdentifier.equals(details.userIdentifier),
+          transaction: transaction,
+        );
+
+        if (existingAccount != null) {
+          session.log(
+            'Firebase account found for userIdentifier: ${details.userIdentifier}',
+            level: LogLevel.info,
+          );
+          return _tokenIssuer.issueToken(
+            session,
+            authUserId: existingAccount.authUserId,
+            transaction: transaction,
+            method: 'firebase',
+          );
+        }
+
         final account = await utils.authenticate(
           session,
           idToken: idToken,

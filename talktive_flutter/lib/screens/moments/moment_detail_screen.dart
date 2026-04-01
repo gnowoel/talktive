@@ -42,7 +42,7 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
     try {
       final isLiked =
           ref.read(momentLikesProvider).value?.contains(widget.momentId) ??
-              false;
+          false;
 
       // Optimistically update the user's like list
       ref.read(momentLikesProvider.notifier).toggleLike(widget.momentId);
@@ -95,9 +95,7 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
     );
 
     if (moment == null) {
-      return const Scaffold(
-        body: Center(child: DuoLoadingIndicator()),
-      );
+      return const Scaffold(body: Center(child: DuoLoadingIndicator()));
     }
 
     final commentsAsync = ref.watch(momentCommentsProvider(widget.momentId));
@@ -253,24 +251,25 @@ class _MomentDetailScreenState extends ConsumerState<MomentDetailScreen> {
       child: Row(
         children: [
           IconButton(
-            icon: Icon(
-              isLiked ? Icons.favorite : Icons.favorite_border,
-              color: isLiked ? AppTheme.duoRed : AppTheme.textSecondary,
-              size: 28,
-            )
-                .animate(target: isLiked ? 1 : 0)
-                .scale(
-                  begin: const Offset(1, 1),
-                  end: const Offset(1.2, 1.2),
-                  duration: 200.ms,
-                  curve: Curves.easeOutBack,
-                )
-                .then()
-                .scale(
-                  begin: const Offset(1.2, 1.2),
-                  end: const Offset(1, 1),
-                  duration: 100.ms,
-                ),
+            icon:
+                Icon(
+                      isLiked ? Icons.favorite : Icons.favorite_border,
+                      color: isLiked ? AppTheme.duoRed : AppTheme.textSecondary,
+                      size: 28,
+                    )
+                    .animate(target: isLiked ? 1 : 0)
+                    .scale(
+                      begin: const Offset(1, 1),
+                      end: const Offset(1.2, 1.2),
+                      duration: 200.ms,
+                      curve: Curves.easeOutBack,
+                    )
+                    .then()
+                    .scale(
+                      begin: const Offset(1.2, 1.2),
+                      end: const Offset(1, 1),
+                      duration: 100.ms,
+                    ),
             onPressed: _isLiking ? null : _toggleLike,
           ),
           Text(

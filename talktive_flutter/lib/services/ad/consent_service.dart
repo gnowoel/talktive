@@ -36,7 +36,7 @@ class ConsentService {
 
       // 2. Update consent info from UMP
       final completer = Completer<void>();
-      
+
       // For development, we can force the consent form to appear by setting debug settings
       final params = ConsentRequestParameters(
         consentDebugSettings: kDebugMode
@@ -58,7 +58,9 @@ class ConsentService {
           await prefs.setInt(_statusKey, _currentStatus.index);
           await prefs.setBool(_canRequestKey, _canRequestAds);
 
-          debugPrint('[ConsentService] Consent info updated: status=$_currentStatus, canRequest=$_canRequestAds');
+          debugPrint(
+            '[ConsentService] Consent info updated: status=$_currentStatus, canRequest=$_canRequestAds',
+          );
           completer.complete();
         },
         (FormError error) {
@@ -84,10 +86,10 @@ class ConsentService {
   /// Show the consent form if required
   Future<bool> showConsentFormIfRequired() async {
     if (kIsWeb) return false;
-    
+
     // Ensure we have the latest status
     _currentStatus = await ConsentInformation.instance.getConsentStatus();
-    
+
     if (_currentStatus == ConsentStatus.required) {
       debugPrint('[ConsentService] Consent is required, showing form...');
       final isAvailable = await ConsentInformation.instance
@@ -106,7 +108,9 @@ class ConsentService {
               await prefs.setInt(_statusKey, _currentStatus.index);
               await prefs.setBool(_canRequestKey, _canRequestAds);
 
-              debugPrint('[ConsentService] Form dismissed. New status: $_currentStatus');
+              debugPrint(
+                '[ConsentService] Form dismissed. New status: $_currentStatus',
+              );
               completer.complete(true);
             });
           },
@@ -126,30 +130,37 @@ class ConsentService {
   /// Manually show privacy options (e.g. from settings)
   Future<void> showPrivacyOptions() async {
     if (kIsWeb) return;
-    
-    debugPrint('[ConsentService] Checking if privacy options form is available...');
-    final requirementStatus = await ConsentInformation.instance.getPrivacyOptionsRequirementStatus();
-    
+
+    debugPrint(
+      '[ConsentService] Checking if privacy options form is available...',
+    );
+    final requirementStatus = await ConsentInformation.instance
+        .getPrivacyOptionsRequirementStatus();
+
     if (requirementStatus == PrivacyOptionsRequirementStatus.required) {
       final completer = Completer<void>();
       ConsentForm.showPrivacyOptionsForm((FormError? error) async {
         if (error != null) {
-          debugPrint('[ConsentService] Privacy options error: ${error.message}');
+          debugPrint(
+            '[ConsentService] Privacy options error: ${error.message}',
+          );
         }
-        
+
         // Refresh status after form is closed
         _currentStatus = await ConsentInformation.instance.getConsentStatus();
         _canRequestAds = await ConsentInformation.instance.canRequestAds();
-        
+
         final prefs = await SharedPreferences.getInstance();
         await prefs.setInt(_statusKey, _currentStatus.index);
         await prefs.setBool(_canRequestKey, _canRequestAds);
-        
+
         completer.complete();
       });
       await completer.future;
     } else {
-      debugPrint('[ConsentService] Privacy options form not required/available: $requirementStatus');
+      debugPrint(
+        '[ConsentService] Privacy options form not required/available: $requirementStatus',
+      );
       // If privacy options isn't available, we can try showing the consent form if it's required
       // or simply tell the user it's not available in their region.
       throw Exception('Privacy settings are not available in your region.');
@@ -162,11 +173,11 @@ class ConsentService {
     await ConsentInformation.instance.reset();
     _currentStatus = ConsentStatus.unknown;
     _canRequestAds = false;
-    
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_statusKey);
     await prefs.remove(_canRequestKey);
-    
+
     // Re-initialize after reset
     await initialize();
   }

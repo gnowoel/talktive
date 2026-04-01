@@ -239,10 +239,10 @@ class DuoMomentCard extends StatelessWidget {
         child: Row(
           children: [
             Icon(
-              icon,
-              size: 20,
-              color: isActive ? color : AppTheme.textSecondary,
-            )
+                  icon,
+                  size: 20,
+                  color: isActive ? color : AppTheme.textSecondary,
+                )
                 .animate(target: shouldAnimate && isActive ? 1 : 0)
                 .scale(
                   begin: const Offset(1, 1),

@@ -34,8 +34,9 @@ class AppConfig {
     );
 
     final assetConfig = await _loadAssetConfig();
-    final fallbackLocalUrl =
-        kIsWeb ? 'http://localhost:8080' : 'http://10.0.2.2:8080';
+    final fallbackLocalUrl = kIsWeb
+        ? 'http://localhost:8080'
+        : 'http://10.0.2.2:8080';
     final assetUrl = (assetConfig['apiUrl'] as String?)?.trim();
     final configuredUrl = serverpodUrlOverride.isNotEmpty
         ? serverpodUrlOverride

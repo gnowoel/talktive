@@ -59,11 +59,8 @@ class SettingsScreen extends ConsumerWidget {
                 isLocked: !resident.isPremium,
                 value: resident.hideAds,
                 onChanged: resident.isPremium
-                    ? (val) => _updatePrivacySettings(
-                        context,
-                        ref,
-                        hideAds: val,
-                      )
+                    ? (val) =>
+                          _updatePrivacySettings(context, ref, hideAds: val)
                     : null,
               ),
               _buildFeatureRow(

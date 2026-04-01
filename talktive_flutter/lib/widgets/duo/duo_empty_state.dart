@@ -99,10 +99,10 @@ class DuoEmptyState extends StatelessWidget {
             if (buttonText != null && onButtonPressed != null) ...[
               const SizedBox(height: AppTheme.duoSpacingXLarge),
               DuoButton(
-                text: buttonText!,
-                onPressed: onButtonPressed,
-                color: themeColor,
-              )
+                    text: buttonText!,
+                    onPressed: onButtonPressed,
+                    color: themeColor,
+                  )
                   .animate()
                   .fadeIn(delay: 300.ms)
                   .scale(begin: const Offset(0.8, 0.8)),

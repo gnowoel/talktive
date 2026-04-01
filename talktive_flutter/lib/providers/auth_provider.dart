@@ -66,8 +66,12 @@ class Auth extends _$Auth {
         try {
           final idToken = await firebaseUser.getIdToken();
           if (idToken != null) {
-            debugPrint('Auth: Found active Firebase user, attempting Serverpod login...');
-            final authResponse = await client.firebaseIdp.login(idToken: idToken);
+            debugPrint(
+              'Auth: Found active Firebase user, attempting Serverpod login...',
+            );
+            final authResponse = await client.firebaseIdp.login(
+              idToken: idToken,
+            );
             // If we're here, it succeeded (otherwise it would throw)
             await sessionManager.updateSignedInUser(authResponse);
             return await _refreshAuthState();
@@ -189,7 +193,9 @@ class Auth extends _$Auth {
       return AuthStatus.error;
     }
 
-    final credential = GoogleAuthProvider.credential(idToken: idTokenFromGoogle);
+    final credential = GoogleAuthProvider.credential(
+      idToken: idTokenFromGoogle,
+    );
 
     // Link or sign in to Firebase.
     final currentUser = FirebaseAuth.instance.currentUser;

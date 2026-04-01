@@ -167,10 +167,13 @@ class MomentComments extends _$MomentComments {
       state = AsyncValue.data(comments);
     } catch (e) {
       // Revert the local count change if the backend call fails
-      ref.read(momentsProvider.notifier).updateMomentLocally(momentId, (moment) {
+      ref.read(momentsProvider.notifier).updateMomentLocally(momentId, (
+        moment,
+      ) {
         return moment.copyWith(
-          commentsCount:
-              moment.commentsCount > 0 ? moment.commentsCount - 1 : 0,
+          commentsCount: moment.commentsCount > 0
+              ? moment.commentsCount - 1
+              : 0,
         );
       });
       rethrow;

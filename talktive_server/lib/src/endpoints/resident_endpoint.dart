@@ -61,7 +61,12 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
 
     // 1. Check if resident already exists
     var resident = await ResidentService.getResident(session, senderUuid);
-    if (resident != null) return resident;
+    if (resident != null) {
+      session.log(
+        'Resident: User $senderUuid already has a profile. Returning existing.',
+      );
+      return resident;
+    }
 
     // 2. Create Resident via service
     return await ResidentService.createResident(

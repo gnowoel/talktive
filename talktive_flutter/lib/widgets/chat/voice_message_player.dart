@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,55 +25,69 @@ class VoiceMessagePlayer extends ConsumerStatefulWidget {
 }
 
 class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
-  late AudioPlayer _player;
+  AudioPlayer? _player;
   bool _isPlaying = false;
+  bool _isInitializing = false;
   Duration _duration = Duration.zero;
   Duration _position = Duration.zero;
   late final List<double> _normalizedAmplitudes;
+  StreamSubscription? _stateSub;
+  StreamSubscription? _durationSub;
+  StreamSubscription? _posSub;
 
   @override
   void initState() {
     super.initState();
-    _player = AudioPlayer();
     _normalizedAmplitudes = _normalizeAmplitudes(widget.amplitudes);
-
-    _initPlayer();
   }
 
-  Future<void> _initPlayer() async {
+  Future<void> _ensureInitialized() async {
+    if (_player != null || _isInitializing) return;
+
+    setState(() => _isInitializing = true);
     try {
-      await _player.setUrl(UrlHelper.resolve(widget.url));
+      final player = AudioPlayer();
       
-      _player.playerStateStream.listen((state) {
+      _stateSub = player.playerStateStream.listen((state) {
         if (mounted) {
           setState(() {
             _isPlaying = state.playing;
             if (state.processingState == ProcessingState.completed) {
               _position = _duration;
-              _player.seek(Duration.zero);
-              _player.pause();
-              ref.read(voiceServiceProvider).onPlayerStopped(_player);
+              player.seek(Duration.zero);
+              player.pause();
+              ref.read(voiceServiceProvider).onPlayerStopped(player);
             }
           });
         }
       });
 
-      _player.durationStream.listen((d) {
+      _durationSub = player.durationStream.listen((d) {
         if (mounted && d != null) setState(() => _duration = d);
       });
 
-      _player.positionStream.listen((p) {
+      _posSub = player.positionStream.listen((p) {
         if (mounted) setState(() => _position = p);
       });
+
+      await player.setUrl(UrlHelper.resolve(widget.url));
+      _player = player;
     } catch (e) {
       debugPrint('Error initializing audio: $e');
+    } finally {
+      if (mounted) setState(() => _isInitializing = false);
     }
   }
 
   @override
   void dispose() {
-    ref.read(voiceServiceProvider).onPlayerStopped(_player);
-    _player.dispose();
+    if (_player != null) {
+      ref.read(voiceServiceProvider).onPlayerStopped(_player!);
+      _player!.dispose();
+    }
+    _stateSub?.cancel();
+    _durationSub?.cancel();
+    _posSub?.cancel();
     super.dispose();
   }
 
@@ -90,19 +105,28 @@ class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
   }
 
   Future<void> _togglePlay() async {
+    if (_player == null) {
+      await _ensureInitialized();
+    }
+    
+    if (_player == null) return;
+
     final voiceService = ref.read(voiceServiceProvider);
     if (_isPlaying) {
-      await _player.pause();
-      voiceService.onPlayerPaused(_player);
+      await _player!.pause();
+      voiceService.onPlayerPaused(_player!);
     } else {
-      await voiceService.play(_player);
+      await voiceService.play(_player!);
     }
   }
 
-  void _seek(double percent) {
-    if (_duration == Duration.zero) return;
+  void _seek(double percent) async {
+    if (_player == null) {
+      await _ensureInitialized();
+    }
+    if (_player == null || _duration == Duration.zero) return;
     final seekPos = _duration * percent;
-    _player.seek(seekPos);
+    _player!.seek(seekPos);
   }
 
   String _formatDuration(Duration duration) {
@@ -154,10 +178,23 @@ class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
                     ),
                   ],
                 ),
-                child: Icon(
-                  _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                  color: widget.isCurrentUser ? AppTheme.primaryColor : Colors.white,
-                  size: 32,
+                child: Center(
+                  child: _isInitializing
+                      ? SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              widget.isCurrentUser ? AppTheme.primaryColor : Colors.white,
+                            ),
+                          ),
+                        )
+                      : Icon(
+                          _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                          color: widget.isCurrentUser ? AppTheme.primaryColor : Colors.white,
+                          size: 32,
+                        ),
                 ),
               )
               .animate(target: _isPlaying ? 1 : 0)

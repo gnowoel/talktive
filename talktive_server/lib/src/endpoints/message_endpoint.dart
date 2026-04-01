@@ -168,7 +168,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     final userUuid = await getUserId(session);
     final resident = await getResidentProfile(session, userUuid);
 
-    if (!resident.isPremium) {
+    if (!ResidentService.canKeepPrivateChats(resident)) {
       throw protocol.TalktiveException(
         message: 'Chat persistence is a Premium feature.',
         code: 'PREMIUM_REQUIRED',

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
+import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../config/theme.dart';
@@ -47,6 +48,7 @@ class DuoChatInput extends StatefulWidget {
 
 class _DuoChatInputState extends State<DuoChatInput> {
   late final RecorderController _recorderController;
+  late final AudioRecorder _audioRecorder;
   bool _isRecording = false;
   bool _isFinishing = false;
   DateTime? _recordStartTime;
@@ -69,6 +71,7 @@ class _DuoChatInputState extends State<DuoChatInput> {
     super.initState();
     widget.controller.addListener(_onTextChanged);
     _recorderController = RecorderController();
+    _audioRecorder = AudioRecorder();
     _recorderController.addListener(_onRecorderUpdate);
   }
 
@@ -96,6 +99,7 @@ class _DuoChatInputState extends State<DuoChatInput> {
     widget.controller.removeListener(_onTextChanged);
     _recorderController.removeListener(_onRecorderUpdate);
     _recorderController.dispose();
+    _audioRecorder.dispose();
     _recordTimer?.cancel();
     _typingTimer?.cancel();
     super.dispose();
@@ -135,7 +139,7 @@ class _DuoChatInputState extends State<DuoChatInput> {
     }
 
     try {
-      if (await _recorderController.checkPermission()) {
+      if (await _audioRecorder.hasPermission()) {
         final directory = await getTemporaryDirectory();
         final path =
             '${directory.path}/voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
@@ -143,13 +147,15 @@ class _DuoChatInputState extends State<DuoChatInput> {
         _amplitudes = [];
         _lastAmplitudeUpdate = DateTime.now();
 
-        await _recorderController.record(path: path);
+        // Start both: one for the file (stable), one for the UI waveform
+        await _audioRecorder.start(const RecordConfig(), path: path);
+        await _recorderController.record(); // UI only
 
         _recordStartTime = DateTime.now();
         _recordTimer = Timer.periodic(const Duration(milliseconds: 100), (
           timer,
         ) {
-          final duration = _recorderController.elapsedDuration;
+          final duration = DateTime.now().difference(_recordStartTime!);
           if (duration.inSeconds >= 60) {
             _stopRecording();
             return;
@@ -191,7 +197,7 @@ class _DuoChatInputState extends State<DuoChatInput> {
 
     setState(() {
       _isRecording = false;
-      _isFinishing = true; // Guard against new recordings while stopping
+      _isFinishing = true;
       _dragDeltaX = 0;
       _isCancelling = false;
       _currentAmplitude = 0;
@@ -201,14 +207,9 @@ class _DuoChatInputState extends State<DuoChatInput> {
     try {
       _recordTimer?.cancel();
 
-      // Stop recorder with a safety timeout
-      path = await _recorderController.stop().timeout(
-        const Duration(seconds: 2),
-        onTimeout: () {
-          debugPrint('Voice recorder stop timed out');
-          return null;
-        },
-      );
+      // Stop both controllers. AudioRecorder is much more stable on emulators.
+      await _recorderController.stop(); 
+      path = await _audioRecorder.stop();
 
       final durationMs = startTimeToCapture != null
           ? DateTime.now().difference(startTimeToCapture).inMilliseconds

@@ -82,6 +82,7 @@ mixin ChatScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
         await sendMessage(
           imageUrl: uploadResult.url,
           fileSize: uploadResult.sizeInBytes,
+          autoFocus: false,
         );
       }
     } catch (e) {
@@ -93,10 +94,7 @@ mixin ChatScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     }
   }
 
-  Future<void> sendVoiceMessage(
-    String path,
-    int durationSeconds,
-  ) async {
+  Future<void> sendVoiceMessage(String path, int durationSeconds) async {
     final currentResident = ref.read(currentResidentProvider).value;
     if (currentResident == null) return;
 
@@ -116,6 +114,7 @@ mixin ChatScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
           mediaType: 'voice',
           duration: durationSeconds,
           fileSize: uploadResult.sizeInBytes,
+          autoFocus: false,
         );
       }
     } catch (e) {
@@ -134,6 +133,7 @@ mixin ChatScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     String? mediaType,
     int? duration,
     int? fileSize,
+    bool autoFocus = true,
   }) async {
     final finalContent = content ?? messageController.text.trim();
     if (finalContent.isEmpty && imageUrl == null && mediaUrl == null) return;
@@ -177,9 +177,11 @@ mixin ChatScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     } finally {
       if (mounted) {
         setState(() => isSending = false);
-        Future.delayed(Duration.zero, () {
-          if (mounted) focusNode.requestFocus();
-        });
+        if (autoFocus) {
+          Future.delayed(Duration.zero, () {
+            if (mounted) focusNode.requestFocus();
+          });
+        }
       }
     }
   }

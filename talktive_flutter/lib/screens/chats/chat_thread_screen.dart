@@ -195,14 +195,6 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
                 ],
               ),
               actions: [
-                DuoRefreshButton(
-                  color: Colors.black,
-                  onRefresh: () {
-                    ref
-                        .read(realtimeChatProvider(channelId).notifier)
-                        .refresh();
-                  },
-                ),
                 if (currentResident?.keepPrivateChats == true)
                   IconButton(
                     onPressed: () async {
@@ -281,6 +273,14 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
                         ? 'Unkeep Chat'
                         : 'Keep Chat',
                   ),
+                DuoRefreshButton(
+                  color: Colors.black,
+                  onRefresh: () {
+                    ref
+                        .read(realtimeChatProvider(channelId).notifier)
+                        .refresh();
+                  },
+                ),
                 PopupMenuButton<String>(
                   icon: const Icon(Icons.more_vert, color: Colors.black),
                   onSelected: (value) async {

@@ -120,7 +120,10 @@ Always prefer these components over standard Material widgets to maintain the br
 - **DuoStatCard**: Compact, colorful cards for displaying XP, level, and trust metrics.
 - **DuoPageScaffold**: The foundation for all destination screens.
 - **DuoChatInputLayout**: The standardized layout for chat-based interactions, incorporating `DuoChatInput`.
-- **Smart Chat Input**: A specialized input field that automatically handles "Loading" and "Sending" states via its internal logic. It prioritizes stability (keeping the keyboard open) over locking the UI, but prevents multiple submissions.
+- **Smart Chat Input**: A specialized input field that automatically handles "Loading" and "Sending" states via its internal logic.
+  - **Voice Messaging**: Long-pressing the microphone triggers a dedicated recording interface that replaces the text input, featuring a pulsing "Live" indicator and real-time timer.
+  - **Lean Experience**: To maintain high performance and simplicity, voice messages are limited to 60 seconds, do not support seeking, and use a lightweight progress bar instead of complex waveforms.
+  - **Stability**: Prioritizes keeping the keyboard open and provides stable gesture handling for "Hold to record, Slide to cancel" interactions.
 
 ---
 

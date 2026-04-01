@@ -104,14 +104,20 @@ class _DuoChatInputState extends State<DuoChatInput> {
 
   Future<void> _startRecording() async {
     if (_isRecording || _isFinishing) return;
+    debugPrint('DuoChatInput: Attempting to start recording...');
 
     if (widget.onVoiceStart != null) {
       final canStart = await widget.onVoiceStart!();
-      if (!canStart) return;
+      if (!canStart) {
+        debugPrint('DuoChatInput: onVoiceStart returned false');
+        return;
+      }
     }
 
     try {
+      debugPrint('DuoChatInput: Checking microphone permission...');
       if (await _audioRecorder.hasPermission()) {
+        debugPrint('DuoChatInput: Permission granted');
         final directory = await getTemporaryDirectory();
         final ext = kIsWeb ? 'webm' : 'm4a';
         final path =
@@ -123,6 +129,7 @@ class _DuoChatInputState extends State<DuoChatInput> {
           sampleRate: 44100,
         );
 
+        debugPrint('DuoChatInput: Starting recorder with config: $config');
         await _audioRecorder.start(config, path: path);
 
         _recordStartTime = DateTime.now();
@@ -151,6 +158,8 @@ class _DuoChatInputState extends State<DuoChatInput> {
           _isCancelling = false;
         });
         HapticFeedback.heavyImpact();
+      } else {
+        debugPrint('DuoChatInput: Microphone permission denied');
       }
     } catch (e) {
       debugPrint('Error starting recording: $e');
@@ -158,11 +167,13 @@ class _DuoChatInputState extends State<DuoChatInput> {
   }
 
   void _handleDragEnd() {
+    if (kIsWeb) return; // Ignore drag end on web since we use toggle
     _stopRecording();
   }
 
   Future<void> _stopRecording({bool cancel = false}) async {
     if (!_isRecording || _isFinishing) return;
+    debugPrint('DuoChatInput: Stopping recording (cancel: $cancel)...');
 
     final actualCancel = cancel || _isCancelling;
     final startTimeToCapture = _recordStartTime;
@@ -198,6 +209,7 @@ class _DuoChatInputState extends State<DuoChatInput> {
       if (!actualCancel && path != null && widget.onVoiceSend != null) {
         if (durationMs < 1000) {
           // Too short!
+          debugPrint('DuoChatInput: Recording too short ($durationMs ms)');
           HapticFeedback.vibrate();
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -217,6 +229,7 @@ class _DuoChatInputState extends State<DuoChatInput> {
             if (await file.exists()) await file.delete();
           }
         } else {
+          debugPrint('DuoChatInput: Sending voice message...');
           widget.onVoiceSend!(path, (durationMs / 1000).ceil());
           HapticFeedback.mediumImpact();
         }
@@ -475,11 +488,12 @@ class _DuoChatInputState extends State<DuoChatInput> {
           (widget.enabled &&
               !widget.isSending &&
               !widget.isLoading &&
-              showVoice)
+              showVoice &&
+              !kIsWeb) // Disable long press on web to avoid interference
           ? (_) => _startRecording()
           : null,
       onLongPressMoveUpdate: (details) {
-        if (!_isRecording) return;
+        if (!_isRecording || kIsWeb) return;
         setState(() {
           // details.offsetFromOrigin.dx is negative when swiping left
           _dragDeltaX = -details.offsetFromOrigin.dx;
@@ -496,11 +510,22 @@ class _DuoChatInputState extends State<DuoChatInput> {
       onLongPressEnd: (_) => _handleDragEnd(),
       onLongPressCancel: () => _handleDragEnd(),
       onTap: (widget.enabled && !widget.isSending && !widget.isLoading)
-          ? (showVoice
-                ? (kIsWeb
-                      ? (_isRecording ? _stopRecording : _startRecording)
-                      : null)
-                : _handleSend)
+          ? () {
+              debugPrint(
+                'DuoChatInput: onTap triggered. showVoice: $showVoice, kIsWeb: $kIsWeb, _isRecording: $_isRecording',
+              );
+              if (showVoice) {
+                if (kIsWeb) {
+                  if (_isRecording) {
+                    _stopRecording();
+                  } else {
+                    _startRecording();
+                  }
+                }
+              } else {
+                _handleSend();
+              }
+            }
           : null,
       child:
           Container(

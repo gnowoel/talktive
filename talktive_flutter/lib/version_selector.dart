@@ -105,19 +105,39 @@ class _VersionSelectorState extends State<VersionSelector> {
   }
 
   void _selectNewUser() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('active_app_version', AppVersion.serverpod.name);
-    if (mounted) setState(() => _state = SelectorState.runAppServerpod);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('active_app_version', AppVersion.serverpod.name);
+      if (mounted) setState(() => _state = SelectorState.runAppServerpod);
+    } catch (e) {
+      debugPrint('VersionSelector: Error in _selectNewUser: $e');
+      if (mounted) {
+        DuoSnackBarHelper.showError(
+          context,
+          Exception('Failed to save preferences. Please try again.'),
+        );
+      }
+    }
   }
 
   void _selectExistingUser() {
-    setState(() => _state = SelectorState.chooseExistingMethod);
+    if (mounted) setState(() => _state = SelectorState.chooseExistingMethod);
   }
 
   Future<void> _loginWithGoogle() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('active_app_version', AppVersion.serverpod.name);
-    if (mounted) setState(() => _state = SelectorState.runAppServerpod);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('active_app_version', AppVersion.serverpod.name);
+      if (mounted) setState(() => _state = SelectorState.runAppServerpod);
+    } catch (e) {
+      debugPrint('VersionSelector: Error in _loginWithGoogle: $e');
+      if (mounted) {
+        DuoSnackBarHelper.showError(
+          context,
+          Exception('Failed to sign in with Google. Please try again.'),
+        );
+      }
+    }
   }
 
   Future<void> _submitRecoveryToken() async {
@@ -127,7 +147,7 @@ class _VersionSelectorState extends State<VersionSelector> {
       return;
     }
 
-    setState(() => _isProcessing = true);
+    if (mounted) setState(() => _isProcessing = true);
 
     try {
       final recoveryToken = RecoveryToken.fromString(token);
@@ -153,15 +173,25 @@ class _VersionSelectorState extends State<VersionSelector> {
   }
 
   void _selectVersion(AppVersion version) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('active_app_version', version.name);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('active_app_version', version.name);
 
-    if (mounted) {
-      setState(() {
-        _state = version == AppVersion.firebase
-            ? SelectorState.runAppFirebase
-            : SelectorState.runAppServerpod;
-      });
+      if (mounted) {
+        setState(() {
+          _state = version == AppVersion.firebase
+              ? SelectorState.runAppFirebase
+              : SelectorState.runAppServerpod;
+        });
+      }
+    } catch (e) {
+      debugPrint('VersionSelector: Error in _selectVersion: $e');
+      if (mounted) {
+        DuoSnackBarHelper.showError(
+          context,
+          Exception('Failed to save selection. Please try again.'),
+        );
+      }
     }
   }
 
@@ -185,7 +215,9 @@ class _VersionSelectorState extends State<VersionSelector> {
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back),
                   onPressed: () {
-                    setState(() => _state = SelectorState.chooseUserType);
+                    if (mounted) {
+                      setState(() => _state = SelectorState.chooseUserType);
+                    }
                   },
                 ),
                 backgroundColor: Colors.transparent,
@@ -292,20 +324,26 @@ class _VersionSelectorState extends State<VersionSelector> {
         const SizedBox(height: 16),
         DuoButton(
           text: 'Use Recovery Token',
-          onPressed: () =>
-              setState(() => _state = SelectorState.enterRecoveryToken),
+          onPressed: () {
+            if (mounted) {
+              setState(() => _state = SelectorState.enterRecoveryToken);
+            }
+          },
           variant: DuoButtonVariant.secondary,
           width: double.infinity,
           size: DuoButtonSize.large,
         ),
-        const SizedBox(height: 24),
-        TextButton(
-          onPressed: () =>
-              setState(() => _state = SelectorState.chooseUserType),
-          child: const Text(
-            'Back',
-            style: TextStyle(color: AppTheme.textSecondary),
-          ),
+        const SizedBox(height: 16),
+        DuoButton(
+          text: 'Back',
+          onPressed: () {
+            if (mounted) {
+              setState(() => _state = SelectorState.chooseUserType);
+            }
+          },
+          variant: DuoButtonVariant.ghost,
+          width: double.infinity,
+          size: DuoButtonSize.large,
         ),
         const Spacer(),
       ],

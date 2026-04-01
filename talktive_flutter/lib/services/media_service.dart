@@ -87,7 +87,13 @@ class MediaService {
   String _contentTypeForFile(XFile file, String folder) {
     final name = file.name.toLowerCase();
 
-    if (folder == 'voices' || name.endsWith('.m4a')) {
+    if (name.endsWith('.m4a')) {
+      return 'audio/mp4';
+    }
+    if (name.endsWith('.webm') || (folder == 'voices' && kIsWeb)) {
+      return 'audio/webm';
+    }
+    if (folder == 'voices') {
       return 'audio/mp4';
     }
     if (name.endsWith('.png')) {

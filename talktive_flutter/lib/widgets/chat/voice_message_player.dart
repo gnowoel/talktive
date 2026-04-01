@@ -42,7 +42,7 @@ class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
     setState(() => _isInitializing = true);
     try {
       final player = AudioPlayer();
-      
+
       _stateSub = player.playerStateStream.listen((state) {
         if (mounted) {
           setState(() {
@@ -66,9 +66,19 @@ class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
       });
 
       await player.setUrl(UrlHelper.resolve(widget.url));
+      await player.setVolume(1.0);
       _player = player;
     } catch (e) {
       debugPrint('Error initializing audio: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load voice message: ${e.toString()}'),
+            backgroundColor: AppTheme.duoRed,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isInitializing = false);
     }
@@ -90,7 +100,7 @@ class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
     if (_player == null) {
       await _ensureInitialized();
     }
-    
+
     if (_player == null) return;
 
     final voiceService = ref.read(voiceServiceProvider);
@@ -110,20 +120,22 @@ class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
 
   @override
   Widget build(BuildContext context) {
-    final themeColor = widget.isCurrentUser ? Colors.white : AppTheme.primaryColor;
-    final inactiveColor = widget.isCurrentUser 
-        ? Colors.white.withValues(alpha: 0.3) 
+    final themeColor = widget.isCurrentUser
+        ? Colors.white
+        : AppTheme.primaryColor;
+    final inactiveColor = widget.isCurrentUser
+        ? Colors.white.withValues(alpha: 0.3)
         : AppTheme.primaryColor.withValues(alpha: 0.15);
-    final labelColor = widget.isCurrentUser 
-        ? Colors.white.withValues(alpha: 0.8) 
+    final labelColor = widget.isCurrentUser
+        ? Colors.white.withValues(alpha: 0.8)
         : AppTheme.textLight;
 
     return RepaintBoundary(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         decoration: BoxDecoration(
-          color: widget.isCurrentUser 
-              ? Colors.white.withValues(alpha: 0.1) 
+          color: widget.isCurrentUser
+              ? Colors.white.withValues(alpha: 0.1)
               : AppTheme.primaryColor.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
         ),
@@ -132,47 +144,57 @@ class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
           children: [
             GestureDetector(
               onTap: _togglePlay,
-              child: Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: themeColor,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: (widget.isCurrentUser ? Colors.black : themeColor)
-                          .withValues(alpha: 0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: _isInitializing
-                      ? SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              widget.isCurrentUser ? AppTheme.primaryColor : Colors.white,
+              child:
+                  Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: themeColor,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color:
+                                  (widget.isCurrentUser
+                                          ? Colors.black
+                                          : themeColor)
+                                      .withValues(alpha: 0.2),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
                             ),
-                          ),
-                        )
-                      : Icon(
-                          _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                          color: widget.isCurrentUser ? AppTheme.primaryColor : Colors.white,
-                          size: 32,
+                          ],
                         ),
-                ),
-              )
-              .animate(target: _isPlaying ? 1 : 0)
-              .scale(
-                begin: const Offset(1, 1),
-                end: const Offset(1.1, 1.1),
-                duration: 200.ms,
-                curve: Curves.easeOutBack,
-              ),
+                        child: Center(
+                          child: _isInitializing
+                              ? SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      widget.isCurrentUser
+                                          ? AppTheme.primaryColor
+                                          : Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : Icon(
+                                  _isPlaying
+                                      ? Icons.pause_rounded
+                                      : Icons.play_arrow_rounded,
+                                  color: widget.isCurrentUser
+                                      ? AppTheme.primaryColor
+                                      : Colors.white,
+                                  size: 32,
+                                ),
+                        ),
+                      )
+                      .animate(target: _isPlaying ? 1 : 0)
+                      .scale(
+                        begin: const Offset(1, 1),
+                        end: const Offset(1.1, 1.1),
+                        duration: 200.ms,
+                        curve: Curves.easeOutBack,
+                      ),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -185,7 +207,9 @@ class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
                     borderRadius: BorderRadius.circular(2),
                     child: LinearProgressIndicator(
                       value: _duration.inMilliseconds > 0
-                          ? (_position.inMilliseconds / _duration.inMilliseconds).clamp(0.0, 1.0)
+                          ? (_position.inMilliseconds /
+                                    _duration.inMilliseconds)
+                                .clamp(0.0, 1.0)
                           : 0.0,
                       backgroundColor: inactiveColor,
                       valueColor: AlwaysStoppedAnimation<Color>(themeColor),

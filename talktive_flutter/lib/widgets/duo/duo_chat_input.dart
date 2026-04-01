@@ -48,6 +48,7 @@ class DuoChatInput extends StatefulWidget {
 class _DuoChatInputState extends State<DuoChatInput> {
   late final RecorderController _recorderController;
   bool _isRecording = false;
+  bool _isFinishing = false;
   DateTime? _recordStartTime;
   Timer? _recordTimer;
   String _recordDuration = '0:00';
@@ -59,6 +60,7 @@ class _DuoChatInputState extends State<DuoChatInput> {
   bool _isCancelling = false;
   double _currentAmplitude = 0.0;
   List<int> _amplitudes = [];
+  DateTime _lastAmplitudeUpdate = DateTime.now();
 
   static const double _cancelThreshold = 100.0;
 
@@ -71,13 +73,22 @@ class _DuoChatInputState extends State<DuoChatInput> {
   }
 
   void _onRecorderUpdate() {
-    if (mounted && _isRecording && _recorderController.waveData.isNotEmpty) {
-      setState(() {
-        _currentAmplitude = _recorderController.waveData.last;
-        // Normalize 0-1 to 0-100 for storage/sending
-        _amplitudes.add((_currentAmplitude * 100).toInt().clamp(0, 100));
-      });
+    if (!mounted || !_isRecording || _recorderController.waveData.isEmpty) {
+      return;
     }
+
+    // Throttle UI updates to ~15fps (60ms) to prevent main thread overload
+    final now = DateTime.now();
+    if (now.difference(_lastAmplitudeUpdate).inMilliseconds < 60) {
+      return;
+    }
+    _lastAmplitudeUpdate = now;
+
+    setState(() {
+      _currentAmplitude = _recorderController.waveData.last;
+      // Normalize 0-1 to 0-100 for storage/sending
+      _amplitudes.add((_currentAmplitude * 100).toInt().clamp(0, 100));
+    });
   }
 
   @override
@@ -116,6 +127,8 @@ class _DuoChatInputState extends State<DuoChatInput> {
   }
 
   Future<void> _startRecording() async {
+    if (_isRecording || _isFinishing) return;
+
     if (widget.onVoiceStart != null) {
       final canStart = await widget.onVoiceStart!();
       if (!canStart) return;
@@ -128,6 +141,7 @@ class _DuoChatInputState extends State<DuoChatInput> {
             '${directory.path}/voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
         _amplitudes = [];
+        _lastAmplitudeUpdate = DateTime.now();
 
         await _recorderController.record(path: path);
 
@@ -169,14 +183,25 @@ class _DuoChatInputState extends State<DuoChatInput> {
   }
 
   Future<void> _stopRecording({bool cancel = false}) async {
-    if (!_isRecording) return;
+    if (!_isRecording || _isFinishing) return;
 
     final actualCancel = cancel || _isCancelling;
-    String? path;
+    final amplitudesToCapture = List<int>.from(_amplitudes);
+    final startTimeToCapture = _recordStartTime;
 
+    setState(() {
+      _isRecording = false;
+      _isFinishing = true; // Guard against new recordings while stopping
+      _dragDeltaX = 0;
+      _isCancelling = false;
+      _currentAmplitude = 0;
+    });
+
+    String? path;
     try {
       _recordTimer?.cancel();
-      // Add a timeout to prevent hanging on emulators
+
+      // Stop recorder with a safety timeout
       path = await _recorderController.stop().timeout(
         const Duration(seconds: 2),
         onTimeout: () {
@@ -185,8 +210,8 @@ class _DuoChatInputState extends State<DuoChatInput> {
         },
       );
 
-      final durationMs = _recordStartTime != null
-          ? DateTime.now().difference(_recordStartTime!).inMilliseconds
+      final durationMs = startTimeToCapture != null
+          ? DateTime.now().difference(startTimeToCapture).inMilliseconds
           : 0;
 
       if (!actualCancel && path != null && widget.onVoiceSend != null) {
@@ -209,7 +234,7 @@ class _DuoChatInputState extends State<DuoChatInput> {
           final file = File(path);
           if (await file.exists()) await file.delete();
         } else {
-          widget.onVoiceSend!(path, (durationMs / 1000).ceil(), _amplitudes);
+          widget.onVoiceSend!(path, (durationMs / 1000).ceil(), amplitudesToCapture);
           HapticFeedback.mediumImpact();
         }
       } else if (path != null) {
@@ -224,10 +249,7 @@ class _DuoChatInputState extends State<DuoChatInput> {
     } finally {
       if (mounted) {
         setState(() {
-          _isRecording = false;
-          _dragDeltaX = 0;
-          _isCancelling = false;
-          _currentAmplitude = 0;
+          _isFinishing = false;
         });
       }
     }

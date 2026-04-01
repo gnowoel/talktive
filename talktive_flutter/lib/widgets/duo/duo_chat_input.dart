@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -112,10 +113,17 @@ class _DuoChatInputState extends State<DuoChatInput> {
     try {
       if (await _audioRecorder.hasPermission()) {
         final directory = await getTemporaryDirectory();
+        final ext = kIsWeb ? 'webm' : 'm4a';
         final path =
-            '${directory.path}/voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
+            '${directory.path}/voice_${DateTime.now().millisecondsSinceEpoch}.$ext';
 
-        await _audioRecorder.start(const RecordConfig(), path: path);
+        const config = RecordConfig(
+          encoder: kIsWeb ? AudioEncoder.opus : AudioEncoder.aacLc,
+          bitRate: 96000,
+          sampleRate: 44100,
+        );
+
+        await _audioRecorder.start(config, path: path);
 
         _recordStartTime = DateTime.now();
         _recordTimer = Timer.periodic(const Duration(milliseconds: 100), (
@@ -171,6 +179,18 @@ class _DuoChatInputState extends State<DuoChatInput> {
       _recordTimer?.cancel();
       path = await _audioRecorder.stop();
 
+      if (path != null) {
+        if (!kIsWeb) {
+          final file = File(path);
+          if (await file.exists()) {
+            final size = await file.length();
+            debugPrint('Recording stopped. Path: $path, Size: $size bytes');
+          }
+        } else {
+          debugPrint('Recording stopped. Path (Blob URL): $path');
+        }
+      }
+
       final durationMs = startTimeToCapture != null
           ? DateTime.now().difference(startTimeToCapture).inMilliseconds
           : 0;
@@ -192,17 +212,21 @@ class _DuoChatInputState extends State<DuoChatInput> {
             );
           }
           // Clean up
-          final file = File(path);
-          if (await file.exists()) await file.delete();
+          if (!kIsWeb) {
+            final file = File(path);
+            if (await file.exists()) await file.delete();
+          }
         } else {
           widget.onVoiceSend!(path, (durationMs / 1000).ceil());
           HapticFeedback.mediumImpact();
         }
-      } else if (path != null) {
+      } else if (path != null && !kIsWeb) {
         final file = File(path);
         if (await file.exists()) {
           await file.delete();
         }
+        HapticFeedback.lightImpact();
+      } else if (path != null && kIsWeb) {
         HapticFeedback.lightImpact();
       }
     } catch (e) {
@@ -369,11 +393,13 @@ class _DuoChatInputState extends State<DuoChatInput> {
                   child: Text(
                     _isCancelling ? 'Release' : 'Cancel',
                     style: TextStyle(
-                      color:
-                          _isCancelling ? AppTheme.duoRed : AppTheme.textLight,
+                      color: _isCancelling
+                          ? AppTheme.duoRed
+                          : AppTheme.textLight,
                       fontSize: 13,
-                      fontWeight:
-                          _isCancelling ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: _isCancelling
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                       fontFamily: 'Rubik',
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -396,13 +422,13 @@ class _DuoChatInputState extends State<DuoChatInput> {
             child: Row(
               children: [
                 Container(
-                  width: 10,
-                  height: 10,
-                  decoration: const BoxDecoration(
-                    color: AppTheme.duoRed,
-                    shape: BoxShape.circle,
-                  ),
-                )
+                      width: 10,
+                      height: 10,
+                      decoration: const BoxDecoration(
+                        color: AppTheme.duoRed,
+                        shape: BoxShape.circle,
+                      ),
+                    )
                     .animate(onPlay: (c) => c.repeat(reverse: true))
                     .scale(
                       begin: const Offset(0.8, 0.8),
@@ -423,14 +449,14 @@ class _DuoChatInputState extends State<DuoChatInput> {
                 const Spacer(),
                 if (cancelProgress < 0.3)
                   Text(
-                    '👈 Slide to cancel',
-                    style: TextStyle(
-                      color: AppTheme.duoRed.withValues(alpha: 0.6),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'Rubik',
-                    ),
-                  )
+                        '👈 Slide to cancel',
+                        style: TextStyle(
+                          color: AppTheme.duoRed.withValues(alpha: 0.6),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Rubik',
+                        ),
+                      )
                       .animate(onPlay: (c) => c.repeat())
                       .shimmer(duration: 2.seconds),
               ],
@@ -445,7 +471,8 @@ class _DuoChatInputState extends State<DuoChatInput> {
     final themeColor = widget.activeColor ?? AppTheme.primaryColor;
 
     return GestureDetector(
-      onLongPressStart: (widget.enabled &&
+      onLongPressStart:
+          (widget.enabled &&
               !widget.isSending &&
               !widget.isLoading &&
               showVoice)
@@ -468,13 +495,15 @@ class _DuoChatInputState extends State<DuoChatInput> {
       },
       onLongPressEnd: (_) => _handleDragEnd(),
       onLongPressCancel: () => _handleDragEnd(),
-      onTap: (widget.enabled &&
-              !widget.isSending &&
-              !widget.isLoading &&
-              !showVoice)
-          ? _handleSend
+      onTap: (widget.enabled && !widget.isSending && !widget.isLoading)
+          ? (showVoice
+                ? (kIsWeb
+                      ? (_isRecording ? _stopRecording : _startRecording)
+                      : null)
+                : _handleSend)
           : null,
-      child: Container(
+      child:
+          Container(
                 width: _isRecording ? 56 : 48,
                 height: _isRecording ? 56 : 48,
                 decoration: BoxDecoration(
@@ -511,9 +540,7 @@ class _DuoChatInputState extends State<DuoChatInput> {
                                               ? Colors.grey
                                               : AppTheme.duoRed)
                                         : themeColor)
-                                    .withValues(
-                                      alpha: 0.3,
-                                    ),
+                                    .withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),

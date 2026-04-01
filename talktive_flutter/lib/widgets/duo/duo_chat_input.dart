@@ -164,23 +164,6 @@ class _DuoChatInputState extends State<DuoChatInput> {
     }
   }
 
-  void _onDragUpdate(DragUpdateDetails details) {
-    if (!_isRecording) return;
-
-    setState(() {
-      _dragDeltaX -= details.delta.dx; // Track left swipe
-      if (_dragDeltaX < 0) _dragDeltaX = 0;
-
-      // Cancel detection (Slide Left)
-      if (_dragDeltaX > _cancelThreshold && !_isCancelling) {
-        _isCancelling = true;
-        HapticFeedback.vibrate();
-      } else if (_dragDeltaX <= _cancelThreshold && _isCancelling) {
-        _isCancelling = false;
-      }
-    });
-  }
-
   void _handleDragEnd() {
     _stopRecording();
   }
@@ -188,57 +171,73 @@ class _DuoChatInputState extends State<DuoChatInput> {
   Future<void> _stopRecording({bool cancel = false}) async {
     if (!_isRecording) return;
 
-    _recordTimer?.cancel();
-
-    final path = await _recorderController.stop();
-    final durationMs = _recordStartTime != null
-        ? DateTime.now().difference(_recordStartTime!).inMilliseconds
-        : 0;
-
     final actualCancel = cancel || _isCancelling;
+    String? path;
 
-    setState(() {
-      _isRecording = false;
-      _dragDeltaX = 0;
-      _isCancelling = false;
-      _currentAmplitude = 0;
-    });
+    try {
+      _recordTimer?.cancel();
+      // Add a timeout to prevent hanging on emulators
+      path = await _recorderController.stop().timeout(
+        const Duration(seconds: 2),
+        onTimeout: () {
+          debugPrint('Voice recorder stop timed out');
+          return null;
+        },
+      );
 
-    if (!actualCancel && path != null && widget.onVoiceSend != null) {
-      if (durationMs < 1000) {
-        // Too short!
-        HapticFeedback.vibrate();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text(
-                'Hold to record! Voice message too short. 🎙️',
+      final durationMs = _recordStartTime != null
+          ? DateTime.now().difference(_recordStartTime!).inMilliseconds
+          : 0;
+
+      if (!actualCancel && path != null && widget.onVoiceSend != null) {
+        if (durationMs < 1000) {
+          // Too short!
+          HapticFeedback.vibrate();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text(
+                  'Hold to record! Voice message too short. 🎙️',
+                ),
+                backgroundColor: AppTheme.duoRed,
+                behavior: SnackBarBehavior.floating,
+                duration: 1.seconds,
               ),
-              backgroundColor: AppTheme.duoRed,
-              behavior: SnackBarBehavior.floating,
-              duration: 1.seconds,
-            ),
-          );
+            );
+          }
+          // Clean up
+          final file = File(path);
+          if (await file.exists()) await file.delete();
+        } else {
+          widget.onVoiceSend!(path, (durationMs / 1000).ceil(), _amplitudes);
+          HapticFeedback.mediumImpact();
         }
-        // Clean up
+      } else if (path != null) {
         final file = File(path);
-        if (await file.exists()) await file.delete();
-        return;
+        if (await file.exists()) {
+          await file.delete();
+        }
+        HapticFeedback.lightImpact();
       }
-
-      widget.onVoiceSend!(path, (durationMs / 1000).ceil(), _amplitudes);
-      HapticFeedback.mediumImpact();
-    } else if (path != null) {
-      final file = File(path);
-      if (await file.exists()) {
-        await file.delete();
+    } catch (e) {
+      debugPrint('Error in _stopRecording: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isRecording = false;
+          _dragDeltaX = 0;
+          _isCancelling = false;
+          _currentAmplitude = 0;
+        });
       }
-      HapticFeedback.lightImpact();
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final showVoice =
+        widget.controller.text.trim().isEmpty && widget.onVoiceSend != null;
+
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppTheme.duoSpacingMedium,
@@ -255,33 +254,39 @@ class _DuoChatInputState extends State<DuoChatInput> {
         ],
       ),
       child: SafeArea(
-        child: AnimatedSwitcher(
-          duration: 300.ms,
-          transitionBuilder: (child, animation) {
-            return FadeTransition(
-              opacity: animation,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, 0.2),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: child,
+        child: Row(
+          children: [
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: 300.ms,
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0, 0.2),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    ),
+                  );
+                },
+                child: _isRecording ? _buildRecordingInfo() : _buildInputInfo(),
               ),
-            );
-          },
-          child: _isRecording ? _buildRecordingView() : _buildNormalView(),
+            ),
+            const SizedBox(width: AppTheme.duoSpacingSmall),
+            _buildActionButton(showVoice),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildNormalView() {
+  Widget _buildInputInfo() {
     final themeColor = widget.activeColor ?? AppTheme.primaryColor;
-    final showVoice =
-        widget.controller.text.trim().isEmpty && widget.onVoiceSend != null;
 
     return Row(
-      key: const ValueKey('normal'),
+      key: const ValueKey('input_info'),
       children: [
         if (widget.prefix != null) ...[
           widget.prefix!,
@@ -353,18 +358,15 @@ class _DuoChatInputState extends State<DuoChatInput> {
             ),
           ),
         ),
-
-        const SizedBox(width: AppTheme.duoSpacingSmall),
-        _buildActionButton(showVoice),
       ],
     );
   }
 
-  Widget _buildRecordingView() {
+  Widget _buildRecordingInfo() {
     final cancelProgress = (_dragDeltaX / _cancelThreshold).clamp(0.0, 1.0);
 
     return Row(
-      key: const ValueKey('recording'),
+      key: const ValueKey('recording_info'),
       children: [
         // Cancel Area
         SizedBox(
@@ -491,9 +493,6 @@ class _DuoChatInputState extends State<DuoChatInput> {
             ),
           ),
         ),
-
-        const SizedBox(width: AppTheme.duoSpacingSmall),
-        _buildActionButton(true),
       ],
     );
   }
@@ -502,25 +501,36 @@ class _DuoChatInputState extends State<DuoChatInput> {
     final themeColor = widget.activeColor ?? AppTheme.primaryColor;
 
     return GestureDetector(
-      onPanUpdate: _isRecording ? _onDragUpdate : null,
-      onPanEnd: _isRecording ? (_) => _handleDragEnd() : null,
-      onTap:
-          (widget.enabled &&
+      onLongPressStart: (widget.enabled &&
+              !widget.isSending &&
+              !widget.isLoading &&
+              showVoice)
+          ? (_) => _startRecording()
+          : null,
+      onLongPressMoveUpdate: (details) {
+        if (!_isRecording) return;
+        setState(() {
+          // details.offsetFromOrigin.dx is negative when swiping left
+          _dragDeltaX = -details.offsetFromOrigin.dx;
+          if (_dragDeltaX < 0) _dragDeltaX = 0;
+
+          if (_dragDeltaX > _cancelThreshold && !_isCancelling) {
+            _isCancelling = true;
+            HapticFeedback.vibrate();
+          } else if (_dragDeltaX <= _cancelThreshold && _isCancelling) {
+            _isCancelling = false;
+          }
+        });
+      },
+      onLongPressEnd: (_) => _handleDragEnd(),
+      onLongPressCancel: () => _handleDragEnd(),
+      onTap: (widget.enabled &&
               !widget.isSending &&
               !widget.isLoading &&
               !showVoice)
           ? _handleSend
           : null,
-      onLongPress:
-          (widget.enabled &&
-              !widget.isSending &&
-              !widget.isLoading &&
-              showVoice)
-          ? _startRecording
-          : null,
-      onLongPressUp: _isRecording ? _handleDragEnd : null,
-      child:
-          Container(
+      child: Container(
                 width: _isRecording ? 56 : 48,
                 height: _isRecording ? 56 : 48,
                 decoration: BoxDecoration(

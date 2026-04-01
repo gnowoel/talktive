@@ -127,32 +127,45 @@ class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
 
     return RepaintBoundary(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+        decoration: BoxDecoration(
+          color: widget.isCurrentUser 
+              ? Colors.white.withValues(alpha: 0.1) 
+              : AppTheme.primaryColor.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(16),
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             GestureDetector(
               onTap: _togglePlay,
-              child: AnimatedContainer(
-                duration: 200.ms,
-                width: 40,
-                height: 40,
+              child: Container(
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
                   color: themeColor,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
+                      color: (widget.isCurrentUser ? Colors.black : themeColor)
+                          .withValues(alpha: 0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
                 child: Icon(
-                  _isPlaying ? Icons.pause : Icons.play_arrow_rounded,
+                  _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
                   color: widget.isCurrentUser ? AppTheme.primaryColor : Colors.white,
-                  size: 28,
+                  size: 32,
                 ),
+              )
+              .animate(target: _isPlaying ? 1 : 0)
+              .scale(
+                begin: const Offset(1, 1),
+                end: const Offset(1.1, 1.1),
+                duration: 200.ms,
+                curve: Curves.easeOutBack,
               ),
             ),
             const SizedBox(width: 12),
@@ -165,9 +178,9 @@ class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
                     onHorizontalDragUpdate: (details) {
                       final box = context.findRenderObject() as RenderBox;
                       final localOffset = box.globalToLocal(details.globalPosition);
-                      // Adjust for the play button and spacing (40 + 12 = 52)
-                      final waveformX = localOffset.dx - 52;
-                      final waveformWidth = box.size.width - 52;
+                      // Adjust for the play button, spacing, and container padding (44 + 12 + 8 = 64)
+                      final waveformX = localOffset.dx - 64;
+                      final waveformWidth = box.size.width - 64 - 8;
                       if (waveformX >= 0 && waveformX <= waveformWidth) {
                         _seek(waveformX / waveformWidth);
                       }
@@ -175,14 +188,14 @@ class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
                     onTapDown: (details) {
                       final box = context.findRenderObject() as RenderBox;
                       final localOffset = box.globalToLocal(details.globalPosition);
-                      final waveformX = localOffset.dx - 52;
-                      final waveformWidth = box.size.width - 52;
+                      final waveformX = localOffset.dx - 64;
+                      final waveformWidth = box.size.width - 64 - 8;
                       if (waveformX >= 0 && waveformX <= waveformWidth) {
                         _seek(waveformX / waveformWidth);
                       }
                     },
                     child: SizedBox(
-                      height: 32,
+                      height: 36,
                       child: CustomPaint(
                         size: Size.infinite,
                         painter: WaveformPainter(
@@ -205,7 +218,7 @@ class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
                           fontSize: 10,
                           color: labelColor,
                           fontFamily: 'Rubik',
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
@@ -214,7 +227,7 @@ class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
                           fontSize: 10,
                           color: labelColor,
                           fontFamily: 'Rubik',
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
@@ -247,15 +260,17 @@ class WaveformPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..strokeWidth = 2.5
+      ..strokeWidth = 3.0
       ..strokeCap = StrokeCap.round;
 
-    final barWidth = 2.5;
-    final spacing = 3.5;
-    final totalBarWidth = barWidth + spacing;
+    const barWidth = 3.0;
+    const spacing = 4.0;
+    const totalBarWidth = barWidth + spacing;
     
     // We want to draw bars across the entire width
     final maxBars = (size.width / totalBarWidth).floor();
+    if (maxBars <= 0) return;
+
     final actualAmplitudes = _getSampledAmplitudes(amplitudes, maxBars);
     
     for (int i = 0; i < actualAmplitudes.length; i++) {
@@ -267,11 +282,17 @@ class WaveformPainter extends CustomPainter {
       
       paint.color = isActive ? activeColor : inactiveColor;
       
-      final yOffset = (size.height - barHeight) / 2;
+      // Add a subtle height variance if playing and active
+      double finalBarHeight = barHeight;
+      if (isPlaying && isActive && (i % 3 == (DateTime.now().millisecondsSinceEpoch ~/ 200) % 3)) {
+         finalBarHeight *= 1.1;
+      }
+
+      final yOffset = (size.height - finalBarHeight) / 2;
       
       canvas.drawLine(
         Offset(x, yOffset),
-        Offset(x, yOffset + barHeight),
+        Offset(x, yOffset + finalBarHeight),
         paint,
       );
     }

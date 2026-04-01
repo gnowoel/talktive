@@ -13,6 +13,7 @@ enum AppVersion { firebase, serverpod }
 enum SelectorState {
   loading,
   chooseUserType,
+  chooseExistingMethod,
   enterRecoveryToken,
   chooseVersion,
   runAppFirebase,
@@ -110,12 +111,13 @@ class _VersionSelectorState extends State<VersionSelector> {
   }
 
   void _selectExistingUser() {
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null) {
-      setState(() => _state = SelectorState.chooseVersion);
-    } else {
-      setState(() => _state = SelectorState.enterRecoveryToken);
-    }
+    setState(() => _state = SelectorState.chooseExistingMethod);
+  }
+
+  Future<void> _loginWithGoogle() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('active_app_version', AppVersion.serverpod.name);
+    if (mounted) setState(() => _state = SelectorState.runAppServerpod);
   }
 
   Future<void> _submitRecoveryToken() async {
@@ -208,6 +210,8 @@ class _VersionSelectorState extends State<VersionSelector> {
         return const CircularProgressIndicator();
       case SelectorState.chooseUserType:
         return _buildChooseUserType();
+      case SelectorState.chooseExistingMethod:
+        return _buildChooseExistingMethod();
       case SelectorState.enterRecoveryToken:
         return _buildRecoveryToken();
       case SelectorState.chooseVersion:
@@ -257,6 +261,53 @@ class _VersionSelectorState extends State<VersionSelector> {
           size: DuoButtonSize.large,
         ),
         const SizedBox(height: 48),
+      ],
+    );
+  }
+
+  Widget _buildChooseExistingMethod() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text('👋', style: TextStyle(fontSize: 80)),
+        const SizedBox(height: 32),
+        const Text(
+          'Welcome Back!',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 16),
+        Text(
+          'How would you like to sign in?',
+          style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 48),
+        DuoButton(
+          text: 'Continue with Google',
+          onPressed: _loginWithGoogle,
+          width: double.infinity,
+          size: DuoButtonSize.large,
+        ),
+        const SizedBox(height: 16),
+        DuoButton(
+          text: 'Use Recovery Token',
+          onPressed: () =>
+              setState(() => _state = SelectorState.enterRecoveryToken),
+          variant: DuoButtonVariant.secondary,
+          width: double.infinity,
+          size: DuoButtonSize.large,
+        ),
+        const SizedBox(height: 24),
+        TextButton(
+          onPressed: () =>
+              setState(() => _state = SelectorState.chooseUserType),
+          child: const Text(
+            'Back',
+            style: TextStyle(color: AppTheme.textSecondary),
+          ),
+        ),
+        const Spacer(),
       ],
     );
   }

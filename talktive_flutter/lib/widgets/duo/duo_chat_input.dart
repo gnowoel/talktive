@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -12,8 +11,7 @@ import '../../config/theme.dart';
 class DuoChatInput extends StatefulWidget {
   final TextEditingController controller;
   final VoidCallback onSend;
-  final Function(String path, int durationSeconds, List<int> amplitudes)?
-  onVoiceSend;
+  final Function(String path, int durationSeconds)? onVoiceSend;
   final Future<bool> Function()? onVoiceStart;
   final bool enabled;
   final String hintText;
@@ -47,7 +45,6 @@ class DuoChatInput extends StatefulWidget {
 }
 
 class _DuoChatInputState extends State<DuoChatInput> {
-  late final RecorderController _recorderController;
   late final AudioRecorder _audioRecorder;
   bool _isRecording = false;
   bool _isFinishing = false;
@@ -60,9 +57,6 @@ class _DuoChatInputState extends State<DuoChatInput> {
   // Voice Recording Enhancements
   double _dragDeltaX = 0;
   bool _isCancelling = false;
-  double _currentAmplitude = 0.0;
-  List<int> _amplitudes = [];
-  DateTime _lastAmplitudeUpdate = DateTime.now();
 
   static const double _cancelThreshold = 100.0;
 
@@ -70,35 +64,12 @@ class _DuoChatInputState extends State<DuoChatInput> {
   void initState() {
     super.initState();
     widget.controller.addListener(_onTextChanged);
-    _recorderController = RecorderController();
     _audioRecorder = AudioRecorder();
-    _recorderController.addListener(_onRecorderUpdate);
-  }
-
-  void _onRecorderUpdate() {
-    if (!mounted || !_isRecording || _recorderController.waveData.isEmpty) {
-      return;
-    }
-
-    // Throttle UI updates to ~15fps (60ms) to prevent main thread overload
-    final now = DateTime.now();
-    if (now.difference(_lastAmplitudeUpdate).inMilliseconds < 60) {
-      return;
-    }
-    _lastAmplitudeUpdate = now;
-
-    setState(() {
-      _currentAmplitude = _recorderController.waveData.last;
-      // Normalize 0-1 to 0-100 for storage/sending
-      _amplitudes.add((_currentAmplitude * 100).toInt().clamp(0, 100));
-    });
   }
 
   @override
   void dispose() {
     widget.controller.removeListener(_onTextChanged);
-    _recorderController.removeListener(_onRecorderUpdate);
-    _recorderController.dispose();
     _audioRecorder.dispose();
     _recordTimer?.cancel();
     _typingTimer?.cancel();
@@ -144,12 +115,7 @@ class _DuoChatInputState extends State<DuoChatInput> {
         final path =
             '${directory.path}/voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
-        _amplitudes = [];
-        _lastAmplitudeUpdate = DateTime.now();
-
-        // Start both: one for the file (stable), one for the UI waveform
         await _audioRecorder.start(const RecordConfig(), path: path);
-        await _recorderController.record(); // UI only
 
         _recordStartTime = DateTime.now();
         _recordTimer = Timer.periodic(const Duration(milliseconds: 100), (
@@ -175,7 +141,6 @@ class _DuoChatInputState extends State<DuoChatInput> {
           _recordDuration = '0:00';
           _dragDeltaX = 0;
           _isCancelling = false;
-          _currentAmplitude = 0;
         });
         HapticFeedback.heavyImpact();
       }
@@ -192,7 +157,6 @@ class _DuoChatInputState extends State<DuoChatInput> {
     if (!_isRecording || _isFinishing) return;
 
     final actualCancel = cancel || _isCancelling;
-    final amplitudesToCapture = List<int>.from(_amplitudes);
     final startTimeToCapture = _recordStartTime;
 
     setState(() {
@@ -200,15 +164,11 @@ class _DuoChatInputState extends State<DuoChatInput> {
       _isFinishing = true;
       _dragDeltaX = 0;
       _isCancelling = false;
-      _currentAmplitude = 0;
     });
 
     String? path;
     try {
       _recordTimer?.cancel();
-
-      // Stop both controllers. AudioRecorder is much more stable on emulators.
-      await _recorderController.stop(); 
       path = await _audioRecorder.stop();
 
       final durationMs = startTimeToCapture != null
@@ -235,7 +195,7 @@ class _DuoChatInputState extends State<DuoChatInput> {
           final file = File(path);
           if (await file.exists()) await file.delete();
         } else {
-          widget.onVoiceSend!(path, (durationMs / 1000).ceil(), amplitudesToCapture);
+          widget.onVoiceSend!(path, (durationMs / 1000).ceil());
           HapticFeedback.mediumImpact();
         }
       } else if (path != null) {
@@ -423,95 +383,56 @@ class _DuoChatInputState extends State<DuoChatInput> {
           ),
         ),
 
-        // Waveform & Timer
+        // Timer & Simplified Indicator
         Expanded(
           child: Container(
             height: 48,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
               color: AppTheme.duoRed.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(AppTheme.duoRadiusPill),
               border: Border.all(color: AppTheme.duoRed.withValues(alpha: 0.2)),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.duoRed.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  spreadRadius: 2,
-                ),
-              ],
             ),
             child: Row(
               children: [
-                const SizedBox(width: 4),
                 Container(
-                  padding: const EdgeInsets.all(4),
+                  width: 10,
+                  height: 10,
                   decoration: const BoxDecoration(
                     color: AppTheme.duoRed,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.mic, color: Colors.white, size: 12),
                 )
                     .animate(onPlay: (c) => c.repeat(reverse: true))
                     .scale(
                       begin: const Offset(0.8, 0.8),
-                      end: const Offset(1.1, 1.1),
-                      duration: 800.ms,
-                      curve: Curves.easeInOut,
-                    ),
-                const SizedBox(width: 8),
+                      end: const Offset(1.2, 1.2),
+                      duration: 600.ms,
+                    )
+                    .fadeOut(begin: 0.5),
+                const SizedBox(width: 12),
                 Text(
                   _recordDuration,
                   style: const TextStyle(
                     color: AppTheme.duoRed,
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: 18,
                     fontFamily: 'Rubik',
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      AudioWaveforms(
-                        size: const Size(double.infinity, 32),
-                        recorderController: _recorderController,
-                        enableGesture: false,
-                        waveStyle: const WaveStyle(
-                          waveColor: AppTheme.duoRed,
-                          showDurationLabel: false,
-                          spacing: 4.0,
-                          showBottom: true,
-                          extendWaveform: true,
-                          showMiddleLine: false,
-                        ),
-                      ),
-                      if (cancelProgress < 0.3)
-                        Positioned.fill(
-                          child: Center(
-                            child: Text(
-                              '👈 Slide to cancel',
-                              style: TextStyle(
-                                color: AppTheme.duoRed.withValues(alpha: 0.6),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: 'Rubik',
-                              ),
-                            )
-                                .animate(onPlay: (c) => c.repeat())
-                                .shimmer(
-                                  duration: 2.seconds,
-                                  color: Colors.white.withValues(alpha: 0.8),
-                                )
-                                .fadeOut(
-                                  delay: 3.seconds,
-                                  duration: 500.ms,
-                                ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
+                const Spacer(),
+                if (cancelProgress < 0.3)
+                  Text(
+                    '👈 Slide to cancel',
+                    style: TextStyle(
+                      color: AppTheme.duoRed.withValues(alpha: 0.6),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Rubik',
+                    ),
+                  )
+                      .animate(onPlay: (c) => c.repeat())
+                      .shimmer(duration: 2.seconds),
               ],
             ),
           ),
@@ -591,18 +512,9 @@ class _DuoChatInputState extends State<DuoChatInput> {
                                               : AppTheme.duoRed)
                                         : themeColor)
                                     .withValues(
-                                      alpha:
-                                          0.3 +
-                                          (_isRecording
-                                              ? (_currentAmplitude * 0.4)
-                                              : 0),
+                                      alpha: 0.3,
                                     ),
-                            blurRadius:
-                                8 +
-                                (_isRecording ? (_currentAmplitude * 12) : 0),
-                            spreadRadius: (_isRecording
-                                ? (_currentAmplitude * 4)
-                                : 0),
+                            blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
                         ]
@@ -625,10 +537,7 @@ class _DuoChatInputState extends State<DuoChatInput> {
               .animate(target: _isRecording ? 1 : 0)
               .scale(
                 begin: const Offset(1, 1),
-                end: Offset(
-                  1.1 + (_currentAmplitude * 0.2),
-                  1.1 + (_currentAmplitude * 0.2),
-                ),
+                end: const Offset(1.1, 1.1),
                 duration: 200.ms,
                 curve: Curves.easeInOut,
               ),

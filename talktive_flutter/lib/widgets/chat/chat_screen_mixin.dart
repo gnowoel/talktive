@@ -96,7 +96,6 @@ mixin ChatScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   Future<void> sendVoiceMessage(
     String path,
     int durationSeconds,
-    List<int> amplitudes,
   ) async {
     final currentResident = ref.read(currentResidentProvider).value;
     if (currentResident == null) return;
@@ -116,7 +115,6 @@ mixin ChatScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
           mediaUrl: uploadResult.url,
           mediaType: 'voice',
           duration: durationSeconds,
-          amplitudes: amplitudes,
           fileSize: uploadResult.sizeInBytes,
         );
       }
@@ -135,7 +133,6 @@ mixin ChatScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     String? mediaUrl,
     String? mediaType,
     int? duration,
-    List<int>? amplitudes,
     int? fileSize,
   }) async {
     final finalContent = content ?? messageController.text.trim();
@@ -160,7 +157,6 @@ mixin ChatScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
             mediaUrl: mediaUrl,
             mediaType: mediaType,
             duration: duration,
-            amplitudes: amplitudes,
             fileSize: fileSize,
           );
 

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
@@ -11,13 +10,11 @@ import '../../services/voice_service.dart';
 class VoiceMessagePlayer extends ConsumerStatefulWidget {
   final String url;
   final bool isCurrentUser;
-  final List<int>? amplitudes;
 
   const VoiceMessagePlayer({
     super.key,
     required this.url,
     required this.isCurrentUser,
-    this.amplitudes,
   });
 
   @override
@@ -30,7 +27,6 @@ class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
   bool _isInitializing = false;
   Duration _duration = Duration.zero;
   Duration _position = Duration.zero;
-  late final List<double> _normalizedAmplitudes;
   StreamSubscription? _stateSub;
   StreamSubscription? _durationSub;
   StreamSubscription? _posSub;
@@ -38,7 +34,6 @@ class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
   @override
   void initState() {
     super.initState();
-    _normalizedAmplitudes = _normalizeAmplitudes(widget.amplitudes);
   }
 
   Future<void> _ensureInitialized() async {
@@ -91,19 +86,6 @@ class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
     super.dispose();
   }
 
-  List<double> _normalizeAmplitudes(List<int>? amplitudes) {
-    if (amplitudes == null || amplitudes.isEmpty) {
-      // Generate some default bars if no amplitudes provided
-      final random = Random(widget.url.hashCode);
-      return List.generate(30, (_) => 0.2 + random.nextDouble() * 0.8);
-    }
-    
-    final maxAmp = amplitudes.reduce(max).toDouble();
-    if (maxAmp == 0) return List.filled(amplitudes.length, 0.1);
-    
-    return amplitudes.map((amp) => (amp / maxAmp).clamp(0.1, 1.0)).toList();
-  }
-
   Future<void> _togglePlay() async {
     if (_player == null) {
       await _ensureInitialized();
@@ -118,15 +100,6 @@ class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
     } else {
       await voiceService.play(_player!);
     }
-  }
-
-  void _seek(double percent) async {
-    if (_player == null) {
-      await _ensureInitialized();
-    }
-    if (_player == null || _duration == Duration.zero) return;
-    final seekPos = _duration * percent;
-    _player!.seek(seekPos);
   }
 
   String _formatDuration(Duration duration) {
@@ -145,18 +118,14 @@ class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
         ? Colors.white.withValues(alpha: 0.8) 
         : AppTheme.textLight;
 
-    final progress = _duration.inMilliseconds > 0
-        ? (_position.inMilliseconds / _duration.inMilliseconds).clamp(0.0, 1.0)
-        : 0.0;
-
     return RepaintBoundary(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         decoration: BoxDecoration(
           color: widget.isCurrentUser 
               ? Colors.white.withValues(alpha: 0.1) 
               : AppTheme.primaryColor.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -205,69 +174,58 @@ class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
                 curve: Curves.easeOutBack,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  GestureDetector(
-                    onHorizontalDragUpdate: (details) {
-                      final box = context.findRenderObject() as RenderBox;
-                      final localOffset = box.globalToLocal(details.globalPosition);
-                      // Adjust for the play button, spacing, and container padding (44 + 12 + 8 = 64)
-                      final waveformX = localOffset.dx - 64;
-                      final waveformWidth = box.size.width - 64 - 8;
-                      if (waveformX >= 0 && waveformX <= waveformWidth) {
-                        _seek(waveformX / waveformWidth);
-                      }
-                    },
-                    onTapDown: (details) {
-                      final box = context.findRenderObject() as RenderBox;
-                      final localOffset = box.globalToLocal(details.globalPosition);
-                      final waveformX = localOffset.dx - 64;
-                      final waveformWidth = box.size.width - 64 - 8;
-                      if (waveformX >= 0 && waveformX <= waveformWidth) {
-                        _seek(waveformX / waveformWidth);
-                      }
-                    },
-                    child: SizedBox(
-                      height: 36,
-                      child: CustomPaint(
-                        size: Size.infinite,
-                        painter: WaveformPainter(
-                          amplitudes: _normalizedAmplitudes,
-                          progress: progress,
-                          activeColor: themeColor,
-                          inactiveColor: inactiveColor,
-                          isPlaying: _isPlaying,
-                        ),
-                      ),
+                  SliderTheme(
+                    data: SliderTheme.of(context).copyWith(
+                      trackHeight: 4,
+                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                      overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
+                      activeTrackColor: themeColor,
+                      inactiveTrackColor: inactiveColor,
+                      thumbColor: themeColor,
+                      overlayColor: themeColor.withValues(alpha: 0.2),
+                    ),
+                    child: Slider(
+                      value: _duration.inMilliseconds > 0
+                          ? (_position.inMilliseconds / _duration.inMilliseconds).clamp(0.0, 1.0)
+                          : 0.0,
+                      onChanged: (value) {
+                        if (_player != null && _duration != Duration.zero) {
+                          _player!.seek(_duration * value);
+                        }
+                      },
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        _formatDuration(_position),
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: labelColor,
-                          fontFamily: 'Rubik',
-                          fontWeight: FontWeight.bold,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          _formatDuration(_position),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: labelColor,
+                            fontFamily: 'Rubik',
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      Text(
-                        _formatDuration(_duration),
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: labelColor,
-                          fontFamily: 'Rubik',
-                          fontWeight: FontWeight.bold,
+                        Text(
+                          _formatDuration(_duration),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: labelColor,
+                            fontFamily: 'Rubik',
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -276,84 +234,5 @@ class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
         ),
       ),
     );
-  }
-}
-
-class WaveformPainter extends CustomPainter {
-  final List<double> amplitudes;
-  final double progress;
-  final Color activeColor;
-  final Color inactiveColor;
-  final bool isPlaying;
-
-  WaveformPainter({
-    required this.amplitudes,
-    required this.progress,
-    required this.activeColor,
-    required this.inactiveColor,
-    required this.isPlaying,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..strokeWidth = 3.0
-      ..strokeCap = StrokeCap.round;
-
-    const barWidth = 3.0;
-    const spacing = 4.0;
-    const totalBarWidth = barWidth + spacing;
-    
-    // We want to draw bars across the entire width
-    final maxBars = (size.width / totalBarWidth).floor();
-    if (maxBars <= 0) return;
-
-    final actualAmplitudes = _getSampledAmplitudes(amplitudes, maxBars);
-    
-    for (int i = 0; i < actualAmplitudes.length; i++) {
-      final barHeight = actualAmplitudes[i] * size.height;
-      final x = i * totalBarWidth + barWidth / 2;
-      
-      final barProgress = i / actualAmplitudes.length;
-      final isActive = barProgress <= progress;
-      
-      paint.color = isActive ? activeColor : inactiveColor;
-      
-      // Add a subtle height variance if playing and active
-      double finalBarHeight = barHeight;
-      if (isPlaying && isActive && (i % 3 == (DateTime.now().millisecondsSinceEpoch ~/ 200) % 3)) {
-         finalBarHeight *= 1.1;
-      }
-
-      final yOffset = (size.height - finalBarHeight) / 2;
-      
-      canvas.drawLine(
-        Offset(x, yOffset),
-        Offset(x, yOffset + finalBarHeight),
-        paint,
-      );
-    }
-  }
-
-  List<double> _getSampledAmplitudes(List<double> data, int count) {
-    if (data.length == count) return data;
-    if (data.isEmpty) return List.filled(count, 0.1);
-
-    final result = <double>[];
-    final step = data.length / count;
-    
-    for (int i = 0; i < count; i++) {
-      final index = (i * step).floor();
-      result.add(data[index]);
-    }
-    
-    return result;
-  }
-
-  @override
-  bool shouldRepaint(covariant WaveformPainter oldDelegate) {
-    return oldDelegate.progress != progress || 
-           oldDelegate.isPlaying != isPlaying ||
-           oldDelegate.amplitudes != amplitudes;
   }
 }

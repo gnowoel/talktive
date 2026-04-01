@@ -289,6 +289,7 @@ class MessageBubble extends ConsumerWidget {
                       VoiceMessagePlayer(
                         url: message.mediaUrl!,
                         isCurrentUser: isCurrentUser,
+                        durationSeconds: message.duration,
                       ),
                       const SizedBox(height: 8),
                     ],

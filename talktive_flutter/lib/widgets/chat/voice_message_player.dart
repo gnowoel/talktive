@@ -10,11 +10,13 @@ import '../../services/voice_service.dart';
 class VoiceMessagePlayer extends ConsumerStatefulWidget {
   final String url;
   final bool isCurrentUser;
+  final int? durationSeconds;
 
   const VoiceMessagePlayer({
     super.key,
     required this.url,
     required this.isCurrentUser,
+    this.durationSeconds,
   });
 
   @override
@@ -25,7 +27,7 @@ class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
   AudioPlayer? _player;
   bool _isPlaying = false;
   bool _isInitializing = false;
-  Duration _duration = Duration.zero;
+  late Duration _duration;
   Duration _position = Duration.zero;
   StreamSubscription? _stateSub;
   StreamSubscription? _durationSub;
@@ -34,6 +36,9 @@ class _VoiceMessagePlayerState extends ConsumerState<VoiceMessagePlayer> {
   @override
   void initState() {
     super.initState();
+    _duration = widget.durationSeconds != null
+        ? Duration(seconds: widget.durationSeconds!)
+        : Duration.zero;
   }
 
   Future<void> _ensureInitialized() async {

@@ -106,5 +106,6 @@ Every new feature or bugfix should follow the **Red-Green-Refactor** cycle:
 ## 💡 Troubleshooting
 
 - **Google Sign-In Errors**: Ensure you use `localhost` (not `127.0.0.1`) and port `8083`.
+- **Account Recognition**: If an existing Google user is not recognized after clearing site data, use the **"I'm an Existing User" -> "Continue with Google"** flow to ensure the session is correctly mapped to their original UUID via their Firebase UID.
 - **Database Mismatch**: If you see `DatabaseQueryException`, run `serverpod generate` and create a new migration.
 - **Redis Connection**: Backend logic gracefully degrades to DB-only if Redis is unavailable, but performance will suffer.

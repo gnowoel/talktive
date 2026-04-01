@@ -1,10 +1,7 @@
 import 'package:serverpod/serverpod.dart';
-import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart';
 import 'package:serverpod_auth_idp_server/core.dart';
 import 'package:serverpod_auth_idp_server/providers/firebase.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart' as jwt;
-
-import '../generated/protocol.dart';
 
 /// A custom FirebaseIdpConfig that targets the local Firebase Emulator.
 class EmulatorFirebaseIdpConfig extends FirebaseIdpConfig {

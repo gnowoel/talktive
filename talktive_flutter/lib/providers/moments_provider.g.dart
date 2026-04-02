@@ -36,7 +36,7 @@ final class MomentsProvider
   Moments create() => Moments();
 }
 
-String _$momentsHash() => r'6793fb975bae4fced66a47cc17957e1598d551c4';
+String _$momentsHash() => r'a92d5084c4fcebe44bb51e1f143247ed130db388';
 
 /// Provider for the moments feed
 
@@ -153,7 +153,7 @@ final class MomentCommentsProvider
   }
 }
 
-String _$momentCommentsHash() => r'8db05d52d7faf0df24aeeaf04062d54f686290db';
+String _$momentCommentsHash() => r'b12e3a06392b2f10d517c11a4826e81ec3c307df';
 
 /// Provider for comments on a specific moment
 

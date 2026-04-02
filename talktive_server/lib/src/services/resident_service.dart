@@ -4,6 +4,7 @@ import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import '../services/notification_service.dart';
 import '../services/gamification_service.dart';
 import '../services/apartment_service.dart';
+import '../services/file_storage_service.dart';
 import '../utils/task_utils.dart';
 
 /// Service for managing Resident profiles and synchronization with AuthUser.

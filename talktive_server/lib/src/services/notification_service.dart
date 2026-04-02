@@ -580,8 +580,9 @@ class NotificationService {
     // 4. Notify other members (Private/Lounge only)
     Future? bulkMemberFuture;
     if (!isPlaza) {
-      final String channelTypeStr =
-          channel.type == protocol.ChannelType.private ? 'private' : 'lounge';
+      final String channelTypeStr = channel.type == protocol.ChannelType.private
+          ? 'private'
+          : 'lounge';
 
       final mentionIdSet = mentionedUserIds.toSet();
       final blockedBySet = await ResidentService.getBlocksAgainstUser(

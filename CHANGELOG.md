@@ -1,5 +1,29 @@
 # Talktive Development Changelog
 
+## April 2, 2026 - Cloudflare R2 Migration & Secure Media Lifecycle (Phase 8.99) 🏗️📸☁️
+
+### Cloudflare R2 Media Migration
+
+- **S3-Compatible Storage**: Successfully migrated the media backend from Firebase Storage to Cloudflare R2 to eliminate egress fees and improve global delivery performance.
+- **Server-Authorized Uploads**: Implemented a new secure upload workflow. Clients now request a pre-signed `UploadDescription` via the `MediaEndpoint`, moving write authorization from client-side rules to the server.
+- **Environment Parity**: Configured environment-aware storage. Production uses Cloudflare R2, while development utilizes local disk storage, enabling full offline testing of media features.
+
+### Secure Media Ephemerality & Lifecycle
+
+- **Automated Physical Deletion**: Refactored `FileStorageService` to use the Serverpod Storage API. The system now automatically deletes physical files from R2/Disk when their corresponding database records (Messages, Moments) expire.
+- **Custom Avatar Lifecycle**: Implemented a "Delete-on-Update" strategy for custom avatars. Outdated or removed custom avatar files are now immediately purged from storage upon profile update.
+- **Permission Gating**:
+  - **Floor Restriction**: Enforced Floor 2+ requirements for uploading media to public spaces (Plaza, Lounges, Moments) at the endpoint level.
+  - **Premium Gating**: Restricted **Voice Messages** and **Custom Avatars** to Talktive Plus members via server-side validation during the upload authorization phase.
+
+### Technical Quality Assurance
+
+- **New Integration Tests**:
+  - `media_upload_test.dart`: Verifies the gating logic for different media types and user tiers.
+  - `resident_avatar_test.dart`: Validates the physical deletion of old avatars during profile updates.
+- **Unit Test Coverage**: Added `file_storage_service_test.dart` to verify robust path extraction from various URL formats (Localhost, R2, CDN).
+- **Full Verification**: Successfully ran the complete suite of 185 integration and unit tests.
+
 ## March 31, 2026 - Notification & Unread Count Verification (Phase 8.98) 🏗️🔔✅
 
 ### Notification & Deep Linking Verification

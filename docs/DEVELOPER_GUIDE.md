@@ -30,6 +30,9 @@ To maintain a clean and testable codebase, we follow strict delegation:
 
 Target: **10,000 active users** on a single **2 vCPU / 4GB RAM VPS**.
 
+- **Storage (Cloudflare R2)**: Standardized on S3-compatible storage with zero egress fees.
+  - **Authorized Uploads**: Clients must request an `UploadDescription` via `MediaEndpoint` before uploading.
+  - **Environment Parity**: Uses `public` (local disk) storage in development and `s3` (R2) in production.
 - **Caching**: Multi-tier strategy (Local Session -> Global Redis -> DB).
 - **Background Tasks**: Use `TaskUtils.runBackground` for all non-critical side-effects (Notifications, XP, Stats).
 - **Batching**: Use batch queries for feeds and unread counts to eliminate N+1 issues.

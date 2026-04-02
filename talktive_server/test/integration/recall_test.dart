@@ -12,7 +12,9 @@ void main() {
     setUp(() async {
       final session = sessionBuilder.build();
       final resident = protocol.Resident(
-        userInfoId: UuidValue.fromString('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d'),
+        userInfoId: UuidValue.fromString(
+          'a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d',
+        ),
         level: 1,
         trustScore: 100,
         role: protocol.ResidentRole.user,
@@ -38,7 +40,10 @@ void main() {
         senderFloor: 1,
         senderTrustScore: 100,
       );
-      final savedMessage = await protocol.Message.db.insertRow(session, message);
+      final savedMessage = await protocol.Message.db.insertRow(
+        session,
+        message,
+      );
 
       final recalledMessage = await MessagingService.recallMessage(
         session,

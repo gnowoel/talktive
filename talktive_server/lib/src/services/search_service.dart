@@ -112,7 +112,9 @@ class SearchService {
       limit: limit,
     );
 
-    return residents.map((r) => ResidentService.toUserSummary(r, viewer: currentUser)).toList();
+    return residents
+        .map((r) => ResidentService.toUserSummary(r, viewer: currentUser))
+        .toList();
   }
 
   static Expression _buildLoungeFilters(
@@ -395,7 +397,9 @@ class SearchService {
           .toList();
     }
 
-    return residents.map((r) => ResidentService.toUserSummary(r, viewer: currentUser)).toList();
+    return residents
+        .map((r) => ResidentService.toUserSummary(r, viewer: currentUser))
+        .toList();
   }
 
   /// Search all content (users, lounges, moments)

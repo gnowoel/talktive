@@ -186,9 +186,7 @@ class MessagingService {
       content: filteredContent,
       imageUrl: imageUrl,
       mediaUrl: mediaUrl,
-      mediaType: imageUrl != null || mediaUrl != null
-          ? mediaType
-          : null,
+      mediaType: imageUrl != null || mediaUrl != null ? mediaType : null,
       isSystem: isSystem,
       createdAt: DateTime.now(),
       duration: duration,
@@ -336,7 +334,8 @@ class MessagingService {
 
     if (!await _hasManagementPermission(session, channel, resident)) {
       throw protocol.TalktiveException(
-        message: 'Access denied: You do not have permission to pin messages in this channel.',
+        message:
+            'Access denied: You do not have permission to pin messages in this channel.',
         code: 'ACCESS_DENIED',
       );
     }
@@ -407,7 +406,8 @@ class MessagingService {
 
     if (!await _hasManagementPermission(session, channel, resident)) {
       throw protocol.TalktiveException(
-        message: 'Access denied: You do not have permission to unpin messages in this channel.',
+        message:
+            'Access denied: You do not have permission to unpin messages in this channel.',
         code: 'ACCESS_DENIED',
       );
     }
@@ -462,7 +462,8 @@ class MessagingService {
 
     if (!canRecall) {
       throw protocol.TalktiveException(
-        message: 'Access denied: You do not have permission to recall this message.',
+        message:
+            'Access denied: You do not have permission to recall this message.',
         code: 'ACCESS_DENIED',
       );
     }
@@ -485,7 +486,11 @@ class MessagingService {
     // Update Denormalized Info (Preview text) if it was the last message
     // Update Denormalized Preview if needed
     if (channel.type != protocol.ChannelType.plaza) {
-      await ChannelService.syncLastMessageFromDb(session, channel.id!, channel.type);
+      await ChannelService.syncLastMessageFromDb(
+        session,
+        channel.id!,
+        channel.type,
+      );
     }
 
     // Broadcast update
@@ -515,7 +520,8 @@ class MessagingService {
         session,
         where: (t) => t.channelId.equals(channel.id!),
       );
-      if (lounge != null && lounge.creatorId == resident.userInfoId) return true;
+      if (lounge != null && lounge.creatorId == resident.userInfoId)
+        return true;
     }
 
     // 3. Private Chat Participants (Both participants are "owners" of the thread)

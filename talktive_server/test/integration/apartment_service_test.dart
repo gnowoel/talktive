@@ -17,26 +17,31 @@ void main() {
         level: 10, // High activity
         trustScore: 100, // Balanced reputation
       );
-      // We don't necessarily need to insert it for pure formula tests, 
+      // We don't necessarily need to insert it for pure formula tests,
       // but for restoration tests we do.
       resident = await Resident.db.insertRow(session, resident);
     });
 
     group('Effective Floor Formula', () {
-      test('is capped by trust score if user is high-level but poorly behaved', () async {
-        // level 20, but trust score 50 (cap is 15)
-        resident.level = 20;
-        resident.trustScore = 50; 
-        
-        final effectiveFloor = ApartmentService.computeEffectiveFloor(resident);
-        expect(effectiveFloor, 15);
-      });
+      test(
+        'is capped by trust score if user is high-level but poorly behaved',
+        () async {
+          // level 20, but trust score 50 (cap is 15)
+          resident.level = 20;
+          resident.trustScore = 50;
+
+          final effectiveFloor = ApartmentService.computeEffectiveFloor(
+            resident,
+          );
+          expect(effectiveFloor, 15);
+        },
+      );
 
       test('is capped by level if user is trusted but low-level', () async {
         // level 2, but trust score 1000 (cap is 50)
         resident.level = 2;
         resident.trustScore = 1000;
-        
+
         final effectiveFloor = ApartmentService.computeEffectiveFloor(resident);
         expect(effectiveFloor, 2);
       });
@@ -44,7 +49,7 @@ void main() {
       test('returns 0 if trust score is zero', () async {
         resident.level = 50;
         resident.trustScore = 0;
-        
+
         final effectiveFloor = ApartmentService.computeEffectiveFloor(resident);
         expect(effectiveFloor, 0);
       });
@@ -53,13 +58,18 @@ void main() {
     group('Trust Score Restoration', () {
       test('restores points over time', () async {
         final session = sessionBuilder.build();
-        
+
         // 2 hours ago
         resident.trustScore = 50;
-        resident.lastReputationIncrease = DateTime.now().subtract(const Duration(hours: 2));
+        resident.lastReputationIncrease = DateTime.now().subtract(
+          const Duration(hours: 2),
+        );
         await Resident.db.updateRow(session, resident);
 
-        final changed = await ApartmentService.restoreTrustScore(session, resident);
+        final changed = await ApartmentService.restoreTrustScore(
+          session,
+          resident,
+        );
         expect(changed, true);
         // 50 + (2 * 5) = 60
         expect(resident.trustScore, 60);
@@ -67,9 +77,11 @@ void main() {
 
       test('does not restore beyond 100', () async {
         final session = sessionBuilder.build();
-        
+
         resident.trustScore = 98;
-        resident.lastReputationIncrease = DateTime.now().subtract(const Duration(hours: 10));
+        resident.lastReputationIncrease = DateTime.now().subtract(
+          const Duration(hours: 10),
+        );
         await Resident.db.updateRow(session, resident);
 
         await ApartmentService.restoreTrustScore(session, resident);

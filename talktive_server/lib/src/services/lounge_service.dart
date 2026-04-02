@@ -279,7 +279,8 @@ class LoungeService {
       userId,
     );
 
-    if (member == null || member.status != protocol.ChannelMemberStatus.invited) {
+    if (member == null ||
+        member.status != protocol.ChannelMemberStatus.invited) {
       throw protocol.TalktiveException(message: 'No pending invitation found');
     }
 
@@ -422,7 +423,8 @@ class LoungeService {
       userId,
     );
 
-    if (member == null || member.status != protocol.ChannelMemberStatus.joined) {
+    if (member == null ||
+        member.status != protocol.ChannelMemberStatus.joined) {
       return;
     }
 

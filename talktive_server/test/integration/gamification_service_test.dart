@@ -22,7 +22,7 @@ void main() {
         role: protocol.ResidentRole.user,
       );
       testUser = await protocol.Resident.db.insertRow(session, res);
-      
+
       // Seed achievements
       await GamificationService.seedAchievements(session);
     });
@@ -30,35 +30,59 @@ void main() {
     group('awardXP and Leveling', () {
       test('increases XP and level correctly', () async {
         final session = sessionBuilder.build();
-        
+
         // Award 50 XP (should reach Level 2: sqrt(50/50)+1 = 2)
         await GamificationService.awardXP(session, testUser, 50, 'Test XP');
 
-        final updated = await protocol.Resident.db.findById(session, testUser.id!);
+        final updated = await protocol.Resident.db.findById(
+          session,
+          testUser.id!,
+        );
         expect(updated!.xp, 50);
         expect(updated.level, 2);
       });
 
       test('requires exponential XP for higher floors', () async {
         final session = sessionBuilder.build();
-        
+
         // Level 3 requires: 50 * (3-1)^2 = 200 XP
-        await GamificationService.awardXP(session, testUser, 199, 'Almost Level 3');
-        var updated = await protocol.Resident.db.findById(session, testUser.id!);
+        await GamificationService.awardXP(
+          session,
+          testUser,
+          199,
+          'Almost Level 3',
+        );
+        var updated = await protocol.Resident.db.findById(
+          session,
+          testUser.id!,
+        );
         expect(updated!.level, 2);
 
-        await GamificationService.awardXP(session, testUser, 1, 'Reach Level 3');
+        await GamificationService.awardXP(
+          session,
+          testUser,
+          1,
+          'Reach Level 3',
+        );
         updated = await protocol.Resident.db.findById(session, testUser.id!);
         expect(updated!.level, 3);
       });
 
       test('caps Base Floor at 50', () async {
         final session = sessionBuilder.build();
-        
-        // A huge amount of XP
-        await GamificationService.awardXP(session, testUser, 1000000, 'God Mode');
 
-        final updated = await protocol.Resident.db.findById(session, testUser.id!);
+        // A huge amount of XP
+        await GamificationService.awardXP(
+          session,
+          testUser,
+          1000000,
+          'God Mode',
+        );
+
+        final updated = await protocol.Resident.db.findById(
+          session,
+          testUser.id!,
+        );
         expect(updated!.level, 50);
       });
     });
@@ -66,10 +90,13 @@ void main() {
     group('Login Streaks', () {
       test('initializes streak on first login', () async {
         final session = sessionBuilder.build();
-        
+
         await GamificationService.checkDailyLogin(session, testUser);
 
-        final updated = await protocol.Resident.db.findById(session, testUser.id!);
+        final updated = await protocol.Resident.db.findById(
+          session,
+          testUser.id!,
+        );
         expect(updated!.currentStreak, 1);
         expect(updated.lastLoginDate, isNotNull);
       });
@@ -86,7 +113,10 @@ void main() {
 
         await GamificationService.checkDailyLogin(session, testUser);
 
-        final updated = await protocol.Resident.db.findById(session, testUser.id!);
+        final updated = await protocol.Resident.db.findById(
+          session,
+          testUser.id!,
+        );
         expect(updated!.currentStreak, 2);
       });
 
@@ -102,7 +132,10 @@ void main() {
 
         await GamificationService.checkDailyLogin(session, testUser);
 
-        final updated = await protocol.Resident.db.findById(session, testUser.id!);
+        final updated = await protocol.Resident.db.findById(
+          session,
+          testUser.id!,
+        );
         expect(updated!.currentStreak, 1);
       });
 
@@ -119,7 +152,10 @@ void main() {
 
         await GamificationService.checkDailyLogin(session, testUser);
 
-        final updated = await protocol.Resident.db.findById(session, testUser.id!);
+        final updated = await protocol.Resident.db.findById(
+          session,
+          testUser.id!,
+        );
         expect(updated!.currentStreak, 3);
         // 5 XP (login) + 50 XP (3-day bonus) = 55 XP
         expect(updated.xp, 55);
@@ -129,9 +165,13 @@ void main() {
     group('Achievements', () {
       test('tracks achievement progress and unlocks', () async {
         final session = sessionBuilder.build();
-        
+
         // 'first_message' target is 1
-        await GamificationService.trackProgress(session, testUser.userInfoId, 'first_message');
+        await GamificationService.trackProgress(
+          session,
+          testUser.userInfoId,
+          'first_message',
+        );
 
         final progress = await protocol.UserAchievement.db.findFirstRow(
           session,
@@ -145,9 +185,14 @@ void main() {
 
       test('triggers floor achievements automatically', () async {
         final session = sessionBuilder.build();
-        
+
         // Reach Floor 2 (requires 50 XP)
-        await GamificationService.awardXP(session, testUser, 50, 'Reach Floor 2');
+        await GamificationService.awardXP(
+          session,
+          testUser,
+          50,
+          'Reach Floor 2',
+        );
 
         // Should have 'rising_star' (Floor 1) and 'high_rise' (Floor 2)
         final userAchievements = await protocol.UserAchievement.db.find(
@@ -156,10 +201,18 @@ void main() {
         );
 
         expect(userAchievements.length, greaterThanOrEqualTo(2));
-        
-        final achievementIds = userAchievements.map((ua) => ua.achievementId).toList();
-        final risingStar = await protocol.Achievement.db.findFirstRow(session, where: (t) => t.key.equals('rising_star'));
-        final highRise = await protocol.Achievement.db.findFirstRow(session, where: (t) => t.key.equals('high_rise'));
+
+        final achievementIds = userAchievements
+            .map((ua) => ua.achievementId)
+            .toList();
+        final risingStar = await protocol.Achievement.db.findFirstRow(
+          session,
+          where: (t) => t.key.equals('rising_star'),
+        );
+        final highRise = await protocol.Achievement.db.findFirstRow(
+          session,
+          where: (t) => t.key.equals('high_rise'),
+        );
 
         expect(achievementIds, contains(risingStar!.id!));
         expect(achievementIds, contains(highRise!.id!));
@@ -169,28 +222,46 @@ void main() {
     group('Daily Rewards', () {
       test('can claim daily reward and receives bonuses', () async {
         final session = sessionBuilder.build();
-        
-        final canClaim = await GamificationService.canClaimDailyReward(session, testUser.userInfoId);
+
+        final canClaim = await GamificationService.canClaimDailyReward(
+          session,
+          testUser.userInfoId,
+        );
         expect(canClaim, true);
 
-        final reward = await GamificationService.claimDailyReward(session, testUser);
+        final reward = await GamificationService.claimDailyReward(
+          session,
+          testUser,
+        );
         expect(reward.rewardAmount, 10); // Base reward for 1-day streak
 
-        final updated = await protocol.Resident.db.findById(session, testUser.id!);
+        final updated = await protocol.Resident.db.findById(
+          session,
+          testUser.id!,
+        );
         expect(updated!.trustScore, 110); // 100 + 10
-        
-        final canClaimAgain = await GamificationService.canClaimDailyReward(session, testUser.userInfoId);
+
+        final canClaimAgain = await GamificationService.canClaimDailyReward(
+          session,
+          testUser.userInfoId,
+        );
         expect(canClaimAgain, false);
       });
 
       test('throws exception if claiming twice in a day', () async {
         final session = sessionBuilder.build();
-        
+
         await GamificationService.claimDailyReward(session, testUser);
 
         expect(
           () => GamificationService.claimDailyReward(session, testUser),
-          throwsA(isA<Exception>().having((e) => e.toString(), 'message', contains('already claimed'))),
+          throwsA(
+            isA<Exception>().having(
+              (e) => e.toString(),
+              'message',
+              contains('already claimed'),
+            ),
+          ),
         );
       });
     });

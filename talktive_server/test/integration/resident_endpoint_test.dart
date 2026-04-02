@@ -151,7 +151,6 @@ void main() {
           );
 
           expect(retrieved!.level, floor);
-
         }
       });
 

@@ -10,7 +10,7 @@ class FileStorageService {
     if (url == null || url.isEmpty) return;
 
     // Extract path from URL
-    final path = _extractPathFromUrl(url);
+    final path = extractPathFromUrl(url);
     if (path == null) {
       session.log(
         'TALKTIVE: Could not extract path from media URL: $url',
@@ -45,9 +45,15 @@ class FileStorageService {
 
   /// Extracts the relative storage path from a full public URL.
   /// Handles both localhost (dev) and R2 (prod) formats.
-  static String? _extractPathFromUrl(String url) {
+  static String? extractPathFromUrl(String url) {
     try {
       final uri = Uri.parse(url);
+
+      // Basic validation: must have a scheme and host (or be a relative path which we don't support here)
+      if (!uri.hasScheme || uri.host.isEmpty) {
+        return null;
+      }
+
       final segments = uri.pathSegments;
 
       // Development (Localhost): http://localhost:8080/serverpod_cloud_storage?method=file&path=chats/uuid.jpg
@@ -55,16 +61,23 @@ class FileStorageService {
         return uri.queryParameters['path'];
       }
 
-      // Production (Cloudflare R2 Custom Domain or standard URL):
-      // https://pub-xyz.r2.dev/chats/uuid.jpg OR https://media.talktive.app/chats/uuid.jpg
-      // Most CDN/R2 setups have the path as the segments after the domain.
-
       // Filter out empty segments
       final cleanSegments = segments.where((s) => s.isNotEmpty).toList();
       if (cleanSegments.isEmpty) return null;
 
-      // Handle cases where the first segment might be a bucket name (optional in some configs)
-      // For Talktive, we expect standard paths: chats/..., voices/..., etc.
+      // Robustness check for Cloudflare R2 / S3 standard URLs:
+      // https://<bucket>.<account_id>.r2.cloudflarestorage.com/chats/uuid.jpg (Path is chats/uuid.jpg)
+      // https://<account_id>.r2.cloudflarestorage.com/<bucket>/chats/uuid.jpg (Path is chats/uuid.jpg)
+
+      if (url.contains('cloudflarestorage.com') ||
+          url.contains('talktive-media')) {
+        // If the first segment is the known bucket name, skip it
+        if (cleanSegments.first == 'talktive-media') {
+          return cleanSegments.skip(1).join('/');
+        }
+      }
+
+      // Default: the entire path after the domain is the storage path
       return cleanSegments.join('/');
     } catch (_) {
       return null;

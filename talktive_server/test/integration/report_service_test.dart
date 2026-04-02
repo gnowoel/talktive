@@ -16,7 +16,9 @@ void main() {
 
       // Create a reporter user (Floor 1 by default)
       final res1 = protocol.Resident(
-        userInfoId: UuidValue.fromString('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d'),
+        userInfoId: UuidValue.fromString(
+          'a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d',
+        ),
         level: 1,
         trustScore: 100,
         role: protocol.ResidentRole.user,
@@ -25,7 +27,9 @@ void main() {
 
       // Create a target user
       final res2 = protocol.Resident(
-        userInfoId: UuidValue.fromString('b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e'),
+        userInfoId: UuidValue.fromString(
+          'b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e',
+        ),
         level: 1,
         trustScore: 100,
         role: protocol.ResidentRole.user,
@@ -46,17 +50,19 @@ void main() {
             target: target,
             reason: 'Toxic behavior',
           ),
-          throwsA(isA<protocol.TalktiveException>().having(
-            (e) => e.message,
-            'message',
-            contains('reach Floor 1 to report users'),
-          )),
+          throwsA(
+            isA<protocol.TalktiveException>().having(
+              (e) => e.message,
+              'message',
+              contains('reach Floor 1 to report users'),
+            ),
+          ),
         );
       });
 
       test('allows report from Floor 1 user and applies penalty', () async {
         final session = sessionBuilder.build();
-        
+
         final report = await ReportService.createReport(
           session,
           reporter: reporter,
@@ -68,44 +74,55 @@ void main() {
         expect(report.status, protocol.ReportStatus.pending);
 
         // Verify penalty (-30 trust score)
-        final updatedTarget = await protocol.Resident.db.findById(session, target.id!);
+        final updatedTarget = await protocol.Resident.db.findById(
+          session,
+          target.id!,
+        );
         expect(updatedTarget!.trustScore, 70);
       });
 
-      test('throws exception when reporting the same user twice (One-Vote Rule)', () async {
-        final session = sessionBuilder.build();
-        
-        await ReportService.createReport(
-          session,
-          reporter: reporter,
-          target: target,
-          reason: 'First report',
-        );
+      test(
+        'throws exception when reporting the same user twice (One-Vote Rule)',
+        () async {
+          final session = sessionBuilder.build();
 
-        expect(
-          () => ReportService.createReport(
+          await ReportService.createReport(
             session,
             reporter: reporter,
             target: target,
-            reason: 'Second report',
-          ),
-          throwsA(isA<protocol.TalktiveException>().having(
-            (e) => e.message,
-            'message',
-            contains('already reported this user'),
-          )),
-        );
-      });
+            reason: 'First report',
+          );
+
+          expect(
+            () => ReportService.createReport(
+              session,
+              reporter: reporter,
+              target: target,
+              reason: 'Second report',
+            ),
+            throwsA(
+              isA<protocol.TalktiveException>().having(
+                (e) => e.message,
+                'message',
+                contains('already reported this user'),
+              ),
+            ),
+          );
+        },
+      );
 
       test('throws exception when reporting a vouched (liked) user', () async {
         final session = sessionBuilder.build();
-        
+
         // Add a like
-        await protocol.UserLike.db.insertRow(session, protocol.UserLike(
-          senderId: reporter.userInfoId,
-          receiverId: target.userInfoId,
-          createdAt: DateTime.now(),
-        ));
+        await protocol.UserLike.db.insertRow(
+          session,
+          protocol.UserLike(
+            senderId: reporter.userInfoId,
+            receiverId: target.userInfoId,
+            createdAt: DateTime.now(),
+          ),
+        );
 
         expect(
           () => ReportService.createReport(
@@ -114,23 +131,28 @@ void main() {
             target: target,
             reason: 'Betrayal!',
           ),
-          throwsA(isA<protocol.TalktiveException>().having(
-            (e) => e.message,
-            'message',
-            contains('cannot report a user you have vouched for'),
-          )),
+          throwsA(
+            isA<protocol.TalktiveException>().having(
+              (e) => e.message,
+              'message',
+              contains('cannot report a user you have vouched for'),
+            ),
+          ),
         );
       });
 
       test('enforces 30-minute cooldown between any reports', () async {
         final session = sessionBuilder.build();
-        
+
         // Create another target
-        final target2 = await protocol.Resident.db.insertRow(session, protocol.Resident(
-          userInfoId: UuidValue.fromString(uuid.v4()),
-          level: 1,
-          trustScore: 100,
-        ));
+        final target2 = await protocol.Resident.db.insertRow(
+          session,
+          protocol.Resident(
+            userInfoId: UuidValue.fromString(uuid.v4()),
+            level: 1,
+            trustScore: 100,
+          ),
+        );
 
         await ReportService.createReport(
           session,
@@ -146,11 +168,13 @@ void main() {
             target: target2,
             reason: 'Report 2 (too soon)',
           ),
-          throwsA(isA<protocol.TalktiveException>().having(
-            (e) => e.message,
-            'message',
-            contains('wait'),
-          )),
+          throwsA(
+            isA<protocol.TalktiveException>().having(
+              (e) => e.message,
+              'message',
+              contains('wait'),
+            ),
+          ),
         );
       });
 
@@ -160,13 +184,16 @@ void main() {
 
         // Mansually insert 3 reports from today but more than 30 mins ago
         for (int i = 0; i < 3; i++) {
-          await protocol.Report.db.insertRow(session, protocol.Report(
-            reporterId: reporter.userInfoId,
-            targetId: UuidValue.fromString(uuid.v4()),
-            reason: 'Reason $i',
-            createdAt: now.subtract(Duration(minutes: 40 + i)),
-            status: protocol.ReportStatus.pending,
-          ));
+          await protocol.Report.db.insertRow(
+            session,
+            protocol.Report(
+              reporterId: reporter.userInfoId,
+              targetId: UuidValue.fromString(uuid.v4()),
+              reason: 'Reason $i',
+              createdAt: now.subtract(Duration(minutes: 40 + i)),
+              status: protocol.ReportStatus.pending,
+            ),
+          );
         }
 
         expect(
@@ -176,11 +203,13 @@ void main() {
             target: target,
             reason: 'Report 4',
           ),
-          throwsA(isA<protocol.TalktiveException>().having(
-            (e) => e.message,
-            'message',
-            contains('Daily report limit reached'),
-          )),
+          throwsA(
+            isA<protocol.TalktiveException>().having(
+              (e) => e.message,
+              'message',
+              contains('Daily report limit reached'),
+            ),
+          ),
         );
       });
     });
@@ -192,13 +221,16 @@ void main() {
 
         // Target gets 2 reports already
         for (int i = 0; i < 2; i++) {
-          await protocol.Report.db.insertRow(session, protocol.Report(
-            reporterId: UuidValue.fromString(uuid.v4()),
-            targetId: target.userInfoId,
-            reason: 'Reason $i',
-            createdAt: now.subtract(Duration(days: 1 + i)),
-            status: protocol.ReportStatus.pending,
-          ));
+          await protocol.Report.db.insertRow(
+            session,
+            protocol.Report(
+              reporterId: UuidValue.fromString(uuid.v4()),
+              targetId: target.userInfoId,
+              reason: 'Reason $i',
+              createdAt: now.subtract(Duration(days: 1 + i)),
+              status: protocol.ReportStatus.pending,
+            ),
+          );
         }
 
         // 3rd report
@@ -210,8 +242,14 @@ void main() {
         );
 
         // Verify status
-        final updated = await protocol.Resident.db.findById(session, target.id!);
-        expect(updated!.trustScore, 70); // 100 - 30 (only the current report penalty)
+        final updated = await protocol.Resident.db.findById(
+          session,
+          target.id!,
+        );
+        expect(
+          updated!.trustScore,
+          70,
+        ); // 100 - 30 (only the current report penalty)
         expect(updated.mutedUntil, isNull);
       });
 
@@ -221,13 +259,16 @@ void main() {
 
         // Target gets 4 reports already
         for (int i = 0; i < 4; i++) {
-          await protocol.Report.db.insertRow(session, protocol.Report(
-            reporterId: UuidValue.fromString(uuid.v4()),
-            targetId: target.userInfoId,
-            reason: 'Reason $i',
-            createdAt: now.subtract(Duration(days: 1 + i)),
-            status: protocol.ReportStatus.pending,
-          ));
+          await protocol.Report.db.insertRow(
+            session,
+            protocol.Report(
+              reporterId: UuidValue.fromString(uuid.v4()),
+              targetId: target.userInfoId,
+              reason: 'Reason $i',
+              createdAt: now.subtract(Duration(days: 1 + i)),
+              status: protocol.ReportStatus.pending,
+            ),
+          );
         }
 
         // 5th report
@@ -238,10 +279,16 @@ void main() {
           reason: 'The 5th report',
         );
 
-        final updated = await protocol.Resident.db.findById(session, target.id!);
+        final updated = await protocol.Resident.db.findById(
+          session,
+          target.id!,
+        );
         expect(updated!.trustScore, 70); // 100 - 30
         expect(updated.mutedUntil, isNotNull);
-        expect(updated.mutedUntil!.isAfter(now.add(const Duration(hours: 23))), true);
+        expect(
+          updated.mutedUntil!.isAfter(now.add(const Duration(hours: 23))),
+          true,
+        );
       });
 
       test('10 reports in 30 days sets Trust Score to 0', () async {
@@ -250,13 +297,16 @@ void main() {
 
         // Target gets 9 reports already
         for (int i = 0; i < 9; i++) {
-          await protocol.Report.db.insertRow(session, protocol.Report(
-            reporterId: UuidValue.fromString(uuid.v4()),
-            targetId: target.userInfoId,
-            reason: 'Reason $i',
-            createdAt: now.subtract(Duration(days: i)),
-            status: protocol.ReportStatus.pending,
-          ));
+          await protocol.Report.db.insertRow(
+            session,
+            protocol.Report(
+              reporterId: UuidValue.fromString(uuid.v4()),
+              targetId: target.userInfoId,
+              reason: 'Reason $i',
+              createdAt: now.subtract(Duration(days: i)),
+              status: protocol.ReportStatus.pending,
+            ),
+          );
         }
 
         // 10th report
@@ -267,7 +317,10 @@ void main() {
           reason: 'The 10th report',
         );
 
-        final updated = await protocol.Resident.db.findById(session, target.id!);
+        final updated = await protocol.Resident.db.findById(
+          session,
+          target.id!,
+        );
         expect(updated!.trustScore, 0); // Severe threshold reached
       });
     });

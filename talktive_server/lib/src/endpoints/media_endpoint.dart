@@ -70,13 +70,17 @@ class MediaEndpoint extends Endpoint with EndpointAuthMixin {
       map['path'] = fullPath;
 
       if ((map['publicUrl'] as String?)?.isNotEmpty != true) {
-        final inferredPublicUri = _inferPublicUri(
-          session: session,
-          storagePath: fullPath,
-          uploadUrl: map['url'] as String?,
-        );
-        if (inferredPublicUri != null) {
-          map['publicUrl'] = inferredPublicUri.toString();
+        final publicUri =
+            await session.storage.getPublicUrl(
+              storageId: 'public',
+              path: fullPath,
+            ) ??
+            _inferPublicUri(
+              storagePath: fullPath,
+              uploadUrl: map['url'] as String?,
+            );
+        if (publicUri != null) {
+          map['publicUrl'] = publicUri.toString();
         }
       }
 
@@ -95,7 +99,6 @@ class MediaEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   Uri? _inferPublicUri({
-    required Session session,
     required String storagePath,
     required String? uploadUrl,
   }) {
@@ -103,12 +106,7 @@ class MediaEndpoint extends Endpoint with EndpointAuthMixin {
     if (uploadUri == null) return null;
 
     if (uploadUri.path == '/serverpod_cloud_storage') {
-      final config = session.server.serverpod.config.apiServer;
-      return Uri(
-        scheme: config.publicScheme,
-        host: config.publicHost,
-        port: config.publicPort,
-        path: '/serverpod_cloud_storage',
+      return uploadUri.replace(
         queryParameters: {
           'method': 'file',
           'path': storagePath,
@@ -116,6 +114,29 @@ class MediaEndpoint extends Endpoint with EndpointAuthMixin {
       );
     }
 
-    return uploadUri.replace(query: '', queryParameters: {});
+    final normalizedStoragePath = storagePath.startsWith('/')
+        ? storagePath.substring(1)
+        : storagePath;
+    final currentPath = uploadUri.path;
+    final currentSegments = currentPath.split('/').where((s) => s.isNotEmpty);
+    final storageSegments = normalizedStoragePath
+        .split('/')
+        .where((s) => s.isNotEmpty);
+
+    final targetPath = currentPath.isEmpty || currentPath == '/'
+        ? '/$normalizedStoragePath'
+        : currentSegments.join('/') == storageSegments.join('/')
+        ? '/${currentSegments.join('/')}'
+        : currentPath.endsWith('/')
+        ? '$currentPath$normalizedStoragePath'
+        : '$currentPath/$normalizedStoragePath';
+
+    return Uri(
+      scheme: uploadUri.scheme,
+      userInfo: uploadUri.userInfo,
+      host: uploadUri.host,
+      port: uploadUri.hasPort ? uploadUri.port : null,
+      path: targetPath,
+    );
   }
 }

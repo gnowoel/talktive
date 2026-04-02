@@ -1400,7 +1400,7 @@ packages:
     source: hosted
     version: "3.4.5"
   serverpod_client:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: serverpod_client
       sha256: bb927f4880cfb982c198426818d09cd3b07830f6232e25169dfc0ab443fc83a7

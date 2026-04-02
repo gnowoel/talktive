@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
+import 'package:serverpod_client/serverpod_client.dart';
 import '../providers/client_provider.dart';
 
 class UploadResult {
@@ -71,8 +71,10 @@ class MediaService {
       final uploadUrl = description['url'] as String? ?? '';
       final uploadPath =
           description['path'] as String? ??
-          _extractPathFromUploadUrl(uploadUrl);
-      final publicUrl = _resolvePublicUrl(description);
+          MediaService.extractUploadPath(uploadUrl);
+      final publicUrl = MediaService.resolvePublicUrlFromDescription(
+        description,
+      );
 
       if (uploadUrl.isEmpty || uploadPath == null || uploadPath.isEmpty) {
         debugPrint(
@@ -83,39 +85,27 @@ class MediaService {
 
       debugPrint('MediaService: Starting direct upload to storage: $uploadUrl');
 
-      // 3. Perform the direct upload using Serverpod's binary upload format.
-      final uploadMethod = (description['method'] as String? ?? 'POST')
-          .toUpperCase();
-      final request = http.Request(uploadMethod, Uri.parse(uploadUrl));
-      request.headers.addAll({
-        'Content-Type': _contentTypeForFile(file, folder),
-        'Accept': '*/*',
-        ...(description['headers'] as Map? ?? {}).cast<String, String>(),
-      });
-      request.bodyBytes = bytes;
+      final uploadType = description['type'] as String? ?? 'binary';
+      if (uploadType == 'binary') {
+        description['headers'] = {
+          ...(description['headers'] as Map? ?? {}).cast<String, String>(),
+          'Content-Type':
+              ((description['headers'] as Map?)
+                  ?.cast<String, String>()['Content-Type'] ??
+              _contentTypeForFile(file, folder)),
+        };
+      }
 
-      final httpClient = http.Client();
-      try {
-        final response = await httpClient
-            .send(request)
-            .timeout(
-              const Duration(seconds: 20),
-              onTimeout: () => throw Exception('Storage upload timed out.'),
-            );
-        debugPrint(
-          'MediaService: Storage upload response status: ${response.statusCode}',
-        );
-        await response.stream.drain();
-        final uploadSucceeded =
-            response.statusCode == 200 ||
-            response.statusCode == 201 ||
-            response.statusCode == 204;
+      // 3. Perform the direct upload using Serverpod's production-safe uploader.
+      final uploadSucceeded = await FileUploader(jsonEncode(description))
+          .uploadByteData(ByteData.sublistView(bytes))
+          .timeout(
+            const Duration(seconds: 60),
+            onTimeout: () => throw Exception('Storage upload timed out.'),
+          );
 
-        if (!uploadSucceeded) {
-          throw Exception('Storage upload failed.');
-        }
-      } finally {
-        httpClient.close();
+      if (!uploadSucceeded) {
+        throw Exception('Storage upload failed.');
       }
 
       // 4. Confirm the upload with the server so it becomes publicly visible.
@@ -126,7 +116,10 @@ class MediaService {
 
       final resolvedPublicUrl = publicUrl.isNotEmpty
           ? publicUrl
-          : _derivePublicUrl(uploadUrl: uploadUrl, uploadPath: uploadPath);
+          : MediaService.derivePublicUrl(
+              uploadUrl: uploadUrl,
+              uploadPath: uploadPath,
+            );
       if (resolvedPublicUrl.isEmpty) {
         throw Exception('Server did not provide a usable public media URL.');
       }
@@ -153,24 +146,29 @@ class MediaService {
     return url;
   }
 
-  String? _extractPathFromUploadUrl(String uploadUrl) {
+  @visibleForTesting
+  static String? extractUploadPath(String uploadUrl) {
     final uri = Uri.tryParse(uploadUrl);
     return uri?.queryParameters['path'];
   }
 
-  String _resolvePublicUrl(Map<String, dynamic> description) {
+  @visibleForTesting
+  static String resolvePublicUrlFromDescription(
+    Map<String, dynamic> description,
+  ) {
     final publicUrl = description['publicUrl'] as String? ?? '';
     if (publicUrl.isNotEmpty) return publicUrl;
 
     final uploadUrl = description['url'] as String? ?? '';
     final uploadPath =
-        description['path'] as String? ?? _extractPathFromUploadUrl(uploadUrl);
+        description['path'] as String? ?? extractUploadPath(uploadUrl);
     if (uploadPath == null || uploadPath.isEmpty) return '';
 
-    return _derivePublicUrl(uploadUrl: uploadUrl, uploadPath: uploadPath);
+    return derivePublicUrl(uploadUrl: uploadUrl, uploadPath: uploadPath);
   }
 
-  String _derivePublicUrl({
+  @visibleForTesting
+  static String derivePublicUrl({
     required String uploadUrl,
     required String uploadPath,
   }) {
@@ -183,7 +181,30 @@ class MediaService {
           .toString();
     }
 
-    return uri.replace(query: '', queryParameters: {}).toString();
+    final normalizedUploadPath = uploadPath.startsWith('/')
+        ? uploadPath.substring(1)
+        : uploadPath;
+    final currentPath = uri.path;
+    final currentSegments = currentPath.split('/').where((s) => s.isNotEmpty);
+    final uploadSegments = normalizedUploadPath
+        .split('/')
+        .where((s) => s.isNotEmpty);
+
+    final resolvedPath = currentPath.isEmpty || currentPath == '/'
+        ? '/$normalizedUploadPath'
+        : currentSegments.join('/') == uploadSegments.join('/')
+        ? '/${currentSegments.join('/')}'
+        : currentPath.endsWith('/')
+        ? '$currentPath$normalizedUploadPath'
+        : '$currentPath/$normalizedUploadPath';
+
+    return Uri(
+      scheme: uri.scheme,
+      userInfo: uri.userInfo,
+      host: uri.host,
+      port: uri.hasPort ? uri.port : null,
+      path: resolvedPath,
+    ).toString();
   }
 
   String _contentTypeForFile(XFile file, String folder) {

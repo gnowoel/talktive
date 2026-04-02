@@ -26,7 +26,7 @@ webServer:
   publicHost: localhost
   publicPort: 8082
   publicScheme: http
-  allowedOrigins: ["*"]
+  allowedOrigins: ['*']
 
 # This is the database setup for your server.
 database:
@@ -56,7 +56,7 @@ sessionLogs:
 # Configuration for Cloud Storage.
 storage:
   - id: public
-    type: database
+    type: public
     public: true
 
 # futureCallExecutionEnabled: true # Defaults to true

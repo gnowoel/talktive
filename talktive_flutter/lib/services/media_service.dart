@@ -33,6 +33,8 @@ class MediaService {
     XFile file,
     String folder, {
     int maxSizeMb = 5,
+    String? fileExtension,
+    String? contentTypeOverride,
   }) async {
     final bytes = await file.readAsBytes();
     final sizeInBytes = bytes.length;
@@ -52,6 +54,7 @@ class MediaService {
       final uploadDescriptionJson = await client.media.getUploadDescription(
         folder,
         sizeInBytes,
+        fileExtension,
       );
 
       if (uploadDescriptionJson == null) {
@@ -92,7 +95,12 @@ class MediaService {
           'Content-Type':
               ((description['headers'] as Map?)
                   ?.cast<String, String>()['Content-Type'] ??
-              _contentTypeForFile(file, folder)),
+              _contentTypeForFile(
+                file,
+                folder,
+                fileExtension: fileExtension,
+                contentTypeOverride: contentTypeOverride,
+              )),
         };
       }
 
@@ -207,7 +215,24 @@ class MediaService {
     ).toString();
   }
 
-  String _contentTypeForFile(XFile file, String folder) {
+  String _contentTypeForFile(
+    XFile file,
+    String folder, {
+    String? fileExtension,
+    String? contentTypeOverride,
+  }) {
+    if (contentTypeOverride != null && contentTypeOverride.isNotEmpty) {
+      return contentTypeOverride;
+    }
+
+    final normalizedExtension = fileExtension?.toLowerCase();
+    if (normalizedExtension == 'wav') {
+      return 'audio/wav';
+    }
+    if (normalizedExtension == 'm4a') {
+      return 'audio/mp4';
+    }
+
     final name = file.name.toLowerCase();
 
     if (name.endsWith('.m4a')) {

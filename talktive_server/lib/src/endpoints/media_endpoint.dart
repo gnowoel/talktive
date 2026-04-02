@@ -13,6 +13,7 @@ class MediaEndpoint extends Endpoint with EndpointAuthMixin {
     Session session,
     String path,
     int fileSize,
+    String? fileExtension,
   ) async {
     // 1. Basic validation
     InputValidationService.validateUploadPath(path).throwIfInvalid();
@@ -51,7 +52,7 @@ class MediaEndpoint extends Endpoint with EndpointAuthMixin {
 
     // 4. Generate unique path
     final fileName = Uuid().v4();
-    final extension = path == 'voices' ? 'm4a' : 'jpg';
+    final extension = _resolveFileExtension(path, fileExtension);
     final fullPath = '$path/$fileName.$extension';
 
     // 5. Create description
@@ -88,6 +89,18 @@ class MediaEndpoint extends Endpoint with EndpointAuthMixin {
     } catch (_) {
       return uploadDescription;
     }
+  }
+
+  String _resolveFileExtension(String path, String? requestedExtension) {
+    final defaultExtension = path == 'voices' ? 'm4a' : 'jpg';
+    final normalizedExtension = (requestedExtension ?? defaultExtension)
+        .trim()
+        .toLowerCase();
+    InputValidationService.validateUploadExtension(
+      path,
+      normalizedExtension,
+    ).throwIfInvalid();
+    return normalizedExtension == 'jpeg' ? 'jpg' : normalizedExtension;
   }
 
   /// Verifies if a file exists in storage.

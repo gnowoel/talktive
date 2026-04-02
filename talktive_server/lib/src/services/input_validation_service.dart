@@ -321,4 +321,38 @@ class InputValidationService {
     }
     return ValidationResult.success();
   }
+
+  /// Validates an upload file extension for a given media path.
+  static ValidationResult validateUploadExtension(
+    String path,
+    String extension,
+  ) {
+    final normalizedExtension = extension.trim().toLowerCase();
+    if (normalizedExtension.isEmpty) {
+      return ValidationResult.failure('File extension is required.');
+    }
+
+    switch (path) {
+      case 'voices':
+        if (normalizedExtension == 'm4a' || normalizedExtension == 'wav') {
+          return ValidationResult.success();
+        }
+        return ValidationResult.failure(
+          'Voice uploads must use m4a or wav format.',
+        );
+      case 'chats':
+      case 'moments':
+      case 'avatars':
+        if (normalizedExtension == 'jpg' ||
+            normalizedExtension == 'jpeg' ||
+            normalizedExtension == 'png' ||
+            normalizedExtension == 'webp' ||
+            normalizedExtension == 'gif') {
+          return ValidationResult.success();
+        }
+        return ValidationResult.failure('Unsupported image file format.');
+      default:
+        return ValidationResult.failure('Invalid upload destination.');
+    }
+  }
 }

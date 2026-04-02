@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../providers/client_provider.dart';
@@ -106,7 +107,12 @@ mixin ChatScreenMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     setState(() => isSending = true);
     try {
       final mediaService = ref.read(mediaServiceProvider);
-      final uploadResult = await mediaService.uploadFile(XFile(path), 'voices');
+      final uploadResult = await mediaService.uploadFile(
+        XFile(path),
+        'voices',
+        fileExtension: kIsWeb ? 'wav' : 'm4a',
+        contentTypeOverride: kIsWeb ? 'audio/wav' : 'audio/mp4',
+      );
 
       if (uploadResult != null) {
         await sendMessage(

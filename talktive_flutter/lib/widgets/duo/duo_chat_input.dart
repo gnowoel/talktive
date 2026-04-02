@@ -119,14 +119,15 @@ class _DuoChatInputState extends State<DuoChatInput> {
       if (await _audioRecorder.hasPermission()) {
         debugPrint('DuoChatInput: Permission granted');
         final directory = await getTemporaryDirectory();
-        final ext = kIsWeb ? 'webm' : 'm4a';
+        final ext = kIsWeb ? 'wav' : 'm4a';
         final path =
             '${directory.path}/voice_${DateTime.now().millisecondsSinceEpoch}.$ext';
 
         const config = RecordConfig(
-          encoder: kIsWeb ? AudioEncoder.opus : AudioEncoder.aacLc,
+          encoder: kIsWeb ? AudioEncoder.wav : AudioEncoder.aacLc,
           bitRate: 96000,
-          sampleRate: 44100,
+          sampleRate: kIsWeb ? 16000 : 44100,
+          numChannels: 1,
         );
 
         debugPrint('DuoChatInput: Starting recorder with config: $config');

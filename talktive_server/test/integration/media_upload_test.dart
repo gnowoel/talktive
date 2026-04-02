@@ -65,6 +65,7 @@ void main() {
           session,
           'chats',
           1024,
+          null,
         );
         expect(result, isNotNull);
 
@@ -85,7 +86,12 @@ void main() {
           ),
         );
         expect(
-          () => endpoints.media.getUploadDescription(session, 'moments', 1024),
+          () => endpoints.media.getUploadDescription(
+            session,
+            'moments',
+            1024,
+            null,
+          ),
           throwsA(
             isA<protocol.TalktiveException>().having(
               (e) => e.code,
@@ -104,7 +110,12 @@ void main() {
           ),
         );
         expect(
-          () => endpoints.media.getUploadDescription(session, 'voices', 1024),
+          () => endpoints.media.getUploadDescription(
+            session,
+            'voices',
+            1024,
+            null,
+          ),
           throwsA(
             isA<protocol.TalktiveException>().having(
               (e) => e.code,
@@ -126,6 +137,7 @@ void main() {
           session,
           'voices',
           1024,
+          null,
         );
         expect(result, isNotNull);
 
@@ -136,6 +148,53 @@ void main() {
         expect(path, startsWith('voices/'));
         expect(path, endsWith('.m4a'));
         expect(publicUrl, isNotNull);
+      });
+
+      test('allows plus users to upload wav voice messages for web', () async {
+        final session = sessionBuilder.copyWith(
+          authentication: AuthenticationOverride.authenticationInfo(
+            plusUser.userInfoId.uuid,
+            {},
+          ),
+        );
+        final result = await endpoints.media.getUploadDescription(
+          session,
+          'voices',
+          1024,
+          'wav',
+        );
+        expect(result, isNotNull);
+
+        final description = jsonDecode(result!) as Map<String, dynamic>;
+        final path = description['path'] as String?;
+        expect(path, isNotNull);
+        expect(path, startsWith('voices/'));
+        expect(path, endsWith('.wav'));
+      });
+
+      test('rejects unsupported voice upload extensions', () async {
+        final session = sessionBuilder.copyWith(
+          authentication: AuthenticationOverride.authenticationInfo(
+            plusUser.userInfoId.uuid,
+            {},
+          ),
+        );
+
+        expect(
+          () => endpoints.media.getUploadDescription(
+            session,
+            'voices',
+            1024,
+            'webm',
+          ),
+          throwsA(
+            isA<protocol.TalktiveException>().having(
+              (e) => e.message,
+              'message',
+              contains('m4a or wav'),
+            ),
+          ),
+        );
       });
 
       test('allows plus users to upload custom avatars', () async {
@@ -149,6 +208,7 @@ void main() {
           session,
           'avatars',
           1024,
+          null,
         );
         expect(result, isNotNull);
       });
@@ -161,7 +221,12 @@ void main() {
           ),
         );
         expect(
-          () => endpoints.media.getUploadDescription(session, 'avatars', 1024),
+          () => endpoints.media.getUploadDescription(
+            session,
+            'avatars',
+            1024,
+            null,
+          ),
           throwsA(
             isA<protocol.TalktiveException>().having(
               (e) => e.code,

@@ -1446,6 +1446,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<int>(),
               nullable: false,
             ),
+            'fileExtension': _i1.ParameterDescription(
+              name: 'fileExtension',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -1456,6 +1461,7 @@ class Endpoints extends _i1.EndpointDispatch {
                     session,
                     params['path'],
                     params['fileSize'],
+                    params['fileExtension'],
                   ),
         ),
         'verifyUpload': _i1.MethodConnector(

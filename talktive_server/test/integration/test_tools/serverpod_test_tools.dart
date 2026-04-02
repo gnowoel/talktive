@@ -2302,6 +2302,7 @@ class _MediaEndpoint {
     _i1.TestSessionBuilder sessionBuilder,
     String path,
     int fileSize,
+    String? fileExtension,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -2317,6 +2318,7 @@ class _MediaEndpoint {
           parameters: _i1.testObjectToJson({
             'path': path,
             'fileSize': fileSize,
+            'fileExtension': fileExtension,
           }),
           serializationManager: _serializationManager,
         );

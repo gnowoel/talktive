@@ -861,12 +861,14 @@ class EndpointMedia extends _i2.EndpointRef {
   _i3.Future<String?> getUploadDescription(
     String path,
     int fileSize,
+    String? fileExtension,
   ) => caller.callServerEndpoint<String?>(
     'media',
     'getUploadDescription',
     {
       'path': path,
       'fileSize': fileSize,
+      'fileExtension': fileExtension,
     },
   );
 

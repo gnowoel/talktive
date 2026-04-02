@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:test/test.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
@@ -66,6 +67,14 @@ void main() {
           1024,
         );
         expect(result, isNotNull);
+
+        final description = jsonDecode(result!) as Map<String, dynamic>;
+        final path = description['path'] as String?;
+        final publicUrl = description['publicUrl'] as String?;
+        expect(path, isNotNull);
+        expect(path, startsWith('chats/'));
+        expect(publicUrl, isNotNull);
+        expect(publicUrl, contains('method=file'));
       });
 
       test('denies floor 1 users to upload to moments', () async {
@@ -153,6 +162,40 @@ void main() {
             ),
           ),
         );
+      });
+
+      test('verifies uploaded files through Serverpod storage', () async {
+        final session = sessionBuilder.copyWith(
+          authentication: AuthenticationOverride.authenticationInfo(
+            regularUser.userInfoId.uuid,
+            {},
+          ),
+        );
+        final storageSession = session.build();
+
+        await storageSession.db.unsafeQuery(
+          '''
+          INSERT INTO serverpod_cloud_storage
+            ("storageId", "path", "addedTime", "expiration", "verified", "byteData")
+          VALUES
+            ('public', 'chats/test-upload.jpg', NOW(), NULL, FALSE, decode('', 'base64'))
+          ''',
+        );
+
+        final verified = await endpoints.media.verifyUpload(
+          session,
+          'chats/test-upload.jpg',
+        );
+
+        expect(verified, isTrue);
+        expect(
+          await storageSession.storage.getPublicUrl(
+            storageId: 'public',
+            path: 'chats/test-upload.jpg',
+          ),
+          isNotNull,
+        );
+        await storageSession.close();
       });
     });
   });

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:serverpod/serverpod.dart';
 import '../utils/endpoint_auth_mixin.dart';
 import '../services/resident_service.dart';
@@ -54,14 +55,67 @@ class MediaEndpoint extends Endpoint with EndpointAuthMixin {
     final fullPath = '$path/$fileName.$extension';
 
     // 5. Create description
-    return await session.storage.createDirectFileUploadDescription(
-      storageId: 'public',
-      path: fullPath,
-    );
+    final uploadDescription = await session.storage
+        .createDirectFileUploadDescription(
+          storageId: 'public',
+          path: fullPath,
+        );
+
+    if (uploadDescription == null) return null;
+
+    // 6. Enrich description with stable metadata the client needs to finish
+    // the upload flow.
+    try {
+      final map = jsonDecode(uploadDescription) as Map<String, dynamic>;
+      map['path'] = fullPath;
+
+      if ((map['publicUrl'] as String?)?.isNotEmpty != true) {
+        final inferredPublicUri = _inferPublicUri(
+          session: session,
+          storagePath: fullPath,
+          uploadUrl: map['url'] as String?,
+        );
+        if (inferredPublicUri != null) {
+          map['publicUrl'] = inferredPublicUri.toString();
+        }
+      }
+
+      return jsonEncode(map);
+    } catch (_) {
+      return uploadDescription;
+    }
   }
 
   /// Verifies if a file exists in storage.
   Future<bool> verifyUpload(Session session, String path) async {
-    return await session.storage.fileExists(storageId: 'public', path: path);
+    return await session.storage.verifyDirectFileUpload(
+      storageId: 'public',
+      path: path,
+    );
+  }
+
+  Uri? _inferPublicUri({
+    required Session session,
+    required String storagePath,
+    required String? uploadUrl,
+  }) {
+    final uploadUri = uploadUrl == null ? null : Uri.tryParse(uploadUrl);
+    if (uploadUri == null) return null;
+
+    if (uploadUri.path == '/serverpod_cloud_storage') {
+      final config = session.server.serverpod.config.apiServer;
+      return Uri(
+        scheme: config.publicScheme,
+        host: config.publicHost,
+        port: config.publicPort,
+        path: '/serverpod_cloud_storage',
+        queryParameters: {
+          'method': 'file',
+          'path': storagePath,
+        },
+      );
+    }
+
+    return uploadUri.replace(query: '', queryParameters: {});
   }
 }

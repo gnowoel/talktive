@@ -56,7 +56,7 @@ sessionLogs:
 # Configuration for Cloud Storage.
 storage:
   - id: public
-    type: public
+    type: database
     public: true
 
 # futureCallExecutionEnabled: true # Defaults to true

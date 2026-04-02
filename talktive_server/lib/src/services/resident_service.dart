@@ -31,8 +31,9 @@ class ResidentService {
     // 1. Try Cache Lookups (Session Local -> Global)
     for (final id in userIds) {
       final key = cacheKeyMap[id]!;
-      protocol.Resident? cached = await session.caches.local.get<protocol.Resident>(key);
-      
+      protocol.Resident? cached = await session.caches.local
+          .get<protocol.Resident>(key);
+
       if (cached == null) {
         try {
           cached = await session.caches.global.get<protocol.Resident>(key);
@@ -60,9 +61,17 @@ class ResidentService {
     for (final resident in residentsFromDb) {
       result.add(resident);
       final key = cacheKeyMap[resident.userInfoId]!;
-      await session.caches.local.put(key, resident, lifetime: const Duration(minutes: 5));
+      await session.caches.local.put(
+        key,
+        resident,
+        lifetime: const Duration(minutes: 5),
+      );
       try {
-        await session.caches.global.put(key, resident, lifetime: const Duration(minutes: 5));
+        await session.caches.global.put(
+          key,
+          resident,
+          lifetime: const Duration(minutes: 5),
+        );
       } catch (_) {}
     }
 
@@ -118,12 +127,28 @@ class ResidentService {
     Session session,
     protocol.Resident resident,
   ) async {
+    // 1. Fetch old resident to check for custom avatar changes
+    final oldResident = await protocol.Resident.db.findById(
+      session,
+      resident.id!,
+    );
+
+    // 2. Perform update
     final updated = await protocol.Resident.db.updateRow(session, resident);
 
-    // Invalidate caches including Derived Profile View
+    // 3. Clean up physical media if custom avatar changed or was removed
+    if (oldResident?.customAvatarUrl != null &&
+        oldResident!.customAvatarUrl != updated.customAvatarUrl) {
+      await FileStorageService.deleteMedia(
+        session,
+        oldResident.customAvatarUrl,
+      );
+    }
+
+    // 4. Invalidate caches including Derived Profile View
     await invalidateResidentCache(session, resident.userInfoId);
 
-    // Sync primary resident object back to caches
+    // 5. Sync primary resident object back to caches
     final cacheKey = 'resident_${resident.userInfoId}';
     await session.caches.local.put(cacheKey, updated);
     try {
@@ -438,7 +463,8 @@ class ResidentService {
         bio: resident.bio,
         ageRange: resident.ageRange,
         lastSeen: resident.lastSeen,
-        isOnline: false, // Default to false, handled by supplement if viewer exists
+        isOnline:
+            false, // Default to false, handled by supplement if viewer exists
         isPremium: resident.isPremium,
         role: resident.role,
         topAchievements: topAchievements,
@@ -456,7 +482,12 @@ class ResidentService {
 
     // 2. Supplement with viewer-specific state (NOT CACHED globally)
     if (viewerId != null) {
-      return await _supplementProfileWithSocialState(session, profile, viewerId, targetId);
+      return await _supplementProfileWithSocialState(
+        session,
+        profile,
+        viewerId,
+        targetId,
+      );
     }
 
     return profile;
@@ -470,28 +501,53 @@ class ResidentService {
     UuidValue targetId,
   ) async {
     final results = await Future.wait([
-      ResidentService.isBlocked(session, blockerId: viewerId, blockedId: targetId),
-      ResidentService.isBlocked(session, blockerId: targetId, blockedId: viewerId),
+      ResidentService.isBlocked(
+        session,
+        blockerId: viewerId,
+        blockedId: targetId,
+      ),
+      ResidentService.isBlocked(
+        session,
+        blockerId: targetId,
+        blockedId: viewerId,
+      ),
       protocol.UserLike.db.findFirstRow(
         session,
-        where: (t) => t.senderId.equals(viewerId) & t.receiverId.equals(targetId),
+        where: (t) =>
+            t.senderId.equals(viewerId) & t.receiverId.equals(targetId),
       ),
-      protocol.ChannelMember.db.find(session, where: (t) => t.userInfoId.equals(viewerId)),
-      protocol.ChannelMember.db.find(session, where: (t) => t.userInfoId.equals(targetId)),
+      protocol.ChannelMember.db.find(
+        session,
+        where: (t) => t.userInfoId.equals(viewerId),
+      ),
+      protocol.ChannelMember.db.find(
+        session,
+        where: (t) => t.userInfoId.equals(targetId),
+      ),
     ]);
 
     final isBlocked = results[0] as bool;
     final hasBlockedMe = results[1] as bool;
     final isLiked = results[2] != null;
 
-    final viewerLoungeIds = (results[3] as List<protocol.ChannelMember>).map((m) => m.channelId).toSet();
-    final targetLoungeIds = (results[4] as List<protocol.ChannelMember>).map((m) => m.channelId).toSet();
-    final mutualLoungesCount = viewerLoungeIds.intersection(targetLoungeIds).length;
+    final viewerLoungeIds = (results[3] as List<protocol.ChannelMember>)
+        .map((m) => m.channelId)
+        .toSet();
+    final targetLoungeIds = (results[4] as List<protocol.ChannelMember>)
+        .map((m) => m.channelId)
+        .toSet();
+    final mutualLoungesCount = viewerLoungeIds
+        .intersection(targetLoungeIds)
+        .length;
 
     final viewerResident = await getResident(session, viewerId);
-    final canSeeOnline = viewerResident != null && canSeeOthersOnlineStatus(viewerResident);
+    final canSeeOnline =
+        viewerResident != null && canSeeOthersOnlineStatus(viewerResident);
     final targetResident = await getResident(session, targetId);
-    final isOnline = canSeeOnline && targetResident != null && isResidentOnline(targetResident);
+    final isOnline =
+        canSeeOnline &&
+        targetResident != null &&
+        isResidentOnline(targetResident);
 
     return profile.copyWith(
       isBlocked: isBlocked,
@@ -754,8 +810,9 @@ class ResidentService {
     // Check if within 14 days after trial expired
     if (resident.premiumTrialExpires != null) {
       final now = DateTime.now();
-      final graceExpiry =
-          resident.premiumTrialExpires!.add(const Duration(days: 14));
+      final graceExpiry = resident.premiumTrialExpires!.add(
+        const Duration(days: 14),
+      );
       return now.isBefore(graceExpiry);
     }
 
@@ -949,7 +1006,7 @@ class ResidentService {
       // When subscription ends, we don't disable settings immediately.
       // We rely on isPlusMember and isWithinGracePeriod in the respective feature checks.
       // The background cleanup task in ContentEphemeralityService will handle the actual deletion after 14 days.
-      
+
       // We still update the resident record
     }
 

@@ -520,8 +520,9 @@ class MessagingService {
         session,
         where: (t) => t.channelId.equals(channel.id!),
       );
-      if (lounge != null && lounge.creatorId == resident.userInfoId)
+      if (lounge != null && lounge.creatorId == resident.userInfoId) {
         return true;
+      }
     }
 
     // 3. Private Chat Participants (Both participants are "owners" of the thread)

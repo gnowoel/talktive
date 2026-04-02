@@ -128,6 +128,14 @@ void main() {
           1024,
         );
         expect(result, isNotNull);
+
+        final description = jsonDecode(result!) as Map<String, dynamic>;
+        final path = description['path'] as String?;
+        final publicUrl = description['publicUrl'] as String?;
+        expect(path, isNotNull);
+        expect(path, startsWith('voices/'));
+        expect(path, endsWith('.m4a'));
+        expect(publicUrl, isNotNull);
       });
 
       test('allows plus users to upload custom avatars', () async {

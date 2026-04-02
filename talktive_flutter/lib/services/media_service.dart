@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
+import '../providers/client_provider.dart';
 
 class UploadResult {
   final String url;
@@ -26,7 +28,7 @@ class MediaService {
     );
   }
 
-  /// Uploads a file to Firebase Cloud Storage.
+  /// Uploads a file using server-authorized upload descriptions.
   /// Returns the public URL of the uploaded file and its size.
   Future<UploadResult?> uploadFile(
     XFile file,
@@ -43,40 +45,46 @@ class MediaService {
       );
     }
 
-    final fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.name}';
-    final path = '$folder/$fileName';
-    final contentType = _contentTypeForFile(file, folder);
-
     try {
-      final storage = FirebaseStorage.instance;
-      debugPrint('MediaService: Starting upload to bucket: ${storage.bucket}');
-      debugPrint('MediaService: Destination path: $path');
+      debugPrint('MediaService: Requesting upload description for $folder...');
+      final client = ref.read(clientProvider);
 
-      final storageRef = storage.ref(path);
-      final metadata = SettableMetadata(contentType: contentType);
+      // 1. Get authorized upload description from Serverpod
+      final uploadDescriptionJson = await client.media.getUploadDescription(
+        folder,
+        sizeInBytes,
+      );
 
-      TaskSnapshot snapshot;
-
-      if (kIsWeb) {
-        debugPrint('MediaService: Using putData for Web upload...');
-        snapshot = await storageRef.putData(bytes, metadata);
-      } else {
-        debugPrint(
-          'MediaService: Using putFile for Mobile upload. Path: ${file.path}',
-        );
-        // On mobile, putFile is more efficient and reliable
-        snapshot = await storageRef.putFile(File(file.path), metadata);
+      if (uploadDescriptionJson == null) {
+        throw Exception('Server denied upload authorization.');
       }
 
-      debugPrint(
-        'MediaService: Upload task completed. Status: ${snapshot.state}',
-      );
-      final downloadUrl = await snapshot.ref.getDownloadURL();
+      // 2. Parse the description (Serverpod's internal format)
+      final description = jsonDecode(uploadDescriptionJson);
+      final uploadUrl = description['url'] as String;
+      final publicUrl = description['publicUrl'] as String;
+      final headers = Map<String, String>.from(description['headers'] ?? {});
 
-      debugPrint(
-        'MediaService: Successfully generated Download URL: $downloadUrl',
+      debugPrint('MediaService: Starting direct upload to storage...');
+
+      // 3. Perform the actual PUT request
+      final response = await http.put(
+        Uri.parse(uploadUrl),
+        body: bytes,
+        headers: {
+          'Content-Type': _contentTypeForFile(file, folder),
+          ...headers,
+        },
       );
-      return UploadResult(url: downloadUrl, sizeInBytes: sizeInBytes);
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw Exception(
+          'Upload failed with status: ${response.statusCode}\n${response.body}',
+        );
+      }
+
+      debugPrint('MediaService: Upload successful! Public URL: $publicUrl');
+      return UploadResult(url: publicUrl, sizeInBytes: sizeInBytes);
     } catch (e, stack) {
       debugPrint('MediaService: CRITICAL ERROR during upload: $e');
       debugPrint('MediaService: Stack trace: $stack');

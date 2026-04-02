@@ -1,5 +1,25 @@
 # Talktive Development Changelog
 
+## April 2, 2026 - Unified Channel & Membership Refactoring (Phase 9.0) 🏗️🎭🔄
+
+### Centralized Channel Management
+- **Unified ChannelService**: Established `ChannelService` as the single source of truth for all channel types (Plaza, Lounges, Private Chats).
+- **Standardized Access Control**: Refactored `validateMember` to provide consistent, reusable authorization checks across the entire backend, reducing boilerplate in `MessagingService` and `LoungeEndpoint`.
+- **Atomic Metadata Updates**: Centralized `updateLastMessage` in `ChannelService`, ensuring last message previews and timestamps are synchronized across specialized tables (Lounge, PrivateChat) and the core Channel registry.
+
+### Service Layer Consolidation
+- **Thin Endpoints**: Further reduced `LoungeEndpoint` and `PrivateChatEndpoint` to lean wrappers, delegating all domain validation and membership state Transitions to the service layer.
+- **Messaging Refinement**: Integrated unified membership validation into `MessagingService`, ensuring consistent blocked-user checks and participation requirements for all message types.
+- **Membership Lifecycle**: Streamlined joining, applying, and inviting flows by utilizing centralized status validation and atomic persistence through `ChannelService`.
+
+### Technical Quality & Synchronization
+- **Strict Typing**: Hardened `validateMember` signature to return a non-nullable `ChannelMember`, utilizing `TalktiveException` for clear, standard-compliant error signaling.
+- **Full Stack Sync**: Performed zero-error synchronization of Serverpod and Flutter codebases via `serverpod generate` and `build_runner`.
+- **Regression Testing**: Successfully verified all refactored flows with a 100% pass rate in specialization-level integration tests (`lounge_service_test.dart`, `messaging_service_test.dart`).
+
+### Documentation Update
+- **Developer Guide**: Updated `docs/DEVELOPER_GUIDE.md` with guidelines on utilizing the unified `ChannelService` for access control and metadata synchronization.
+
 ## April 2, 2026 - Cloudflare R2 Migration & Secure Media Lifecycle (Phase 8.99) 🏗️📸☁️
 
 ### Cloudflare R2 Media Migration

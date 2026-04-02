@@ -25,6 +25,10 @@ To maintain a clean and testable codebase, we follow strict delegation:
 - **Endpoints**: Lean controllers that handle authentication and argument parsing.
 - **Services**: Contain all domain logic, validation, and side-effects.
 - **Unified Validation**: All services use the `ValidationResult` utility for consistent `TalktiveException` responses.
+- **Unified Channel Management**: The `ChannelService` acts as the central authority for all channel-related operations (Plaza, Lounges, Private Chats).
+  - **Access Control**: Always use `ChannelService.validateMember(session, channelId, userId)` for authorization checks.
+  - **Metadata Sync**: `ChannelService.updateLastMessage` ensures that last message previews and timestamps are consistently updated across all channel types for unread tracking.
+  - **Status Management**: Membership transitions (joining, applying, inviting) are managed centrally to ensure consistent state and validation.
 
 ### 2. High-Performance Infrastructure
 

@@ -312,4 +312,13 @@ class InputValidationService {
     }
     return ValidationResult.success();
   }
+
+  /// Validates an upload destination path.
+  static ValidationResult validateUploadPath(String path) {
+    const validPaths = ['chats', 'voices', 'moments', 'avatars'];
+    if (!validPaths.contains(path)) {
+      return ValidationResult.failure('Invalid upload destination.');
+    }
+    return ValidationResult.success();
+  }
 }

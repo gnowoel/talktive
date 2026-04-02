@@ -64,6 +64,9 @@ lounge:
   - updateLounge:
   - deleteLounge:
   - kickMember:
+media:
+  - getUploadDescription:
+  - verifyUpload:
 message:
   - sendMessage:
   - subscribe:

@@ -850,6 +850,35 @@ class EndpointLounge extends _i2.EndpointRef {
 }
 
 /// {@category Endpoint}
+class EndpointMedia extends _i2.EndpointRef {
+  EndpointMedia(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'media';
+
+  /// Generates an upload description for a file.
+  /// Validates permissions (floor level, premium status) based on the destination path.
+  _i3.Future<String?> getUploadDescription(
+    String path,
+    int fileSize,
+  ) => caller.callServerEndpoint<String?>(
+    'media',
+    'getUploadDescription',
+    {
+      'path': path,
+      'fileSize': fileSize,
+    },
+  );
+
+  /// Verifies if a file exists in storage.
+  _i3.Future<bool> verifyUpload(String path) => caller.callServerEndpoint<bool>(
+    'media',
+    'verifyUpload',
+    {'path': path},
+  );
+}
+
+/// {@category Endpoint}
 class EndpointMessage extends _i2.EndpointRef {
   EndpointMessage(_i2.EndpointCaller caller) : super(caller);
 
@@ -1652,6 +1681,7 @@ class Client extends _i2.ServerpodClientShared {
     gamification = EndpointGamification(this);
     health = EndpointHealth(this);
     lounge = EndpointLounge(this);
+    media = EndpointMedia(this);
     message = EndpointMessage(this);
     moment = EndpointMoment(this);
     notification = EndpointNotification(this);
@@ -1676,6 +1706,8 @@ class Client extends _i2.ServerpodClientShared {
   late final EndpointHealth health;
 
   late final EndpointLounge lounge;
+
+  late final EndpointMedia media;
 
   late final EndpointMessage message;
 
@@ -1704,6 +1736,7 @@ class Client extends _i2.ServerpodClientShared {
     'gamification': gamification,
     'health': health,
     'lounge': lounge,
+    'media': media,
     'message': message,
     'moment': moment,
     'notification': notification,

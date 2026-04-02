@@ -1,114 +1,73 @@
-import 'dart:convert';
-import 'dart:io';
 import 'package:serverpod/serverpod.dart';
-import 'package:googleapis_auth/auth_io.dart' as auth;
 
 /// Service for managing physical file storage on the server.
-/// Handles deletion of media files from the local storage or external providers.
+/// Handles deletion of media files from configured storage providers.
 class FileStorageService {
-  static auth.ServiceAccountCredentials? _credentials;
-  static bool _initialized = false;
-
-  /// Initialize the storage service with Firebase credentials if available.
-  static Future<void> _initialize() async {
-    if (_initialized) return;
-    try {
-      final credentialsFile = File('config/firebase_service_account_key.json');
-      if (credentialsFile.existsSync()) {
-        final jsonContent = jsonDecode(await credentialsFile.readAsString());
-        _credentials = auth.ServiceAccountCredentials.fromJson(jsonContent);
-        _initialized = true;
-      }
-    } catch (e) {
-      stdout.writeln('TALKTIVE: FileStorageService initialization warning: $e');
-    }
-  }
-
   /// Deletes a piece of media from the server's storage based on its URL.
-  /// This currently focuses on Firebase Storage URLs, as the platform has
-  /// standardized on direct client-to-cloud uploads.
+  /// This uses Serverpod's storage abstraction to handle both local disk (dev)
+  /// and Cloudflare R2 (prod).
   static Future<void> deleteMedia(Session session, String? url) async {
     if (url == null || url.isEmpty) return;
 
-    // Check for Firebase Storage (GCS)
-    if (url.contains('firebasestorage.googleapis.com')) {
-      await _deleteFirebaseFile(session, url);
-    } else {
+    // Extract path from URL
+    final path = _extractPathFromUrl(url);
+    if (path == null) {
       session.log(
-        'TALKTIVE: Unrecognized media provider for URL: $url',
+        'TALKTIVE: Could not extract path from media URL: $url',
         level: LogLevel.warning,
+      );
+      return;
+    }
+
+    try {
+      final exists = await session.storage.fileExists(
+        storageId: 'public',
+        path: path,
+      );
+
+      if (exists) {
+        await session.storage.deleteFile(
+          storageId: 'public',
+          path: path,
+        );
+        session.log(
+          'TALKTIVE: Successfully deleted file: $path',
+          level: LogLevel.info,
+        );
+      }
+    } catch (e) {
+      session.log(
+        'TALKTIVE: Error deleting file ($path): $e',
+        level: LogLevel.error,
       );
     }
   }
 
-  /// Deletes a file from Firebase Cloud Storage using the GCS JSON API.
-  static Future<void> _deleteFirebaseFile(Session session, String url) async {
+  /// Extracts the relative storage path from a full public URL.
+  /// Handles both localhost (dev) and R2 (prod) formats.
+  static String? _extractPathFromUrl(String url) {
     try {
-      await _initialize();
-      if (_credentials == null) {
-        session.log(
-          'TALKTIVE: Firebase credentials not found, cannot delete: $url',
-          level: LogLevel.warning,
-        );
-        return;
-      }
-
-      // Parse Firebase URL: https://firebasestorage.googleapis.com/v0/b/[BUCKET]/o/[OBJECT]?alt=media
       final uri = Uri.parse(url);
       final segments = uri.pathSegments;
 
-      // Segments usually look like: ['v0', 'b', 'BUCKET', 'o', 'OBJECT']
-      if (segments.length < 5 || segments[1] != 'b' || segments[3] != 'o') {
-        session.log(
-          'TALKTIVE: Invalid Firebase Storage URL format: $url',
-          level: LogLevel.warning,
-        );
-        return;
+      // Development (Localhost): http://localhost:8080/serverpod_cloud_storage?method=file&path=chats/uuid.jpg
+      if (url.contains('serverpod_cloud_storage')) {
+        return uri.queryParameters['path'];
       }
 
-      final bucket = segments[2];
-      // The object path is the 4th segment and beyond, often URL-encoded (e.g., uploads%2Fimage.png)
-      // Uri.parse already decodes path segments, but Firebase URLs represent the path as a single segment after /o/
-      final objectPath = segments[4];
+      // Production (Cloudflare R2 Custom Domain or standard URL):
+      // https://pub-xyz.r2.dev/chats/uuid.jpg OR https://media.talktive.app/chats/uuid.jpg
+      // Most CDN/R2 setups have the path as the segments after the domain.
 
-      final scopes = [
-        'https://www.googleapis.com/auth/devstorage.full_control',
-      ];
-      final client = await auth.clientViaServiceAccount(_credentials!, scopes);
+      // Filter out empty segments
+      final cleanSegments = segments.where((s) => s.isNotEmpty).toList();
+      if (cleanSegments.isEmpty) return null;
 
-      try {
-        // GCS JSON API: DELETE https://storage.googleapis.com/storage/v1/b/[BUCKET]/o/[OBJECT]
-        // Note: objectPath must be percent-encoded for the URL
-        final encodedObjectPath = Uri.encodeComponent(objectPath);
-        final deleteUrl =
-            'https://storage.googleapis.com/storage/v1/b/$bucket/o/$encodedObjectPath';
-
-        final response = await client.delete(Uri.parse(deleteUrl));
-
-        if (response.statusCode == 204 || response.statusCode == 200) {
-          session.log(
-            'TALKTIVE: Successfully deleted Firebase file: $objectPath from $bucket',
-            level: LogLevel.info,
-          );
-        } else if (response.statusCode == 404) {
-          session.log(
-            'TALKTIVE: Firebase file already gone or not found (404): $objectPath',
-            level: LogLevel.debug,
-          );
-        } else {
-          session.log(
-            'TALKTIVE: Failed to delete Firebase file: ${response.statusCode} - ${response.body}',
-            level: LogLevel.error,
-          );
-        }
-      } finally {
-        client.close();
-      }
-    } catch (e) {
-      session.log(
-        'TALKTIVE: Error deleting Firebase file ($url): $e',
-        level: LogLevel.error,
-      );
+      // Handle cases where the first segment might be a bucket name (optional in some configs)
+      // For Talktive, we expect standard paths: chats/..., voices/..., etc.
+      return cleanSegments.join('/');
+    } catch (_) {
+      return null;
     }
   }
 }

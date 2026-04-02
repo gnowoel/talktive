@@ -1,5 +1,6 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
+import '../services/channel_service.dart';
 import '../services/apartment_service.dart';
 import '../services/input_validation_service.dart';
 import '../services/lounge_service.dart';
@@ -178,19 +179,11 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     }
 
     // Verify inviter is a member
-    final member = await protocol.ChannelMember.db.findFirstRow(
+    await ChannelService.validateMember(
       session,
-      where: (t) =>
-          t.channelId.equals(lounge.channelId) &
-          t.userInfoId.equals(inviter.userInfoId) &
-          t.status.equals(protocol.ChannelMemberStatus.joined),
+      lounge.channelId,
+      inviter.userInfoId,
     );
-
-    if (member == null) {
-      throw protocol.TalktiveException(
-        message: 'You are not a member of this lounge',
-      );
-    }
 
     final target = await ResidentService.getResident(session, targetUserId);
     if (target == null) {
@@ -319,15 +312,13 @@ class LoungeEndpoint extends Endpoint with EndpointAuthMixin {
     final lounge = await getLounge(session, loungeId);
 
     // Verify admin role in lounge
-    final member = await protocol.ChannelMember.db.findFirstRow(
+    final member = await ChannelService.validateMember(
       session,
-      where: (t) =>
-          t.channelId.equals(lounge.channelId) &
-          t.userInfoId.equals(currentUserId) &
-          t.status.equals(protocol.ChannelMemberStatus.joined),
+      lounge.channelId,
+      currentUserId,
     );
 
-    if (member == null || member.role != 'admin') {
+    if (member.role != 'admin') {
       throw protocol.TalktiveException(
         message: 'Only lounge admins can update details',
       );

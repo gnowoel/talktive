@@ -4,6 +4,82 @@ import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 /// Generic service for managing Channels and ChannelMembers.
 /// This consolidates logic used by Private Chats, Lounges, and the Plaza.
 class ChannelService {
+  /// Validates that a user is a member of a channel.
+  /// Throws TalktiveException if not authorized.
+  static Future<protocol.ChannelMember> validateMember(
+    Session session,
+    int channelId,
+    UuidValue userId, {
+    bool allowInvited = false,
+  }) async {
+    final membership = await getMember(session, channelId, userId);
+
+    if (membership == null) {
+      throw protocol.TalktiveException(
+        message: 'Access denied: Not a member of this channel.',
+        code: 'ACCESS_DENIED',
+      );
+    }
+
+    final allowedStatuses = {
+      protocol.ChannelMemberStatus.joined,
+      if (allowInvited) protocol.ChannelMemberStatus.invited,
+    };
+
+    if (!allowedStatuses.contains(membership.status)) {
+      throw protocol.TalktiveException(
+        message: 'Access denied: Membership is not active.',
+        code: 'ACCESS_INACTIVE',
+      );
+    }
+
+    return membership;
+  }
+
+  /// Fetches a channel and verifies user access.
+  static Future<protocol.Channel> getChannelWithAccess(
+    Session session,
+    int channelId,
+    UuidValue userId, {
+    bool allowInvited = false,
+  }) async {
+    final channel = await getChannel(session, channelId);
+    if (channel == null) {
+      throw protocol.TalktiveException(
+        message: 'Channel not found.',
+        code: 'CHANNEL_NOT_FOUND',
+      );
+    }
+
+    // Plaza is public
+    if (channel.type != protocol.ChannelType.plaza) {
+      await validateMember(
+        session,
+        channelId,
+        userId,
+        allowInvited: allowInvited,
+      );
+    }
+
+    return channel;
+  }
+
+  /// Creates a new channel.
+  static Future<protocol.Channel> createChannel(
+    Session session, {
+    required String name,
+    required protocol.ChannelType type,
+    bool isPersistent = false,
+  }) async {
+    final channel = protocol.Channel(
+      name: name,
+      type: type,
+      createdAt: DateTime.now(),
+      isPersistent: isPersistent,
+    );
+    return await protocol.Channel.db.insertRow(session, channel);
+  }
+
   /// Fetches a channel by ID.
   static Future<protocol.Channel?> getChannel(
     Session session,
@@ -131,6 +207,15 @@ class ChannelService {
         if (updateTimestamp) lounge.lastMessageAt = now;
         lounge.lastMessage = previewText;
         await protocol.Lounge.db.updateRow(session, lounge);
+      }
+    }
+
+    // Also update the core Channel's lastMessageAt for unified tracking
+    if (updateTimestamp) {
+      final channel = await getChannel(session, channelId);
+      if (channel != null) {
+        channel.lastMessageAt = now;
+        await protocol.Channel.db.updateRow(session, channel);
       }
     }
   }

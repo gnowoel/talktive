@@ -25,13 +25,11 @@ class LoungeService {
     String? rules,
   }) async {
     // 1. Create a new channel for this lounge
-    final channel = protocol.Channel(
+    final savedChannel = await ChannelService.createChannel(
+      session,
       name: name,
       type: protocol.ChannelType.lounge,
-      createdAt: DateTime.now(),
     );
-
-    final savedChannel = await protocol.Channel.db.insertRow(session, channel);
 
     // 2. Create the lounge record
     final lounge = protocol.Lounge(
@@ -57,15 +55,12 @@ class LoungeService {
 
     // 3. Invalidate discovery cache so new lounge appears immediately
     await CacheService.invalidateDiscoveryCache(session);
-    await protocol.ChannelMember.db.insertRow(
+    await ChannelService.updateMemberStatus(
       session,
-      protocol.ChannelMember(
-        channelId: savedChannel.id!,
-        userInfoId: creatorId,
-        status: protocol.ChannelMemberStatus.joined,
-        joinedAt: DateTime.now(),
-        role: 'admin',
-      ),
+      channelId: savedChannel.id!,
+      userId: creatorId,
+      status: protocol.ChannelMemberStatus.joined,
+      role: 'admin',
     );
 
     // 4. Track achievement
@@ -485,15 +480,14 @@ class LoungeService {
       throw protocol.TalktiveException(message: 'Lounge not found');
     }
 
-    final member = await protocol.ChannelMember.db.findFirstRow(
+    final member = await ChannelService.getMember(
       session,
-      where: (t) =>
-          t.channelId.equals(lounge.channelId) &
-          t.userInfoId.equals(userId) &
-          t.status.equals(protocol.ChannelMemberStatus.joined),
+      lounge.channelId,
+      userId,
     );
 
-    if (member == null) {
+    if (member == null ||
+        member.status != protocol.ChannelMemberStatus.joined) {
       throw protocol.TalktiveException(message: 'Not a member');
     }
 

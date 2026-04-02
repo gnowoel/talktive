@@ -126,14 +126,20 @@ class MessagingService {
 
     // 6. Privacy Check: Blocked status (Private Chats)
     if (channel.type == protocol.ChannelType.private) {
-      final members = await protocol.ChannelMember.db.find(
+      await ChannelService.validateMember(
+        session,
+        channel.id!,
+        senderUuid,
+      );
+
+      final otherMembers = await protocol.ChannelMember.db.find(
         session,
         where: (t) =>
             t.channelId.equals(channel.id!) &
             t.userInfoId.notEquals(senderUuid),
       );
-      if (members.isNotEmpty) {
-        final otherUserUuid = members.first.userInfoId;
+      if (otherMembers.isNotEmpty) {
+        final otherUserUuid = otherMembers.first.userInfoId;
         final isBlocked = await ResidentService.isBlocked(
           session,
           blockerId: otherUserUuid,
@@ -147,6 +153,13 @@ class MessagingService {
           );
         }
       }
+    } else if (channel.type == protocol.ChannelType.lounge) {
+      // For lounges, verify the user is a member
+      await ChannelService.validateMember(
+        session,
+        channel.id!,
+        senderUuid,
+      );
     }
 
     return filteredContent;
@@ -514,29 +527,22 @@ class MessagingService {
       if (channel.type != protocol.ChannelType.private) return true;
     }
 
-    // 2. Lounge Creator
-    if (channel.type == protocol.ChannelType.lounge) {
-      final lounge = await protocol.Lounge.db.findFirstRow(
-        session,
-        where: (t) => t.channelId.equals(channel.id!),
-      );
-      if (lounge != null && lounge.creatorId == resident.userInfoId) {
-        return true;
-      }
+    // 2. Fetch membership
+    final member = await ChannelService.getMember(
+      session,
+      channel.id!,
+      resident.userInfoId,
+    );
+    if (member == null ||
+        member.status != protocol.ChannelMemberStatus.joined) {
+      return false;
     }
 
-    // 3. Private Chat Participants (Both participants are "owners" of the thread)
-    if (channel.type == protocol.ChannelType.private) {
-      final privateChat = await protocol.PrivateChat.db.findFirstRow(
-        session,
-        where: (t) => t.channelId.equals(channel.id!),
-      );
-      if (privateChat != null &&
-          (privateChat.participant1Id == resident.userInfoId ||
-              privateChat.participant2Id == resident.userInfoId)) {
-        return true;
-      }
-    }
+    // 3. Admin role in the channel (Lounge Creator or explicit admin)
+    if (member.role == 'admin') return true;
+
+    // 4. Private Chat Participants (Both participants are "owners" of the thread)
+    if (channel.type == protocol.ChannelType.private) return true;
 
     return false;
   }

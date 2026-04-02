@@ -128,13 +128,10 @@ class PrivateChatService {
       }
     } else {
       // Create new private chat
-      final channel = await protocol.Channel.db.insertRow(
+      final channel = await ChannelService.createChannel(
         session,
-        protocol.Channel(
-          name: 'Private Chat',
-          type: protocol.ChannelType.private,
-          createdAt: DateTime.now(),
-        ),
+        name: 'Private Chat',
+        type: protocol.ChannelType.private,
       );
 
       privateChat = await protocol.PrivateChat.db.insertRow(

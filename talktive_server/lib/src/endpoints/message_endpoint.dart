@@ -23,38 +23,30 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     int? fileSize,
     bool isSystem = false,
   }) async {
-    try {
-      // 1. Auth & Resident Fetch
-      final senderUuid = await getUserId(session);
-      final sender = await getResidentProfile(session, senderUuid);
+    // 1. Auth & Resident Fetch
+    final senderUuid = await getUserId(session);
+    final sender = await getResidentProfile(session, senderUuid);
 
-      // 2. Channel Fetch & Access Verification
-      final channel = await protocol.Channel.db.findById(session, channelId);
-      if (channel == null) {
-        throw protocol.TalktiveException(
-          message: 'Channel not found.',
-          code: 'CHANNEL_NOT_FOUND',
-        );
-      }
+    // 2. Fetch Channel & Verify Access
+    final channel = await ChannelService.getChannelWithAccess(
+      session,
+      channelId,
+      senderUuid,
+    );
 
-      // 3. Send Message via Service (Orchestration delegated to Service layer)
-      return await MessagingService.sendMessage(
-        session,
-        sender: sender,
-        channel: channel,
-        content: content,
-        imageUrl: imageUrl,
-        mediaUrl: mediaUrl,
-        mediaType: mediaType,
-        duration: duration,
-        fileSize: fileSize,
-        isSystem: isSystem,
-      );
-    } catch (e, stack) {
-      session.log('FAILED to send message: $e', level: LogLevel.error);
-      session.log(stack.toString(), level: LogLevel.error);
-      rethrow;
-    }
+    // 3. Send Message via Service
+    return await MessagingService.sendMessage(
+      session,
+      sender: sender,
+      channel: channel,
+      content: content,
+      imageUrl: imageUrl,
+      mediaUrl: mediaUrl,
+      mediaType: mediaType,
+      duration: duration,
+      fileSize: fileSize,
+      isSystem: isSystem,
+    );
   }
 
   /// Subscribes to a channel to receive real-time updates (Messages, Typing, etc).
@@ -86,43 +78,15 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       offset: offset,
     ).throwIfInvalid();
 
-    // 1. Verify access (optional: check if user is member of channel)
-    // For Plaza (floor 0), it's public. For others, check membership.
-    final channel = await protocol.Channel.db.findById(session, channelId);
-    if (channel == null) {
-      throw protocol.TalktiveException(
-        message: 'Channel not found.',
-        code: 'CHANNEL_NOT_FOUND',
-      );
-    }
+    final userUuid = await getUserId(session);
 
-    // Check membership for private/lounge channels
-    if (channel.type != protocol.ChannelType.plaza) {
-      final userUuid = await getUserId(session);
-
-      // Check if user is a member of this channel
-      final membership = await protocol.ChannelMember.db.findFirstRow(
-        session,
-        where: (t) =>
-            t.channelId.equals(channelId) & t.userInfoId.equals(userUuid),
-      );
-
-      if (membership == null) {
-        throw protocol.TalktiveException(
-          message: 'Access denied: Not a member of this channel.',
-          code: 'ACCESS_DENIED',
-        );
-      }
-
-      // Check if membership is active or invited
-      if (membership.status != protocol.ChannelMemberStatus.joined &&
-          membership.status != protocol.ChannelMemberStatus.invited) {
-        throw protocol.TalktiveException(
-          message: 'Access denied: Membership is not active.',
-          code: 'ACCESS_INACTIVE',
-        );
-      }
-    }
+    // 1. Fetch Channel & Verify Access (Plaza is public, Floor 0 is Floor 0)
+    await ChannelService.getChannelWithAccess(
+      session,
+      channelId,
+      userUuid,
+      allowInvited: true, // Allow fetching history for invited users
+    );
 
     // 2. Fetch messages
     return await protocol.Message.db.find(
@@ -176,20 +140,7 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
     }
 
     // Verify membership for private/lounge channels
-    final channel = await ChannelService.getChannel(session, channelId);
-    if (channel != null && channel.type != protocol.ChannelType.plaza) {
-      final membership = await ChannelService.getMember(
-        session,
-        channelId,
-        userUuid,
-      );
-      if (membership == null) {
-        throw protocol.TalktiveException(
-          message: 'Access denied: Not a member of this channel.',
-          code: 'ACCESS_DENIED',
-        );
-      }
-    }
+    await ChannelService.getChannelWithAccess(session, channelId, userUuid);
 
     return await ChannelService.updatePersistence(
       session,

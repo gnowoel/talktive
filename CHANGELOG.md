@@ -5,8 +5,8 @@
 ### Cloudflare R2 Media Migration
 
 - **S3-Compatible Storage**: Successfully migrated the media backend from Firebase Storage to Cloudflare R2 to eliminate egress fees and improve global delivery performance.
-- **Server-Authorized Uploads**: Implemented a new secure upload workflow. Clients now request a pre-signed `UploadDescription` via the `MediaEndpoint`, moving write authorization from client-side rules to the server.
-- **Environment Parity**: Configured environment-aware storage. Production uses Cloudflare R2, while development utilizes local disk storage, enabling full offline testing of media features.
+- **Server-Authorized Uploads**: Implemented a secure upload workflow around `MediaEndpoint`. Clients now request a server-issued upload description, complete the raw binary upload, and explicitly verify the upload before the public URL is used.
+- **Environment Parity**: Configured environment-aware storage. Production uses Cloudflare R2, while development uses Serverpod's database-backed public storage, enabling full local testing of media authorization and verification.
 
 ### Secure Media Ephemerality & Lifecycle
 

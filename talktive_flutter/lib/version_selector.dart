@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'app.dart';
@@ -104,14 +105,14 @@ class _VersionSelectorState extends State<VersionSelector> {
     );
   }
 
-  void _selectNewUser() async {
+  void _selectNewUser(BuildContext context) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('active_app_version', AppVersion.serverpod.name);
       if (mounted) setState(() => _state = SelectorState.runAppServerpod);
     } catch (e) {
       debugPrint('VersionSelector: Error in _selectNewUser: $e');
-      if (mounted) {
+      if (context.mounted) {
         DuoSnackBarHelper.showError(
           context,
           Exception('Failed to save preferences. Please try again.'),
@@ -124,14 +125,14 @@ class _VersionSelectorState extends State<VersionSelector> {
     if (mounted) setState(() => _state = SelectorState.chooseExistingMethod);
   }
 
-  Future<void> _loginWithGoogle() async {
+  Future<void> _loginWithGoogle(BuildContext context) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('active_app_version', AppVersion.serverpod.name);
       if (mounted) setState(() => _state = SelectorState.runAppServerpod);
     } catch (e) {
       debugPrint('VersionSelector: Error in _loginWithGoogle: $e');
-      if (mounted) {
+      if (context.mounted) {
         DuoSnackBarHelper.showError(
           context,
           Exception('Failed to sign in with Google. Please try again.'),
@@ -140,7 +141,7 @@ class _VersionSelectorState extends State<VersionSelector> {
     }
   }
 
-  Future<void> _submitRecoveryToken() async {
+  Future<void> _submitRecoveryToken(BuildContext context) async {
     final token = _tokenController.text.trim().toLowerCase();
     if (token.length != 20 || !RegExp(r'^[a-z0-9]+$').hasMatch(token)) {
       DuoSnackBarHelper.showError(context, Exception('Invalid token format'));
@@ -162,8 +163,8 @@ class _VersionSelectorState extends State<VersionSelector> {
         });
       }
     } catch (e) {
-      if (mounted) {
-        setState(() => _isProcessing = false);
+      if (mounted) setState(() => _isProcessing = false);
+      if (context.mounted) {
         DuoSnackBarHelper.showError(
           context,
           Exception('Failed to restore account. Please check your token.'),
@@ -172,7 +173,7 @@ class _VersionSelectorState extends State<VersionSelector> {
     }
   }
 
-  void _selectVersion(AppVersion version) async {
+  void _selectVersion(AppVersion version, BuildContext context) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('active_app_version', version.name);
@@ -186,7 +187,7 @@ class _VersionSelectorState extends State<VersionSelector> {
       }
     } catch (e) {
       debugPrint('VersionSelector: Error in _selectVersion: $e');
-      if (mounted) {
+      if (context.mounted) {
         DuoSnackBarHelper.showError(
           context,
           Exception('Failed to save selection. Please try again.'),
@@ -206,54 +207,55 @@ class _VersionSelectorState extends State<VersionSelector> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: Scaffold(
-        backgroundColor: AppTheme.lightBackground,
-        appBar:
-            _state == SelectorState.enterRecoveryToken ||
-                _state == SelectorState.chooseVersion
-            ? AppBar(
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () {
-                    if (mounted) {
-                      setState(() => _state = SelectorState.chooseUserType);
-                    }
-                  },
-                ),
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-              )
-            : null,
-        body: SafeArea(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32.0),
-              child: _buildBody(),
+      home: Builder(builder: (context) {
+        return Scaffold(
+          backgroundColor: AppTheme.lightBackground,
+          appBar: _state == SelectorState.enterRecoveryToken ||
+                  _state == SelectorState.chooseVersion
+              ? AppBar(
+                  leading: IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () {
+                      if (mounted) {
+                        setState(() => _state = SelectorState.chooseUserType);
+                      }
+                    },
+                  ),
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                )
+              : null,
+          body: SafeArea(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                child: _buildBody(context),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      }),
     );
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(BuildContext context) {
     switch (_state) {
       case SelectorState.loading:
         return const CircularProgressIndicator();
       case SelectorState.chooseUserType:
-        return _buildChooseUserType();
+        return _buildChooseUserType(context);
       case SelectorState.chooseExistingMethod:
-        return _buildChooseExistingMethod();
+        return _buildChooseExistingMethod(context);
       case SelectorState.enterRecoveryToken:
-        return _buildRecoveryToken();
+        return _buildRecoveryToken(context);
       case SelectorState.chooseVersion:
-        return _buildChooseVersion();
+        return _buildChooseVersion(context);
       default:
         return const SizedBox.shrink();
     }
   }
 
-  Widget _buildChooseUserType() {
+  Widget _buildChooseUserType(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -280,7 +282,7 @@ class _VersionSelectorState extends State<VersionSelector> {
         const Spacer(),
         DuoButton(
           text: "I'm a New User",
-          onPressed: _selectNewUser,
+          onPressed: () => _selectNewUser(context),
           width: double.infinity,
           size: DuoButtonSize.large,
         ),
@@ -292,12 +294,25 @@ class _VersionSelectorState extends State<VersionSelector> {
           width: double.infinity,
           size: DuoButtonSize.large,
         ),
+        if (kDebugMode) ...[
+          const SizedBox(height: 16),
+          TextButton(
+            onPressed: () => _selectVersion(AppVersion.firebase, context),
+            child: const Text(
+              'Direct to Firebase (Debug Only)',
+              style: TextStyle(
+                color: AppTheme.textSecondary,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ],
         const SizedBox(height: 48),
       ],
     );
   }
 
-  Widget _buildChooseExistingMethod() {
+  Widget _buildChooseExistingMethod(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -317,7 +332,7 @@ class _VersionSelectorState extends State<VersionSelector> {
         const SizedBox(height: 48),
         DuoButton(
           text: 'Continue with Google',
-          onPressed: _loginWithGoogle,
+          onPressed: () => _loginWithGoogle(context),
           width: double.infinity,
           size: DuoButtonSize.large,
         ),
@@ -350,7 +365,7 @@ class _VersionSelectorState extends State<VersionSelector> {
     );
   }
 
-  Widget _buildRecoveryToken() {
+  Widget _buildRecoveryToken(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -376,12 +391,12 @@ class _VersionSelectorState extends State<VersionSelector> {
             border: OutlineInputBorder(),
           ),
           textInputAction: TextInputAction.done,
-          onSubmitted: (_) => _submitRecoveryToken(),
+          onSubmitted: (_) => _submitRecoveryToken(context),
         ),
         const SizedBox(height: 32),
         DuoButton(
           text: 'Restore Account',
-          onPressed: _isProcessing ? null : _submitRecoveryToken,
+          onPressed: _isProcessing ? null : () => _submitRecoveryToken(context),
           isLoading: _isProcessing,
           width: double.infinity,
           size: DuoButtonSize.large,
@@ -391,7 +406,7 @@ class _VersionSelectorState extends State<VersionSelector> {
     );
   }
 
-  Widget _buildChooseVersion() {
+  Widget _buildChooseVersion(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -411,14 +426,14 @@ class _VersionSelectorState extends State<VersionSelector> {
         const SizedBox(height: 48),
         DuoButton(
           text: 'Anonymous Chat (New)',
-          onPressed: () => _selectVersion(AppVersion.serverpod),
+          onPressed: () => _selectVersion(AppVersion.serverpod, context),
           width: double.infinity,
           size: DuoButtonSize.large,
         ),
         const SizedBox(height: 16),
         DuoButton(
           text: 'Old Version',
-          onPressed: () => _selectVersion(AppVersion.firebase),
+          onPressed: () => _selectVersion(AppVersion.firebase, context),
           variant: DuoButtonVariant.secondary,
           width: double.infinity,
           size: DuoButtonSize.large,

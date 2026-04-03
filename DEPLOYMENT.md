@@ -56,6 +56,13 @@ REDIS_PASSWORD=<redis-password-here>
 FIREBASE_PROJECT_ID=<your-project-id>
 FIREBASE_API_KEY=<your-api-key>
 
+# Cloudflare R2 Configuration
+CLOUDFLARE_ACCOUNT_ID=<your-account-id>
+CLOUDFLARE_PUBLIC_HOST=media.talktive.app
+# R2 credentials should be in passwords.yaml or env
+# storage-public-accessKey: <key>
+# storage-public-secretKey: <secret>
+
 # Security
 JWT_SECRET=<generate-strong-secret>
 SESSION_SECRET=<generate-strong-secret>

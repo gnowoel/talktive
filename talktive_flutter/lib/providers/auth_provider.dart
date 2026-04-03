@@ -67,7 +67,7 @@ class Auth extends _$Auth {
     if (!sessionManager.isAuthenticated) {
       // Check if user is already logged in with Firebase but not Serverpod.
       final firebaseUser = FirebaseAuth.instance.currentUser;
-      if (firebaseUser != null) {
+      if (firebaseUser != null && _hasGoogleProvider(firebaseUser)) {
         try {
           final idToken = await firebaseUser.getIdToken();
           if (idToken != null) {
@@ -84,6 +84,10 @@ class Auth extends _$Auth {
         } catch (e) {
           debugPrint('Auth: Auto-login failed: $e');
         }
+      } else if (firebaseUser != null) {
+        debugPrint(
+          'Auth: Skipping Serverpod auto-login for non-Google Firebase user.',
+        );
       }
       return const Unauthenticated();
     }
@@ -123,6 +127,10 @@ class Auth extends _$Auth {
     } catch (e) {
       return AuthFailure(e.toString());
     }
+  }
+
+  bool _hasGoogleProvider(User user) {
+    return user.providerData.any((info) => info.providerId == 'google.com');
   }
 
   /// Initiates Google Sign-In flow via Firebase

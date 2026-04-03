@@ -48,6 +48,7 @@ Target: **10,000 active users** on a single **2 vCPU / 4GB RAM VPS**.
 - **Persona Sync**: Resident `userName` is automatically synced to the `AuthUser` profile during creation/update.
 - **Legacy Migration**: When a Firebase user links Google for the first time and does not yet have a `Resident`, the server performs a one-time lookup of legacy profile data from Firebase (Firestore first, RTDB fallback). The migration is server-authoritative and may restore persona fields, moderator/admin role, and XP-derived level from legacy message count.
 - **Do Not Trust Client Migration Fields**: `xp`, `level`, and `role` must never be accepted from Flutter onboarding payloads. Those values are derived exclusively on the backend from trusted legacy data.
+- **Auto-Login Rule**: Serverpod auto-login should only happen for Firebase sessions that already include `google.com`. Legacy email / anonymous Firebase sessions must pass through the Google-linking UX before entering the new onboarding flow.
 
 ---
 

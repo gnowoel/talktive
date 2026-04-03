@@ -50,11 +50,15 @@ class MediaService {
       debugPrint('MediaService: Requesting upload description for $folder...');
       final client = ref.read(clientProvider);
 
+      // Try to determine the extension from the file name if not provided.
+      final extension = fileExtension ??
+          (file.name.contains('.') ? file.name.split('.').last : null);
+
       // 1. Get authorized upload description from Serverpod
       final uploadDescriptionJson = await client.media.getUploadDescription(
         folder,
         sizeInBytes,
-        fileExtension,
+        extension,
       );
 
       if (uploadDescriptionJson == null) {
@@ -100,7 +104,7 @@ class MediaService {
               _contentTypeForFile(
                 file,
                 folder,
-                fileExtension: fileExtension,
+                fileExtension: extension,
                 contentTypeOverride: contentTypeOverride,
               )),
         };
@@ -185,37 +189,19 @@ class MediaService {
     final uri = Uri.tryParse(uploadUrl);
     if (uri == null) return '';
 
+    // If it's the Serverpod database storage, we need to preserve the query params
     if (uri.path == '/serverpod_cloud_storage') {
       return uri
           .replace(queryParameters: {'method': 'file', 'path': uploadPath})
           .toString();
     }
 
-    final normalizedUploadPath = uploadPath.startsWith('/')
-        ? uploadPath.substring(1)
-        : uploadPath;
-    final currentPath = uri.path;
-    final currentSegments = currentPath.split('/').where((s) => s.isNotEmpty);
-    final uploadSegments = normalizedUploadPath
-        .split('/')
-        .where((s) => s.isNotEmpty);
-
-    final resolvedPath = currentPath.isEmpty || currentPath == '/'
-        ? '/$normalizedUploadPath'
-        : currentSegments.join('/') == uploadSegments.join('/')
-        ? '/${currentSegments.join('/')}'
-        : currentPath.endsWith('/')
-        ? '$currentPath$normalizedUploadPath'
-        : '$currentPath/$normalizedUploadPath';
-
-    return Uri(
-      scheme: uri.scheme,
-      userInfo: uri.userInfo,
-      host: uri.host,
-      port: uri.hasPort ? uri.port : null,
-      path: resolvedPath,
-    ).toString();
+    // For S3/R2 direct upload URLs, the signed URL host contains the bucket and account.
+    // If the server didn't provide a publicUrl, we fall back to stripping 
+    // query parameters from the upload URI.
+    return uri.replace(queryParameters: {}).toString();
   }
+
 
   String _contentTypeForFile(
     XFile file,

@@ -1,14 +1,9 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../../config/app_config.dart';
 import '../services/ad_service/simple_ad_manager.dart';
 import '../services/avatar.dart';
 import '../services/legacy_messaging.dart';
@@ -18,10 +13,9 @@ import '../services/settings.dart' as my;
 import '../theme.dart';
 
 class Initialize extends StatefulWidget {
-  final bool useEmulators;
   final Widget child;
 
-  const Initialize({super.key, this.useEmulators = true, required this.child});
+  const Initialize({super.key, required this.child});
 
   @override
   State<Initialize> createState() => _InitializeState();
@@ -39,12 +33,6 @@ class _InitializeState extends State<Initialize> {
 
   Future<void> _initializeApp() async {
     try {
-      if (kDebugMode && widget.useEmulators) {
-        final host = AppConfig.instance.firebaseEmulatorHost;
-
-        await _initializeEmulators(host);
-      }
-
       await _initializeServices();
 
       if (mounted) {
@@ -52,20 +40,6 @@ class _InitializeState extends State<Initialize> {
       }
     } catch (e) {
       setState(() => _error = e.toString());
-    }
-  }
-
-  Future<void> _initializeEmulators(String host) async {
-    try {
-      debugPrint('Initialize: Using Firebase Emulators at $host');
-      FirebaseDatabase.instance.useDatabaseEmulator(host, 9000);
-      FirebaseFirestore.instance.useFirestoreEmulator(host, 8088);
-      await FirebaseAuth.instance.useAuthEmulator(host, 9099);
-      await FirebaseStorage.instance.useStorageEmulator(host, 9199);
-      FirebaseFunctions.instance.useFunctionsEmulator(host, 5001);
-      debugPrint('Initialize: Firebase Emulators initialized successfully');
-    } catch (e) {
-      debugPrint('Initialize: Error setting up emulators: $e');
     }
   }
 

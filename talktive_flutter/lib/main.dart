@@ -1,4 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -66,6 +71,22 @@ Future<void> main() async {
     }
     // Android can arrive here if the default app was initialized natively.
     Firebase.app();
+  }
+
+  // Initialize Firebase Emulators if configured
+  if (kDebugMode && AppConfig.instance.useFirebaseEmulators) {
+    final host = AppConfig.instance.firebaseEmulatorHost;
+    debugPrint('Main: Using Firebase Emulators at $host');
+    try {
+      FirebaseDatabase.instance.useDatabaseEmulator(host, 9000);
+      FirebaseFirestore.instance.useFirestoreEmulator(host, 8088);
+      await FirebaseAuth.instance.useAuthEmulator(host, 9099);
+      await FirebaseStorage.instance.useStorageEmulator(host, 9199);
+      FirebaseFunctions.instance.useFunctionsEmulator(host, 5001);
+      debugPrint('Main: Firebase Emulators initialized successfully');
+    } catch (e) {
+      debugPrint('Main: Error initializing emulators: $e');
+    }
   }
 
   // Initialize Serverpod Client

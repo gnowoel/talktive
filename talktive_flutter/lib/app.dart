@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'config/app_config.dart';
 import 'services/edge_to_edge_manager.dart';
 import 'package:go_router/go_router.dart';
 
@@ -50,7 +49,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Initialize(
-      useEmulators: AppConfig.instance.useFirebaseEmulators,
       child: Providers(
         child: VerifyUser(
           child: WhatsNew(

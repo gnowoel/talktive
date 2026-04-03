@@ -1,5 +1,25 @@
 # Talktive Development Changelog
 
+## April 4, 2026 - R2 Storage & Legacy Migration Bug Fixes 🐛🔧☁️
+
+### Cloudflare R2 Storage Fixes
+
+- **Staging Environment Parity**: Added the missing `storage:` block to `config/staging.yaml`. Without it, `R2CloudStorage` (registered for all non-development run modes) could not authenticate and every upload in staging would fail.
+- **Single-Responsibility Avatar Cleanup**: Removed redundant `FileStorageService.deleteMedia` calls from both `ResidentEndpoint.updateResident` and `ResidentEndpoint.updateCustomAvatar`. `ResidentService.updateResident` already handles old-avatar deletion internally; calling it twice from the endpoint caused a spurious second round-trip to R2 and misleading log warnings.
+
+### Legacy Migration Fixes
+
+- **Project ID Read Caching**: `LegacyMigrationService._projectId` previously re-read and JSON-parsed `config/firebase_service_account_key.json` on every invocation. Combined with `_authorizedClient` doing the same, a single migration attempt opened the file three times. Added `_cachedProjectId` so the file is opened exactly once per server lifetime.
+- **`hasUsefulData` Language Guard**: Tightened the migration trigger so that a resident with only an unsupported or empty Firebase `languageCode` (which normalises to the default `['en']`) does not falsely trip the migration flow. Languages are now counted as meaningful only if at least one non-English code is present.
+- **Google Photo URL Avatar Slot**: Firebase `photoURL` is typically a `https://lh3.googleusercontent.com/…` URL, not an emoji. The `profile_setup_screen.dart` initialisation now detects the `://` scheme and routes the value to `_customAvatarUrl` (the photo upload slot) rather than `_selectedAvatar` (the emoji picker slot), preventing a raw URL from appearing where an emoji is expected.
+
+### Test Coverage
+
+- **Updated `legacy_migration_service_test.dart`**: Fixed the 'falls back to English' test (now correctly expects `null` for a solo unsupported language code), and added 5 new cases: known non-English language triggers migration, all-null/blank fields return null, Google photo URL stored verbatim in avatar field, `zh-CN` alias handling, and `nb` → `no` alias handling.
+- **105/105** unit tests passing.
+
+---
+
 ## April 3, 2026 - Secure Legacy Google-Link Migration Hardening 🔐🔄
 
 ### Migration Security & Correctness

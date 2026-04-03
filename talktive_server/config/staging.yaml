@@ -60,6 +60,15 @@ sessionLogs:
 # consoleEnabled: true
 # consoleLogFormat: json # Defaults to "json", options are "text" or "json"
 
+# Configuration for Cloud Storage.
+storage:
+  - id: public
+    type: s3
+    public: true
+    region: auto
+    bucket: talktive-media
+    endpoint: https://<ACCOUNT_ID>.r2.cloudflarestorage.com
+
 # futureCallExecutionEnabled: true # Defaults to true
 
 #futureCall:

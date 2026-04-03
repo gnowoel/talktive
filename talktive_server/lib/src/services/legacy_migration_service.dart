@@ -70,6 +70,9 @@ class LegacyMigrationService {
     'https://www.googleapis.com/auth/firebase.database',
   ];
 
+  /// Cached Firebase project ID — read once from the service account file.
+  static String? _cachedProjectId;
+
   static Future<protocol.LegacyMigrationData?> fetchForUser(
     Session session,
     String userId,
@@ -138,7 +141,8 @@ class LegacyMigrationService {
         migration.bio != null ||
         migration.avatar != null ||
         migration.gender != null ||
-        (migration.languages?.isNotEmpty ?? false) ||
+        // Only count languages if user had a non-English language preference.
+        (migration.languages?.any((l) => l != 'en') ?? false) ||
         migration.xp != null ||
         migration.role != null;
 
@@ -245,6 +249,7 @@ class LegacyMigrationService {
   }
 
   static String get _projectId {
+    if (_cachedProjectId != null) return _cachedProjectId!;
     final serviceAccount =
         jsonDecode(
               File(
@@ -252,7 +257,8 @@ class LegacyMigrationService {
               ).readAsStringSync(),
             )
             as Map<String, dynamic>;
-    return serviceAccount['project_id'] as String;
+    _cachedProjectId = serviceAccount['project_id'] as String;
+    return _cachedProjectId!;
   }
 
   static String? _cleanString(dynamic value) {

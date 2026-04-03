@@ -3,7 +3,7 @@ import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import '../services/input_validation_service.dart';
 import '../services/legacy_migration_service.dart';
 import '../services/resident_service.dart';
-import '../services/file_storage_service.dart';
+
 import '../utils/endpoint_auth_mixin.dart';
 
 class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
@@ -154,17 +154,10 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
         code: 'PREMIUM_REQUIRED',
       );
     }
-    final oldAvatarUrl = resident.customAvatarUrl;
     resident.customAvatarUrl = customAvatarUrl;
 
-    final updated = await ResidentService.updateResident(session, resident);
-
-    // Clean up old avatar file if it's different and exists
-    if (customAvatarUrl != oldAvatarUrl && oldAvatarUrl != null) {
-      await FileStorageService.deleteMedia(session, oldAvatarUrl);
-    }
-
-    return updated;
+    // ResidentService.updateResident handles old avatar cleanup internally.
+    return await ResidentService.updateResident(session, resident);
   }
 
   /// Updates only the custom avatar URL (standalone method for overlay button).
@@ -191,16 +184,10 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
       );
     }
 
-    final oldAvatarUrl = resident.customAvatarUrl;
     resident.customAvatarUrl = customAvatarUrl;
 
-    final updated = await ResidentService.updateResident(session, resident);
-
-    if (customAvatarUrl != oldAvatarUrl && oldAvatarUrl != null) {
-      await FileStorageService.deleteMedia(session, oldAvatarUrl);
-    }
-
-    return updated;
+    // ResidentService.updateResident handles old avatar cleanup internally.
+    return await ResidentService.updateResident(session, resident);
   }
 
   /// Get a user's profile view (with stats)

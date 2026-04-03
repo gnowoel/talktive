@@ -89,6 +89,8 @@ class MediaService {
       debugPrint('MediaService: Starting direct upload to storage: $uploadUrl');
 
       final uploadType = description['type'] as String? ?? 'binary';
+      description['type'] = uploadType;
+
       if (uploadType == 'binary') {
         description['headers'] = {
           ...(description['headers'] as Map? ?? {}).cast<String, String>(),

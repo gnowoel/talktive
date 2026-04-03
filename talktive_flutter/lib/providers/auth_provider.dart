@@ -1,14 +1,17 @@
 import 'dart:async' show StreamSubscription, unawaited;
+import 'dart:math';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/foundation.dart';
+import 'package:talktive_client/talktive_client.dart';
 import '../serverpod_client.dart';
 
 part 'auth_provider.g.dart';
 
-enum AuthStatus { authenticated, needsProfile, cancelled, error }
+enum AuthStatus { authenticated, needsProfile, migrating, cancelled, error }
 
 sealed class TalktiveAuthState {
   const TalktiveAuthState();
@@ -25,7 +28,12 @@ class Authenticated extends TalktiveAuthState {
 }
 
 class NeedsProfile extends TalktiveAuthState {
-  const NeedsProfile();
+  final Map<String, dynamic>? migrationData;
+  const NeedsProfile({this.migrationData});
+}
+
+class Migrating extends TalktiveAuthState {
+  const Migrating();
 }
 
 class Unauthenticated extends TalktiveAuthState {
@@ -108,6 +116,12 @@ class Auth extends _$Auth {
           userName: userName,
         );
       } else {
+        // If we need profile, check for legacy data to migrate
+        final firebaseUser = FirebaseAuth.instance.currentUser;
+        if (firebaseUser != null) {
+          final migrationData = await _migrateLegacyUserData(firebaseUser.uid);
+          return NeedsProfile(migrationData: migrationData);
+        }
         return const NeedsProfile();
       }
     } catch (e) {
@@ -258,7 +272,9 @@ class Auth extends _$Auth {
     if (newState is Authenticated) {
       return AuthStatus.authenticated;
     } else if (newState is NeedsProfile) {
-      return AuthStatus.needsProfile;
+      return newState.migrationData != null
+          ? AuthStatus.migrating
+          : AuthStatus.needsProfile;
     } else {
       return AuthStatus.error;
     }
@@ -276,6 +292,9 @@ class Auth extends _$Auth {
     String mood = '😊',
     String? ageRange,
     String? customAvatarUrl,
+    int? xp,
+    int? level,
+    ResidentRole? role,
   }) async {
     state = const AsyncValue.loading();
 
@@ -291,6 +310,9 @@ class Auth extends _$Auth {
         interests: interests,
         languages: languages,
         customAvatarUrl: customAvatarUrl,
+        xp: xp,
+        level: level,
+        role: role,
       );
 
       final prefs = await SharedPreferences.getInstance();
@@ -306,6 +328,63 @@ class Auth extends _$Auth {
       debugPrint('Setup error: $e');
       state = AsyncValue.data(AuthFailure(e.toString()));
       return false;
+    }
+  }
+
+  Future<Map<String, dynamic>?> _migrateLegacyUserData(String userId) async {
+    try {
+      debugPrint('Auth: Attempting to migrate data for $userId...');
+      final doc =
+          await FirebaseFirestore.instance.collection('users').doc(userId).get();
+
+      if (!doc.exists) {
+        debugPrint('Auth: No legacy user data found.');
+        return null;
+      }
+
+      final data = doc.data()!;
+      final Map<String, dynamic> migration = {};
+
+      // 1. Basic Profile
+      if (data['displayName'] != null) migration['name'] = data['displayName'];
+      if (data['description'] != null) migration['bio'] = data['description'];
+      if (data['photoURL'] != null) migration['avatar'] = data['photoURL'];
+      if (data['gender'] != null) migration['gender'] = data['gender'];
+
+      // 2. Language conversion
+      if (data['languageCode'] != null) {
+        final code = data['languageCode'] as String;
+        // Ensure 'en' is present and we use valid codes
+        final languages = {'en', code.toLowerCase()};
+        migration['languages'] = languages.toList();
+      }
+
+      // 3. Message count -> XP & Level
+      if (data['messageCount'] != null) {
+        final count = (data['messageCount'] as num).toInt();
+        // Formula from GamificationService: floor(sqrt(xp / 50)) + 1
+        // XP awarded per message: 10
+        final xp = count * 10;
+        migration['xp'] = xp;
+        migration['level'] = (sqrt(xp / 50.0)).floor() + 1;
+        if (migration['level'] > 50) migration['level'] = 50;
+      }
+
+      // 4. Role mapping
+      if (data['role'] != null) {
+        final role = data['role'] as String;
+        if (role == 'admin') {
+          migration['role'] = ResidentRole.admin;
+        } else if (role == 'moderator') {
+          migration['role'] = ResidentRole.moderator;
+        }
+      }
+
+      debugPrint('Auth: Migration data prepared: $migration');
+      return migration;
+    } catch (e) {
+      debugPrint('Auth: Migration failed: $e');
+      return null;
     }
   }
 

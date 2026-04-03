@@ -51,9 +51,11 @@ GoRouter router(Ref ref) {
           final extra = state.extra as Map<String, dynamic>?;
           final resident = extra?['resident'] as Resident?;
           final userName = extra?['userName'] as String?;
+          final migrationData = extra?['migrationData'] as Map<String, dynamic>?;
           return ProfileSetupScreen(
             initialResident: resident,
             initialName: userName,
+            migrationData: migrationData,
           );
         },
       ),

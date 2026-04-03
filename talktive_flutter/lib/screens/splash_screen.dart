@@ -96,7 +96,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     if (authState is Authenticated) {
       context.go('/'); // Main/Plaza
     } else if (authState is NeedsProfile) {
-      context.go('/profile-setup');
+      context.go(
+        '/profile-setup',
+        extra: {
+          'migrationData': authState.migrationData,
+        },
+      );
     } else {
       context.go('/welcome');
     }

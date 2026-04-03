@@ -137,7 +137,19 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
           context.go('/');
           break;
         case AuthStatus.needsProfile:
-          context.go('/profile-setup');
+        case AuthStatus.migrating:
+          final authState = ref.read(authProvider).value;
+          Map<String, dynamic>? migrationData;
+          if (authState is NeedsProfile) {
+            migrationData = authState.migrationData;
+          }
+
+          context.push(
+            '/profile-setup',
+            extra: {
+              'migrationData': migrationData,
+            },
+          );
           break;
         case AuthStatus.cancelled:
           // Just stay on the screen

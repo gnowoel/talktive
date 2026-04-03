@@ -22,8 +22,14 @@ import '../../helpers/resident_ext.dart';
 class ProfileSetupScreen extends ConsumerStatefulWidget {
   final Resident? initialResident;
   final String? initialName;
+  final Map<String, dynamic>? migrationData;
 
-  const ProfileSetupScreen({super.key, this.initialResident, this.initialName});
+  const ProfileSetupScreen({
+    super.key,
+    this.initialResident,
+    this.initialName,
+    this.migrationData,
+  });
 
   @override
   ConsumerState<ProfileSetupScreen> createState() => _ProfileSetupScreenState();
@@ -48,6 +54,11 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
   String? _customAvatarUrl;
   bool _isLoading = false;
   bool _isUploadingCustomAvatar = false;
+
+  // Migration fields
+  int? _migratedXp;
+  int? _migratedLevel;
+  ResidentRole? _migratedRole;
 
   final List<String> _popularAvatars = [
     '😊',
@@ -146,6 +157,18 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
       } else if (widget.initialName != null) {
         _nameController.text = widget.initialName!;
       }
+    } else if (widget.migrationData != null) {
+      final data = widget.migrationData!;
+      _nameController.text = data['name'] ?? '';
+      _bioController.text = data['bio'] ?? '';
+      _selectedAvatar = data['avatar'] ?? '😊';
+      _selectedGender = data['gender'] ?? 'prefer-not-to-say';
+      if (data['languages'] != null) {
+        _selectedLanguages = List<String>.from(data['languages']);
+      }
+      _migratedXp = data['xp'];
+      _migratedLevel = data['level'];
+      _migratedRole = data['role'];
     }
   }
 
@@ -276,6 +299,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               mood: _selectedMood,
               ageRange: _selectedAgeRange,
               customAvatarUrl: _customAvatarUrl,
+              xp: _migratedXp,
+              level: _migratedLevel,
+              role: _migratedRole,
             );
       }
 

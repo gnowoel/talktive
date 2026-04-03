@@ -186,6 +186,31 @@ void main() {
     });
 
     group('Profile Data', () {
+      test(
+        'initializeResident ignores privileged client-provided migration fields',
+        () async {
+          final authUserId = '0c3d4e5f-6a7b-4890-8c1d-2e3f4a5b6c7d';
+
+          final resident = await endpoints.resident.initializeResident(
+            sessionBuilder.copyWith(
+              authentication: AuthenticationOverride.authenticationInfo(
+                authUserId,
+                {},
+              ),
+            ),
+            name: 'Secure User',
+            avatar: '🙂',
+            gender: 'male',
+            country: 'US',
+            bio: 'Testing privileged fields are ignored',
+          );
+
+          expect(resident.xp, 0);
+          expect(resident.level, 1);
+          expect(resident.role, ResidentRole.user);
+        },
+      );
+
       test('supports various gender values', () async {
         final session = sessionBuilder.build();
 

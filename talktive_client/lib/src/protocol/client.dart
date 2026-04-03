@@ -40,7 +40,8 @@ import 'package:talktive_client/src/protocol/user_notification.dart' as _i22;
 import 'package:talktive_client/src/protocol/private_chat.dart' as _i23;
 import 'package:talktive_client/src/protocol/private_chat_with_profile.dart'
     as _i24;
-import 'package:talktive_client/src/protocol/resident_role.dart' as _i25;
+import 'package:talktive_client/src/protocol/legacy_migration_data.dart'
+    as _i25;
 import 'package:talktive_client/src/protocol/user_profile_view.dart' as _i26;
 import 'package:talktive_client/src/protocol/user_summary.dart' as _i27;
 import 'package:talktive_client/src/protocol/discovery_feed.dart' as _i28;
@@ -1276,6 +1277,14 @@ class EndpointResident extends _i2.EndpointRef {
         {},
       );
 
+  /// Returns sanitized legacy profile data for the authenticated user, if any.
+  _i3.Future<_i25.LegacyMigrationData?> getLegacyMigrationData() =>
+      caller.callServerEndpoint<_i25.LegacyMigrationData?>(
+        'resident',
+        'getLegacyMigrationData',
+        {},
+      );
+
   /// Fetches a Resident profile by their user ID.
   _i3.Future<_i11.Resident?> getResidentById(String userId) =>
       caller.callServerEndpoint<_i11.Resident?>(
@@ -1296,9 +1305,6 @@ class EndpointResident extends _i2.EndpointRef {
     List<String>? languages,
     String? mood,
     String? customAvatarUrl,
-    int? xp,
-    int? level,
-    _i25.ResidentRole? role,
   }) => caller.callServerEndpoint<_i11.Resident>(
     'resident',
     'initializeResident',
@@ -1313,9 +1319,6 @@ class EndpointResident extends _i2.EndpointRef {
       'languages': languages,
       'mood': mood,
       'customAvatarUrl': customAvatarUrl,
-      'xp': xp,
-      'level': level,
-      'role': role,
     },
   );
 

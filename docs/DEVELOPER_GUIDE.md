@@ -46,6 +46,8 @@ Target: **10,000 active users** on a single **2 vCPU / 4GB RAM VPS**.
 - **Provider**: Firebase Auth (Google) linked to Serverpod Auth Core.
 - **User IDs**: Strictly **UUID-based** (`UuidValue`). Never use legacy integer IDs.
 - **Persona Sync**: Resident `userName` is automatically synced to the `AuthUser` profile during creation/update.
+- **Legacy Migration**: When a Firebase user links Google for the first time and does not yet have a `Resident`, the server performs a one-time lookup of legacy profile data from Firebase (Firestore first, RTDB fallback). The migration is server-authoritative and may restore persona fields, moderator/admin role, and XP-derived level from legacy message count.
+- **Do Not Trust Client Migration Fields**: `xp`, `level`, and `role` must never be accepted from Flutter onboarding payloads. Those values are derived exclusively on the backend from trusted legacy data.
 
 ---
 
@@ -114,6 +116,7 @@ Every new feature or bugfix should follow the **Red-Green-Refactor** cycle:
 
 - **Google Sign-In Errors**: Ensure you use `localhost` (not `127.0.0.1`) and port `8083`.
 - **Account Recognition**: If an existing Google user is not recognized after clearing site data, use the **"I'm an Existing User" -> "Continue with Google"** flow. The system automatically handles cases where a Google account is already linked to a different Talktive identity by signing you into the existing account.
+- **Migration Review**: If onboarding prefill appears incomplete for a legacy user, verify the legacy record under Firebase `users/{uid}` and confirm language / gender values use the expected legacy formats before changing conversion rules.
 - **Debug Shortcuts**: In `kDebugMode`, the `VersionSelector` provides a **"Direct to Firebase (Debug Only)"** link to bypass version selection and account restoration steps during development.
 - **Database Mismatch**: If you see `DatabaseQueryException`, run `serverpod generate` and create a new migration.
 - **Redis Connection**: Backend logic gracefully degrades to DB-only if Redis is unavailable, but performance will suffer.

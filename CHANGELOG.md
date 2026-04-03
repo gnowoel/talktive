@@ -1,5 +1,17 @@
 # Talktive Development Changelog
 
+## April 3, 2026 - Secure Legacy Google-Link Migration Hardening 🔐🔄
+
+### Migration Security & Correctness
+- **Server-Authoritative Migration**: Moved legacy profile lookup out of Flutter and into the backend so first-link migration is derived from trusted Firebase data instead of client-provided onboarding values.
+- **Privilege Escalation Fix**: Closed a security issue where `xp`, `level`, and `role` could be supplied by the client during resident initialization. Those values are now resolved only from trusted legacy records on the server.
+- **Legacy Source Fallback**: Added Firestore-first lookup with Realtime Database fallback to handle users whose old records have not fully synced.
+- **Value Normalization**: Standardized legacy gender and language conversion and kept English in the migrated language set.
+
+### UX & Regression Coverage
+- **Onboarding Handoff Fix**: Preserved `migrationData` when navigating from the welcome flow into profile setup.
+- **Targeted Tests**: Added conversion tests for legacy payloads and an integration test proving privileged client migration fields are ignored.
+
 ## April 2, 2026 - Unified Channel & Membership Refactoring (Phase 9.0) 🏗️🎭🔄
 
 ### Centralized Channel Management

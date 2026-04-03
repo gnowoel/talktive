@@ -55,11 +55,6 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
   bool _isLoading = false;
   bool _isUploadingCustomAvatar = false;
 
-  // Migration fields
-  int? _migratedXp;
-  int? _migratedLevel;
-  ResidentRole? _migratedRole;
-
   final List<String> _popularAvatars = [
     '😊',
     '😎',
@@ -166,9 +161,6 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
       if (data['languages'] != null) {
         _selectedLanguages = List<String>.from(data['languages']);
       }
-      _migratedXp = data['xp'];
-      _migratedLevel = data['level'];
-      _migratedRole = data['role'];
     }
   }
 
@@ -299,9 +291,6 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               mood: _selectedMood,
               ageRange: _selectedAgeRange,
               customAvatarUrl: _customAvatarUrl,
-              xp: _migratedXp,
-              level: _migratedLevel,
-              role: _migratedRole,
             );
       }
 

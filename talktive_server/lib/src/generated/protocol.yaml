@@ -105,6 +105,7 @@ privateChat:
   - leaveChat:
 resident:
   - getResident:
+  - getLegacyMigrationData:
   - getResidentById:
   - initializeResident:
   - updateResident:

@@ -41,7 +41,8 @@ import 'package:talktive_server/src/generated/user_notification.dart' as _i23;
 import 'package:talktive_server/src/generated/private_chat.dart' as _i24;
 import 'package:talktive_server/src/generated/private_chat_with_profile.dart'
     as _i25;
-import 'package:talktive_server/src/generated/resident_role.dart' as _i26;
+import 'package:talktive_server/src/generated/legacy_migration_data.dart'
+    as _i26;
 import 'package:talktive_server/src/generated/user_profile_view.dart' as _i27;
 import 'package:talktive_server/src/generated/user_summary.dart' as _i28;
 import 'package:talktive_server/src/generated/discovery_feed.dart' as _i29;
@@ -3516,6 +3517,36 @@ class _ResidentEndpoint {
     });
   }
 
+  _i3.Future<_i26.LegacyMigrationData?> getLegacyMigrationData(
+    _i1.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'resident',
+            method: 'getLegacyMigrationData',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'resident',
+          methodName: 'getLegacyMigrationData',
+          parameters: _i1.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i26.LegacyMigrationData?>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
   _i3.Future<_i11.Resident?> getResidentById(
     _i1.TestSessionBuilder sessionBuilder,
     String userId,
@@ -3559,9 +3590,6 @@ class _ResidentEndpoint {
     List<String>? languages,
     String? mood,
     String? customAvatarUrl,
-    int? xp,
-    int? level,
-    _i26.ResidentRole? role,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -3585,9 +3613,6 @@ class _ResidentEndpoint {
             'languages': languages,
             'mood': mood,
             'customAvatarUrl': customAvatarUrl,
-            'xp': xp,
-            'level': level,
-            'role': role,
           }),
           serializationManager: _serializationManager,
         );

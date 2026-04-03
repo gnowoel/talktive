@@ -1,0 +1,10 @@
+class: LegacyMigrationData
+fields:
+  name: String?
+  bio: String?
+  avatar: String?
+  gender: String?
+  languages: List<String>?
+  xp: int?
+  level: int?
+  role: ResidentRole?

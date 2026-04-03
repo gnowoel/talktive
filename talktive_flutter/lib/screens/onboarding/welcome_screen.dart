@@ -146,9 +146,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
 
           context.push(
             '/profile-setup',
-            extra: {
-              'migrationData': migrationData,
-            },
+            extra: {'migrationData': migrationData},
           );
           break;
         case AuthStatus.cancelled:
@@ -177,7 +175,10 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
       if (authState is Authenticated) {
         context.go('/');
       } else if (authState is NeedsProfile) {
-        context.go('/profile-setup');
+        context.go(
+          '/profile-setup',
+          extra: {'migrationData': authState.migrationData},
+        );
       }
     });
 

@@ -1,6 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import '../services/input_validation_service.dart';
+import '../services/legacy_migration_service.dart';
 import '../services/resident_service.dart';
 import '../services/file_storage_service.dart';
 import '../utils/endpoint_auth_mixin.dart';
@@ -14,6 +15,15 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
 
     final senderUuid = UuidValue.fromString(auth.userIdentifier);
     return await ResidentService.getActiveResident(session, senderUuid);
+  }
+
+  /// Returns sanitized legacy profile data for the authenticated user, if any.
+  Future<protocol.LegacyMigrationData?> getLegacyMigrationData(
+    Session session,
+  ) async {
+    final auth = session.authenticated;
+    if (auth == null) return null;
+    return LegacyMigrationService.fetchForUser(session, auth.userIdentifier);
   }
 
   /// Fetches a Resident profile by their user ID.
@@ -43,9 +53,6 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     List<String>? languages,
     String? mood,
     String? customAvatarUrl,
-    int? xp,
-    int? level,
-    protocol.ResidentRole? role,
   }) async {
     // Input validation
     InputValidationService.validateName(name).throwIfInvalid();
@@ -71,6 +78,11 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
       return resident;
     }
 
+    final legacyMigration = await LegacyMigrationService.fetchForUser(
+      session,
+      senderUuid.uuid,
+    );
+
     // 2. Create Resident via service
     return await ResidentService.createResident(
       session,
@@ -85,9 +97,9 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
       languages: languages,
       mood: mood,
       customAvatarUrl: customAvatarUrl,
-      xp: xp ?? 0,
-      level: level ?? 1,
-      role: role ?? protocol.ResidentRole.user,
+      xp: legacyMigration?.xp ?? 0,
+      level: legacyMigration?.level ?? 1,
+      role: legacyMigration?.role ?? protocol.ResidentRole.user,
     );
   }
 

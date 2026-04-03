@@ -51,7 +51,8 @@ class MediaService {
       final client = ref.read(clientProvider);
 
       // Try to determine the extension from the file name if not provided.
-      final extension = fileExtension ??
+      final extension =
+          fileExtension ??
           (file.name.contains('.') ? file.name.split('.').last : null);
 
       // 1. Get authorized upload description from Serverpod
@@ -196,12 +197,31 @@ class MediaService {
           .toString();
     }
 
-    // For S3/R2 direct upload URLs, the signed URL host contains the bucket and account.
-    // If the server didn't provide a publicUrl, we fall back to stripping 
-    // query parameters from the upload URI.
-    return uri.replace(queryParameters: {}).toString();
-  }
+    final normalizedPath = uploadPath.startsWith('/')
+        ? uploadPath
+        : '/$uploadPath';
 
+    String publicPath;
+    if (uri.path == '/' || uri.path.isEmpty) {
+      publicPath = normalizedPath;
+    } else if (uri.path.endsWith('/')) {
+      publicPath =
+          '${uri.path.substring(0, uri.path.length - 1)}$normalizedPath';
+    } else if (uri.path == normalizedPath ||
+        uri.path.endsWith(normalizedPath)) {
+      publicPath = uri.path;
+    } else {
+      publicPath = '${uri.path}$normalizedPath';
+    }
+
+    return Uri(
+      scheme: uri.scheme,
+      userInfo: uri.userInfo,
+      host: uri.host,
+      port: uri.hasPort ? uri.port : null,
+      path: publicPath,
+    ).toString();
+  }
 
   String _contentTypeForFile(
     XFile file,

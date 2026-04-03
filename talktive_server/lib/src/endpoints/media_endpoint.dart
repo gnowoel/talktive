@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:serverpod/serverpod.dart';
 import '../utils/endpoint_auth_mixin.dart';
 import '../services/resident_service.dart';
@@ -51,8 +52,8 @@ class MediaEndpoint extends Endpoint with EndpointAuthMixin {
     }
 
     // 4. Generate unique path
-    final fileName = Uuid().v4();
     final extension = _resolveFileExtension(path, fileExtension);
+    final fileName = Uuid().v4();
     final fullPath = '$path/$fileName.$extension';
 
     // 5. Create description
@@ -70,7 +71,8 @@ class MediaEndpoint extends Endpoint with EndpointAuthMixin {
       final map = jsonDecode(uploadDescription) as Map<String, dynamic>;
       map['path'] = fullPath;
 
-      if ((map['publicUrl'] as String?)?.isNotEmpty != true) {
+      // If storage provider didn't return a public URL, infer it.
+      if ((map['publicUrl'] as String?)?.isEmpty ?? true) {
         final publicUri =
             await session.storage.getPublicUrl(
               storageId: 'public',
@@ -92,15 +94,25 @@ class MediaEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   String _resolveFileExtension(String path, String? requestedExtension) {
+    // 1. Determine a safe default based on the path
     final defaultExtension = path == 'voices' ? 'm4a' : 'jpg';
-    final normalizedExtension = (requestedExtension ?? defaultExtension)
+
+    // 2. Normalize and validate requested extension
+    var ext = (requestedExtension ?? defaultExtension)
         .trim()
-        .toLowerCase();
+        .toLowerCase()
+        .replaceAll('.', '');
+
+    // 3. Handle common alias
+    if (ext == 'jpeg') ext = 'jpg';
+
+    // 4. Validate against allowed extensions for the given destination
     InputValidationService.validateUploadExtension(
       path,
-      normalizedExtension,
+      ext,
     ).throwIfInvalid();
-    return normalizedExtension == 'jpeg' ? 'jpg' : normalizedExtension;
+
+    return ext;
   }
 
   /// Verifies if a file exists in storage.
@@ -115,9 +127,11 @@ class MediaEndpoint extends Endpoint with EndpointAuthMixin {
     required String storagePath,
     required String? uploadUrl,
   }) {
-    final uploadUri = uploadUrl == null ? null : Uri.tryParse(uploadUrl);
+    if (uploadUrl == null) return null;
+    final uploadUri = Uri.tryParse(uploadUrl);
     if (uploadUri == null) return null;
 
+    // Handle Serverpod Database Storage (Local Development)
     if (uploadUri.path == '/serverpod_cloud_storage') {
       return uploadUri.replace(
         queryParameters: {
@@ -127,29 +141,22 @@ class MediaEndpoint extends Endpoint with EndpointAuthMixin {
       );
     }
 
-    final normalizedStoragePath = storagePath.startsWith('/')
-        ? storagePath.substring(1)
-        : storagePath;
-    final currentPath = uploadUri.path;
-    final currentSegments = currentPath.split('/').where((s) => s.isNotEmpty);
-    final storageSegments = normalizedStoragePath
-        .split('/')
-        .where((s) => s.isNotEmpty);
+    // Handle Cloudflare R2 (S3-compatible)
+    // R2 direct upload URLs are typically: https://<bucket>.<account>.r2.cloudflarestorage.com/<path>?<auth_params>
+    // We want to return the public URL which might be a custom domain or the public R2 domain.
+    
+    // Check if we should use a custom public host from environment or default to the upload host.
+    final publicHost = Platform.environment['CLOUDFLARE_PUBLIC_HOST'];
+    
+    if (publicHost != null && publicHost.isNotEmpty) {
+      return Uri(
+        scheme: 'https',
+        host: publicHost,
+        path: storagePath.startsWith('/') ? storagePath : '/$storagePath',
+      );
+    }
 
-    final targetPath = currentPath.isEmpty || currentPath == '/'
-        ? '/$normalizedStoragePath'
-        : currentSegments.join('/') == storageSegments.join('/')
-        ? '/${currentSegments.join('/')}'
-        : currentPath.endsWith('/')
-        ? '$currentPath$normalizedStoragePath'
-        : '$currentPath/$normalizedStoragePath';
-
-    return Uri(
-      scheme: uploadUri.scheme,
-      userInfo: uploadUri.userInfo,
-      host: uploadUri.host,
-      port: uploadUri.hasPort ? uploadUri.port : null,
-      path: targetPath,
-    );
+    // Fallback: Strip query parameters from the upload URI to get the base file URI.
+    return uploadUri.replace(queryParameters: {});
   }
 }

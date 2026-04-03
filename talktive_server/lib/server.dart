@@ -70,6 +70,7 @@ void run(List<String> args) async {
                   ).readAsStringSync(),
                 ),
               ),
+              firebaseAccountDetailsValidation: lenientFirebaseValidation,
             ),
     ],
   );

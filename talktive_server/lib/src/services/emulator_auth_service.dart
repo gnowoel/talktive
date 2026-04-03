@@ -7,8 +7,7 @@ import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart' as jwt;
 class EmulatorFirebaseIdpConfig extends FirebaseIdpConfig {
   const EmulatorFirebaseIdpConfig({
     required super.credentials,
-    super.firebaseAccountDetailsValidation =
-        FirebaseIdpConfig.validateFirebaseAccountDetails,
+    super.firebaseAccountDetailsValidation = lenientFirebaseValidation,
   });
 
   @override
@@ -23,6 +22,14 @@ class EmulatorFirebaseIdpConfig extends FirebaseIdpConfig {
       authUsers: authUsers,
       userProfiles: userProfiles,
     );
+  }
+}
+
+/// A lenient validation function for Firebase account details.
+/// This allows accounts with missing email or profile data (common with recovery tokens).
+void lenientFirebaseValidation(FirebaseAccountDetails details) {
+  if (details.userIdentifier.isEmpty) {
+    throw Exception('User identifier is missing');
   }
 }
 

@@ -51,11 +51,7 @@ class _VersionSelectorState extends State<VersionSelector> {
       final prefs = await SharedPreferences.getInstance();
       final activeVersion = prefs.getString('active_app_version');
 
-      if (activeVersion == AppVersion.firebase.name) {
-        debugPrint('VersionSelector: Found persistent version: Firebase');
-        if (mounted) setState(() => _state = SelectorState.runAppFirebase);
-        return;
-      } else if (activeVersion == AppVersion.serverpod.name) {
+      if (activeVersion == AppVersion.serverpod.name) {
         debugPrint('VersionSelector: Found persistent version: Serverpod');
         if (mounted) setState(() => _state = SelectorState.runAppServerpod);
         return;
@@ -176,7 +172,12 @@ class _VersionSelectorState extends State<VersionSelector> {
   void _selectVersion(AppVersion version, BuildContext context) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('active_app_version', version.name);
+      if (version == AppVersion.serverpod) {
+        await prefs.setString('active_app_version', version.name);
+      } else {
+        // Don't persist Firebase selection so user can choose to migrate later.
+        await prefs.remove('active_app_version');
+      }
 
       if (mounted) {
         setState(() {

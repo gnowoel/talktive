@@ -31,7 +31,8 @@ The app uses a playful, high-energy aesthetic:
 
 - **Service-Delegated Architecture**: Lean Endpoints delegating all domain logic, validation, and side-effects to Service classes.
 - **Optimization Priority**: Optimized for a single VPS target (2 vCPU / 4GB RAM) supporting 10,000 users.
-- **Technical Standards**: UUID-based user IDs, aggressive multi-tier caching (Redis), and background side-effect delegation.
+- **Storage (Cloudflare R2)**: Standardized on S3-compatible storage with zero egress fees. Uses presigned URLs for secure, authorized uploads.
+- **Caching**: Multi-tier strategy (Local Session -> Global Redis -> DB).
 
 ## 📂 Core Documentation
 

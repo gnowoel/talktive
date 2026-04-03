@@ -156,7 +156,16 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
       final data = widget.migrationData!;
       _nameController.text = data['name'] ?? '';
       _bioController.text = data['bio'] ?? '';
-      _selectedAvatar = data['avatar'] ?? '😊';
+
+      // Legacy Firebase avatar may be a Google photo URL, not an emoji.
+      // Route it to the correct slot: URLs → _customAvatarUrl, emojis → _selectedAvatar.
+      final rawAvatar = data['avatar'] as String?;
+      if (rawAvatar != null && rawAvatar.contains('://')) {
+        _customAvatarUrl = rawAvatar;
+      } else {
+        _selectedAvatar = rawAvatar ?? '😊';
+      }
+
       _selectedGender = data['gender'] ?? 'prefer-not-to-say';
       if (data['languages'] != null) {
         _selectedLanguages = List<String>.from(data['languages']);

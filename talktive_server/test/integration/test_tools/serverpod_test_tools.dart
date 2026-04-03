@@ -41,12 +41,13 @@ import 'package:talktive_server/src/generated/user_notification.dart' as _i23;
 import 'package:talktive_server/src/generated/private_chat.dart' as _i24;
 import 'package:talktive_server/src/generated/private_chat_with_profile.dart'
     as _i25;
-import 'package:talktive_server/src/generated/user_profile_view.dart' as _i26;
-import 'package:talktive_server/src/generated/user_summary.dart' as _i27;
-import 'package:talktive_server/src/generated/discovery_feed.dart' as _i28;
-import 'package:talktive_server/src/generated/search_all_results.dart' as _i29;
-import 'package:talktive_server/src/generated/greetings/greeting.dart' as _i30;
-import 'package:talktive_server/src/generated/future_calls.dart' as _i31;
+import 'package:talktive_server/src/generated/resident_role.dart' as _i26;
+import 'package:talktive_server/src/generated/user_profile_view.dart' as _i27;
+import 'package:talktive_server/src/generated/user_summary.dart' as _i28;
+import 'package:talktive_server/src/generated/discovery_feed.dart' as _i29;
+import 'package:talktive_server/src/generated/search_all_results.dart' as _i30;
+import 'package:talktive_server/src/generated/greetings/greeting.dart' as _i31;
+import 'package:talktive_server/src/generated/future_calls.dart' as _i32;
 import 'package:talktive_server/src/generated/protocol.dart';
 import 'package:talktive_server/src/generated/endpoints.dart';
 export 'package:serverpod_test/serverpod_test_public_exports.dart';
@@ -3558,6 +3559,9 @@ class _ResidentEndpoint {
     List<String>? languages,
     String? mood,
     String? customAvatarUrl,
+    int? xp,
+    int? level,
+    _i26.ResidentRole? role,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -3581,6 +3585,9 @@ class _ResidentEndpoint {
             'languages': languages,
             'mood': mood,
             'customAvatarUrl': customAvatarUrl,
+            'xp': xp,
+            'level': level,
+            'role': role,
           }),
           serializationManager: _serializationManager,
         );
@@ -3683,7 +3690,7 @@ class _ResidentEndpoint {
     });
   }
 
-  _i3.Future<_i26.UserProfileView?> getUserProfile(
+  _i3.Future<_i27.UserProfileView?> getUserProfile(
     _i1.TestSessionBuilder sessionBuilder,
     String userId,
   ) async {
@@ -3706,7 +3713,7 @@ class _ResidentEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i26.UserProfileView?>);
+                as _i3.Future<_i27.UserProfileView?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -3833,7 +3840,7 @@ class _SearchEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<List<_i27.UserSummary>> searchUsers(
+  _i3.Future<List<_i28.UserSummary>> searchUsers(
     _i1.TestSessionBuilder sessionBuilder,
     String? query, {
     String? gender,
@@ -3872,7 +3879,7 @@ class _SearchEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i27.UserSummary>>);
+                as _i3.Future<List<_i28.UserSummary>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -3921,7 +3928,7 @@ class _SearchEndpoint {
     });
   }
 
-  _i3.Future<_i28.DiscoveryFeed> getDiscoveryFeed(
+  _i3.Future<_i29.DiscoveryFeed> getDiscoveryFeed(
     _i1.TestSessionBuilder sessionBuilder, {
     String? interest,
     String? language,
@@ -3952,7 +3959,7 @@ class _SearchEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i28.DiscoveryFeed>);
+                as _i3.Future<_i29.DiscoveryFeed>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -3960,7 +3967,7 @@ class _SearchEndpoint {
     });
   }
 
-  _i3.Future<_i29.SearchAllResults> searchAll(
+  _i3.Future<_i30.SearchAllResults> searchAll(
     _i1.TestSessionBuilder sessionBuilder,
     String query, {
     required int limit,
@@ -3987,7 +3994,7 @@ class _SearchEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i29.SearchAllResults>);
+                as _i3.Future<_i30.SearchAllResults>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -4065,7 +4072,7 @@ class _SearchEndpoint {
     });
   }
 
-  _i3.Future<List<_i27.UserSummary>> getActiveUsers(
+  _i3.Future<List<_i28.UserSummary>> getActiveUsers(
     _i1.TestSessionBuilder sessionBuilder, {
     String? gender,
     String? country,
@@ -4102,7 +4109,7 @@ class _SearchEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i27.UserSummary>>);
+                as _i3.Future<List<_i28.UserSummary>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -4386,7 +4393,7 @@ class _GreetingEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i30.Greeting> hello(
+  _i3.Future<_i31.Greeting> hello(
     _i1.TestSessionBuilder sessionBuilder,
     String name,
   ) async {
@@ -4409,7 +4416,7 @@ class _GreetingEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i30.Greeting>);
+                as _i3.Future<_i31.Greeting>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -4426,7 +4433,7 @@ class _DailyCleanupCallFutureCall {
     var _localUniqueSession = (sessionBuilder as _i1.InternalTestSessionBuilder)
         .internalBuild();
     try {
-      await _i31.DailyCleanupCallInvokeFutureCall().invoke(
+      await _i32.DailyCleanupCallInvokeFutureCall().invoke(
         _localUniqueSession,
         object,
       );

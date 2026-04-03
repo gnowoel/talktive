@@ -214,8 +214,11 @@ class Auth extends _$Auth {
             credential,
           );
         } else if (e.code == 'credential-already-in-use') {
-          throw Exception(
-            'This Google account is already linked to another Talktive account.',
+          debugPrint(
+            'Auth: Google account already in use, signing in to existing account...',
+          );
+          userCredential = await FirebaseAuth.instance.signInWithCredential(
+            credential,
           );
         } else {
           rethrow;

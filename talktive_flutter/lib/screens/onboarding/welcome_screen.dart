@@ -143,12 +143,10 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
           // Just stay on the screen
           break;
         case AuthStatus.error:
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Sign in failed. Please try again.'),
-              backgroundColor: AppTheme.errorColor,
-            ),
-          );
+          final errorMessage =
+              ref.read(authProvider).error?.toString() ??
+              'Sign in failed. Please try again.';
+          DuoSnackBarHelper.showError(context, errorMessage);
           break;
       }
     } catch (e) {

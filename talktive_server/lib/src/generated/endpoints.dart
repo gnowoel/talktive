@@ -29,12 +29,13 @@ import '../endpoints/social_endpoint.dart' as _i16;
 import '../greetings/greeting_endpoint.dart' as _i17;
 import 'package:talktive_server/src/generated/report_status.dart' as _i18;
 import 'package:talktive_server/src/generated/protocol.dart' as _i19;
+import 'package:talktive_server/src/generated/resident_role.dart' as _i20;
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
-    as _i20;
-import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _i21;
-import 'package:serverpod_auth_server/serverpod_auth_server.dart' as _i22;
-import 'package:talktive_server/src/generated/future_calls.dart' as _i23;
+import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
+    as _i22;
+import 'package:serverpod_auth_server/serverpod_auth_server.dart' as _i23;
+import 'package:talktive_server/src/generated/future_calls.dart' as _i24;
 export 'future_calls.dart' show ServerpodFutureCallsGetter;
 
 class Endpoints extends _i1.EndpointDispatch {
@@ -2333,6 +2334,21 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<String?>(),
               nullable: true,
             ),
+            'xp': _i1.ParameterDescription(
+              name: 'xp',
+              type: _i1.getType<int?>(),
+              nullable: true,
+            ),
+            'level': _i1.ParameterDescription(
+              name: 'level',
+              type: _i1.getType<int?>(),
+              nullable: true,
+            ),
+            'role': _i1.ParameterDescription(
+              name: 'role',
+              type: _i1.getType<_i20.ResidentRole?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -2351,6 +2367,9 @@ class Endpoints extends _i1.EndpointDispatch {
                     languages: params['languages'],
                     mood: params['mood'],
                     customAvatarUrl: params['customAvatarUrl'],
+                    xp: params['xp'],
+                    level: params['level'],
+                    role: params['role'],
                   ),
         ),
         'updateResident': _i1.MethodConnector(
@@ -3025,15 +3044,15 @@ class Endpoints extends _i1.EndpointDispatch {
         ),
       },
     );
-    modules['serverpod_auth_idp'] = _i20.Endpoints()
+    modules['serverpod_auth_idp'] = _i21.Endpoints()
       ..initializeEndpoints(server);
-    modules['serverpod_auth_core'] = _i21.Endpoints()
+    modules['serverpod_auth_core'] = _i22.Endpoints()
       ..initializeEndpoints(server);
-    modules['serverpod_auth'] = _i22.Endpoints()..initializeEndpoints(server);
+    modules['serverpod_auth'] = _i23.Endpoints()..initializeEndpoints(server);
   }
 
   @override
   _i1.FutureCallDispatch? get futureCalls {
-    return _i23.FutureCalls();
+    return _i24.FutureCalls();
   }
 }

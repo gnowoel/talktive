@@ -43,6 +43,9 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     List<String>? languages,
     String? mood,
     String? customAvatarUrl,
+    int? xp,
+    int? level,
+    protocol.ResidentRole? role,
   }) async {
     // Input validation
     InputValidationService.validateName(name).throwIfInvalid();
@@ -82,6 +85,9 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
       languages: languages,
       mood: mood,
       customAvatarUrl: customAvatarUrl,
+      xp: xp ?? 0,
+      level: level ?? 1,
+      role: role ?? protocol.ResidentRole.user,
     );
   }
 

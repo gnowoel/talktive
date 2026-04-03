@@ -247,6 +247,9 @@ class ResidentService {
     List<String>? languages,
     String? mood,
     String? customAvatarUrl,
+    int xp = 0,
+    int level = 1,
+    protocol.ResidentRole role = protocol.ResidentRole.user,
   }) async {
     // 1. Fetch/Update User Profile (Force Anonymous Identity)
     try {
@@ -266,8 +269,8 @@ class ResidentService {
     // 2. Create Resident
     final resident = protocol.Resident(
       userInfoId: userId,
-      xp: 0,
-      level: 1,
+      xp: xp,
+      level: level,
       currentStreak: 0,
       longestStreak: 0,
       trustScore: ApartmentService.TRUST_SCORE_START,
@@ -281,7 +284,7 @@ class ResidentService {
       avatar: avatar,
       interests: interests ?? [],
       languages: languages ?? ['en'],
-      role: protocol.ResidentRole.user,
+      role: role,
       createdAt: DateTime.now(),
       lastSeen: DateTime.now(),
       isPremium: false,

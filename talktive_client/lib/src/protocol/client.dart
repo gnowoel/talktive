@@ -40,13 +40,14 @@ import 'package:talktive_client/src/protocol/user_notification.dart' as _i22;
 import 'package:talktive_client/src/protocol/private_chat.dart' as _i23;
 import 'package:talktive_client/src/protocol/private_chat_with_profile.dart'
     as _i24;
-import 'package:talktive_client/src/protocol/user_profile_view.dart' as _i25;
-import 'package:talktive_client/src/protocol/user_summary.dart' as _i26;
-import 'package:talktive_client/src/protocol/discovery_feed.dart' as _i27;
-import 'package:talktive_client/src/protocol/search_all_results.dart' as _i28;
-import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i29;
-import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i30;
-import 'protocol.dart' as _i31;
+import 'package:talktive_client/src/protocol/resident_role.dart' as _i25;
+import 'package:talktive_client/src/protocol/user_profile_view.dart' as _i26;
+import 'package:talktive_client/src/protocol/user_summary.dart' as _i27;
+import 'package:talktive_client/src/protocol/discovery_feed.dart' as _i28;
+import 'package:talktive_client/src/protocol/search_all_results.dart' as _i29;
+import 'package:talktive_client/src/protocol/greetings/greeting.dart' as _i30;
+import 'package:serverpod_auth_client/serverpod_auth_client.dart' as _i31;
+import 'protocol.dart' as _i32;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -1295,6 +1296,9 @@ class EndpointResident extends _i2.EndpointRef {
     List<String>? languages,
     String? mood,
     String? customAvatarUrl,
+    int? xp,
+    int? level,
+    _i25.ResidentRole? role,
   }) => caller.callServerEndpoint<_i11.Resident>(
     'resident',
     'initializeResident',
@@ -1309,6 +1313,9 @@ class EndpointResident extends _i2.EndpointRef {
       'languages': languages,
       'mood': mood,
       'customAvatarUrl': customAvatarUrl,
+      'xp': xp,
+      'level': level,
+      'role': role,
     },
   );
 
@@ -1355,8 +1362,8 @@ class EndpointResident extends _i2.EndpointRef {
   );
 
   /// Get a user's profile view (with stats)
-  _i3.Future<_i25.UserProfileView?> getUserProfile(String userId) =>
-      caller.callServerEndpoint<_i25.UserProfileView?>(
+  _i3.Future<_i26.UserProfileView?> getUserProfile(String userId) =>
+      caller.callServerEndpoint<_i26.UserProfileView?>(
         'resident',
         'getUserProfile',
         {'userId': userId},
@@ -1412,7 +1419,7 @@ class EndpointSearch extends _i2.EndpointRef {
   String get name => 'search';
 
   /// Search for users with advanced filtering
-  _i3.Future<List<_i26.UserSummary>> searchUsers(
+  _i3.Future<List<_i27.UserSummary>> searchUsers(
     String? query, {
     String? gender,
     String? country,
@@ -1421,7 +1428,7 @@ class EndpointSearch extends _i2.EndpointRef {
     String? ageRange,
     bool? isPremium,
     required int limit,
-  }) => caller.callServerEndpoint<List<_i26.UserSummary>>(
+  }) => caller.callServerEndpoint<List<_i27.UserSummary>>(
     'search',
     'searchUsers',
     {
@@ -1456,12 +1463,12 @@ class EndpointSearch extends _i2.EndpointRef {
   );
 
   /// Get personalized discovery feed
-  _i3.Future<_i27.DiscoveryFeed> getDiscoveryFeed({
+  _i3.Future<_i28.DiscoveryFeed> getDiscoveryFeed({
     String? interest,
     String? language,
     String? country,
     required int limit,
-  }) => caller.callServerEndpoint<_i27.DiscoveryFeed>(
+  }) => caller.callServerEndpoint<_i28.DiscoveryFeed>(
     'search',
     'getDiscoveryFeed',
     {
@@ -1473,10 +1480,10 @@ class EndpointSearch extends _i2.EndpointRef {
   );
 
   /// Search all content (users, lounges, moments)
-  _i3.Future<_i28.SearchAllResults> searchAll(
+  _i3.Future<_i29.SearchAllResults> searchAll(
     String query, {
     required int limit,
-  }) => caller.callServerEndpoint<_i28.SearchAllResults>(
+  }) => caller.callServerEndpoint<_i29.SearchAllResults>(
     'search',
     'searchAll',
     {
@@ -1511,7 +1518,7 @@ class EndpointSearch extends _i2.EndpointRef {
   );
 
   /// Get active users (most messages in last 7 days) - OPTIMIZED
-  _i3.Future<List<_i26.UserSummary>> getActiveUsers({
+  _i3.Future<List<_i27.UserSummary>> getActiveUsers({
     String? gender,
     String? country,
     String? language,
@@ -1519,7 +1526,7 @@ class EndpointSearch extends _i2.EndpointRef {
     String? ageRange,
     bool? isPremium,
     required int limit,
-  }) => caller.callServerEndpoint<List<_i26.UserSummary>>(
+  }) => caller.callServerEndpoint<List<_i27.UserSummary>>(
     'search',
     'getActiveUsers',
     {
@@ -1625,8 +1632,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i29.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i29.Greeting>(
+  _i3.Future<_i30.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i30.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -1637,14 +1644,14 @@ class Modules {
   Modules(Client client) {
     serverpod_auth_idp = _i1.Caller(client);
     serverpod_auth_core = _i4.Caller(client);
-    auth = _i30.Caller(client);
+    auth = _i31.Caller(client);
   }
 
   late final _i1.Caller serverpod_auth_idp;
 
   late final _i4.Caller serverpod_auth_core;
 
-  late final _i30.Caller auth;
+  late final _i31.Caller auth;
 }
 
 class Client extends _i2.ServerpodClientShared {
@@ -1667,7 +1674,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i31.Protocol(),
+         _i32.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,

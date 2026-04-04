@@ -1,5 +1,7 @@
-import 'package:serverpod/serverpod.dart';
+import 'package:serverpod/serverpod.dart' hide Message;
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
+import 'package:collection/collection.dart';
+import '../utils/protocol_utils.dart';
 import 'apartment_service.dart';
 import 'resident_service.dart';
 import 'gamification_service.dart';
@@ -132,27 +134,11 @@ class MessagingService {
         senderUuid,
       );
 
-      final otherMembers = await protocol.ChannelMember.db.find(
+      await ChannelService.validateNoBlockFlow(
         session,
-        where: (t) =>
-            t.channelId.equals(channel.id!) &
-            t.userInfoId.notEquals(senderUuid),
+        channelId: channel.id!,
+        senderId: senderUuid,
       );
-      if (otherMembers.isNotEmpty) {
-        final otherUserUuid = otherMembers.first.userInfoId;
-        final isBlocked = await ResidentService.isBlocked(
-          session,
-          blockerId: otherUserUuid,
-          blockedId: senderUuid,
-        );
-        if (isBlocked) {
-          throw protocol.TalktiveException(
-            message:
-                'Message not delivered. You are currently restricted by this resident.',
-            code: 'PRIVACY_RESTRICTED',
-          );
-        }
-      }
     } else if (channel.type == protocol.ChannelType.lounge) {
       // For lounges, verify the user is a member
       await ChannelService.validateMember(
@@ -192,9 +178,11 @@ class MessagingService {
       fileSize: fileSize,
     );
 
-    // 2. Build the message object (Outbound Privacy Filtering for images/media removed)
+    final channelId = channel.id!;
+
+    // 2. Build the message object
     final message = protocol.Message(
-      channelId: channel.id!,
+      channelId: channelId,
       senderId: sender.userInfoId,
       content: filteredContent,
       imageUrl: imageUrl,
@@ -214,38 +202,48 @@ class MessagingService {
     // 3. Save to database
     final savedMessage = await protocol.Message.db.insertRow(session, message);
 
-    // 4. Handle side effects (asynchronously in background)
-    TaskUtils.runBackground(session, (backgroundSession) async {
-      // Re-fetch channel for background session scope safety if needed,
-      // though for most listeners this might be overkill, it keeps it robust.
-      final channelReloaded = await ChannelService.getChannel(
-        backgroundSession,
-        channel.id!,
+    // 4. MAIN PATH SENSITIVE OPERATIONS (Immediate UI reaction)
+    // Update sender's lastReadAt and lastMessage fields
+    await ChannelService.markAsRead(session, channelId, sender.userInfoId);
+    if (channel.type != protocol.ChannelType.plaza) {
+      await ChannelService.updateLastMessage(
+        session,
+        channelId,
+        channelType: channel.type,
+        content: savedMessage.content,
+        imageUrl: savedMessage.imageUrl,
+        mediaUrl: savedMessage.mediaUrl,
+        mediaType: savedMessage.mediaType,
       );
-      if (channelReloaded != null) {
-        // Trigger notifications (Push, mentioning, etc.)
-        await NotificationService.triggerMessageNotifications(
-          backgroundSession,
-          channel: channelReloaded,
-          message: savedMessage,
-          sender: sender,
-        );
+    }
 
-        // Handle other save life-cycle events (Real-time broadcast, unread counts, XP, Streaks)
-        await onMessageSaved(
-          backgroundSession,
-          message: savedMessage,
-          channel: channelReloaded,
-          sender: sender,
-        );
-      }
+    // 5. Broadcast real-time message IMMEDIATELY (Before background tasks)
+    await session.messages.postMessage('channel_$channelId', savedMessage);
+
+    // 6. Handle heavy side effects (asynchronously in background)
+    TaskUtils.runBackground(session, (backgroundSession) async {
+      // Trigger notifications (Push, mentioning, etc.)
+      await NotificationService.triggerMessageNotifications(
+        backgroundSession,
+        channel: channel,
+        message: savedMessage,
+        sender: sender,
+      );
+
+      // Handle Gamification & Streaks
+      await onMessagePostSave(
+        backgroundSession,
+        message: savedMessage,
+        channel: channel,
+        sender: sender,
+      );
     });
 
     return savedMessage;
   }
 
-  /// Handles all post-message-save operations: broadcasts, notifications, gamification.
-  static Future<void> onMessageSaved(
+  /// Handles heavy background post-save tasks like gamification and achievements.
+  static Future<void> onMessagePostSave(
     Session session, {
     required protocol.Message message,
     required protocol.Channel channel,
@@ -254,34 +252,7 @@ class MessagingService {
     final senderUuid = sender.userInfoId;
     final channelId = channel.id!;
 
-    // 1. Update sender's lastReadAt
-    final senderMembership = await ChannelService.getMember(
-      session,
-      channelId,
-      senderUuid,
-    );
-    if (senderMembership != null) {
-      senderMembership.lastReadAt = message.createdAt;
-      await protocol.ChannelMember.db.updateRow(session, senderMembership);
-    }
-
-    // 2. Update denormalized last message fields (not for Plaza)
-    if (channel.type != protocol.ChannelType.plaza) {
-      await ChannelService.updateLastMessage(
-        session,
-        channelId,
-        channelType: channel.type,
-        content: message.content,
-        imageUrl: message.imageUrl,
-        mediaUrl: message.mediaUrl,
-        mediaType: message.mediaType,
-      );
-    }
-
-    // 3. Broadcast real-time message
-    await session.messages.postMessage('channel_$channelId', message);
-
-    // 4. Trigger Gamification
+    // 1. Award XP and update streak
     await GamificationService.awardXP(
       session,
       sender,
@@ -296,7 +267,7 @@ class MessagingService {
     );
     await ResidentService.updateResident(session, sender);
 
-    // 5. Award Lounge XP
+    // 2. Award Lounge XP
     if (channel.type == protocol.ChannelType.lounge) {
       await LoungeService.awardLoungeXP(
         session,
@@ -306,18 +277,16 @@ class MessagingService {
       );
     }
 
-    // Achievement Progress (Background)
-    TaskUtils.runBackground(session, (backgroundSession) async {
-      await GamificationService.trackMultipleProgress(
-        backgroundSession,
-        senderUuid,
-        ['first_message', 'conversationalist', 'chatterbox'],
-      );
-      await GamificationService.checkTimeBasedAchievements(
-        backgroundSession,
-        senderUuid,
-      );
-    });
+    // 3. Achievement Progress
+    await GamificationService.trackMultipleProgress(
+      session,
+      senderUuid,
+      ['first_message', 'conversationalist', 'chatterbox'],
+    );
+    await GamificationService.checkTimeBasedAchievements(
+      session,
+      senderUuid,
+    );
   }
 
   /// Pins a message to the top of its channel.
@@ -513,6 +482,399 @@ class MessagingService {
     );
 
     return updatedMessage;
+  }
+
+  // --- Private Chat Management ---
+
+  /// Creates or retrieves a private 1:1 chat between two residents.
+  static Future<protocol.PrivateChat> getOrCreatePrivateChat(
+    Session session, {
+    required protocol.Resident sender,
+    required UuidValue otherUserId,
+    String? initialMessage,
+  }) async {
+    final currentUserId = sender.userInfoId;
+
+    if (currentUserId == otherUserId) {
+      throw protocol.TalktiveException(
+        message: 'Cannot create private chat with yourself.',
+        code: 'SELF_CHAT_NOT_ALLOWED',
+      );
+    }
+
+    final otherResident = await ResidentService.getResident(
+      session,
+      otherUserId,
+    );
+    if (otherResident == null) {
+      throw protocol.TalktiveException(
+        message: 'Resident not found.',
+        code: 'RESIDENT_NOT_FOUND',
+      );
+    }
+
+    // Validation: Inviting Rules
+    if (!ApartmentService.canInvite(sender: sender, receiver: otherResident)) {
+      throw protocol.TalktiveException(
+        message: ApartmentService.cannotInviteReason(
+          sender: sender,
+          receiver: otherResident,
+        ),
+        code: 'INVITE_RESTRICTED',
+      );
+    }
+
+    // Validation: Privacy Blocks
+    if (await ResidentService.isBlocked(
+      session,
+      blockerId: currentUserId,
+      blockedId: otherUserId,
+    )) {
+      throw protocol.TalktiveException(
+        message: 'You have blocked this resident.',
+        code: 'USER_BLOCKED',
+      );
+    }
+
+    if (await ResidentService.isBlocked(
+      session,
+      blockerId: otherUserId,
+      blockedId: currentUserId,
+    )) {
+      throw protocol.TalktiveException(
+        message: 'This resident has restricted their messages.',
+        code: 'BLOCKED_BY_USER',
+      );
+    }
+
+    // Ordered Participants for Identity Consistency
+    final participants = ProtocolUtils.orderParticipants(
+      currentUserId,
+      otherUserId,
+    );
+    final p1 = participants[0];
+    final p2 = participants[1];
+
+    var privateChat = await protocol.PrivateChat.db.findFirstRow(
+      session,
+      where: (t) => t.participant1Id.equals(p1) & t.participant2Id.equals(p2),
+    );
+
+    bool isCurrentlyInvited = false;
+    bool wasJustInvited = false;
+
+    if (privateChat != null) {
+      final members = await protocol.ChannelMember.db.find(
+        session,
+        where: (t) => t.channelId.equals(privateChat!.channelId),
+      );
+      final currentMember = members.firstWhereOrNull(
+        (m) => m.userInfoId == currentUserId,
+      );
+      final otherMember = members.firstWhereOrNull(
+        (m) => m.userInfoId == otherUserId,
+      );
+
+      // Re-Activate if left/declined
+      if (currentMember != null &&
+          (currentMember.status == protocol.ChannelMemberStatus.left ||
+              currentMember.status == protocol.ChannelMemberStatus.declined)) {
+        await ChannelService.updateMemberStatus(
+          session,
+          channelId: privateChat.channelId,
+          userId: currentUserId,
+          status: protocol.ChannelMemberStatus.joined,
+        );
+      }
+
+      // Re-Invite if left/declined
+      if (otherMember != null) {
+        if (otherMember.status == protocol.ChannelMemberStatus.invited) {
+          isCurrentlyInvited = true;
+        } else if (otherMember.status == protocol.ChannelMemberStatus.left ||
+            otherMember.status == protocol.ChannelMemberStatus.declined) {
+          await ChannelService.updateMemberStatus(
+            session,
+            channelId: privateChat.channelId,
+            userId: otherUserId,
+            status: protocol.ChannelMemberStatus.invited,
+            invitedBy: currentUserId,
+          );
+          wasJustInvited = true;
+        }
+      }
+    } else {
+      // Create New 1:1 Identity
+      final channel = await ChannelService.createChannel(
+        session,
+        name: 'Private Chat',
+        type: protocol.ChannelType.private,
+      );
+
+      privateChat = await protocol.PrivateChat.db.insertRow(
+        session,
+        protocol.PrivateChat(
+          channelId: channel.id!,
+          participant1Id: p1,
+          participant2Id: p2,
+          createdAt: DateTime.now(),
+          lastMessageAt: DateTime.now(),
+        ),
+      );
+
+      // Creator Joins immediately
+      await ChannelService.updateMemberStatus(
+        session,
+        channelId: channel.id!,
+        userId: currentUserId,
+        status: protocol.ChannelMemberStatus.joined,
+        role: 'owner',
+      );
+
+      // Target is Invited
+      await ChannelService.updateMemberStatus(
+        session,
+        channelId: channel.id!,
+        userId: otherUserId,
+        status: protocol.ChannelMemberStatus.invited,
+        invitedBy: currentUserId,
+      );
+
+      await GamificationService.trackProgress(
+        session,
+        currentUserId,
+        'private_chat',
+      );
+      wasJustInvited = true;
+    }
+
+    if (wasJustInvited) {
+      TaskUtils.runBackground(session, (s) async {
+        try {
+          await NotificationService.sendChatInviteNotification(
+            s,
+            otherUserId,
+            sender.userName ?? 'Someone',
+            privateChat!.channelId,
+          );
+        } catch (_) {}
+      });
+    }
+
+    // Optional Initial Message (The "Knock")
+    if (initialMessage != null && initialMessage.trim().isNotEmpty) {
+      await _handleInitialMessage(
+        session,
+        sender: sender,
+        channelId: privateChat.channelId,
+        content: initialMessage,
+        isReKnock: isCurrentlyInvited && !wasJustInvited,
+      );
+    }
+
+    return privateChat;
+  }
+
+  /// Private helper for initial knock messages (handles re-knocks/updates).
+  static Future<void> _handleInitialMessage(
+    Session session, {
+    required protocol.Resident sender,
+    required int channelId,
+    required String content,
+    required bool isReKnock,
+  }) async {
+    try {
+      final channel = await ChannelService.getChannel(session, channelId);
+      if (channel == null) return;
+
+      if (isReKnock) {
+        // If they knock again while still pending, update the last message text
+        final lastMessage = await protocol.Message.db.findFirstRow(
+          session,
+          where: (t) =>
+              t.channelId.equals(channelId) &
+              t.senderId.equals(sender.userInfoId),
+          orderBy: (t) => t.createdAt,
+          orderDescending: true,
+        );
+
+        if (lastMessage != null) {
+          lastMessage.content = content;
+          await protocol.Message.db.updateRow(session, lastMessage);
+          await session.messages.postMessage('channel_$channelId', lastMessage);
+          await ChannelService.updateLastMessage(
+            session,
+            channelId,
+            channelType: channel.type,
+            content: content,
+          );
+          return;
+        }
+      }
+
+      await sendMessage(
+        session,
+        sender: sender,
+        channel: channel,
+        content: content,
+      );
+    } catch (e) {
+      session.log('Initial chat message error: $e', level: LogLevel.warning);
+    }
+  }
+
+  /// Paginated list of private chats with profile data (Performance Optimized).
+  static Future<List<protocol.PrivateChatWithProfile>> listPrivateChats(
+    Session session,
+    UuidValue userId,
+  ) async {
+    final resident = await ResidentService.getResident(session, userId);
+    final canSeeReadReceipts =
+        resident != null && ResidentService.canSeeOthersReadReceipts(resident);
+
+    // 1. Fetch Chat Records
+    final chats = await protocol.PrivateChat.db.find(
+      session,
+      where: (t) =>
+          t.participant1Id.equals(userId) | t.participant2Id.equals(userId),
+      orderBy: (t) => t.lastMessageAt,
+      orderDescending: true,
+    );
+
+    if (chats.isEmpty) return [];
+
+    final channelIds = chats.map((c) => c.channelId).toSet();
+    final otherIds = chats
+        .map(
+          (c) =>
+              c.participant1Id == userId ? c.participant2Id : c.participant1Id,
+        )
+        .toSet();
+
+    // 2. Batch Data Fetching (Parallel)
+    final results = await Future.wait([
+      protocol.ChannelMember.db.find(
+        session,
+        where: (t) => t.channelId.inSet(channelIds),
+      ),
+      ChannelService.batchGetUnreadCounts(session, channelIds.toList(), userId),
+      protocol.Channel.db.find(session, where: (t) => t.id.inSet(channelIds)),
+      ResidentService.getResidents(session, otherIds.toList()),
+    ]);
+
+    final membersByChannel = (results[0] as List<protocol.ChannelMember>)
+        .groupListsBy((m) => m.channelId);
+    final unreadCounts = results[1] as Map<int, int>;
+    final channelsById = (results[2] as List<protocol.Channel>).groupListsBy(
+      (c) => c.id!,
+    );
+    final residentsById = (results[3] as List<protocol.Resident>).groupListsBy(
+      (r) => r.userInfoId,
+    );
+
+    final items = <protocol.PrivateChatWithProfile>[];
+
+    for (final chat in chats) {
+      final members = membersByChannel[chat.channelId] ?? [];
+      final currentMember = members.firstWhereOrNull(
+        (m) => m.userInfoId == userId,
+      );
+
+      // Visibility Gate: Don't show inactive memberships
+      if (currentMember == null ||
+          currentMember.status == protocol.ChannelMemberStatus.left ||
+          currentMember.status == protocol.ChannelMemberStatus.declined) {
+        continue;
+      }
+
+      final otherId = chat.participant1Id == userId
+          ? chat.participant2Id
+          : chat.participant1Id;
+      final otherMember = members.firstWhereOrNull(
+        (m) => m.userInfoId == otherId,
+      );
+      final otherResident = residentsById[otherId]?.firstOrNull;
+
+      if (otherResident != null) {
+        items.add(
+          protocol.PrivateChatWithProfile(
+            chat: chat,
+            otherResident: ResidentService.gateResident(
+              otherResident,
+              viewer: resident,
+            ),
+            otherUserName: otherResident.userName,
+            otherUserAvatar:
+                otherResident.customAvatarUrl ?? otherResident.avatar,
+            otherUserMood: otherResident.mood,
+            currentMemberStatus: currentMember.status,
+            otherMemberStatus: otherMember?.status,
+            otherUserLastReadAt: canSeeReadReceipts
+                ? otherMember?.lastReadAt
+                : null,
+            unreadCount: unreadCounts[chat.channelId] ?? 0,
+            channel: channelsById[chat.channelId]?.firstOrNull,
+          ),
+        );
+      }
+    }
+
+    return items;
+  }
+
+  /// Responses to a chat invitation (Accept/Decline).
+  static Future<void> respondToChatInvite(
+    Session session,
+    int channelId,
+    UuidValue userId,
+    bool accept,
+  ) async {
+    final member = await ChannelService.getMember(session, channelId, userId);
+    if (member == null ||
+        member.status != protocol.ChannelMemberStatus.invited) {
+      return;
+    }
+
+    await ChannelService.updateMemberStatus(
+      session,
+      channelId: channelId,
+      userId: userId,
+      status: accept
+          ? protocol.ChannelMemberStatus.joined
+          : protocol.ChannelMemberStatus.declined,
+    );
+  }
+
+  /// Leaves a private thread.
+  static Future<void> leaveChat(
+    Session session,
+    int channelId,
+    UuidValue userId,
+  ) async {
+    await ChannelService.updateMemberStatus(
+      session,
+      channelId: channelId,
+      userId: userId,
+      status: protocol.ChannelMemberStatus.left,
+    );
+  }
+
+  /// Pinnable persistence feature management.
+  static Future<void> updatePersistence(
+    Session session, {
+    required protocol.Resident resident,
+    required int channelId,
+    required bool isPersistent,
+  }) async {
+    // Premium Lock: Only Plus members can pin private chats to keep them forever
+    if (isPersistent && !ResidentService.canKeepPrivateChats(resident)) {
+      throw protocol.TalktiveException(
+        message: 'Chat persistence is a Premium feature. 🏆',
+        code: 'PREMIUM_REQUIRED',
+      );
+    }
+
+    await ChannelService.updatePersistence(session, channelId, isPersistent);
   }
 
   /// Checks if a resident has administrative permission in a specific channel.

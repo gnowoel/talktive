@@ -54,26 +54,30 @@ class ResidentService {
     if (missingIds.isEmpty) return result;
 
     // 2. Database Fallback
-    final residentsFromDb = await protocol.Resident.db.find(
+    final missingResidents = await protocol.Resident.db.find(
       session,
       where: (t) => t.userInfoId.inSet(missingIds.toSet()),
     );
 
-    for (final resident in residentsFromDb) {
+    for (final resident in missingResidents) {
       result.add(resident);
-      final key = cacheKeyMap[resident.userInfoId]!;
+      final key = _getCacheKey(resident.userInfoId);
       await session.caches.local.put(
         key,
         resident,
         lifetime: const Duration(minutes: 5),
       );
-      try {
-        await session.caches.global.put(
-          key,
-          resident,
-          lifetime: const Duration(minutes: 5),
-        );
-      } catch (_) {}
+
+      // Optimization: Background Redis cache updates to avoid blocking DB flow
+      TaskUtils.runBackground(session, (backgroundSession) async {
+        try {
+          await backgroundSession.caches.global.put(
+            key,
+            resident,
+            lifetime: const Duration(minutes: 5),
+          );
+        } catch (_) {}
+      });
     }
 
     return result;
@@ -107,7 +111,7 @@ class ResidentService {
     Session session,
     UuidValue userId,
   ) async {
-    final residentKey = 'resident_$userId';
+    final residentKey = _getCacheKey(userId);
     final viewKey = 'profile_view_$userId';
 
     await session.caches.local.invalidateKey(residentKey);
@@ -150,7 +154,7 @@ class ResidentService {
     await invalidateResidentCache(session, resident.userInfoId);
 
     // 5. Sync primary resident object back to caches
-    final cacheKey = 'resident_${resident.userInfoId}';
+    final cacheKey = _getCacheKey(resident.userInfoId);
     await session.caches.local.put(cacheKey, updated);
     try {
       await session.caches.global.put(
@@ -660,69 +664,38 @@ class ResidentService {
     return result;
   }
 
-  /// Vouches for a resident, increasing their trust score and awarding XP.
-  static Future<void> vouchForUser(
+  /// Vouch for another resident (Like).
+  /// This increases their trust score and awards XP.
+  static Future<void> vouchForResident(
     Session session, {
-    required protocol.Resident sender,
     required UuidValue targetId,
+    required protocol.Resident sender,
   }) async {
     final senderId = sender.userInfoId;
+    if (targetId == senderId) {
+      throw protocol.TalktiveException(message: 'You cannot vouch for yourself.');
+    }
 
-    if (senderId == targetId) {
-      throw protocol.TalktiveException(
-        message: 'You cannot vouch for yourself.',
-      );
+    final existingLike = await protocol.UserLike.db.findFirstRow(
+      session,
+      where: (t) => t.receiverId.equals(targetId) & t.senderId.equals(senderId),
+    );
+
+    if (existingLike != null) {
+      throw protocol.TalktiveException(message: 'You already vouched for this resident.');
     }
 
     final target = await getResident(session, targetId);
     if (target == null) {
-      throw protocol.TalktiveException(message: 'Target resident not found');
+      throw protocol.TalktiveException(message: 'Resident not found.');
     }
 
-    // One-Vouch Rule
-    final existingLike = await protocol.UserLike.db.findFirstRow(
-      session,
-      where: (t) => t.senderId.equals(senderId) & t.receiverId.equals(targetId),
-    );
-    if (existingLike != null) {
-      throw protocol.TalktiveException(
-        message: 'You have already vouched for this resident.',
-      );
-    }
-
-    // Blocking Check
-    final isBlocked = await ResidentService.isBlocked(
-      session,
-      blockerId: senderId,
-      blockedId: targetId,
-    );
-    final hasBlockedMe = await ResidentService.isBlocked(
-      session,
-      blockerId: targetId,
-      blockedId: senderId,
-    );
-    if (isBlocked || hasBlockedMe) {
-      throw protocol.TalktiveException(
-        message: 'You cannot vouch for this resident due to privacy settings.',
-      );
-    }
-
-    // Report Check
-    final existingReport = await protocol.Report.db.findFirstRow(
-      session,
-      where: (t) => t.reporterId.equals(senderId) & t.targetId.equals(targetId),
-    );
-    if (existingReport != null) {
-      throw protocol.TalktiveException(
-        message: 'You cannot vouch for a resident you have reported.',
-      );
-    }
-
+    // 1. Core State Update (Atomic)
     await protocol.UserLike.db.insertRow(
       session,
       protocol.UserLike(
-        senderId: senderId,
         receiverId: targetId,
+        senderId: senderId,
         createdAt: DateTime.now(),
       ),
     );
@@ -736,39 +709,41 @@ class ResidentService {
       'Vouched by another resident',
       save: false,
     );
+
+    // Update persistent state
     await updateResident(session, target);
 
-    // Send notification
-    try {
-      await NotificationService.sendVouchNotification(
-        session,
-        targetId,
-        sender.userName ?? 'A resident',
-      );
-    } catch (e) {
-      session.log('Failed to send vouch notification: $e');
-    }
+    // 2. Side Effects (Background)
+    TaskUtils.runBackground(session, (backgroundSession) async {
+      try {
+        await NotificationService.sendVouchNotification(
+          backgroundSession,
+          targetId,
+          sender.userName ?? 'A resident',
+        );
+      } catch (e) {
+        backgroundSession.log('Failed to send vouch notification: $e');
+      }
+    });
   }
 
-  /// Removes a vouch for a resident.
-  static Future<void> removeVouch(
+  /// Remove a vouch for another resident (Unlike).
+  static Future<void> removeResidentVouch(
     Session session, {
-    required UuidValue senderId,
     required UuidValue targetId,
+    required UuidValue senderId,
   }) async {
-    final target = await getResident(session, targetId);
-    if (target == null) {
-      throw protocol.TalktiveException(message: 'Target resident not found');
-    }
-
     final existingLike = await protocol.UserLike.db.findFirstRow(
       session,
-      where: (t) => t.senderId.equals(senderId) & t.receiverId.equals(targetId),
+      where: (t) => t.receiverId.equals(targetId) & t.senderId.equals(senderId),
     );
-    if (existingLike == null) {
-      throw protocol.TalktiveException(message: 'Vouch not found');
-    }
 
+    if (existingLike == null) return;
+
+    final target = await getResident(session, targetId);
+    if (target == null) return;
+
+    // 1. Core State Update
     await protocol.UserLike.db.deleteRow(session, existingLike);
 
     ApartmentService.removeVouch(target: target);

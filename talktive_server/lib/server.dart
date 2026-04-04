@@ -26,17 +26,21 @@ void run(List<String> args) async {
   // Register Cloud Storage
   // Only register Cloudflare R2 in production/staging environments
   if (pod.runMode != 'development') {
-    final accountId = Platform.environment['CLOUDFLARE_ACCOUNT_ID'] ?? '<ACCOUNT_ID>';
-    final publicHost = Platform.environment['CLOUDFLARE_PUBLIC_HOST'] ?? 'media.talktive.app';
-    
-    pod.addCloudStorage(R2CloudStorage(
-      serverpod: pod,
-      storageId: 'public',
-      public: true,
-      bucket: 'talktive-media',
-      accountId: accountId,
-      publicHost: publicHost,
-    ));
+    final accountId =
+        Platform.environment['CLOUDFLARE_ACCOUNT_ID'] ?? '<ACCOUNT_ID>';
+    final publicHost =
+        Platform.environment['CLOUDFLARE_PUBLIC_HOST'] ?? 'media.talktive.app';
+
+    pod.addCloudStorage(
+      R2CloudStorage(
+        serverpod: pod,
+        storageId: 'public',
+        public: true,
+        bucket: 'talktive-media',
+        accountId: accountId,
+        publicHost: publicHost,
+      ),
+    );
   }
 
   // Register Future Calls

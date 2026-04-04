@@ -73,12 +73,12 @@ import 'package:talktive_server/src/generated/lounge.dart' as _i55;
 import 'package:talktive_server/src/generated/lounge_member_with_profile.dart'
     as _i56;
 import 'package:talktive_server/src/generated/message.dart' as _i57;
-import 'package:talktive_server/src/generated/moment.dart' as _i58;
-import 'package:talktive_server/src/generated/moment_like.dart' as _i59;
-import 'package:talktive_server/src/generated/moment_comment.dart' as _i60;
-import 'package:talktive_server/src/generated/user_notification.dart' as _i61;
 import 'package:talktive_server/src/generated/private_chat_with_profile.dart'
-    as _i62;
+    as _i58;
+import 'package:talktive_server/src/generated/moment.dart' as _i59;
+import 'package:talktive_server/src/generated/moment_like.dart' as _i60;
+import 'package:talktive_server/src/generated/moment_comment.dart' as _i61;
+import 'package:talktive_server/src/generated/user_notification.dart' as _i62;
 import 'package:talktive_server/src/generated/user_summary.dart' as _i63;
 export 'achievement.dart';
 export 'admin_activity.dart';
@@ -1866,12 +1866,25 @@ class Protocol extends _i1.SerializationManagerServer {
           isPrimary: false,
         ),
         _i2.IndexDefinition(
-          indexName: 'resident_search_idx',
+          indexName: 'resident_lastseen_idx',
           tableSpace: null,
           elements: [
             _i2.IndexElementDefinition(
               type: _i2.IndexElementDefinitionType.column,
               definition: 'lastSeen',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _i2.IndexDefinition(
+          indexName: 'resident_msg_date_idx',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'lastMessageDate',
             ),
           ],
           type: 'btree',
@@ -1932,19 +1945,6 @@ class Protocol extends _i1.SerializationManagerServer {
             _i2.IndexElementDefinition(
               type: _i2.IndexElementDefinitionType.column,
               definition: 'role',
-            ),
-          ],
-          type: 'btree',
-          isUnique: false,
-          isPrimary: false,
-        ),
-        _i2.IndexDefinition(
-          indexName: 'resident_lastseen_idx',
-          tableSpace: null,
-          elements: [
-            _i2.IndexElementDefinition(
-              type: _i2.IndexElementDefinitionType.column,
-              definition: 'lastSeen',
             ),
           ],
           type: 'btree',
@@ -2719,12 +2719,18 @@ class Protocol extends _i1.SerializationManagerServer {
       return (data as List).map((e) => deserialize<_i57.Message>(e)).toList()
           as T;
     }
-    if (t == List<_i58.Moment>) {
-      return (data as List).map((e) => deserialize<_i58.Moment>(e)).toList()
+    if (t == List<_i58.PrivateChatWithProfile>) {
+      return (data as List)
+              .map((e) => deserialize<_i58.PrivateChatWithProfile>(e))
+              .toList()
           as T;
     }
-    if (t == List<_i59.MomentLike>) {
-      return (data as List).map((e) => deserialize<_i59.MomentLike>(e)).toList()
+    if (t == List<_i59.Moment>) {
+      return (data as List).map((e) => deserialize<_i59.Moment>(e)).toList()
+          as T;
+    }
+    if (t == List<_i60.MomentLike>) {
+      return (data as List).map((e) => deserialize<_i60.MomentLike>(e)).toList()
           as T;
     }
     if (t == Map<int, bool>) {
@@ -2736,21 +2742,15 @@ class Protocol extends _i1.SerializationManagerServer {
           )
           as T;
     }
-    if (t == List<_i60.MomentComment>) {
+    if (t == List<_i61.MomentComment>) {
       return (data as List)
-              .map((e) => deserialize<_i60.MomentComment>(e))
+              .map((e) => deserialize<_i61.MomentComment>(e))
               .toList()
           as T;
     }
-    if (t == List<_i61.UserNotification>) {
+    if (t == List<_i62.UserNotification>) {
       return (data as List)
-              .map((e) => deserialize<_i61.UserNotification>(e))
-              .toList()
-          as T;
-    }
-    if (t == List<_i62.PrivateChatWithProfile>) {
-      return (data as List)
-              .map((e) => deserialize<_i62.PrivateChatWithProfile>(e))
+              .map((e) => deserialize<_i62.UserNotification>(e))
               .toList()
           as T;
     }

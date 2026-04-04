@@ -68,16 +68,18 @@ media:
   - getUploadDescription:
   - verifyUpload:
 message:
+  - ping:
   - sendMessage:
-  - subscribe:
   - listMessages:
-  - markChannelAsRead:
-  - sendTypingIndicator:
-  - updateChannelPersistence:
-  - getPinnedMessage:
   - pinMessage:
   - unpinMessage:
   - recallMessage:
+  - markChannelAsRead:
+  - updateChannelPersistence:
+  - getOrCreatePrivateChat:
+  - listPrivateChats:
+  - respondToChatInvite:
+  - leaveChat:
 moment:
   - postMoment:
   - listMoments:
@@ -97,12 +99,6 @@ notification:
   - getUnreadCount:
   - registerDeviceToken:
   - unregisterDeviceToken:
-privateChat:
-  - getOrCreatePrivateChat:
-  - listPrivateChats:
-  - getPrivateChatDetails:
-  - respondToChatInvite:
-  - leaveChat:
 resident:
   - getResident:
   - getLegacyMigrationData:
@@ -114,6 +110,14 @@ resident:
   - updatePrivacy:
   - setPremiumStatus:
   - startPremiumTrial:
+  - likeResident:
+  - unlikeResident:
+  - getMyLikedResidentIds:
+  - blockResident:
+  - unblockResident:
+  - isResidentBlocked:
+  - getBlockedResidentIds:
+  - reportResident:
 search:
   - searchUsers:
   - searchLounges:
@@ -122,14 +126,5 @@ search:
   - getTrendingMoments:
   - getPopularLounges:
   - getActiveUsers:
-social:
-  - likeUser:
-  - unlikeUser:
-  - getMyLikedUserIds:
-  - blockUser:
-  - unblockUser:
-  - isUserBlocked:
-  - getBlockedUserIds:
-  - reportUser:
 greeting:
   - hello:

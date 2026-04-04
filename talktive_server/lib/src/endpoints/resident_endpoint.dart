@@ -3,6 +3,7 @@ import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import '../services/input_validation_service.dart';
 import '../services/legacy_migration_service.dart';
 import '../services/resident_service.dart';
+import '../services/report_service.dart';
 
 import '../utils/endpoint_auth_mixin.dart';
 
@@ -279,5 +280,158 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
       senderUuid,
       const Duration(hours: 24),
     );
+  }
+
+  // --- Social Actions (Likes, Blocks, Reports) ---
+
+  /// Vouches for another resident.
+  Future<void> vouchForResident(
+    Session session,
+    UuidValue targetUserId,
+  ) async {
+    final resident = await getAuthenticatedResident(session);
+    await ResidentService.vouchForResident(
+      session,
+      targetId: targetUserId,
+      sender: resident,
+    );
+  }
+
+  /// Removes a vouch for another resident.
+  Future<void> removeResidentVouch(
+    Session session,
+    UuidValue targetUserId,
+  ) async {
+    final userId = await getUserId(session);
+    await ResidentService.removeResidentVouch(
+      session,
+      targetId: targetUserId,
+      senderId: userId,
+    );
+  }
+
+  /// Get list of resident IDs liked by current resident.
+  Future<List<String>> getMyLikedResidentIds(Session session) async {
+    final callerId = await getUserId(session);
+    final likes = await protocol.UserLike.db.find(
+      session,
+      where: (t) => t.senderId.equals(callerId),
+    );
+    return likes.map((e) => e.receiverId.toString()).toList();
+  }
+
+  /// Blocks a resident.
+  Future<bool> blockResident(Session session, String userId) async {
+    InputValidationService.validateUuid(userId).throwIfInvalid();
+    final blockerId = await getUserId(session);
+    final targetId = UuidValue.fromString(userId);
+
+    if (blockerId == targetId) {
+      throw protocol.TalktiveException(message: 'You cannot block yourself.');
+    }
+
+    await ResidentService.setBlockStatus(
+      session,
+      blockerId: blockerId,
+      targetId: targetId,
+      block: true,
+    );
+    return true;
+  }
+
+  /// Unblocks a resident.
+  Future<bool> unblockResident(Session session, String userId) async {
+    InputValidationService.validateUuid(userId).throwIfInvalid();
+    final blockerId = await getUserId(session);
+    final targetId = UuidValue.fromString(userId);
+
+    await ResidentService.setBlockStatus(
+      session,
+      blockerId: blockerId,
+      targetId: targetId,
+      block: false,
+    );
+    return true;
+  }
+
+  /// Checks if a resident is blocked.
+  Future<bool> isResidentBlocked(Session session, String userId) async {
+    InputValidationService.validateUuid(userId).throwIfInvalid();
+    final blockerId = await getUserId(session);
+    final targetId = UuidValue.fromString(userId);
+
+    return await ResidentService.isBlocked(
+      session,
+      blockerId: blockerId,
+      blockedId: targetId,
+    );
+  }
+
+  /// Gets list of resident IDs blocked by current resident.
+  Future<List<String>> getBlockedResidentIds(Session session) async {
+    final blockerId = await getUserId(session);
+    final blocks = await protocol.Block.db.find(
+      session,
+      where: (t) => t.blockerId.equals(blockerId),
+    );
+    return blocks.map((b) => b.blockedId.toString()).toList();
+  }
+
+  /// Reports a resident for inappropriate behavior.
+  Future<void> reportResident(
+    Session session, {
+    required String targetUserId,
+    required String reason,
+    int? channelId,
+    int? messageId,
+  }) async {
+    InputValidationService.validateUuid(targetUserId).throwIfInvalid();
+    InputValidationService.validateReportReason(reason).throwIfInvalid();
+
+    final reporterUuid = await getUserId(session);
+    final targetUuid = UuidValue.fromString(targetUserId);
+
+    if (reporterUuid == targetUuid) {
+      throw protocol.TalktiveException(message: 'You cannot report yourself.');
+    }
+
+    final reporter = await getResidentProfile(session, reporterUuid);
+    final target = await ResidentService.getResident(session, targetUuid);
+    if (target == null) {
+      throw protocol.TalktiveException(message: 'Target resident not found');
+    }
+
+    await ReportService.createReport(
+      session,
+      targetId: targetUuid,
+      reporterId: reporterUuid,
+      reason: reason,
+      type: 'user', // Default type for resident report
+    );
+
+    // Side Effects (Background)
+    runBackground(session, (backgroundSession) async {
+      ApartmentService.applyReportPenalty(reporter: reporter, target: target);
+
+      // If Trust Score drops to 0, suspension/shadowban check
+      if (target.trustScore <= 0) {
+        target.suspended = true;
+        backgroundSession.log(
+          'Resident ${target.userInfoId} suspended automatically due to reports.',
+        );
+      }
+
+      await ResidentService.updateResident(backgroundSession, target);
+
+      try {
+        await NotificationService.sendReportNotification(
+          backgroundSession,
+          targetUuid,
+          reason,
+        );
+      } catch (e) {
+        backgroundSession.log('Failed to send report notification: $e');
+      }
+    });
   }
 }

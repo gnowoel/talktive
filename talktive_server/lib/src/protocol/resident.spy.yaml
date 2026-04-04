@@ -57,8 +57,10 @@ indexes:
   resident_user_idx:
     fields: userInfoId
     unique: true
-  resident_search_idx:
+  resident_lastseen_idx:
     fields: lastSeen
+  resident_msg_date_idx:
+    fields: lastMessageDate
   resident_geo_idx:
     fields: country, gender, ageRange
   resident_xp_idx:
@@ -67,5 +69,3 @@ indexes:
     fields: level
   resident_role_idx:
     fields: role
-  resident_lastseen_idx:
-    fields: lastSeen

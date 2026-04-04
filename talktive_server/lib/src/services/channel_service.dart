@@ -1,5 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
+import 'package:collection/collection.dart';
+
 
 /// Generic service for managing Channels and ChannelMembers.
 /// This consolidates logic used by Private Chats, Lounges, and the Plaza.
@@ -98,6 +100,38 @@ class ChannelService {
       session,
       where: (t) => t.channelId.equals(channelId) & t.userInfoId.equals(userId),
     );
+  }
+
+  /// Checks if a user is blocked by the other participant in a private channel.
+  static Future<void> validateNoBlockFlow(
+    Session session, {
+    required int channelId,
+    required UuidValue senderId,
+  }) async {
+    final members = await protocol.ChannelMember.db.find(
+      session,
+      where: (t) => t.channelId.equals(channelId),
+    );
+
+    if (members.length == 2) {
+      final otherMember = members.firstWhereOrNull(
+        (m) => m.userInfoId != senderId,
+      );
+      if (otherMember != null) {
+        final isBlocked = await protocol.Block.db.findFirstRow(
+          session,
+          where: (t) =>
+              t.blockerId.equals(otherMember.userInfoId) &
+              t.blockedId.equals(senderId),
+        );
+        if (isBlocked != null) {
+          throw protocol.TalktiveException(
+            message: 'Message not delivered. You are restricted.',
+            code: 'PRIVACY_RESTRICTED',
+          );
+        }
+      }
+    }
   }
 
   /// Ensures a user is marked as having read a channel up to now.

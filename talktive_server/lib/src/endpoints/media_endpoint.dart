@@ -144,10 +144,10 @@ class MediaEndpoint extends Endpoint with EndpointAuthMixin {
     // Handle Cloudflare R2 (S3-compatible)
     // R2 direct upload URLs are typically: https://<bucket>.<account>.r2.cloudflarestorage.com/<path>?<auth_params>
     // We want to return the public URL which might be a custom domain or the public R2 domain.
-    
+
     // Check if we should use a custom public host from environment or default to the upload host.
     final publicHost = Platform.environment['CLOUDFLARE_PUBLIC_HOST'];
-    
+
     if (publicHost != null && publicHost.isNotEmpty) {
       return Uri(
         scheme: 'https',

@@ -41,6 +41,14 @@ Target: **10,000 active users** on a single **2 vCPU / 4GB RAM VPS**.
 - **Background Tasks**: Use `TaskUtils.runBackground` for all non-critical side-effects (Notifications, XP, Stats).
 - **Batching**: Use batch queries for feeds and unread counts to eliminate N+1 issues.
 
+### 3. High-Performance Messaging
+
+Messaging is the heart of the residence and must be extremely responsive.
+
+- **Immediate UI-Critical Broadcast**: Message posting to the real-time WebSocket stream (`session.messages.postMessage`) MUST occur immediately after the database save. Do not wait for side-effects like push notifications or XP awards to complete before broadcasting the message to the recipient's UI.
+- **Background Offloading**: All non-UI-critical side effects (Gamification, Streak updates, Achievements, Push Notifications) MUST be offloaded to `TaskUtils.runBackground`. This ensures that even if FCM delivery is slow, the user experience remains snappy.
+- **Privacy at the Source**: Block checks and permission validation are centralized in `ChannelService.validateNoBlockFlow` and `ChannelService.validateMember`. Always call these before performing any write operations.
+
 ### 3. Authentication & Identity
 
 - **Provider**: Firebase Auth (Google) linked to Serverpod Auth Core.

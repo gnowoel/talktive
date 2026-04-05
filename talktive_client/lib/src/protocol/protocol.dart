@@ -66,12 +66,12 @@ import 'package:talktive_client/src/protocol/lounge.dart' as _i51;
 import 'package:talktive_client/src/protocol/lounge_member_with_profile.dart'
     as _i52;
 import 'package:talktive_client/src/protocol/message.dart' as _i53;
-import 'package:talktive_client/src/protocol/moment.dart' as _i54;
-import 'package:talktive_client/src/protocol/moment_like.dart' as _i55;
-import 'package:talktive_client/src/protocol/moment_comment.dart' as _i56;
-import 'package:talktive_client/src/protocol/user_notification.dart' as _i57;
 import 'package:talktive_client/src/protocol/private_chat_with_profile.dart'
-    as _i58;
+    as _i54;
+import 'package:talktive_client/src/protocol/moment.dart' as _i55;
+import 'package:talktive_client/src/protocol/moment_like.dart' as _i56;
+import 'package:talktive_client/src/protocol/moment_comment.dart' as _i57;
+import 'package:talktive_client/src/protocol/user_notification.dart' as _i58;
 import 'package:talktive_client/src/protocol/user_summary.dart' as _i59;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
     as _i60;
@@ -549,12 +549,18 @@ class Protocol extends _i1.SerializationManager {
       return (data as List).map((e) => deserialize<_i53.Message>(e)).toList()
           as T;
     }
-    if (t == List<_i54.Moment>) {
-      return (data as List).map((e) => deserialize<_i54.Moment>(e)).toList()
+    if (t == List<_i54.PrivateChatWithProfile>) {
+      return (data as List)
+              .map((e) => deserialize<_i54.PrivateChatWithProfile>(e))
+              .toList()
           as T;
     }
-    if (t == List<_i55.MomentLike>) {
-      return (data as List).map((e) => deserialize<_i55.MomentLike>(e)).toList()
+    if (t == List<_i55.Moment>) {
+      return (data as List).map((e) => deserialize<_i55.Moment>(e)).toList()
+          as T;
+    }
+    if (t == List<_i56.MomentLike>) {
+      return (data as List).map((e) => deserialize<_i56.MomentLike>(e)).toList()
           as T;
     }
     if (t == Map<int, bool>) {
@@ -566,21 +572,15 @@ class Protocol extends _i1.SerializationManager {
           )
           as T;
     }
-    if (t == List<_i56.MomentComment>) {
+    if (t == List<_i57.MomentComment>) {
       return (data as List)
-              .map((e) => deserialize<_i56.MomentComment>(e))
+              .map((e) => deserialize<_i57.MomentComment>(e))
               .toList()
           as T;
     }
-    if (t == List<_i57.UserNotification>) {
+    if (t == List<_i58.UserNotification>) {
       return (data as List)
-              .map((e) => deserialize<_i57.UserNotification>(e))
-              .toList()
-          as T;
-    }
-    if (t == List<_i58.PrivateChatWithProfile>) {
-      return (data as List)
-              .map((e) => deserialize<_i58.PrivateChatWithProfile>(e))
+              .map((e) => deserialize<_i58.UserNotification>(e))
               .toList()
           as T;
     }

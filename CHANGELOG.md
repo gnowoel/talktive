@@ -1,5 +1,22 @@
 # Talktive Development Changelog
 
+## April 4, 2026 - High-Performance Messaging Refactor 🏗️⚡💬
+
+### Messaging Architecture & UI Performance
+- **Immediate Broadcast Pattern**: Refactored `MessagingService.sendMessage` to prioritize real-time UI updates. Messages are now posted to the WebSocket stream immediately after persistence, before processing any heavy side-effects.
+- **Asynchronous Side-Effects**: Offloaded XP rewards, streak updates, achievement tracking, and push notification triggers to `onMessagePostSave` using `TaskUtils.runBackground`. This significantly reduces the latency of the send request.
+- **Unified Messaging Endpoint**: Renamed `ChatEndpoint` to `MessageEndpoint` and synchronized method names (`markChannelAsRead`, `listMessages`) to align with existing client-side expectations and fix Riverpod provider breaks.
+
+### Privacy & Authorization Hardening
+- **Centralized Block Validation**: Consolidated privacy gating into `ChannelService.validateNoBlockFlow`. This ensures consistent block-status enforcement across all messaging actions (send, pin, etc.).
+- **Automatic Metadata Denormalization**: Ensured that `lastReadAt` updates and `lastMessage` previews are handled synchronously during message save to prevent race conditions in thread list sorting.
+
+### Technical Quality & Diagnostics
+- **Clean Analysis**: Resolved all lint errors in both `talktive_server` and `talktive_flutter` related to the new messaging architecture.
+- **Protocol Synchronization**: Performed full stack synchronization via `serverpod generate` to reflect the endpoint renames.
+
+
+
 ## April 4, 2026 - R2 Storage & Legacy Migration Bug Fixes 🐛🔧☁️
 
 ### Cloudflare R2 Storage Fixes

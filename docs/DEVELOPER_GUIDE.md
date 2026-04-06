@@ -7,6 +7,7 @@
 - **Start Server**: `dart bin/main.dart --apply-migrations`
 - **Regenerate Code**: `serverpod generate`
 - **Create Migration**: `serverpod create-migration --force`
+- **Run Targeted Server Tests**: `dart test test/integration/social_endpoint_test.dart test/integration/recall_sync_test.dart`
 - **Reset Database**: `./scripts/reset_db.sh` (Drops public schema)
 
 ### 2. Frontend Build
@@ -29,6 +30,7 @@ To maintain a clean and testable codebase, we follow strict delegation:
   - **Access Control**: Always use `ChannelService.validateMember(session, channelId, userId)` for authorization checks.
   - **Metadata Sync**: `ChannelService.updateLastMessage` ensures that last message previews and timestamps are consistently updated across all channel types for unread tracking.
   - **Status Management**: Membership transitions (joining, applying, inviting) are managed centrally to ensure consistent state and validation.
+- **Compatibility First During Refactors**: If Flutter or tests still call legacy endpoint surfaces (`privateChat`, `social`, or older `message` methods), maintain a thin compatibility layer until every caller is migrated. Break API surface only after generated clients, providers, and test tools have been synchronized.
 
 ### 2. High-Performance Infrastructure
 
@@ -128,4 +130,6 @@ Every new feature or bugfix should follow the **Red-Green-Refactor** cycle:
 - **Migration Review**: If onboarding prefill appears incomplete for a legacy user, verify the legacy record under Firebase `users/{uid}` and confirm language / gender values use the expected legacy formats before changing conversion rules.
 - **Debug Shortcuts**: In `kDebugMode`, the `VersionSelector` provides a **"Direct to Firebase (Debug Only)"** link to bypass version selection and account restoration steps during development.
 - **Database Mismatch**: If you see `DatabaseQueryException`, run `serverpod generate` and create a new migration.
+- **Missing Migration Version**: If Serverpod reports that the DB has a migration version that is not present in project files, reconcile the history by restoring or bridging that version in `talktive_server/migrations/` and updating `migration_registry.txt` before attempting broader test runs.
+- **Idempotent Cleanup Migrations**: For cross-environment repair migrations, prefer `DROP ... IF EXISTS` and `CREATE EXTENSION IF NOT EXISTS ...` so partially migrated local databases can still move forward safely.
 - **Redis Connection**: Backend logic gracefully degrades to DB-only if Redis is unavailable, but performance will suffer.

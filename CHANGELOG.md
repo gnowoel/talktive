@@ -1,5 +1,20 @@
 # Talktive Development Changelog
 
+## April 6, 2026 - Compatibility Recovery & Migration Reconciliation 🛠️🧭
+
+### Endpoint Compatibility Recovery
+- **Client Surface Restored**: Reintroduced backward-compatible `privateChat` and `social` endpoints while keeping the service-delegated backend centered around `MessageEndpoint` and `ResidentEndpoint`.
+- **Message API Parity**: Restored `subscribe`, `sendTypingIndicator`, `getPinnedMessage`, and the legacy `sendMessage` call shape so existing Flutter providers and generated clients continue to work during the refactor transition.
+- **Compatibility Facade**: Added a thin `PrivateChatService` facade and preserved legacy test hooks such as `MessagingService.onMessageSaved` to keep integration coverage aligned while the residence backend remains consolidated.
+
+### Search & Migration Hardening
+- **Resident Search Safety**: Escaped raw search literals in `SearchService` and corrected the trigram migration to use `pg_trgm` with `gin_trgm_ops`.
+- **Migration Bridge**: Added a no-op bridge migration for the previously untracked database-stamped version `20260403074810271`, allowing older databases to continue forward without manual repair.
+- **Legacy Column Cleanup**: Added a follow-up migration to safely remove stale image-privacy columns from `resident` using `DROP COLUMN IF EXISTS`, eliminating schema drift warnings in tests and local environments.
+
+### Validation
+- **Targeted Verification**: Re-ran the social and recall integration suites successfully after reconciling the migration chain.
+
 ## April 4, 2026 - High-Performance Messaging Refactor 🏗️⚡💬
 
 ### Messaging Architecture & UI Performance

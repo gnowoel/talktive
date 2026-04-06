@@ -67,11 +67,24 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
 
     final canSeeTyping = ResidentService.canSeeOthersTypingIndicators(resident);
     final canSeeRead = ResidentService.canSeeOthersReadReceipts(resident);
+    final blockedIds = await ResidentService.getBlocksByUser(
+      session,
+      resident.userInfoId,
+    );
     final streamKey = 'channel_$channelId';
 
     yield* session.messages.createStream(streamKey).where((event) {
-      if (event is protocol.TypingIndicator) return canSeeTyping;
-      if (event is protocol.ReadReceiptEvent) return canSeeRead;
+      if (event is protocol.Message && blockedIds.contains(event.senderId)) {
+        return false;
+      }
+      if (event is protocol.TypingIndicator) {
+        if (blockedIds.contains(event.senderId)) return false;
+        return canSeeTyping;
+      }
+      if (event is protocol.ReadReceiptEvent) {
+        if (blockedIds.contains(event.userId)) return false;
+        return canSeeRead;
+      }
       return true;
     }).cast<SerializableModel>();
   }
@@ -99,12 +112,20 @@ class MessageEndpoint extends Endpoint with EndpointAuthMixin {
       allowInvited: true,
     );
 
+    final blockedIds = await ResidentService.getBlocksByUser(session, userId);
+
     return await protocol.Message.db.find(
       session,
-      where: (t) =>
-          beforeId == null
-              ? t.channelId.equals(channelId)
-              : t.channelId.equals(channelId) & (t.id < beforeId),
+      where: (t) {
+        var filter = t.channelId.equals(channelId);
+        if (beforeId != null) {
+          filter &= (t.id < beforeId);
+        }
+        if (blockedIds.isNotEmpty) {
+          filter &= t.senderId.notInSet(blockedIds);
+        }
+        return filter;
+      },
       orderBy: (t) => t.createdAt,
       orderDescending: true,
       limit: limit,

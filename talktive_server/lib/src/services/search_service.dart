@@ -61,24 +61,23 @@ class SearchService {
     required protocol.Resident currentUser,
   }) async {
     final hasQuery = query != null && query.trim().isNotEmpty;
-    final hasFilters =
-        gender != null ||
+    final hasFilters = gender != null ||
         country != null ||
         language != null ||
         interest != null ||
         ageRange != null ||
         isPremium != null;
 
-    if (hasQuery || hasFilters) {
+    if (hasFilters) {
       if (!ResidentService.isPlusMember(currentUser)) {
         throw protocol.TalktiveException(
-          message: 'Advanced Search is a Talktive Plus feature.',
+          message: 'Advanced Search filters are a Talktive Plus feature.',
           code: 'PREMIUM_REQUIRED',
         );
       }
       if (!ResidentService.canUseAdvancedDiscovery(currentUser)) {
         throw protocol.TalktiveException(
-          message: 'Advanced Search is disabled in Settings.',
+          message: 'Advanced Search is disabled in your Settings.',
           code: 'FEATURE_DISABLED',
         );
       }
@@ -95,21 +94,31 @@ class SearchService {
         ageRange: ageRange,
         isPremium: isPremium,
         limit: limit,
+        currentUser: currentUser,
       );
     }
 
+    final blockedIds =
+        await ResidentService.getBlocksByUser(session, currentUser.userInfoId);
+
     final residents = await protocol.Resident.db.find(
       session,
-      where: (t) => _buildResidentFilters(
-        t,
-        query: query,
-        gender: gender,
-        country: country,
-        language: language,
-        interest: interest,
-        ageRange: ageRange,
-        isPremium: isPremium,
-      ),
+      where: (t) {
+        var filter = _buildResidentFilters(
+          t,
+          query: query,
+          gender: gender,
+          country: country,
+          language: language,
+          interest: interest,
+          ageRange: ageRange,
+          isPremium: isPremium,
+        );
+        if (blockedIds.isNotEmpty) {
+          filter &= t.userInfoId.notInSet(blockedIds);
+        }
+        return filter;
+      },
       orderBy: (t) => t.lastSeen,
       orderDescending: true,
       limit: limit,
@@ -166,16 +175,16 @@ class SearchService {
     final hasQuery = query != null && query.trim().isNotEmpty;
     final hasFilters = interest != null || language != null || country != null;
 
-    if (hasQuery || hasFilters) {
+    if (hasFilters) {
       if (!ResidentService.isPlusMember(currentUser)) {
         throw protocol.TalktiveException(
-          message: 'Advanced Search is a Talktive Plus feature.',
+          message: 'Advanced Search filters are a Talktive Plus feature.',
           code: 'PREMIUM_REQUIRED',
         );
       }
       if (!ResidentService.canUseAdvancedDiscovery(currentUser)) {
         throw protocol.TalktiveException(
-          message: 'Advanced Search is disabled in Settings.',
+          message: 'Advanced Search is disabled in your Settings.',
           code: 'FEATURE_DISABLED',
         );
       }
@@ -192,15 +201,24 @@ class SearchService {
       );
     }
 
+    final blockedIds =
+        await ResidentService.getBlocksByUser(session, currentUser.userInfoId);
+
     final lounges = await protocol.Lounge.db.find(
       session,
-      where: (t) => _buildLoungeFilters(
-        t,
-        query: query,
-        interest: interest,
-        language: language,
-        country: country,
-      ),
+      where: (t) {
+        var filter = _buildLoungeFilters(
+          t,
+          query: query,
+          interest: interest,
+          language: language,
+          country: country,
+        );
+        if (blockedIds.isNotEmpty) {
+          filter &= t.creatorId.notInSet(blockedIds);
+        }
+        return filter;
+      },
       orderBy: (t) => t.memberCount,
       orderDescending: true,
       limit: limit,
@@ -357,6 +375,22 @@ class SearchService {
     int limit = 10,
     protocol.Resident? currentUser,
   }) async {
+    final hasFilters = gender != null ||
+        country != null ||
+        language != null ||
+        interest != null ||
+        ageRange != null ||
+        isPremium != null;
+
+    if (hasFilters) {
+      if (currentUser == null || !ResidentService.isPlusMember(currentUser)) {
+        throw protocol.TalktiveException(
+          message: 'Advanced filtering is a Talktive Plus feature.',
+          code: 'PREMIUM_REQUIRED',
+        );
+      }
+    }
+
     final sevenDaysAgo = DateTime.now().subtract(const Duration(days: 7));
 
     // Refactored: Query Residents directly using DB-level filters and order by activity.

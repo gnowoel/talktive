@@ -279,7 +279,7 @@ class ResidentService {
       level: level,
       currentStreak: 0,
       longestStreak: 0,
-      trustScore: ApartmentService.TRUST_SCORE_START,
+      trustScore: ApartmentService.trustScoreStart,
       suspended: false,
       userName: name,
       gender: gender,
@@ -318,6 +318,18 @@ class ResidentService {
     return block != null;
   }
 
+  /// Returns a set of user IDs blocked by the given user.
+  static Future<Set<UuidValue>> getBlocksByUser(
+    Session session,
+    UuidValue blockerId,
+  ) async {
+    final blocks = await protocol.Block.db.find(
+      session,
+      where: (t) => t.blockerId.equals(blockerId),
+    );
+    return blocks.map((b) => b.blockedId).toSet();
+  }
+
   /// Returns a set of user IDs who have blocked the given user.
   static Future<Set<UuidValue>> getBlocksAgainstUser(
     Session session,
@@ -338,21 +350,23 @@ class ResidentService {
     List<String>? sharedLanguages,
     int? matchScore,
   }) {
+    // Apply gating rules (e.g. hide custom avatar if target is not Plus)
+    final gated = gateResident(resident, viewer: viewer);
     final canSeeOnline = viewer != null && canSeeOthersOnlineStatus(viewer);
 
     return protocol.UserSummary(
-      userId: resident.userInfoId,
-      userName: resident.userName,
-      userAvatar: resident.customAvatarUrl ?? resident.avatar,
-      userMood: resident.mood,
-      floor: ApartmentService.computeEffectiveFloor(resident),
-      trustScore: resident.trustScore,
+      userId: gated.userInfoId,
+      userName: gated.userName,
+      userAvatar: gated.customAvatarUrl ?? gated.avatar,
+      userMood: gated.mood,
+      floor: ApartmentService.computeEffectiveFloor(gated),
+      trustScore: gated.trustScore,
       sharedInterests: sharedInterests,
       sharedLanguages: sharedLanguages,
       matchScore: matchScore,
-      ageRange: resident.ageRange,
-      isOnline: canSeeOnline ? isResidentOnline(resident) : false,
-      role: resident.role,
+      ageRange: gated.ageRange,
+      isOnline: canSeeOnline ? isResidentOnline(gated) : false,
+      role: gated.role,
     );
   }
 
@@ -362,11 +376,22 @@ class ResidentService {
     protocol.Resident target, {
     protocol.Resident? viewer,
   }) {
+    var gated = target;
+
+    // 1. Gate Online Status (Viewer must be Plus and have setting enabled)
     if (viewer == null || !canSeeOthersOnlineStatus(viewer)) {
-      // In Serverpod, we use copyWith to avoid mutating the original object if it's cached
-      return target.copyWith(lastSeen: null);
+      gated = gated.copyWith(lastSeen: null);
     }
-    return target;
+
+    // 2. Gate Custom Avatar (Target must be Plus)
+    if (!isPlusMember(target)) {
+      gated = gated.copyWith(customAvatarUrl: null);
+    } else if (viewer != null && !canSeeCustomAvatars(viewer)) {
+      // Viewer has explicitly opted out of seeing custom avatars
+      gated = gated.copyWith(customAvatarUrl: null);
+    }
+
+    return gated;
   }
 
   /// Helper to check if a resident is online based on lastSeen.
@@ -707,7 +732,7 @@ class ResidentService {
     await GamificationService.awardXP(
       session,
       target,
-      GamificationService.XP_USER_VOUCH,
+      GamificationService.xpUserVouch,
       'Vouched by another resident',
       save: false,
     );
@@ -825,8 +850,11 @@ class ResidentService {
     return false;
   }
 
-  static bool canUseCustomAvatar(protocol.Resident resident) =>
-      _hasEnabledPlusSetting(resident, resident.showCustomAvatar);
+  static bool canUploadCustomAvatar(protocol.Resident resident) =>
+      isPlusMember(resident);
+
+  static bool canSeeCustomAvatars(protocol.Resident viewer) =>
+      !isPlusMember(viewer) || viewer.showCustomAvatar;
 
   static bool canUseVoiceMessages(protocol.Resident resident) =>
       _hasEnabledPlusSetting(resident, resident.showVoiceMessages);

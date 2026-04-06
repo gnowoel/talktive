@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:serverpod_client/serverpod_client.dart';
 import 'client_provider.dart';
 
 part 'social_relationships_provider.g.dart';

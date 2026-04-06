@@ -250,22 +250,27 @@ class MessagingService {
     required protocol.Resident sender,
   }) async {
     final senderUuid = sender.userInfoId;
+    final currentSender = await protocol.Resident.db.findFirstRow(
+      session,
+      where: (t) => t.userInfoId.equals(senderUuid),
+    );
+    if (currentSender == null) return;
     final channelId = channel.id!;
 
     // 1. Award XP and update streak
     await GamificationService.awardXP(
       session,
-      sender,
+      currentSender,
       GamificationService.XP_PER_MESSAGE,
       'Sent message',
       save: false,
     );
     await GamificationService.updateMessageStreak(
       session,
-      sender,
+      currentSender,
       save: false,
     );
-    await ResidentService.updateResident(session, sender);
+    await ResidentService.updateResident(session, currentSender);
 
     // 2. Award Lounge XP
     if (channel.type == protocol.ChannelType.lounge) {
@@ -286,6 +291,21 @@ class MessagingService {
     await GamificationService.checkTimeBasedAchievements(
       session,
       senderUuid,
+    );
+  }
+
+  /// Backward-compatible alias for post-save message work.
+  static Future<void> onMessageSaved(
+    Session session, {
+    required protocol.Message message,
+    required protocol.Channel channel,
+    required protocol.Resident sender,
+  }) async {
+    await onMessagePostSave(
+      session,
+      message: message,
+      channel: channel,
+      sender: sender,
     );
   }
 
@@ -820,6 +840,72 @@ class MessagingService {
     }
 
     return items;
+  }
+
+  /// Gets full details for a private chat.
+  static Future<protocol.PrivateChatWithProfile?> getPrivateChatDetails(
+    Session session,
+    int channelId,
+    UuidValue currentUserId,
+  ) async {
+    final currentResident = await ResidentService.getResident(
+      session,
+      currentUserId,
+    );
+    final canSeeReadReceipts =
+        currentResident != null &&
+        ResidentService.canSeeOthersReadReceipts(currentResident);
+
+    final chat = await protocol.PrivateChat.db.findFirstRow(
+      session,
+      where: (t) => t.channelId.equals(channelId),
+    );
+    if (chat == null) return null;
+
+    if (chat.participant1Id != currentUserId &&
+        chat.participant2Id != currentUserId) {
+      throw protocol.TalktiveException(
+        message: 'Access denied.',
+        code: 'ACCESS_DENIED',
+      );
+    }
+
+    final otherId = chat.participant1Id == currentUserId
+        ? chat.participant2Id
+        : chat.participant1Id;
+    final members = await protocol.ChannelMember.db.find(
+      session,
+      where: (t) => t.channelId.equals(channelId),
+    );
+    final currentMember = members.firstWhereOrNull(
+      (m) => m.userInfoId == currentUserId,
+    );
+    final otherMember = members.firstWhereOrNull(
+      (m) => m.userInfoId == otherId,
+    );
+    final resident = await ResidentService.getResident(session, otherId);
+
+    if (resident == null) return null;
+
+    return protocol.PrivateChatWithProfile(
+      chat: chat,
+      otherResident: ResidentService.gateResident(
+        resident,
+        viewer: currentResident,
+      ),
+      otherUserName: resident.userName,
+      otherUserAvatar: resident.customAvatarUrl ?? resident.avatar,
+      otherUserMood: resident.mood,
+      currentMemberStatus: currentMember?.status,
+      otherMemberStatus: otherMember?.status,
+      otherUserLastReadAt: canSeeReadReceipts ? otherMember?.lastReadAt : null,
+      unreadCount:
+          (await ChannelService.batchGetUnreadCounts(session, [
+            channelId,
+          ], currentUserId))[channelId] ??
+          0,
+      channel: await ChannelService.getChannel(session, channelId),
+    );
   }
 
   /// Responses to a chat invitation (Accept/Decline).

@@ -6,7 +6,6 @@ import '../services/resident_service.dart';
 import '../services/report_service.dart';
 import '../services/notification_service.dart';
 import '../services/apartment_service.dart';
-import '../utils/task_utils.dart';
 import '../utils/endpoint_auth_mixin.dart';
 
 class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
@@ -414,17 +413,26 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
 
     // Side Effects (Background)
     runBackground(session, (backgroundSession) async {
-      ApartmentService.applyReportPenalty(reporter: reporter, target: target);
+      final currentTarget = await protocol.Resident.db.findFirstRow(
+        backgroundSession,
+        where: (t) => t.userInfoId.equals(targetUuid),
+      );
+      if (currentTarget == null) return;
+
+      ApartmentService.applyReportPenalty(
+        reporter: reporter,
+        target: currentTarget,
+      );
 
       // If Trust Score drops to 0, suspension/shadowban check
-      if (target.trustScore <= 0) {
-        target.suspended = true;
+      if (currentTarget.trustScore <= 0) {
+        currentTarget.suspended = true;
         backgroundSession.log(
-          'Resident ${target.userInfoId} suspended automatically due to reports.',
+          'Resident ${currentTarget.userInfoId} suspended automatically due to reports.',
         );
       }
 
-      await ResidentService.updateResident(backgroundSession, target);
+      await ResidentService.updateResident(backgroundSession, currentTarget);
 
       try {
         await NotificationService.sendReportNotification(

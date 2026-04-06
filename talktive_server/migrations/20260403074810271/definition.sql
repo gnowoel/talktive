@@ -1,7 +1,5 @@
 BEGIN;
 
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
-
 --
 -- Function: gen_random_uuid_v7()
 -- Source: https://gist.github.com/kjmph/5bd772b2c2df145aa645b837da7eca74
@@ -319,14 +317,12 @@ CREATE TABLE "resident" (
 
 -- Indexes
 CREATE UNIQUE INDEX "resident_user_idx" ON "resident" USING btree ("userInfoId");
-CREATE INDEX "resident_lastseen_idx" ON "resident" USING btree ("lastSeen");
-CREATE INDEX "resident_search_idx" ON "resident" USING gin ("userName" gin_trgm_ops);
-CREATE INDEX "resident_metadata_idx" ON "resident" USING btree ("gender", "country", "role");
-CREATE INDEX "resident_msg_date_idx" ON "resident" USING btree ("lastMessageDate");
+CREATE INDEX "resident_search_idx" ON "resident" USING btree ("lastSeen");
 CREATE INDEX "resident_geo_idx" ON "resident" USING btree ("country", "gender", "ageRange");
 CREATE INDEX "resident_xp_idx" ON "resident" USING btree ("xp");
 CREATE INDEX "resident_level_idx" ON "resident" USING btree ("level");
 CREATE INDEX "resident_role_idx" ON "resident" USING btree ("role");
+CREATE INDEX "resident_lastseen_idx" ON "resident" USING btree ("lastSeen");
 
 --
 -- Class UserAchievement as table user_achievements
@@ -1182,9 +1178,9 @@ ALTER TABLE ONLY "serverpod_auth_core_session"
 -- MIGRATION VERSION FOR talktive
 --
 INSERT INTO "serverpod_migrations" ("module", "version", "timestamp")
-    VALUES ('talktive', '20260406031018554', now())
+    VALUES ('talktive', '20260401041345711', now())
     ON CONFLICT ("module")
-    DO UPDATE SET "version" = '20260406031018554', "timestamp" = now();
+    DO UPDATE SET "version" = '20260401041345711', "timestamp" = now();
 
 --
 -- MIGRATION VERSION FOR serverpod

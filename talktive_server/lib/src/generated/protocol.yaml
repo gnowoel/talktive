@@ -70,14 +70,18 @@ media:
 message:
   - ping:
   - sendMessage:
+  - subscribe:
   - listMessages:
+  - markChannelAsRead:
+  - sendTypingIndicator:
+  - updateChannelPersistence:
+  - getPinnedMessage:
   - pinMessage:
   - unpinMessage:
   - recallMessage:
-  - markChannelAsRead:
-  - updateChannelPersistence:
   - getOrCreatePrivateChat:
   - listPrivateChats:
+  - getPrivateChatDetails:
   - respondToChatInvite:
   - leaveChat:
 moment:
@@ -99,6 +103,12 @@ notification:
   - getUnreadCount:
   - registerDeviceToken:
   - unregisterDeviceToken:
+privateChat:
+  - getOrCreatePrivateChat:
+  - listPrivateChats:
+  - getPrivateChatDetails:
+  - respondToChatInvite:
+  - leaveChat:
 resident:
   - getResident:
   - getLegacyMigrationData:
@@ -126,5 +136,14 @@ search:
   - getTrendingMoments:
   - getPopularLounges:
   - getActiveUsers:
+social:
+  - likeUser:
+  - unlikeUser:
+  - getMyLikedUserIds:
+  - blockUser:
+  - unblockUser:
+  - isUserBlocked:
+  - getBlockedUserIds:
+  - reportUser:
 greeting:
   - hello:

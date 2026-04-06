@@ -5,6 +5,8 @@ import 'resident_service.dart';
 import 'dart:convert';
 
 class SearchService {
+  static String _escapeSqlLiteral(String value) => value.replaceAll("'", "''");
+
   static Expression _buildResidentFilters(
     protocol.ResidentTable t, {
     String? query,
@@ -19,10 +21,11 @@ class SearchService {
 
     if (query != null && query.trim().isNotEmpty) {
       final q = query.trim();
+      final escapedQuery = _escapeSqlLiteral(q);
       expr &=
           (t.userName.ilike('%$q%') |
           t.bio.ilike('%$q%') |
-          Expression('interests::text ilike \'%$q%\''));
+          Expression("interests::text ilike '%$escapedQuery%'"));
     }
 
     if (gender != null) expr &= t.gender.equals(gender);
@@ -128,10 +131,11 @@ class SearchService {
 
     if (query != null && query.trim().isNotEmpty) {
       final q = query.trim();
+      final escapedQuery = _escapeSqlLiteral(q);
       expr &=
           (t.name.ilike('%$q%') |
           t.description.ilike('%$q%') |
-          Expression('interests::text ilike \'%$q%\''));
+          Expression("interests::text ilike '%$escapedQuery%'"));
     }
 
     if (country != null) expr &= t.country.equals(country);

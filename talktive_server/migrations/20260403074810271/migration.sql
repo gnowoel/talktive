@@ -1,21 +1,12 @@
 BEGIN;
 
 --
--- ACTION ALTER TABLE
---
-DROP INDEX IF EXISTS "resident_search_idx";
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
-CREATE INDEX "resident_metadata_idx" ON "resident" USING btree ("gender", "country", "role");
-CREATE INDEX "resident_msg_date_idx" ON "resident" USING btree ("lastMessageDate");
-CREATE INDEX "resident_search_idx" ON "resident" USING gin ("userName" gin_trgm_ops);
-
---
 -- MIGRATION VERSION FOR talktive
 --
 INSERT INTO "serverpod_migrations" ("module", "version", "timestamp")
-    VALUES ('talktive', '20260406031018554', now())
+    VALUES ('talktive', '20260403074810271', now())
     ON CONFLICT ("module")
-    DO UPDATE SET "version" = '20260406031018554', "timestamp" = now();
+    DO UPDATE SET "version" = '20260403074810271', "timestamp" = now();
 
 --
 -- MIGRATION VERSION FOR serverpod

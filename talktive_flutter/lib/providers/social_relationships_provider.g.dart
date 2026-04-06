@@ -35,7 +35,7 @@ final class SocialRelationshipsStateProvider
 }
 
 String _$socialRelationshipsStateHash() =>
-    r'19df9aa3e1cf273e0abb4100534d6d72decb1c3b';
+    r'f30b2edb874c6a276fa36a2c36cf9a769e759a2f';
 
 abstract class _$SocialRelationshipsState
     extends $AsyncNotifier<SocialRelationships> {

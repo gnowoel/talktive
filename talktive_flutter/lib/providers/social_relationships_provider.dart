@@ -41,7 +41,7 @@ class SocialRelationshipsState extends _$SocialRelationshipsState {
   Future<List<String>> fetchLikes() async {
     try {
       final client = ref.read(clientProvider);
-      return await client.social.getMyLikedUserIds();
+      return await client.resident.getMyLikedResidentIds();
     } catch (e) {
       return [];
     }
@@ -50,7 +50,7 @@ class SocialRelationshipsState extends _$SocialRelationshipsState {
   Future<List<String>> fetchBlockedUsers() async {
     try {
       final client = ref.read(clientProvider);
-      return await client.social.getBlockedUserIds();
+      return await client.resident.getBlockedResidentIds();
     } catch (e) {
       return [];
     }
@@ -58,25 +58,25 @@ class SocialRelationshipsState extends _$SocialRelationshipsState {
 
   Future<void> likeUser(String userId) async {
     final client = ref.read(clientProvider);
-    await client.social.likeUser(userId);
+    await client.resident.vouchForResident(UuidValue.fromString(userId));
     ref.invalidateSelf();
   }
 
   Future<void> unlikeUser(String userId) async {
     final client = ref.read(clientProvider);
-    await client.social.unlikeUser(userId);
+    await client.resident.removeResidentVouch(UuidValue.fromString(userId));
     ref.invalidateSelf();
   }
 
   Future<void> blockUser(String userId) async {
     final client = ref.read(clientProvider);
-    await client.social.blockUser(userId);
+    await client.resident.blockResident(userId);
     ref.invalidateSelf();
   }
 
   Future<void> unblockUser(String userId) async {
     final client = ref.read(clientProvider);
-    await client.social.unblockUser(userId);
+    await client.resident.unblockResident(userId);
     ref.invalidateSelf();
   }
 
@@ -87,7 +87,7 @@ class SocialRelationshipsState extends _$SocialRelationshipsState {
     int? messageId,
   }) async {
     final client = ref.read(clientProvider);
-    await client.social.reportUser(
+    await client.resident.reportResident(
       targetUserId: userId,
       reason: reason,
       channelId: channelId,

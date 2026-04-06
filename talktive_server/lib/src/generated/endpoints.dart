@@ -2477,31 +2477,12 @@ class Endpoints extends _i1.EndpointDispatch {
               ) async => (endpoints['resident'] as _i13.ResidentEndpoint)
                   .startPremiumTrial(session),
         ),
-        'likeResident': _i1.MethodConnector(
-          name: 'likeResident',
+        'vouchForResident': _i1.MethodConnector(
+          name: 'vouchForResident',
           params: {
             'targetUserId': _i1.ParameterDescription(
               name: 'targetUserId',
-              type: _i1.getType<String>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _i1.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['resident'] as _i13.ResidentEndpoint).likeResident(
-                    session,
-                    params['targetUserId'],
-                  ),
-        ),
-        'unlikeResident': _i1.MethodConnector(
-          name: 'unlikeResident',
-          params: {
-            'targetUserId': _i1.ParameterDescription(
-              name: 'targetUserId',
-              type: _i1.getType<String>(),
+              type: _i1.getType<_i1.UuidValue>(),
               nullable: false,
             ),
           },
@@ -2510,7 +2491,26 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async => (endpoints['resident'] as _i13.ResidentEndpoint)
-                  .unlikeResident(
+                  .vouchForResident(
+                    session,
+                    params['targetUserId'],
+                  ),
+        ),
+        'removeResidentVouch': _i1.MethodConnector(
+          name: 'removeResidentVouch',
+          params: {
+            'targetUserId': _i1.ParameterDescription(
+              name: 'targetUserId',
+              type: _i1.getType<_i1.UuidValue>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['resident'] as _i13.ResidentEndpoint)
+                  .removeResidentVouch(
                     session,
                     params['targetUserId'],
                   ),

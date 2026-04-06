@@ -3728,21 +3728,21 @@ class _ResidentEndpoint {
     });
   }
 
-  _i3.Future<void> likeResident(
+  _i3.Future<void> vouchForResident(
     _i1.TestSessionBuilder sessionBuilder,
-    String targetUserId,
+    _i2.UuidValue targetUserId,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
           (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
             endpoint: 'resident',
-            method: 'likeResident',
+            method: 'vouchForResident',
           );
       try {
         var _localCallContext = await _endpointDispatch.getMethodCallContext(
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'resident',
-          methodName: 'likeResident',
+          methodName: 'vouchForResident',
           parameters: _i1.testObjectToJson({'targetUserId': targetUserId}),
           serializationManager: _serializationManager,
         );
@@ -3759,21 +3759,21 @@ class _ResidentEndpoint {
     });
   }
 
-  _i3.Future<void> unlikeResident(
+  _i3.Future<void> removeResidentVouch(
     _i1.TestSessionBuilder sessionBuilder,
-    String targetUserId,
+    _i2.UuidValue targetUserId,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
           (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
             endpoint: 'resident',
-            method: 'unlikeResident',
+            method: 'removeResidentVouch',
           );
       try {
         var _localCallContext = await _endpointDispatch.getMethodCallContext(
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'resident',
-          methodName: 'unlikeResident',
+          methodName: 'removeResidentVouch',
           parameters: _i1.testObjectToJson({'targetUserId': targetUserId}),
           serializationManager: _serializationManager,
         );

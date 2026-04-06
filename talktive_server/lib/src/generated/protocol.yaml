@@ -110,8 +110,8 @@ resident:
   - updatePrivacy:
   - setPremiumStatus:
   - startPremiumTrial:
-  - likeResident:
-  - unlikeResident:
+  - vouchForResident:
+  - removeResidentVouch:
   - getMyLikedResidentIds:
   - blockResident:
   - unblockResident:

@@ -1368,19 +1368,19 @@ class EndpointResident extends _i2.EndpointRef {
         {},
       );
 
-  /// Vouch/Like a resident.
-  _i3.Future<void> likeResident(String targetUserId) =>
+  /// Vouches for another resident.
+  _i3.Future<void> vouchForResident(_i2.UuidValue targetUserId) =>
       caller.callServerEndpoint<void>(
         'resident',
-        'likeResident',
+        'vouchForResident',
         {'targetUserId': targetUserId},
       );
 
-  /// Remove a Vouch/Like.
-  _i3.Future<void> unlikeResident(String targetUserId) =>
+  /// Removes a vouch for another resident.
+  _i3.Future<void> removeResidentVouch(_i2.UuidValue targetUserId) =>
       caller.callServerEndpoint<void>(
         'resident',
-        'unlikeResident',
+        'removeResidentVouch',
         {'targetUserId': targetUserId},
       );
 

@@ -529,6 +529,25 @@ class NotificationService {
     );
   }
 
+  /// Sends a notification about a report being filed.
+  static Future<void> sendReportNotification(
+    Session session,
+    UuidValue userId,
+    String reason,
+  ) async {
+    await sendNotification(
+      session,
+      userId,
+      'report',
+      'Report Filed 🛡️',
+      'A report has been filed against your profile for: $reason. Our moderation team will review it shortly.',
+      data: {
+        'route': '/activity',
+      },
+      saveToHistory: true,
+    );
+  }
+
   /// Orchestrates all notifications for a new message (mentions, push, etc).
   static Future<void> triggerMessageNotifications(
     Session session, {

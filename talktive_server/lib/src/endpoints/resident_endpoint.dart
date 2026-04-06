@@ -4,7 +4,9 @@ import '../services/input_validation_service.dart';
 import '../services/legacy_migration_service.dart';
 import '../services/resident_service.dart';
 import '../services/report_service.dart';
-
+import '../services/notification_service.dart';
+import '../services/apartment_service.dart';
+import '../utils/task_utils.dart';
 import '../utils/endpoint_auth_mixin.dart';
 
 class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
@@ -403,10 +405,11 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
 
     await ReportService.createReport(
       session,
-      targetId: targetUuid,
-      reporterId: reporterUuid,
+      reporter: reporter,
+      target: target,
       reason: reason,
-      type: 'user', // Default type for resident report
+      channelId: channelId,
+      messageId: messageId,
     );
 
     // Side Effects (Background)

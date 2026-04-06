@@ -9,6 +9,8 @@ import '../utils/task_utils.dart';
 
 /// Service for managing Resident profiles and synchronization with AuthUser.
 class ResidentService {
+  static String _getCacheKey(UuidValue userId) => 'resident_$userId';
+
   /// Fetches a Resident by their userInfoId.
   static Future<protocol.Resident?> getResident(
     Session session,

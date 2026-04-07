@@ -2,6 +2,8 @@ import 'package:test/test.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import 'package:talktive_server/src/services/mention_service.dart';
+import 'package:talktive_server/src/services/notification_service.dart';
+import 'dart:convert';
 import 'test_tools/serverpod_test_tools.dart';
 
 void main() {
@@ -68,6 +70,20 @@ void main() {
           type: protocol.ChannelType.lounge,
           name: 'Lounge',
           createdAt: DateTime.now(),
+        ),
+      );
+
+      // Link Channel to a Lounge record
+      await protocol.Lounge.db.insertRow(
+        session,
+        protocol.Lounge(
+          channelId: loungeChannel.id!,
+          name: 'Lounge',
+          creatorId: userA.userInfoId,
+          createdAt: DateTime.now(),
+          level: 1,
+          memberCount: 0,
+          isPublic: true,
         ),
       );
 
@@ -209,6 +225,64 @@ void main() {
 
         expect(mentionedIds, hasLength(2));
         expect(mentionedIds, containsAll([userB.userInfoId, userC.userInfoId]));
+      });
+    });
+
+    group('Notification Routing Regression', () {
+      test('Plaza: mention notification uses /plaza/chat route', () async {
+        final session = sessionBuilder.build();
+
+        // Trigger a mention notification
+        await NotificationService.sendMentionNotification(
+          session,
+          userB.userInfoId,
+          'UserA',
+          'Hey @UserB!',
+          plazaChannel.id!,
+          'Plaza',
+          channel: plazaChannel,
+        );
+
+        // Verify the notification record in DB
+        final notifications = await protocol.UserNotification.db.find(
+          session,
+          where: (t) => t.userId.equals(userB.userInfoId),
+          orderBy: (t) => t.createdAt,
+          orderDescending: true,
+        );
+
+        expect(notifications, isNotEmpty);
+        final latest = notifications.first;
+        expect(latest.type, 'mention');
+
+        final data = jsonDecode(latest.data!) as Map<String, dynamic>;
+        expect(data['route'], '/plaza/chat');
+      });
+
+      test('Lounge: mention notification uses /lounges/chat/ID route', () async {
+        final session = sessionBuilder.build();
+
+        await NotificationService.sendMentionNotification(
+          session,
+          userB.userInfoId,
+          'UserA',
+          'Hey @UserB!',
+          loungeChannel.id!,
+          'Lounge',
+          channel: loungeChannel,
+        );
+
+        final notifications = await protocol.UserNotification.db.find(
+          session,
+          where: (t) => t.userId.equals(userB.userInfoId),
+          orderBy: (t) => t.createdAt,
+          orderDescending: true,
+        );
+
+        final latest = notifications.first;
+        final data = jsonDecode(latest.data!) as Map<String, dynamic>;
+        // Should contain /lounges/chat/
+        expect(data['route'], startsWith('/lounges/chat/'));
       });
     });
   });

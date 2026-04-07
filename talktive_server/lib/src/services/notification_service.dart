@@ -335,10 +335,11 @@ class NotificationService {
     int channelId,
     String loungeName, {
     int? loungeId,
+    protocol.Channel? channel,
   }) async {
     // Resolve loungeId from channelId if not provided
     int? resolvedLoungeId = loungeId;
-    if (resolvedLoungeId == null) {
+    if (resolvedLoungeId == null && channel?.type != protocol.ChannelType.plaza && channel?.type != protocol.ChannelType.private) {
       final lounge = await protocol.Lounge.db.findFirstRow(
         session,
         where: (t) => t.channelId.equals(channelId),
@@ -350,13 +351,14 @@ class NotificationService {
 
     // Resolve route based on channel type
     String route = '/lounges';
-    if (resolvedLoungeId != null) {
+    final resolvedChannel = channel ?? await protocol.Channel.db.findById(session, channelId);
+    
+    if (resolvedChannel?.type == protocol.ChannelType.plaza) {
+      route = '/plaza/chat';
+    } else if (resolvedChannel?.type == protocol.ChannelType.private) {
+      route = '/chats/thread/$channelId';
+    } else if (resolvedLoungeId != null) {
       route = '/lounges/chat/$resolvedLoungeId';
-    } else {
-      final channel = await protocol.Channel.db.findById(session, channelId);
-      if (channel?.type == protocol.ChannelType.private) {
-        route = '/chats/thread/$channelId';
-      }
     }
 
     // Mentions are recorded in history and bypass mute
@@ -594,9 +596,9 @@ class NotificationService {
         channelId,
         loungeName,
         loungeId: loungeId,
+        channel: channel,
       ),
     );
-
     // 4. Notify other members (Private/Lounge only)
     Future? bulkMemberFuture;
     if (!isPlaza) {

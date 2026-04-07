@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
+import '../serverpod_client.dart';
+import 'auth_provider.dart';
 import 'client_provider.dart';
 
 part 'moments_provider.g.dart';
@@ -10,16 +12,24 @@ part 'moments_provider.g.dart';
 class Moments extends _$Moments {
   @override
   FutureOr<List<Moment>> build() async {
+    final authState = ref.watch(authProvider);
+    if (authState.isLoading ||
+        !authState.hasValue ||
+        authState.value is! Authenticated) {
+      return const [];
+    }
     return fetchMoments();
   }
 
   Future<List<Moment>> fetchMoments({int limit = 20}) async {
+    if (!sessionManager.isAuthenticated) return const [];
     final client = ref.read(clientProvider);
     return await client.moment.listMoments(limit: limit);
   }
 
   /// Refreshes the moments list
   Future<void> refresh() async {
+    if (!sessionManager.isAuthenticated) return;
     state = const AsyncValue.loading();
     try {
       final moments = await fetchMoments();
@@ -79,10 +89,17 @@ class Moments extends _$Moments {
 class MomentLikes extends _$MomentLikes {
   @override
   FutureOr<Set<int>> build() async {
+    final authState = ref.watch(authProvider);
+    if (authState.isLoading ||
+        !authState.hasValue ||
+        authState.value is! Authenticated) {
+      return const {};
+    }
     return fetchLikedMoments();
   }
 
   Future<Set<int>> fetchLikedMoments() async {
+    if (!sessionManager.isAuthenticated) return const {};
     final client = ref.read(clientProvider);
     final moments = await ref.read(momentsProvider.future);
 
@@ -142,10 +159,17 @@ class MomentLikes extends _$MomentLikes {
 class MomentComments extends _$MomentComments {
   @override
   FutureOr<List<MomentComment>> build(int momentId) async {
+    final authState = ref.watch(authProvider);
+    if (authState.isLoading ||
+        !authState.hasValue ||
+        authState.value is! Authenticated) {
+      return const [];
+    }
     return fetchComments(momentId);
   }
 
   Future<List<MomentComment>> fetchComments(int momentId) async {
+    if (!sessionManager.isAuthenticated) return const [];
     final client = ref.read(clientProvider);
     return await client.moment.getMomentComments(momentId, limit: 50);
   }
@@ -197,10 +221,17 @@ class MomentComments extends _$MomentComments {
 class UserMoments extends _$UserMoments {
   @override
   FutureOr<List<Moment>> build(String userId) async {
+    final authState = ref.watch(authProvider);
+    if (authState.isLoading ||
+        !authState.hasValue ||
+        authState.value is! Authenticated) {
+      return const [];
+    }
     return fetchUserMoments(userId);
   }
 
   Future<List<Moment>> fetchUserMoments(String userId, {int limit = 50}) async {
+    if (!sessionManager.isAuthenticated) return const [];
     final client = ref.read(clientProvider);
     return await client.moment.listUserMoments(
       userId: UuidValue.fromString(userId),

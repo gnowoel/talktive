@@ -176,6 +176,9 @@ class LoungeList extends _$LoungeList {
 /// Provider for getting details about a specific lounge.
 @riverpod
 Future<Lounge> loungeDetails(Ref ref, int loungeId) async {
+  if (!sessionManager.isAuthenticated) {
+    throw Exception('User is not authenticated');
+  }
   final client = ref.read(clientProvider);
   try {
     return await client.lounge.getLounge(loungeId);
@@ -191,12 +194,13 @@ Future<List<LoungeMemberWithProfile>> loungeMembersWithProfiles(
   Ref ref,
   int loungeId,
 ) async {
+  if (!sessionManager.isAuthenticated) return const [];
   final client = ref.read(clientProvider);
   try {
     return await client.lounge.getLoungeMembers(loungeId);
   } catch (e) {
     debugPrint('LoungeMembersWithProfiles: Fetch error: $e');
-    rethrow;
+    return const [];
   }
 }
 
@@ -206,25 +210,27 @@ Future<List<LoungeMemberWithProfile>> pendingApplications(
   Ref ref,
   int loungeId,
 ) async {
+  if (!sessionManager.isAuthenticated) return const [];
   final client = ref.read(clientProvider);
   try {
     return await client.lounge.getPendingApplications(loungeId);
   } catch (e) {
     debugPrint('PendingApplications: Fetch error: $e');
-    rethrow;
+    return const [];
   }
 }
 
 /// Provider for getting members of a lounge.
 @riverpod
 Future<List<Resident>> loungeMembers(Ref ref, int loungeId) async {
+  if (!sessionManager.isAuthenticated) return const [];
   final client = ref.read(clientProvider);
   try {
     final members = await client.lounge.getLoungeMembers(loungeId);
     return members.map((m) => m.resident).toList();
   } catch (e) {
     debugPrint('LoungeMembers: Fetch error: $e');
-    rethrow;
+    return const [];
   }
 }
 

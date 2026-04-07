@@ -99,11 +99,12 @@ Future<PrivateChatWithProfile?> privateChatDetails(
   Ref ref,
   int privateChatId,
 ) async {
+  if (!sessionManager.isAuthenticated) return null;
   final client = ref.read(clientProvider);
   try {
     return await client.privateChat.getPrivateChatDetails(privateChatId);
   } catch (e) {
     debugPrint('PrivateChatDetails: Fetch error: $e');
-    rethrow;
+    return null;
   }
 }

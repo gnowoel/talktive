@@ -1,5 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:serverpod_client/serverpod_client.dart';
+import 'package:talktive_client/talktive_client.dart';
 import '../serverpod_client.dart';
 import 'client_provider.dart';
 import 'auth_provider.dart';

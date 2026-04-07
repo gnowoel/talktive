@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
+import '../serverpod_client.dart';
+import 'auth_provider.dart';
 import 'client_provider.dart';
 import 'social_relationships_provider.dart';
 
@@ -14,7 +16,15 @@ class UserProfile extends _$UserProfile {
     // Watch social relationships to rebuild when they change
     ref.watch(socialRelationshipsStateProvider);
 
+    final authState = ref.watch(authProvider);
+    if (authState.isLoading ||
+        !authState.hasValue ||
+        authState.value is! Authenticated) {
+      return null;
+    }
+
     try {
+      if (!sessionManager.isAuthenticated) return null;
       final client = ref.read(clientProvider);
       return await client.resident.getUserProfile(userId);
     } catch (e) {
@@ -25,6 +35,7 @@ class UserProfile extends _$UserProfile {
 
   /// Refreshes the profile data from the server.
   Future<void> refresh() async {
+    if (!sessionManager.isAuthenticated) return;
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final client = ref.read(clientProvider);

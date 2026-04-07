@@ -93,6 +93,7 @@ class CurrentResident extends _$CurrentResident {
 /// Provider to fetch a resident by their user ID.
 @riverpod
 Future<Resident?> residentById(Ref ref, String userId) async {
+  if (!sessionManager.isAuthenticated) return null;
   final client = ref.read(clientProvider);
   try {
     return await client.resident.getResidentById(userId);

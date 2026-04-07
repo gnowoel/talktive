@@ -392,18 +392,25 @@ class Auth extends _$Auth {
   }
 
   Future<void> signOut() async {
-    state = const AsyncValue.loading();
+    // 1. Set state to Unauthenticated first to stop all reactive providers from fetching.
+    // This also triggers FCMManager.unregister() reactively while the session is still valid.
+    state = const AsyncValue.data(Unauthenticated());
+
+    // 2. Give reactive providers a chance to handle the state change (especially FCM unregistration).
+    await Future.delayed(Duration.zero);
+
     try {
+      // 3. Finally, invalidate the server session.
       await sessionManager.signOutDevice();
       await FirebaseAuth.instance.signOut();
       await GoogleSignIn.instance.signOut();
     } catch (e) {
       debugPrint("SignOut error: $e");
     }
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('user_name');
     await prefs.remove('user_id');
     await prefs.remove('onboarding_completed');
-    state = const AsyncValue.data(Unauthenticated());
   }
 }

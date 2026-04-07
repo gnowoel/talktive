@@ -48,7 +48,9 @@ class MomentService {
       commentsCount: 0,
       fileSize: fileSize,
       authorName: author.userName ?? 'Anonymous',
-      authorAvatar: author.customAvatarUrl ?? author.avatar ?? '',
+      authorAvatar: ResidentService.isPlusMember(author)
+          ? (author.customAvatarUrl ?? author.avatar ?? '')
+          : (author.avatar ?? ''),
       authorMood: author.mood,
       authorFloor: effectiveFloor,
       authorTrustScore: author.trustScore,

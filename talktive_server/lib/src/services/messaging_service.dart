@@ -193,7 +193,9 @@ class MessagingService {
       duration: duration,
       fileSize: fileSize,
       senderName: sender.userName ?? 'Resident',
-      senderAvatar: sender.customAvatarUrl ?? sender.avatar,
+      senderAvatar: ResidentService.isPlusMember(sender)
+          ? (sender.customAvatarUrl ?? sender.avatar)
+          : sender.avatar,
       senderMood: sender.mood,
       senderFloor: ApartmentService.computeEffectiveFloor(sender),
       senderTrustScore: sender.trustScore,

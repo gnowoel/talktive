@@ -133,7 +133,7 @@ class NotificationService {
         'route': channelType == 'private'
             ? '/chats/thread/$resolvedRouteId'
             : (channelType == 'plaza'
-                  ? '/plaza'
+                  ? '/plaza/chat'
                   : '/lounges/chat/$resolvedRouteId'),
       },
       saveToHistory: false,
@@ -166,7 +166,7 @@ class NotificationService {
     final route = channelType == 'private'
         ? '/chats/thread/$resolvedRouteId'
         : (channelType == 'plaza'
-              ? '/plaza'
+              ? '/plaza/chat'
               : '/lounges/chat/$resolvedRouteId');
 
     await sendBulkNotifications(

@@ -50,6 +50,7 @@ Messaging is the heart of the residence and must be extremely responsive.
 - **Immediate UI-Critical Broadcast**: Message posting to the real-time WebSocket stream (`session.messages.postMessage`) MUST occur immediately after the database save. Do not wait for side-effects like push notifications or XP awards to complete before broadcasting the message to the recipient's UI.
 - **Background Offloading**: All non-UI-critical side effects (Gamification, Streak updates, Achievements, Push Notifications) MUST be offloaded to `TaskUtils.runBackground`. This ensures that even if FCM delivery is slow, the user experience remains snappy.
 - **Privacy at the Source**: Block checks and permission validation are centralized in `ChannelService.validateNoBlockFlow` and `ChannelService.validateMember`. Always call these before performing any write operations.
+- **Plaza Mentions (Dynamic Whitelist)**: Unlike Lounges, the Plaza does not have a static member list. To support `@` mentions without scanning the entire resident database, the server uses a **Dynamic Whitelist** of the last 100 unique senders in the Plaza channel. This ensures that active participants can be mentioned and notified, maintaining engagement while preserving performance.
 
 ### 3. Authentication & Identity
 

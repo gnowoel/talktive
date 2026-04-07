@@ -13,26 +13,36 @@ class MentionService {
     if (!content.contains('@')) return [];
 
     final channel = await protocol.Channel.db.findById(session, channelId);
-    if (channel == null || channel.type == protocol.ChannelType.plaza) {
-      // Mentions are disabled in the public Plaza to ensure reliability and performance.
-      return [];
+    if (channel == null) return [];
+
+    final Set<UuidValue> whitelistUserIds = {};
+
+    if (channel.type == protocol.ChannelType.plaza) {
+      // For Plaza, we use a dynamic whitelist of the last 100 unique senders
+      final lastMessages = await protocol.Message.db.find(
+        session,
+        where: (t) => t.channelId.equals(channelId),
+        orderBy: (t) => t.createdAt,
+        orderDescending: true,
+        limit: 200, // Look at last 200 messages to find ~100 unique users
+      );
+      whitelistUserIds.addAll(lastMessages.map((m) => m.senderId));
+    } else {
+      // For Lounges and Private chats, use the joined members list
+      final members = await protocol.ChannelMember.db.find(
+        session,
+        where: (t) =>
+            t.channelId.equals(channelId) &
+            t.status.equals(protocol.ChannelMemberStatus.joined),
+      );
+      whitelistUserIds.addAll(members.map((m) => m.userInfoId));
     }
 
-    // 1. Fetch all members of this channel to use as a "whitelist" for parsing.
-    // We fetch Resident records for those who are joined members of this channel.
-    final members = await protocol.ChannelMember.db.find(
-      session,
-      where: (t) =>
-          t.channelId.equals(channelId) &
-          t.status.equals(protocol.ChannelMemberStatus.joined),
-    );
+    if (whitelistUserIds.isEmpty) return [];
 
-    if (members.isEmpty) return [];
-
-    final joinedUserIds = members.map((m) => m.userInfoId).toSet();
     final residents = await protocol.Resident.db.find(
       session,
-      where: (t) => t.userInfoId.inSet(joinedUserIds),
+      where: (t) => t.userInfoId.inSet(whitelistUserIds),
     );
 
     if (residents.isEmpty) return [];

@@ -17,6 +17,7 @@ part 'fcm_provider.g.dart';
 @riverpod
 class FCMManager extends _$FCMManager {
   FirebaseMessaging? _messaging;
+  bool _isUnregistering = false;
 
   @override
   FutureOr<String?> build() async {
@@ -246,8 +247,16 @@ class FCMManager extends _$FCMManager {
 
   /// Unregister FCM token (call on logout).
   Future<void> unregister() async {
+    if (_isUnregistering) return;
+    _isUnregistering = true;
+
     try {
-      if (!sessionManager.isAuthenticated) return;
+      if (!sessionManager.isAuthenticated) {
+        // If already signed out from Serverpod, we can still try to delete the local FCM token
+        // but we can't notify the server.
+        await _messaging?.deleteToken();
+        return;
+      }
 
       final token = await _messaging?.getToken();
       if (token != null) {
@@ -258,6 +267,8 @@ class FCMManager extends _$FCMManager {
       }
     } catch (e) {
       debugPrint('Failed to unregister token: $e');
+    } finally {
+      _isUnregistering = false;
     }
   }
 

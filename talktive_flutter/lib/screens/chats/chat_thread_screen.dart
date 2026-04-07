@@ -577,6 +577,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
                   messageController.selection = TextSelection.fromPosition(
                     TextPosition(offset: messageController.text.length),
                   );
+                  focusNode.requestFocus();
                 },
                 otherMemberNames: [otherName],
                 isRead: isRead,

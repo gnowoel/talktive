@@ -369,7 +369,7 @@ class NotificationService {
       data: {
         'channelId': channelId,
         'loungeName': loungeName,
-        'loungeId': loungeId,
+        'loungeId': resolvedLoungeId,
         'route': route,
       },
       saveToHistory: true,
@@ -584,6 +584,7 @@ class NotificationService {
     final loungeName = channel.name ?? (isPlaza ? 'Plaza' : 'Chat');
 
     // 3. Notify mentions (Parallel)
+    // Mentions always trigger a notification, even if the channel is muted.
     final mentionFutures = mentionedUserIds.map(
       (mentionedId) => sendMentionNotification(
         session,
@@ -619,7 +620,9 @@ class NotificationService {
 
       final recipientIds = <UuidValue>[];
       for (final member in otherMembers) {
-        if (member.isMuted || mentionIdSet.contains(member.userInfoId)) {
+        // If they are mentioned, they already got a 'mention' notification.
+        // We only send a bulk 'message' notification if they are NOT mentioned AND NOT muted.
+        if (mentionIdSet.contains(member.userInfoId) || member.isMuted) {
           continue;
         }
         if (blockedBySet.contains(member.userInfoId)) continue;

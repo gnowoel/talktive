@@ -204,9 +204,19 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
     final socialState = ref.watch(socialRelationshipsStateProvider).value;
     final blockedUsers = socialState?.blockedUserIds ?? [];
 
-    final filteredMessages = messages.where((msg) {
-      return !blockedUsers.contains(msg.senderId.toString());
-    }).toList();
+    // For Plaza, we don't have a static member list, so we use the names
+    // of people currently visible in the message list for highlighting.
+    final visibleMemberNames =
+        messages
+            .map((m) => m.senderName)
+            .where((n) => n.isNotEmpty)
+            .toSet()
+            .toList();
+
+    final filteredMessages =
+        messages.where((msg) {
+          return !blockedUsers.contains(msg.senderId.toString());
+        }).toList();
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -228,14 +238,15 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
             return Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 24),
-                child: state.isLoadingMore
-                    ? const CircularProgressIndicator(strokeWidth: 2)
-                    : state.hasMore
-                    ? const Text(
-                        'Scroll for more messages',
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
-                      )
-                    : const SizedBox.shrink(),
+                child:
+                    state.isLoadingMore
+                        ? const CircularProgressIndicator(strokeWidth: 2)
+                        : state.hasMore
+                        ? const Text(
+                          'Scroll for more messages',
+                          style: TextStyle(color: Colors.grey, fontSize: 12),
+                        )
+                        : const SizedBox.shrink(),
               ),
             );
           }
@@ -250,6 +261,22 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
                 message: message,
                 isCurrentUser: isCurrentUser,
                 currentResident: currentResident,
+                onMention: (name) {
+                  final current = messageController.text;
+                  // Requirement: "inserts @Some User Name " (with trailing space)
+                  // We also ensure leading space if not at start.
+                  if (current.isEmpty || current.endsWith(' ')) {
+                    messageController.text = '$current@$name ';
+                  } else {
+                    messageController.text = '$current @$name ';
+                  }
+                  messageController.selection = TextSelection.fromPosition(
+                    TextPosition(offset: messageController.text.length),
+                  );
+                  // Focus the input
+                  focusNode.requestFocus();
+                },
+                otherMemberNames: visibleMemberNames,
                 canPin: currentResident?.isStaff ?? false,
                 canRecall: isCurrentUser || (currentResident?.isStaff ?? false),
               )

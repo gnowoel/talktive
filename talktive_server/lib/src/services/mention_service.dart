@@ -18,25 +18,27 @@ class MentionService {
       return [];
     }
 
-    // 1. Fetch all members of this channel to use as a "whitelist" for parsing
-    // This solves the "@Rick Novak this morning" ambiguity because we only look for actual names.
+    // 1. Fetch all members of this channel to use as a "whitelist" for parsing.
+    // We fetch Resident records for those who are joined members of this channel.
     final members = await protocol.ChannelMember.db.find(
       session,
       where: (t) =>
           t.channelId.equals(channelId) &
           t.status.equals(protocol.ChannelMemberStatus.joined),
     );
+
     if (members.isEmpty) return [];
+
+    final joinedUserIds = members.map((m) => m.userInfoId).toSet();
+    final residents = await protocol.Resident.db.find(
+      session,
+      where: (t) => t.userInfoId.inSet(joinedUserIds),
+    );
+
+    if (residents.isEmpty) return [];
 
     // Map names to IDs for easier lookup
     final nameMap = <String, Set<UuidValue>>{};
-
-    final memberIds = members.map((m) => m.userInfoId).toSet();
-    final residents = await protocol.Resident.db.find(
-      session,
-      where: (t) => t.userInfoId.inSet(memberIds),
-    );
-
     for (final resident in residents) {
       final name = resident.userName?.toLowerCase();
       if (name == null || name.isEmpty) continue;
@@ -53,14 +55,23 @@ class MentionService {
       ..sort((a, b) => b.length.compareTo(a.length));
 
     for (final index in atIndices) {
+      // Check if @ is preceded by space or start of string
+      if (index > 0 && content[index - 1] != ' ') continue;
+
       final chunk = content.substring(index + 1).toLowerCase();
       if (chunk.isEmpty) continue;
 
       for (final name in sortedNames) {
+        // Match name followed by space, punctuation, or end of string
         if (chunk.startsWith(name)) {
-          // Found a match! Add all users with this name in the channel
-          detectedIds.addAll(nameMap[name]!);
-          break; // Longest match wins
+          final nextCharIdx = name.length;
+          final bool isWordBoundary = nextCharIdx >= chunk.length ||
+              RegExp(r'[\s.,!?;:]').hasMatch(chunk[nextCharIdx]);
+
+          if (isWordBoundary) {
+            detectedIds.addAll(nameMap[name]!);
+            break; // Longest match wins for this @ index
+          }
         }
       }
     }
@@ -69,11 +80,12 @@ class MentionService {
   }
 
   /// Checks if a specific user is mentioned in the content.
+  /// Consistent with the regex used in the frontend.
   static bool isUserMentioned(String content, String userName) {
-    if (!content.contains('@')) return false;
+    if (userName.isEmpty || !content.contains('@')) return false;
     // Case-insensitive check with boundary logic
     final pattern = RegExp(
-      '@${RegExp.escape(userName)}(?=\\s|\$|[.,!?;:])',
+      '(?:^|\\s)@${RegExp.escape(userName)}(?=\\s|\$|[.,!?;:])',
       caseSensitive: false,
     );
     return pattern.hasMatch(content);

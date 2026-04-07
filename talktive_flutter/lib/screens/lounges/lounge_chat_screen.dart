@@ -681,6 +681,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen>
                   messageController.selection = TextSelection.fromPosition(
                     TextPosition(offset: messageController.text.length),
                   );
+                  focusNode.requestFocus();
                 },
                 otherMemberNames: memberNames,
                 canPin:

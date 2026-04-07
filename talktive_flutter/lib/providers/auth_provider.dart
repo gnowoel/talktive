@@ -103,14 +103,11 @@ class Auth extends _$Auth {
       final resident = await client.resident.getResident();
 
       if (resident != null) {
-        final prefs = await SharedPreferences.getInstance();
-        final cachedName = prefs.getString('user_name');
-        final userName = (cachedName != null && cachedName.isNotEmpty)
-            ? cachedName
-            : (FirebaseAuth.instance.currentUser?.displayName ?? 'Anonymous');
-        await prefs.setBool('onboarding_completed', true);
-        await prefs.setString('user_name', userName);
-        await prefs.setString('user_id', resident.userInfoId.toString());
+        final userName =
+            resident.userName ??
+            (FirebaseAuth.instance.currentUser?.displayName ?? 'Anonymous');
+
+        await _updateLocalSession(resident.userInfoId.toString(), userName);
 
         return Authenticated(
           userId: resident.userInfoId.toString(),
@@ -127,6 +124,14 @@ class Auth extends _$Auth {
     } catch (e) {
       return AuthFailure(e.toString());
     }
+  }
+
+  /// Atomically updates local state and SharedPreferences
+  Future<void> _updateLocalSession(String userId, String userName) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('onboarding_completed', true);
+    await prefs.setString('user_name', userName);
+    await prefs.setString('user_id', userId);
   }
 
   bool _hasGoogleProvider(User user) {
@@ -313,10 +318,7 @@ class Auth extends _$Auth {
         customAvatarUrl: customAvatarUrl,
       );
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('onboarding_completed', true);
-      await prefs.setString('user_name', name);
-      await prefs.setString('user_id', resident.userInfoId.toString());
+      await _updateLocalSession(resident.userInfoId.toString(), name);
 
       state = AsyncValue.data(
         Authenticated(userId: resident.userInfoId.toString(), userName: name),
@@ -377,9 +379,7 @@ class Auth extends _$Auth {
         customAvatarUrl: customAvatarUrl,
       );
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('user_name', name);
-      await prefs.setString('user_id', resident.userInfoId.toString());
+      await _updateLocalSession(resident.userInfoId.toString(), name);
 
       state = AsyncValue.data(
         Authenticated(userId: resident.userInfoId.toString(), userName: name),

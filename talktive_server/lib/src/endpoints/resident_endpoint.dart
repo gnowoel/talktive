@@ -130,47 +130,38 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     InputValidationService.validateName(name).throwIfInvalid();
     InputValidationService.validateGender(gender).throwIfInvalid();
     InputValidationService.validateBio(bio).throwIfInvalid();
-    InputValidationService.validateStringList(
-      interests,
-      'Interests',
-    ).throwIfInvalid();
-    InputValidationService.validateStringList(
-      languages,
-      'Languages',
-    ).throwIfInvalid();
+    InputValidationService.validateStringList(interests, 'Interests')
+        .throwIfInvalid();
+    InputValidationService.validateStringList(languages, 'Languages')
+        .throwIfInvalid();
 
     final resident = await getAuthenticatedResident(session);
 
-    // Sync name with auth profile
-    await ResidentService.syncAuthProfile(session, resident.userInfoId, name);
-
-    // Update basic fields
-    resident.userName = name;
-    resident.avatar = avatar;
-    resident.gender = gender;
-    resident.country = country;
-    resident.bio = bio;
-    resident.ageRange = ageRange ?? resident.ageRange;
-    resident.mood = mood ?? resident.mood;
-    resident.interests = interests ?? resident.interests;
-    resident.languages = languages ?? resident.languages;
-
     // Premium check for custom avatar
-    if (customAvatarUrl != null) {
-      if (!ResidentService.canUploadCustomAvatar(resident)) {
-        throw protocol.TalktiveException(
-          message: 'Custom avatars are a Premium feature.',
-          code: 'PREMIUM_REQUIRED',
-        );
-      }
-      resident.customAvatarUrl = customAvatarUrl;
+    if (customAvatarUrl != null &&
+        !ResidentService.canUploadCustomAvatar(resident)) {
+      throw protocol.TalktiveException(
+        message: 'Custom avatars are a Premium feature.',
+        code: 'PREMIUM_REQUIRED',
+      );
     }
 
-    // ResidentService.updateResident handles old avatar cleanup internally.
-    return await ResidentService.updateResident(session, resident);
+    return await ResidentService.updateResidentFields(
+      session,
+      resident: resident,
+      name: name,
+      avatar: avatar,
+      gender: gender,
+      country: country,
+      bio: bio,
+      mood: mood,
+      ageRange: ageRange,
+      interests: interests,
+      languages: languages,
+      customAvatarUrl: customAvatarUrl,
+    );
   }
 
-  /// Updates only the custom avatar URL (standalone method for overlay button).
   Future<protocol.Resident> updateCustomAvatar(
     Session session,
     String? customAvatarUrl, {
@@ -194,10 +185,11 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
       );
     }
 
-    resident.customAvatarUrl = customAvatarUrl;
-
-    // ResidentService.updateResident handles old avatar cleanup internally.
-    return await ResidentService.updateResident(session, resident);
+    return await ResidentService.updateResidentFields(
+      session,
+      resident: resident,
+      customAvatarUrl: customAvatarUrl,
+    );
   }
 
   /// Get a user's profile view (with stats)
@@ -216,7 +208,6 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     );
   }
 
-  /// Updates privacy settings (Others, Voice, Search, etc).
   Future<protocol.Resident> updatePrivacy(
     Session session, {
     bool? hideAds,
@@ -238,7 +229,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
       );
     }
 
-    final premiumToggles = [
+    final plusToggles = [
       showVoiceMessages,
       showAdvancedDiscovery,
       showCustomAvatar,
@@ -248,7 +239,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
       keepPrivateChats,
     ];
 
-    if (premiumToggles.any((t) => t == true) &&
+    if (plusToggles.any((t) => t == true) &&
         !ResidentService.isPlusMember(resident)) {
       throw protocol.TalktiveException(
         message: 'Premium privacy settings require a Plus membership.',

@@ -104,8 +104,7 @@ class ResidentService {
       return resident;
     }
 
-    await ensureActiveState(session, resident);
-    return resident;
+    return await ensureActiveState(session, resident);
   }
 
   /// Invalidates the cache for a specific resident across all tiers (Local & Global).
@@ -535,6 +534,7 @@ class ResidentService {
     UuidValue viewerId,
     UuidValue targetId,
   ) async {
+    // 1. Concurrent Fetching of basic social state
     final results = await Future.wait([
       ResidentService.isBlocked(
         session,
@@ -551,30 +551,34 @@ class ResidentService {
         where: (t) =>
             t.senderId.equals(viewerId) & t.receiverId.equals(targetId),
       ),
+      // Fetch viewer's joined channel IDs to find mutuals
       protocol.ChannelMember.db.find(
         session,
-        where: (t) => t.userInfoId.equals(viewerId),
-      ),
-      protocol.ChannelMember.db.find(
-        session,
-        where: (t) => t.userInfoId.equals(targetId),
+        where: (t) =>
+            t.userInfoId.equals(viewerId) &
+            t.status.equals(protocol.ChannelMemberStatus.joined),
       ),
     ]);
 
     final isBlocked = results[0] as bool;
     final hasBlockedMe = results[1] as bool;
     final isLiked = results[2] != null;
+    final viewerMemberships = results[3] as List<protocol.ChannelMember>;
+    final viewerChannelIds = viewerMemberships.map((m) => m.channelId).toSet();
 
-    final viewerLoungeIds = (results[3] as List<protocol.ChannelMember>)
-        .map((m) => m.channelId)
-        .toSet();
-    final targetLoungeIds = (results[4] as List<protocol.ChannelMember>)
-        .map((m) => m.channelId)
-        .toSet();
-    final mutualLoungesCount = viewerLoungeIds
-        .intersection(targetLoungeIds)
-        .length;
+    // 2. Optimized Mutual Lounges Count (Single targeted query)
+    int mutualLoungesCount = 0;
+    if (viewerChannelIds.isNotEmpty) {
+      mutualLoungesCount = await protocol.ChannelMember.db.count(
+        session,
+        where: (t) =>
+            t.userInfoId.equals(targetId) &
+            t.channelId.inSet(viewerChannelIds) &
+            t.status.equals(protocol.ChannelMemberStatus.joined),
+      );
+    }
 
+    // 3. Online Status (Gated)
     final viewerResident = await getResident(session, viewerId);
     final canSeeOnline =
         viewerResident != null && canSeeOthersOnlineStatus(viewerResident);
@@ -879,16 +883,6 @@ class ResidentService {
     bool enabled,
   ) => isPlusMember(resident) && enabled;
 
-  static void _setPlusSetting(
-    bool? value,
-    bool isPlus,
-    void Function(bool value) apply,
-  ) {
-    if (value != null && isPlus) {
-      apply(value);
-    }
-  }
-
   static void _enableAllPlusSettings(protocol.Resident resident) {
     resident.showAdvancedDiscovery = true;
     resident.showCustomAvatar = true;
@@ -908,6 +902,46 @@ class ResidentService {
   }
 
   /// Updates privacy settings for a resident.
+  /// Updates specific fields of a resident profile.
+  /// Handles name sync with Auth and avatar cleanup.
+  static Future<protocol.Resident> updateResidentFields(
+    Session session, {
+    required protocol.Resident resident,
+    String? name,
+    String? avatar,
+    String? gender,
+    String? country,
+    String? bio,
+    String? ageRange,
+    List<String>? interests,
+    List<String>? languages,
+    String? mood,
+    String? customAvatarUrl,
+  }) async {
+    if (name != null && name != resident.userName) {
+      await syncAuthProfile(session, resident.userInfoId, name);
+      resident.userName = name;
+    }
+
+    if (avatar != null) resident.avatar = avatar;
+    if (gender != null) resident.gender = gender;
+    if (country != null) resident.country = country;
+    if (bio != null) resident.bio = bio;
+    if (ageRange != null) resident.ageRange = ageRange;
+    if (mood != null) resident.mood = mood;
+    if (interests != null) resident.interests = interests;
+    if (languages != null) resident.languages = languages;
+
+    if (customAvatarUrl != null ||
+        (customAvatarUrl == null && resident.customAvatarUrl != null)) {
+      // If setting to null or a different URL, service handles cleanup internally.
+      resident.customAvatarUrl = customAvatarUrl;
+    }
+
+    return await updateResident(session, resident);
+  }
+
+  /// Updates a resident's privacy settings based on their Plus status.
   static Future<protocol.Resident> updatePrivacy(
     Session session, {
     required protocol.Resident resident,
@@ -920,50 +954,24 @@ class ResidentService {
     bool? showOthersTypingIndicators,
     bool? keepPrivateChats,
   }) async {
-    final bool isPlus = isPlusMember(resident);
+    final bool isPaid = isPaidMember(resident);
 
     final bool oldKeepPrivateChats = resident.keepPrivateChats;
 
-    _setPlusSetting(
-      hideAds,
-      isPlus,
-      (value) => resident.hideAds = value,
-    );
-    _setPlusSetting(
-      showVoiceMessages,
-      isPlus,
-      (value) => resident.showVoiceMessages = value,
-    );
-    _setPlusSetting(
-      showAdvancedDiscovery,
-      isPlus,
-      (value) => resident.showAdvancedDiscovery = value,
-    );
-    _setPlusSetting(
-      showCustomAvatar,
-      isPlus,
-      (value) => resident.showCustomAvatar = value,
-    );
-    _setPlusSetting(
-      showOthersOnlineStatus,
-      isPlus,
-      (value) => resident.showOthersOnlineStatus = value,
-    );
-    _setPlusSetting(
-      showOthersReadReceipts,
-      isPlus,
-      (value) => resident.showOthersReadReceipts = value,
-    );
-    _setPlusSetting(
-      showOthersTypingIndicators,
-      isPlus,
-      (value) => resident.showOthersTypingIndicators = value,
-    );
-    _setPlusSetting(
-      keepPrivateChats,
-      isPlus,
-      (value) => resident.keepPrivateChats = value,
-    );
+    // hideAds is specifically Paid-only (Trial does not count)
+    if (hideAds != null && isPaid) {
+      resident.hideAds = hideAds;
+    }
+
+    _setPlusToggles(resident, {
+      'showVoiceMessages': showVoiceMessages,
+      'showAdvancedDiscovery': showAdvancedDiscovery,
+      'showCustomAvatar': showCustomAvatar,
+      'showOthersOnlineStatus': showOthersOnlineStatus,
+      'showOthersReadReceipts': showOthersReadReceipts,
+      'showOthersTypingIndicators': showOthersTypingIndicators,
+      'keepPrivateChats': keepPrivateChats,
+    });
 
     final updatedResident = await updateResident(session, resident);
 
@@ -973,6 +981,35 @@ class ResidentService {
     }
 
     return updatedResident;
+  }
+
+  /// Batch updates Plus-only settings if the resident has Plus status.
+  static void _setPlusToggles(
+    protocol.Resident resident,
+    Map<String, bool?> toggles,
+  ) {
+    if (!isPlusMember(resident)) return;
+
+    toggles.forEach((key, value) {
+      if (value == null) return;
+
+      switch (key) {
+        case 'showVoiceMessages':
+          resident.showVoiceMessages = value;
+        case 'showAdvancedDiscovery':
+          resident.showAdvancedDiscovery = value;
+        case 'showCustomAvatar':
+          resident.showCustomAvatar = value;
+        case 'showOthersOnlineStatus':
+          resident.showOthersOnlineStatus = value;
+        case 'showOthersReadReceipts':
+          resident.showOthersReadReceipts = value;
+        case 'showOthersTypingIndicators':
+          resident.showOthersTypingIndicators = value;
+        case 'keepPrivateChats':
+          resident.keepPrivateChats = value;
+      }
+    });
   }
 
   /// Activates a premium trial for a user.

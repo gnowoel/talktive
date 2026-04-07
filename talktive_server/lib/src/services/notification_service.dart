@@ -641,7 +641,7 @@ class NotificationService {
 
     await Future.wait([
       ...mentionFutures,
-      ...?bulkMemberFuture != null ? [bulkMemberFuture!] : null,
+      ?bulkMemberFuture,
     ]);
   }
 }

@@ -17,13 +17,29 @@ void main() {
     setUp(() async {
       final session = sessionBuilder.build();
 
+      // Clear existing data for these test IDs to avoid pollution
+      final userAUuid = UuidValue.fromString(
+        'a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d',
+      );
+      final userBUuid = UuidValue.fromString(
+        'b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e',
+      );
+
+      await protocol.UserNotification.db.deleteWhere(
+        session,
+        where: (t) => t.userId.equals(userAUuid) | t.userId.equals(userBUuid),
+      );
+      await protocol.Resident.db.deleteWhere(
+        session,
+        where: (t) =>
+            t.userInfoId.equals(userAUuid) | t.userInfoId.equals(userBUuid),
+      );
+
       // Create test User A
       userA = await protocol.Resident.db.insertRow(
         session,
         protocol.Resident(
-          userInfoId: UuidValue.fromString(
-            'a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d',
-          ),
+          userInfoId: userAUuid,
           userName: 'UserA',
           level: 1,
           trustScore: 100,
@@ -34,9 +50,7 @@ void main() {
       userB = await protocol.Resident.db.insertRow(
         session,
         protocol.Resident(
-          userInfoId: UuidValue.fromString(
-            'b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e',
-          ),
+          userInfoId: userBUuid,
           userName: 'UserB',
           level: 1,
           trustScore: 100,

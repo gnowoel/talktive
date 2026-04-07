@@ -208,34 +208,37 @@ class _VersionSelectorState extends State<VersionSelector> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: Builder(builder: (context) {
-        return Scaffold(
-          backgroundColor: AppTheme.lightBackground,
-          appBar: _state == SelectorState.enterRecoveryToken ||
-                  _state == SelectorState.chooseVersion
-              ? AppBar(
-                  leading: IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () {
-                      if (mounted) {
-                        setState(() => _state = SelectorState.chooseUserType);
-                      }
-                    },
-                  ),
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
-                )
-              : null,
-          body: SafeArea(
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                child: _buildBody(context),
+      home: Builder(
+        builder: (context) {
+          return Scaffold(
+            backgroundColor: AppTheme.lightBackground,
+            appBar:
+                _state == SelectorState.enterRecoveryToken ||
+                    _state == SelectorState.chooseVersion
+                ? AppBar(
+                    leading: IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: () {
+                        if (mounted) {
+                          setState(() => _state = SelectorState.chooseUserType);
+                        }
+                      },
+                    ),
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                  )
+                : null,
+            body: SafeArea(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                  child: _buildBody(context),
+                ),
               ),
             ),
-          ),
-        );
-      }),
+          );
+        },
+      ),
     );
   }
 
@@ -426,7 +429,7 @@ class _VersionSelectorState extends State<VersionSelector> {
         ),
         const SizedBox(height: 48),
         DuoButton(
-          text: 'Anonymous Chat (New)',
+          text: 'New Safer Version',
           onPressed: () => _selectVersion(AppVersion.serverpod, context),
           width: double.infinity,
           size: DuoButtonSize.large,

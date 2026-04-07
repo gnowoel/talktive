@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
+import '../serverpod_client.dart';
 import 'client_provider.dart';
 import 'auth_provider.dart';
 
@@ -19,6 +20,7 @@ class PrivateChatList extends _$PrivateChatList {
   }
 
   Future<List<PrivateChatWithProfile>> fetchPrivateChats() async {
+    if (!sessionManager.isAuthenticated) return const [];
     final client = ref.read(clientProvider);
     try {
       return await client.privateChat.listPrivateChats();
@@ -65,6 +67,7 @@ class PrivateChatList extends _$PrivateChatList {
 
   /// Refreshes the private chat list.
   Future<void> refresh() async {
+    if (!sessionManager.isAuthenticated) return;
     state = const AsyncValue.loading();
     try {
       final chats = await fetchPrivateChats();

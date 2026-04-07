@@ -247,6 +247,8 @@ class FCMManager extends _$FCMManager {
   /// Unregister FCM token (call on logout).
   Future<void> unregister() async {
     try {
+      if (!sessionManager.isAuthenticated) return;
+
       final token = await _messaging?.getToken();
       if (token != null) {
         final client = ref.read(clientProvider);

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
+import '../serverpod_client.dart';
 import '../../providers/client_provider.dart'; // Retained as it's a dependency and not explicitly removed
 import '../../providers/auth_provider.dart';
 import '../../providers/notification_provider.dart';
@@ -30,6 +31,7 @@ class CurrentResident extends _$CurrentResident {
   }
 
   Future<Resident?> fetchCurrentResident() async {
+    if (!sessionManager.isAuthenticated) return null;
     final client = ref.read(clientProvider);
     final authStateAsync = ref.read(authProvider);
 
@@ -56,6 +58,7 @@ class CurrentResident extends _$CurrentResident {
 
   /// Refreshes the current resident's data.
   Future<void> refresh() async {
+    if (!sessionManager.isAuthenticated) return;
     final oldResident = state.value;
     state = const AsyncValue.loading();
     try {

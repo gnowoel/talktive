@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/foundation.dart';
 import '../serverpod_client.dart';
+import 'fcm_provider.dart';
 
 part 'auth_provider.g.dart';
 
@@ -394,6 +395,9 @@ class Auth extends _$Auth {
   Future<void> signOut() async {
     state = const AsyncValue.loading();
     try {
+      // Unregister FCM token before invalidating the session to avoid 401/403 errors
+      await ref.read(fCMManagerProvider.notifier).unregister();
+
       await sessionManager.signOutDevice();
       await FirebaseAuth.instance.signOut();
       await GoogleSignIn.instance.signOut();

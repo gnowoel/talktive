@@ -69,6 +69,14 @@ class HelpCenterScreen extends StatelessWidget {
                   'Become a premium resident! Unlock exclusive benefits like custom emojis, voice messages, and an ad-free experience to make your stay in the apartment truly unique.',
               color: AppTheme.duoBlue,
             ),
+            const SizedBox(height: AppTheme.duoSpacingMedium),
+            _buildHelpCard(
+              emoji: '🔑',
+              title: 'Why Google Sign-In?',
+              description:
+                  'To keep our community safe from spammers and ban evaders, we use Google Sign-In for authentication. As an anonymous app, we do NOT collect your personal info like name, email, or avatar. We only use it to ensure every resident plays by the rules!',
+              color: AppTheme.duoGreen,
+            ),
             const SizedBox(height: AppTheme.duoSpacingXXLarge),
 
             // Footer: Contact Info

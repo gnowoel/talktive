@@ -137,6 +137,69 @@ class _VersionSelectorState extends State<VersionSelector> {
     }
   }
 
+  void _showWhyGoogleDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          '🛡️ Why Google?',
+          style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Talktive is anonymous, but we use Google Sign-In to keep the community safe:',
+              style: TextStyle(fontFamily: 'Rubik', height: 1.4),
+            ),
+            const SizedBox(height: 16),
+            _buildBulletPoint('Prevent ban evasion from spammers/abusers.'),
+            _buildBulletPoint('Stop malicious users from just reinstalling.'),
+            _buildBulletPoint('Zero data collection of names/emails.'),
+            const SizedBox(height: 16),
+            const Text(
+              'Your Google info is used ONLY for secure authentication. We don\'t even store your email address!',
+              style: TextStyle(
+                fontFamily: 'Rubik',
+                fontWeight: FontWeight.w500,
+                color: AppTheme.primaryColor,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Got it!',
+              style: TextStyle(fontFamily: 'Poppins'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBulletPoint(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('• ', style: TextStyle(fontWeight: FontWeight.bold)),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(fontFamily: 'Rubik', fontSize: 13),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _submitRecoveryToken(BuildContext context) async {
     final token = _tokenController.text.trim().toLowerCase();
     if (token.length != 20 || !RegExp(r'^[a-z0-9]+$').hasMatch(token)) {
@@ -340,7 +403,19 @@ class _VersionSelectorState extends State<VersionSelector> {
           width: double.infinity,
           size: DuoButtonSize.large,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
+        TextButton(
+          onPressed: () => _showWhyGoogleDialog(context),
+          child: Text(
+            'Why do I need to sign in with Google?',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[600],
+              decoration: TextDecoration.underline,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
         DuoButton(
           text: 'Use Recovery Token',
           onPressed: () {

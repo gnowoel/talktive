@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
+import '../serverpod_client.dart';
 import 'client_provider.dart';
 import 'auth_provider.dart';
 
@@ -49,13 +50,16 @@ class ActivityHistory extends _$ActivityHistory {
   @override
   Future<List<UserNotification>> build() async {
     final authState = ref.watch(authProvider);
-    if (!authState.hasValue || authState.value is! Authenticated) {
+    if (authState.isLoading ||
+        !authState.hasValue ||
+        authState.value is! Authenticated) {
       return const <UserNotification>[];
     }
     return _fetchNotifications();
   }
 
   Future<List<UserNotification>> _fetchNotifications() async {
+    if (!sessionManager.isAuthenticated) return const [];
     final client = ref.read(clientProvider);
     try {
       final notifications = await client.notification.getUserNotifications(
@@ -70,6 +74,7 @@ class ActivityHistory extends _$ActivityHistory {
   }
 
   Future<void> refresh() async {
+    if (!sessionManager.isAuthenticated) return;
     bool isMounted = true;
     ref.onDispose(() => isMounted = false);
 

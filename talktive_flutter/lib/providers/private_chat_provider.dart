@@ -13,7 +13,9 @@ class PrivateChatList extends _$PrivateChatList {
   @override
   FutureOr<List<PrivateChatWithProfile>> build() async {
     final authState = ref.watch(authProvider);
-    if (!authState.hasValue || authState.value is! Authenticated) {
+    if (authState.isLoading ||
+        !authState.hasValue ||
+        authState.value is! Authenticated) {
       return const <PrivateChatWithProfile>[];
     }
     return fetchPrivateChats();

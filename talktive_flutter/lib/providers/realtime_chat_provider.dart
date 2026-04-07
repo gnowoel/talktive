@@ -2,8 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
+import '../serverpod_client.dart';
 import 'client_provider.dart';
 import 'current_resident_provider.dart';
+import 'auth_provider.dart';
 import '../services/local_chat_cache.dart';
 import '../helpers/resident_ext.dart';
 
@@ -66,6 +68,17 @@ class RealtimeChat extends _$RealtimeChat {
     bool prewarmOnly = false,
   }) async {
     _channelId = channelId;
+
+    final authState = ref.watch(authProvider);
+    if (authState.isLoading ||
+        !authState.hasValue ||
+        authState.value is! Authenticated) {
+      return RealtimeChatState(
+        messages: [],
+        typingUsers: {},
+        lastReadStatus: {},
+      );
+    }
 
     // Cleanup when provider is disposed
     ref.onDispose(() {
@@ -137,6 +150,7 @@ class RealtimeChat extends _$RealtimeChat {
 
   /// Fetches message history from the server.
   Future<List<Message>> _fetchMessages({int offset = 0}) async {
+    if (!sessionManager.isAuthenticated) return const [];
     final client = ref.read(clientProvider);
     try {
       return await client.message.listMessages(
@@ -152,7 +166,7 @@ class RealtimeChat extends _$RealtimeChat {
 
   /// Subscribes to real-time updates via WebSocket.
   void _subscribe() {
-    if (_isSubscribed) return;
+    if (_isSubscribed || !sessionManager.isAuthenticated) return;
 
     final client = ref.read(clientProvider);
 
@@ -378,6 +392,7 @@ class RealtimeChat extends _$RealtimeChat {
 
   /// Refreshes the message list.
   Future<void> refresh() async {
+    if (!sessionManager.isAuthenticated) return;
     try {
       final messages = await _fetchMessages();
       state = AsyncValue.data(

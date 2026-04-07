@@ -1,6 +1,8 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:serverpod_client/serverpod_client.dart';
+import '../serverpod_client.dart';
 import 'client_provider.dart';
+import 'auth_provider.dart';
 
 part 'social_relationships_provider.g.dart';
 
@@ -31,6 +33,13 @@ class SocialRelationships {
 class SocialRelationshipsState extends _$SocialRelationshipsState {
   @override
   FutureOr<SocialRelationships> build() async {
+    final authState = ref.watch(authProvider);
+    if (authState.isLoading ||
+        !authState.hasValue ||
+        authState.value is! Authenticated) {
+      return SocialRelationships(likedUserIds: [], blockedUserIds: []);
+    }
+
     final results = await Future.wait([fetchLikes(), fetchBlockedUsers()]);
 
     return SocialRelationships(
@@ -40,6 +49,7 @@ class SocialRelationshipsState extends _$SocialRelationshipsState {
   }
 
   Future<List<String>> fetchLikes() async {
+    if (!sessionManager.isAuthenticated) return [];
     try {
       final client = ref.read(clientProvider);
       return await client.resident.getMyLikedResidentIds();
@@ -49,6 +59,7 @@ class SocialRelationshipsState extends _$SocialRelationshipsState {
   }
 
   Future<List<String>> fetchBlockedUsers() async {
+    if (!sessionManager.isAuthenticated) return [];
     try {
       final client = ref.read(clientProvider);
       return await client.resident.getBlockedResidentIds();

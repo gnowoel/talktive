@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
+import '../serverpod_client.dart';
 import 'client_provider.dart';
 import 'auth_provider.dart';
 
@@ -12,13 +13,16 @@ class LoungeList extends _$LoungeList {
   @override
   FutureOr<List<LoungeWithMembership>> build() async {
     final authState = ref.watch(authProvider);
-    if (!authState.hasValue || authState.value is! Authenticated) {
+    if (authState.isLoading ||
+        !authState.hasValue ||
+        authState.value is! Authenticated) {
       return const <LoungeWithMembership>[];
     }
     return fetchLounges();
   }
 
   Future<List<LoungeWithMembership>> fetchLounges() async {
+    if (!sessionManager.isAuthenticated) return const [];
     final client = ref.read(clientProvider);
     try {
       return await client.lounge.listMyLounges(limit: 50, offset: 0);
@@ -158,6 +162,7 @@ class LoungeList extends _$LoungeList {
 
   /// Refreshes the lounge list.
   Future<void> refresh() async {
+    if (!sessionManager.isAuthenticated) return;
     state = const AsyncValue.loading();
     try {
       final lounges = await fetchLounges();

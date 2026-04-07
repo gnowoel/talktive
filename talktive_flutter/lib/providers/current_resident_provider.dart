@@ -18,7 +18,7 @@ class CurrentResident extends _$CurrentResident {
     final authStateAsync = ref.watch(authProvider);
 
     // Check if auth state has loaded
-    if (!authStateAsync.hasValue) {
+    if (authStateAsync.isLoading || !authStateAsync.hasValue) {
       return null;
     }
 

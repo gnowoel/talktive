@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talktive_client/talktive_client.dart';
+import '../serverpod_client.dart';
 import 'client_provider.dart';
 import 'auth_provider.dart';
 
@@ -35,13 +36,16 @@ class GamificationNotifier extends _$GamificationNotifier {
   @override
   FutureOr<GamificationData?> build() async {
     final authState = ref.watch(authProvider);
-    if (!authState.hasValue || authState.value is! Authenticated) {
+    if (authState.isLoading ||
+        !authState.hasValue ||
+        authState.value is! Authenticated) {
       return null;
     }
     return fetchAll();
   }
 
   Future<GamificationData?> fetchAll() async {
+    if (!sessionManager.isAuthenticated) return null;
     final client = ref.read(clientProvider);
     try {
       final status = await client.gamification.getGamificationStatus();
@@ -94,6 +98,7 @@ class GamificationNotifier extends _$GamificationNotifier {
 
   /// Refreshes the gamification data.
   Future<void> refresh() async {
+    if (!sessionManager.isAuthenticated) return;
     bool isMounted = true;
     ref.onDispose(() => isMounted = false);
 

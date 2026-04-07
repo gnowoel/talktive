@@ -376,6 +376,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen>
             onImagePick: () async {
               pickAndSendImage();
             },
+            mentionsWhitelist: [otherName],
             enabled: canSend,
             isSending: isSending,
             isLoading: currentResidentAsync.isLoading,

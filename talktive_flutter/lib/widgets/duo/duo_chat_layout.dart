@@ -75,6 +75,7 @@ class DuoChatInputLayout extends StatelessWidget {
   final bool isLoading;
   final Function(bool isTyping)? onTypingStatusChanged;
   final Widget? typingIndicator;
+  final List<String>? mentionsWhitelist;
 
   const DuoChatInputLayout({
     super.key,
@@ -96,6 +97,7 @@ class DuoChatInputLayout extends StatelessWidget {
     this.isLoading = false,
     this.onTypingStatusChanged,
     this.typingIndicator,
+    this.mentionsWhitelist,
   });
 
   @override
@@ -120,6 +122,7 @@ class DuoChatInputLayout extends StatelessWidget {
         isSending: isSending,
         isLoading: isLoading,
         onTypingStatusChanged: onTypingStatusChanged,
+        mentionsWhitelist: mentionsWhitelist,
       ),
     );
   }

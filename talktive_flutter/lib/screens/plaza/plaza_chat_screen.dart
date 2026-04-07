@@ -50,6 +50,15 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
         .where((u) => u != currentResident?.userName)
         .toList();
 
+    // For Plaza, we don't have a static member list, so we use the names
+    // of people currently visible in the message list for autocompletion.
+    final visibleMemberNames = chatState.value?.messages
+            .map((m) => m.senderName)
+            .where((n) => n.isNotEmpty)
+            .toSet()
+            .toList() ??
+        [];
+
     return PopScope(
       canPop: _isExiting,
       onPopInvokedWithResult: (didPop, result) async {
@@ -163,6 +172,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
         onImagePick: () async {
           pickAndSendImage(floorRestriction: 2);
         },
+        mentionsWhitelist: visibleMemberNames,
         enabled: canSend,
         isLoading: currentResidentAsync.isLoading,
         isSending: isSending,
@@ -179,7 +189,7 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
                 subtitle: 'Be the first to start a conversation',
               );
             }
-            return _buildMessagesList(state, currentResident);
+            return _buildMessagesList(state, currentResident, visibleMemberNames);
           },
           loading: () => const DuoLoadingIndicator(),
           error: (error, stack) => DuoEmptyState(
@@ -199,19 +209,11 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
   Widget _buildMessagesList(
     RealtimeChatState state,
     Resident? currentResident,
+    List<String> visibleMemberNames,
   ) {
     final messages = state.messages;
     final socialState = ref.watch(socialRelationshipsStateProvider).value;
     final blockedUsers = socialState?.blockedUserIds ?? [];
-
-    // For Plaza, we don't have a static member list, so we use the names
-    // of people currently visible in the message list for highlighting.
-    final visibleMemberNames =
-        messages
-            .map((m) => m.senderName)
-            .where((n) => n.isNotEmpty)
-            .toSet()
-            .toList();
 
     final filteredMessages =
         messages.where((msg) {

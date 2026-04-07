@@ -218,6 +218,17 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen>
         .where((u) => u != currentResident?.userName)
         .toList();
 
+    // Get member names for mention highlighting and autocompletion
+    final membersAsync = ref.watch(loungeMembersProvider(widget.lounge.id!));
+    final memberNames = membersAsync.when(
+      data: (members) => members
+          .map((m) => m.userName ?? '')
+          .where((n) => n.isNotEmpty)
+          .toList(),
+      loading: () => <String>[],
+      error: (_, _) => <String>[],
+    );
+
     return PopScope(
       canPop: _isExiting,
       onPopInvokedWithResult: (didPop, result) async {
@@ -507,6 +518,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen>
         onImagePick: () async {
           pickAndSendImage(floorRestriction: 2);
         },
+        mentionsWhitelist: memberNames,
         enabled: canSend,
         isSending: isSending,
         isLoading: currentResidentAsync.isLoading,
@@ -518,7 +530,7 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen>
         content: chatState.when(
           data: (state) => state.messages.isEmpty
               ? _buildEmptyState()
-              : _buildMessagesList(state, currentResident),
+              : _buildMessagesList(state, currentResident, memberNames),
           loading: () => const Center(
             child: CircularProgressIndicator(color: AppTheme.primaryColor),
           ),
@@ -614,21 +626,11 @@ class _LoungeChatScreenState extends ConsumerState<LoungeChatScreen>
   Widget _buildMessagesList(
     RealtimeChatState state,
     Resident? currentResident,
+    List<String> memberNames,
   ) {
     final messages = state.messages;
     final socialState = ref.watch(socialRelationshipsStateProvider).value;
     final blockedUsers = socialState?.blockedUserIds ?? [];
-
-    // Get member names for mention highlighting
-    final membersAsync = ref.watch(loungeMembersProvider(widget.lounge.id!));
-    final memberNames = membersAsync.when(
-      data: (members) => members
-          .map((m) => m.userName ?? '')
-          .where((n) => n.isNotEmpty)
-          .toList(),
-      loading: () => <String>[],
-      error: (_, _) => <String>[],
-    );
 
     final filteredMessages = messages.where((msg) {
       return !blockedUsers.contains(msg.senderId.toString());

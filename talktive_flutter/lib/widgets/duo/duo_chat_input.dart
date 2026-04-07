@@ -23,6 +23,7 @@ class DuoChatInput extends StatefulWidget {
   final bool isSending;
   final bool isLoading;
   final Function(bool isTyping)? onTypingStatusChanged;
+  final List<String>? mentionsWhitelist;
 
   const DuoChatInput({
     super.key,
@@ -39,6 +40,7 @@ class DuoChatInput extends StatefulWidget {
     this.activeColor,
     this.focusNode,
     this.onTypingStatusChanged,
+    this.mentionsWhitelist,
   });
 
   @override
@@ -55,6 +57,11 @@ class _DuoChatInputState extends State<DuoChatInput> {
   Timer? _typingTimer;
   bool _wasTyping = false;
 
+  // Mention Autocompletion
+  OverlayEntry? _mentionOverlay;
+  final LayerLink _layerLink = LayerLink();
+  List<String> _filteredMentions = [];
+
   // Voice Recording Enhancements
   double _dragDeltaX = 0;
   bool _isCancelling = false;
@@ -70,6 +77,7 @@ class _DuoChatInputState extends State<DuoChatInput> {
 
   @override
   void dispose() {
+    _hideMentionOverlay();
     widget.controller.removeListener(_onTextChanged);
     _audioRecorder.dispose();
     _recordTimer?.cancel();
@@ -79,6 +87,8 @@ class _DuoChatInputState extends State<DuoChatInput> {
 
   void _onTextChanged() {
     setState(() {}); // Rebuild to toggle send/voice button
+
+    _checkMentions();
 
     // Typing flag logic
     if (widget.onTypingStatusChanged != null) {
@@ -99,6 +109,183 @@ class _DuoChatInputState extends State<DuoChatInput> {
           }
         });
       }
+    }
+  }
+
+  void _checkMentions() {
+    if (widget.mentionsWhitelist == null || widget.mentionsWhitelist!.isEmpty) {
+      _hideMentionOverlay();
+      return;
+    }
+
+    final text = widget.controller.text;
+    final selection = widget.controller.selection;
+
+    if (!selection.isValid || selection.baseOffset != selection.extentOffset) {
+      _hideMentionOverlay();
+      return;
+    }
+
+    final cursorPosition = selection.baseOffset;
+    if (cursorPosition == 0) {
+      _hideMentionOverlay();
+      return;
+    }
+
+    // Find the last '@' before the cursor
+    final textBeforeCursor = text.substring(0, cursorPosition);
+    final lastAtIndex = textBeforeCursor.lastIndexOf('@');
+
+    if (lastAtIndex == -1) {
+      _hideMentionOverlay();
+      return;
+    }
+
+    // Ensure there is a space before @ or it's at the start
+    if (lastAtIndex > 0 && textBeforeCursor[lastAtIndex - 1] != ' ') {
+      _hideMentionOverlay();
+      return;
+    }
+
+    // The query is between @ and the cursor
+    final query = textBeforeCursor.substring(lastAtIndex + 1);
+
+    // If there is a space in the query, we check if it matches any name in whitelist.
+    if (query.contains(' ') && !widget.mentionsWhitelist!.any((n) => n.toLowerCase().startsWith(query.toLowerCase()))) {
+       _hideMentionOverlay();
+       return;
+    }
+
+    _filteredMentions = widget.mentionsWhitelist!
+        .where((name) => name.toLowerCase().contains(query.toLowerCase()))
+        .toList()
+      ..sort((a, b) {
+        // Prioritize names that start with the query
+        final aStart = a.toLowerCase().startsWith(query.toLowerCase());
+        final bStart = b.toLowerCase().startsWith(query.toLowerCase());
+        if (aStart && !bStart) return -1;
+        if (!aStart && bStart) return 1;
+        return a.compareTo(b);
+      });
+
+    if (_filteredMentions.isNotEmpty) {
+      // Small delay to ensure the layout has updated if needed
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _showMentionOverlay();
+      });
+    } else {
+      _hideMentionOverlay();
+    }
+  }
+
+  void _showMentionOverlay() {
+    if (_mentionOverlay != null) {
+      _mentionOverlay!.markNeedsBuild();
+      return;
+    }
+
+    final overlay = Overlay.of(context);
+    _mentionOverlay = OverlayEntry(
+      builder: (context) {
+        return Positioned(
+          width: MediaQuery.of(context).size.width - (AppTheme.duoSpacingMedium * 2),
+          child: CompositedTransformFollower(
+            link: _layerLink,
+            showWhenUnlinked: false,
+            offset: const Offset(0, -8),
+            followerAnchor: Alignment.bottomLeft,
+            targetAnchor: Alignment.topLeft,
+            child: Material(
+              elevation: 8,
+              borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
+              color: Colors.white,
+              child: Container(
+                constraints: const BoxConstraints(maxHeight: 200),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
+                  border: Border.all(color: Colors.grey.shade200, width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, -4),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium - 2),
+                  child: ListView.separated(
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    itemCount: _filteredMentions.length,
+                    separatorBuilder: (context, index) => Divider(height: 1, color: Colors.grey.shade100),
+                    itemBuilder: (context, index) {
+                      final name = _filteredMentions[index];
+                      return ListTile(
+                        visualDensity: VisualDensity.compact,
+                        dense: true,
+                        leading: CircleAvatar(
+                          backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+                          radius: 14,
+                          child: const Text(
+                            '👤',
+                            style: TextStyle(fontSize: 14),
+                          ),
+                        ),
+                        title: Text(
+                          name,
+                          style: const TextStyle(
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                        onTap: () => _applyMention(name),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ).animate().slideY(begin: 0.1, end: 0, duration: 200.ms).fadeIn(),
+          ),
+        );
+      },
+    );
+
+    overlay.insert(_mentionOverlay!);
+  }
+
+  void _hideMentionOverlay() {
+    _mentionOverlay?.remove();
+    _mentionOverlay = null;
+  }
+
+  void _applyMention(String name) {
+    final text = widget.controller.text;
+    final selection = widget.controller.selection;
+    final cursorPosition = selection.baseOffset;
+    final textBeforeCursor = text.substring(0, cursorPosition);
+    final lastAtIndex = textBeforeCursor.lastIndexOf('@');
+
+    final prefix = text.substring(0, lastAtIndex);
+    final suffix = text.substring(cursorPosition);
+
+    // Apply the mention with a trailing space
+    final newText = '$prefix@$name $suffix';
+    widget.controller.text = newText;
+
+    // Position cursor after the mention and space
+    final newPosition = lastAtIndex + name.length + 2;
+    widget.controller.selection = TextSelection.fromPosition(
+      TextPosition(offset: newPosition),
+    );
+
+    _hideMentionOverlay();
+
+    // Ensure focus is kept
+    if (widget.focusNode != null) {
+      widget.focusNode!.requestFocus();
     }
   }
 
@@ -306,9 +493,11 @@ class _DuoChatInputState extends State<DuoChatInput> {
   Widget _buildInputInfo() {
     final themeColor = widget.activeColor ?? AppTheme.primaryColor;
 
-    return Row(
-      key: const ValueKey('input_info'),
-      children: [
+    return CompositedTransformTarget(
+      link: _layerLink,
+      child: Row(
+        key: const ValueKey('input_info'),
+        children: [
         if (widget.prefix != null) ...[
           widget.prefix!,
           const SizedBox(width: AppTheme.duoSpacingSmall),
@@ -380,8 +569,9 @@ class _DuoChatInputState extends State<DuoChatInput> {
           ),
         ),
       ],
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildRecordingInfo() {
     final cancelProgress = (_dragDeltaX / _cancelThreshold).clamp(0.0, 1.0);

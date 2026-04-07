@@ -155,6 +155,69 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
     }
   }
 
+  void _showWhyGoogleDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          '🛡️ Why Google?',
+          style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Talktive is anonymous, but we use Google Sign-In to keep the community safe:',
+              style: TextStyle(fontFamily: 'Rubik', height: 1.4),
+            ),
+            const SizedBox(height: 16),
+            _buildBulletPoint('Prevent ban evasion from spammers/abusers.'),
+            _buildBulletPoint('Stop malicious users from just reinstalling.'),
+            _buildBulletPoint('Zero data collection of names/emails.'),
+            const SizedBox(height: 16),
+            const Text(
+              'Your Google info is used ONLY for secure authentication. We don\'t even store your email address!',
+              style: TextStyle(
+                fontFamily: 'Rubik',
+                fontWeight: FontWeight.w500,
+                color: AppTheme.primaryColor,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Got it!',
+              style: TextStyle(fontFamily: 'Poppins'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBulletPoint(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('• ', style: TextStyle(fontWeight: FontWeight.bold)),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(fontFamily: 'Rubik', fontSize: 13),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.listen(authProvider, (previous, next) {
@@ -244,9 +307,29 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                                   size: DuoButtonSize.large,
                                   color: _pages[_currentPage].backgroundColor,
                                 )
-                              : GoogleSignInButton(
-                                  onPressed: _getStarted,
-                                  isLoading: authState.isLoading,
+                              : Column(
+                                  children: [
+                                    GoogleSignInButton(
+                                      onPressed: _getStarted,
+                                      isLoading: authState.isLoading,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    TextButton(
+                                      onPressed: _showWhyGoogleDialog,
+                                      child: Text(
+                                        'Why do I need to sign in with Google?',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.white.withValues(
+                                            alpha: 0.7,
+                                          ),
+                                          decoration: TextDecoration.underline,
+                                          decorationColor: Colors.white
+                                              .withValues(alpha: 0.5),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                         )
                         .animate(

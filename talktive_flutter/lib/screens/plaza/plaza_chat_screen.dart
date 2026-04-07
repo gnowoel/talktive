@@ -52,7 +52,8 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
 
     // For Plaza, we don't have a static member list, so we use the names
     // of people currently visible in the message list for autocompletion.
-    final visibleMemberNames = chatState.value?.messages
+    final visibleMemberNames =
+        chatState.value?.messages
             .map((m) => m.senderName)
             .where((n) => n.isNotEmpty)
             .toSet()
@@ -189,7 +190,11 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
                 subtitle: 'Be the first to start a conversation',
               );
             }
-            return _buildMessagesList(state, currentResident, visibleMemberNames);
+            return _buildMessagesList(
+              state,
+              currentResident,
+              visibleMemberNames,
+            );
           },
           loading: () => const DuoLoadingIndicator(),
           error: (error, stack) => DuoEmptyState(
@@ -215,10 +220,9 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
     final socialState = ref.watch(socialRelationshipsStateProvider).value;
     final blockedUsers = socialState?.blockedUserIds ?? [];
 
-    final filteredMessages =
-        messages.where((msg) {
-          return !blockedUsers.contains(msg.senderId.toString());
-        }).toList();
+    final filteredMessages = messages.where((msg) {
+      return !blockedUsers.contains(msg.senderId.toString());
+    }).toList();
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -240,15 +244,14 @@ class _PlazaChatScreenState extends ConsumerState<PlazaChatScreen>
             return Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 24),
-                child:
-                    state.isLoadingMore
-                        ? const CircularProgressIndicator(strokeWidth: 2)
-                        : state.hasMore
-                        ? const Text(
-                          'Scroll for more messages',
-                          style: TextStyle(color: Colors.grey, fontSize: 12),
-                        )
-                        : const SizedBox.shrink(),
+                child: state.isLoadingMore
+                    ? const CircularProgressIndicator(strokeWidth: 2)
+                    : state.hasMore
+                    ? const Text(
+                        'Scroll for more messages',
+                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                      )
+                    : const SizedBox.shrink(),
               ),
             );
           }

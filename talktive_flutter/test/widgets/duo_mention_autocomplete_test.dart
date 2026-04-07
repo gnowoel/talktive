@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive/widgets/duo/duo_chat_input.dart';
-import 'package:talktive/config/theme.dart';
 
 void main() {
   setUpAll(() {
@@ -34,7 +33,9 @@ void main() {
     }
 
     testWidgets('shows overlay when @ is typed', (WidgetTester tester) async {
-      await tester.pumpWidget(buildTestWidget(whitelist: ['Alice', 'Bob', 'Charlie']));
+      await tester.pumpWidget(
+        buildTestWidget(whitelist: ['Alice', 'Bob', 'Charlie']),
+      );
 
       await tester.enterText(find.byType(TextField), '@');
       await tester.pumpAndSettle();
@@ -47,8 +48,12 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
     });
 
-    testWidgets('filters suggestions based on query', (WidgetTester tester) async {
-      await tester.pumpWidget(buildTestWidget(whitelist: ['Alice', 'Bob', 'Charlie']));
+    testWidgets('filters suggestions based on query', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestWidget(whitelist: ['Alice', 'Bob', 'Charlie']),
+      );
 
       await tester.enterText(find.byType(TextField), '@Al');
       await tester.pumpAndSettle();
@@ -62,7 +67,9 @@ void main() {
     });
 
     testWidgets('applies mention when selected', (WidgetTester tester) async {
-      await tester.pumpWidget(buildTestWidget(whitelist: ['Alice', 'Bob', 'Charlie']));
+      await tester.pumpWidget(
+        buildTestWidget(whitelist: ['Alice', 'Bob', 'Charlie']),
+      );
 
       await tester.enterText(find.byType(TextField), 'Hello @Ali');
       await tester.pumpAndSettle();
@@ -77,7 +84,9 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
     });
 
-    testWidgets('hides overlay when space is typed and no match', (WidgetTester tester) async {
+    testWidgets('hides overlay when space is typed and no match', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(buildTestWidget(whitelist: ['Alice', 'Bob']));
 
       await tester.enterText(find.byType(TextField), '@Unknown ');

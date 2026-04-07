@@ -98,9 +98,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     } else if (authState is NeedsProfile) {
       context.go(
         '/profile-setup',
-        extra: {
-          'migrationData': authState.migrationData,
-        },
+        extra: {'migrationData': authState.migrationData},
       );
     } else {
       context.go('/welcome');

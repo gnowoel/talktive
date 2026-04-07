@@ -151,22 +151,26 @@ class _DuoChatInputState extends State<DuoChatInput> {
     final query = textBeforeCursor.substring(lastAtIndex + 1);
 
     // If there is a space in the query, we check if it matches any name in whitelist.
-    if (query.contains(' ') && !widget.mentionsWhitelist!.any((n) => n.toLowerCase().startsWith(query.toLowerCase()))) {
-       _hideMentionOverlay();
-       return;
+    if (query.contains(' ') &&
+        !widget.mentionsWhitelist!.any(
+          (n) => n.toLowerCase().startsWith(query.toLowerCase()),
+        )) {
+      _hideMentionOverlay();
+      return;
     }
 
-    _filteredMentions = widget.mentionsWhitelist!
-        .where((name) => name.toLowerCase().contains(query.toLowerCase()))
-        .toList()
-      ..sort((a, b) {
-        // Prioritize names that start with the query
-        final aStart = a.toLowerCase().startsWith(query.toLowerCase());
-        final bStart = b.toLowerCase().startsWith(query.toLowerCase());
-        if (aStart && !bStart) return -1;
-        if (!aStart && bStart) return 1;
-        return a.compareTo(b);
-      });
+    _filteredMentions =
+        widget.mentionsWhitelist!
+            .where((name) => name.toLowerCase().contains(query.toLowerCase()))
+            .toList()
+          ..sort((a, b) {
+            // Prioritize names that start with the query
+            final aStart = a.toLowerCase().startsWith(query.toLowerCase());
+            final bStart = b.toLowerCase().startsWith(query.toLowerCase());
+            if (aStart && !bStart) return -1;
+            if (!aStart && bStart) return 1;
+            return a.compareTo(b);
+          });
 
     if (_filteredMentions.isNotEmpty) {
       // Small delay to ensure the layout has updated if needed
@@ -188,7 +192,9 @@ class _DuoChatInputState extends State<DuoChatInput> {
     _mentionOverlay = OverlayEntry(
       builder: (context) {
         return Positioned(
-          width: MediaQuery.of(context).size.width - (AppTheme.duoSpacingMedium * 2),
+          width:
+              MediaQuery.of(context).size.width -
+              (AppTheme.duoSpacingMedium * 2),
           child: CompositedTransformFollower(
             link: _layerLink,
             showWhenUnlinked: false,
@@ -213,19 +219,24 @@ class _DuoChatInputState extends State<DuoChatInput> {
                   ],
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium - 2),
+                  borderRadius: BorderRadius.circular(
+                    AppTheme.duoRadiusMedium - 2,
+                  ),
                   child: ListView.separated(
                     padding: EdgeInsets.zero,
                     shrinkWrap: true,
                     itemCount: _filteredMentions.length,
-                    separatorBuilder: (context, index) => Divider(height: 1, color: Colors.grey.shade100),
+                    separatorBuilder: (context, index) =>
+                        Divider(height: 1, color: Colors.grey.shade100),
                     itemBuilder: (context, index) {
                       final name = _filteredMentions[index];
                       return ListTile(
                         visualDensity: VisualDensity.compact,
                         dense: true,
                         leading: CircleAvatar(
-                          backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+                          backgroundColor: AppTheme.primaryColor.withValues(
+                            alpha: 0.1,
+                          ),
                           radius: 14,
                           child: const Text(
                             '👤',
@@ -498,80 +509,80 @@ class _DuoChatInputState extends State<DuoChatInput> {
       child: Row(
         key: const ValueKey('input_info'),
         children: [
-        if (widget.prefix != null) ...[
-          widget.prefix!,
-          const SizedBox(width: AppTheme.duoSpacingSmall),
-        ],
+          if (widget.prefix != null) ...[
+            widget.prefix!,
+            const SizedBox(width: AppTheme.duoSpacingSmall),
+          ],
 
-        // Image picker button
-        if (widget.onImagePick != null) ...[
-          GestureDetector(
-            onTap: (widget.enabled && !widget.isSending && !widget.isLoading)
-                ? widget.onImagePick
-                : null,
+          // Image picker button
+          if (widget.onImagePick != null) ...[
+            GestureDetector(
+              onTap: (widget.enabled && !widget.isSending && !widget.isLoading)
+                  ? widget.onImagePick
+                  : null,
+              child: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppTheme.lightBackground,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Icon(
+                  Icons.image,
+                  size: 20,
+                  color:
+                      (widget.enabled && !widget.isSending && !widget.isLoading)
+                      ? themeColor
+                      : AppTheme.textLight,
+                ),
+              ),
+            ),
+            const SizedBox(width: AppTheme.duoSpacingSmall),
+          ],
+
+          // Text input field
+          Expanded(
             child: Container(
-              width: 44,
-              height: 44,
               decoration: BoxDecoration(
                 color: AppTheme.lightBackground,
-                shape: BoxShape.circle,
+                borderRadius: BorderRadius.circular(AppTheme.duoRadiusPill),
                 border: Border.all(color: Colors.grey.shade200),
               ),
-              child: Icon(
-                Icons.image,
-                size: 20,
-                color:
-                    (widget.enabled && !widget.isSending && !widget.isLoading)
-                    ? themeColor
-                    : AppTheme.textLight,
-              ),
-            ),
-          ),
-          const SizedBox(width: AppTheme.duoSpacingSmall),
-        ],
-
-        // Text input field
-        Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppTheme.lightBackground,
-              borderRadius: BorderRadius.circular(AppTheme.duoRadiusPill),
-              border: Border.all(color: Colors.grey.shade200),
-            ),
-            child: TextField(
-              controller: widget.controller,
-              focusNode: widget.focusNode,
-              enabled: widget.enabled,
-              maxLines: null,
-              textCapitalization: TextCapitalization.sentences,
-              style: const TextStyle(
-                fontSize: 15,
-                fontFamily: 'Rubik',
-                color: AppTheme.textPrimary,
-              ),
-              decoration: InputDecoration(
-                hintText: _effectiveHintText,
-                hintStyle: const TextStyle(
-                  color: AppTheme.textLight,
+              child: TextField(
+                controller: widget.controller,
+                focusNode: widget.focusNode,
+                enabled: widget.enabled,
+                maxLines: null,
+                textCapitalization: TextCapitalization.sentences,
+                style: const TextStyle(
+                  fontSize: 15,
                   fontFamily: 'Rubik',
+                  color: AppTheme.textPrimary,
                 ),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: AppTheme.duoSpacingMedium,
-                  vertical: AppTheme.duoSpacingSmall,
+                decoration: InputDecoration(
+                  hintText: _effectiveHintText,
+                  hintStyle: const TextStyle(
+                    color: AppTheme.textLight,
+                    fontFamily: 'Rubik',
+                  ),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: AppTheme.duoSpacingMedium,
+                    vertical: AppTheme.duoSpacingSmall,
+                  ),
                 ),
+                onSubmitted:
+                    (widget.enabled && !widget.isSending && !widget.isLoading)
+                    ? (_) => _handleSend()
+                    : null,
               ),
-              onSubmitted:
-                  (widget.enabled && !widget.isSending && !widget.isLoading)
-                  ? (_) => _handleSend()
-                  : null,
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   Widget _buildRecordingInfo() {
     final cancelProgress = (_dragDeltaX / _cancelThreshold).clamp(0.0, 1.0);

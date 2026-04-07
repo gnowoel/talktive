@@ -128,6 +128,10 @@ Every new feature or bugfix should follow the **Red-Green-Refactor** cycle:
 - **Google Sign-In Errors**: Ensure you use `localhost` (not `127.0.0.1`) and port `8083`.
 - **Account Recognition**: If an existing Google user is not recognized after clearing site data, use the **"I'm an Existing User" -> "Continue with Google"** flow. The system automatically handles cases where a Google account is already linked to a different Talktive identity by signing you into the existing account.
 - **Migration Review**: If onboarding prefill appears incomplete for a legacy user, verify the legacy record under Firebase `users/{uid}` and confirm language / gender values use the expected legacy formats before changing conversion rules.
+- **Migration Debugging (Dev Mode)**:
+  - In `development` mode, the server automatically targets local Firebase Emulators (`localhost:9000` for RTDB, `localhost:8088` for Firestore).
+  - The server sends a dummy `Authorization: Bearer owner` header which is recognized by emulators to bypass security rules. Ensure your emulators are running (`firebase emulators:start`) before testing migration flows.
+  - The migration uses the Firebase UID found in the `serverpod_auth_idp_firebase_account` table. If migration fails, verify that your local session is correctly mapped to a Firebase account in that table.
 - **Debug Shortcuts**: In `kDebugMode`, the `VersionSelector` provides a **"Direct to Firebase (Debug Only)"** link to bypass version selection and account restoration steps during development.
 - **Database Mismatch**: If you see `DatabaseQueryException`, run `serverpod generate` and create a new migration.
 - **Missing Migration Version**: If Serverpod reports that the DB has a migration version that is not present in project files, reconcile the history by restoring or bridging that version in `talktive_server/migrations/` and updating `migration_registry.txt` before attempting broader test runs.

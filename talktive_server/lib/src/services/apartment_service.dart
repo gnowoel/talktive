@@ -1,4 +1,3 @@
-// ignore_for_file: constant_identifier_names
 import 'package:serverpod/serverpod.dart';
 import 'dart:math';
 import 'package:talktive_server/src/generated/protocol.dart';
@@ -9,8 +8,8 @@ import 'resident_service.dart';
 /// Hybrid Floor formula.
 class ApartmentService {
   // Trust Score Constants
-  static const int TRUST_SCORE_START = 100;
-  static const int REPUTATION_RESTORE_RATE = 5; // points per hour
+  static const int trustScoreStart = 100;
+  static const int reputationRestoreRate = 5; // points per hour
 
   // ---------------------------------------------------------------------------
   // THE LUXURY HIGH-RISE FORMULA
@@ -59,7 +58,7 @@ class ApartmentService {
     final hoursPassed = now.difference(lastIncrease).inHours;
 
     if (hoursPassed >= 1 && resident.trustScore < 100) {
-      final points = hoursPassed * REPUTATION_RESTORE_RATE;
+      final points = hoursPassed * reputationRestoreRate;
       resident.trustScore = min(resident.trustScore + points, 100);
 
       resident.lastReputationIncrease = lastIncrease.add(

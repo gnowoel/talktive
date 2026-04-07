@@ -63,10 +63,13 @@ class MomentEndpoint extends Endpoint with EndpointAuthMixin {
       InputValidationService.validateId(lastId, 'Last ID').throwIfInvalid();
     }
 
+    final userId = await getUserIdOptional(session);
+
     return await MomentService.listMoments(
       session,
       limit: limit,
       lastId: lastId,
+      viewerId: userId,
     );
   }
 

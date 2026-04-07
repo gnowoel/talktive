@@ -1,4 +1,5 @@
 import 'package:serverpod/serverpod.dart';
+import 'package:serverpod_auth_idp_server/providers/firebase.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import '../services/input_validation_service.dart';
 import '../services/legacy_migration_service.dart';
@@ -23,9 +24,11 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
   Future<protocol.LegacyMigrationData?> getLegacyMigrationData(
     Session session,
   ) async {
-    final auth = session.authenticated;
-    if (auth == null) return null;
-    return LegacyMigrationService.fetchForUser(session, auth.userIdentifier);
+    final userId = await getUserIdOptional(session);
+    if (userId == null) return null;
+
+    final migrationId = await _getFirebaseUid(session, userId);
+    return LegacyMigrationService.fetchForUser(session, migrationId);
   }
 
   /// Fetches a Resident profile by their user ID.
@@ -80,10 +83,14 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
       return resident;
     }
 
+    // Try to get Firebase UID for legacy migration
+    final migrationId = await _getFirebaseUid(session, senderUuid);
+
     final legacyMigration = await LegacyMigrationService.fetchForUser(
       session,
-      senderUuid.uuid,
+      migrationId,
     );
+
 
     // 2. Create Resident via service
     return await ResidentService.createResident(
@@ -149,14 +156,15 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     resident.languages = languages ?? resident.languages;
 
     // Premium check for custom avatar
-    if (customAvatarUrl != null &&
-        !ResidentService.canUseCustomAvatar(resident)) {
-      throw protocol.TalktiveException(
-        message: 'Custom avatars are a Premium feature.',
-        code: 'PREMIUM_REQUIRED',
-      );
+    if (customAvatarUrl != null) {
+      if (!ResidentService.canUploadCustomAvatar(resident)) {
+        throw protocol.TalktiveException(
+          message: 'Custom avatars are a Premium feature.',
+          code: 'PREMIUM_REQUIRED',
+        );
+      }
+      resident.customAvatarUrl = customAvatarUrl;
     }
-    resident.customAvatarUrl = customAvatarUrl;
 
     // ResidentService.updateResident handles old avatar cleanup internally.
     return await ResidentService.updateResident(session, resident);
@@ -179,7 +187,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     final resident = await getAuthenticatedResident(session);
 
     if (customAvatarUrl != null &&
-        !ResidentService.canUseCustomAvatar(resident)) {
+        !ResidentService.canUploadCustomAvatar(resident)) {
       throw protocol.TalktiveException(
         message: 'Custom avatars are a Premium feature.',
         code: 'PREMIUM_REQUIRED',
@@ -230,20 +238,22 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
       );
     }
 
-    final isPlus = ResidentService.isPlusMember(resident);
-    if (!isPlus) {
-      if (showVoiceMessages == true ||
-          showAdvancedDiscovery == true ||
-          showCustomAvatar == true ||
-          showOthersOnlineStatus == true ||
-          showOthersReadReceipts == true ||
-          showOthersTypingIndicators == true ||
-          keepPrivateChats == true) {
-        throw protocol.TalktiveException(
-          message: 'Premium privacy settings require a Plus membership.',
-          code: 'PREMIUM_REQUIRED',
-        );
-      }
+    final premiumToggles = [
+      showVoiceMessages,
+      showAdvancedDiscovery,
+      showCustomAvatar,
+      showOthersOnlineStatus,
+      showOthersReadReceipts,
+      showOthersTypingIndicators,
+      keepPrivateChats,
+    ];
+
+    if (premiumToggles.any((t) => t == true) &&
+        !ResidentService.isPlusMember(resident)) {
+      throw protocol.TalktiveException(
+        message: 'Premium privacy settings require a Plus membership.',
+        code: 'PREMIUM_REQUIRED',
+      );
     }
 
     return await ResidentService.updatePrivacy(
@@ -444,5 +454,22 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
         backgroundSession.log('Failed to send report notification: $e');
       }
     });
+  }
+
+  /// Helper to get the Firebase UID for a given Serverpod user ID.
+  /// Defaults to the UUID if no mapping exists.
+  Future<String> _getFirebaseUid(Session session, UuidValue authUserId) async {
+    try {
+      final firebaseAccount = await FirebaseAccount.db.findFirstRow(
+        session,
+        where: (t) => t.authUserId.equals(authUserId),
+      );
+      if (firebaseAccount != null) {
+        return firebaseAccount.userIdentifier;
+      }
+    } catch (e) {
+      session.log('Resident: Failed to lookup Firebase account: $e');
+    }
+    return authUserId.uuid;
   }
 }

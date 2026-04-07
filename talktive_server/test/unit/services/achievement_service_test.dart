@@ -95,18 +95,19 @@ void main() {
 
       // Verify point ranges
       for (final achievement in easyAchievements) {
-        expect(achievement['points']! <= 20, true);
+        expect((achievement['points'] as int) <= 20, true);
       }
 
       for (final achievement in mediumAchievements) {
         expect(
-          achievement['points']! > 20 && achievement['points']! <= 100,
+          (achievement['points'] as int) > 20 &&
+              (achievement['points'] as int) <= 100,
           true,
         );
       }
 
       for (final achievement in hardAchievements) {
-        expect(achievement['points']! >= 100, true);
+        expect((achievement['points'] as int) >= 100, true);
       }
     });
   });

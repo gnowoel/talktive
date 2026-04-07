@@ -1,4 +1,3 @@
-// ignore_for_file: constant_identifier_names
 import 'dart:math';
 import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
@@ -10,17 +9,17 @@ import 'resident_service.dart';
 /// Handles XP, levels, streaks, achievements, and daily rewards.
 class GamificationService {
   // XP Awards
-  static const int XP_PER_MESSAGE = 10;
-  static const int XP_PER_MOMENT = 20;
-  static const int XP_PER_COMMENT = 5;
-  static const int XP_PER_LIKE = 2;
-  static const int XP_PER_LOGIN = 5;
-  static const int XP_USER_VOUCH = 20; // Reward for the publisher when liked
+  static const int xpPerMessage = 10;
+  static const int xpPerMoment = 20;
+  static const int xpPerComment = 5;
+  static const int xpPerLike = 2;
+  static const int xpPerLogin = 5;
+  static const int xpUserVouch = 20; // Reward for the publisher when liked
 
   // Streak Rewards
-  static const int XP_STREAK_3_DAYS = 50;
-  static const int XP_STREAK_7_DAYS = 100;
-  static const int XP_STREAK_30_DAYS = 500;
+  static const int xpStreak3Days = 50;
+  static const int xpStreak7Days = 100;
+  static const int xpStreak30Days = 500;
 
   /// Award XP to a resident and update their level/floor
   static Future<bool> awardXP(
@@ -108,7 +107,7 @@ class GamificationService {
       await awardXP(
         session,
         resident,
-        XP_PER_LOGIN,
+        xpPerLogin,
         'Daily login',
         save: false,
       );
@@ -165,13 +164,13 @@ class GamificationService {
         int bonus = 0;
         String? reason;
         if (resident.currentStreak == 3) {
-          bonus = XP_STREAK_3_DAYS;
+          bonus = xpStreak3Days;
           reason = '3-day streak';
         } else if (resident.currentStreak == 7) {
-          bonus = XP_STREAK_7_DAYS;
+          bonus = xpStreak7Days;
           reason = '7-day streak';
         } else if (resident.currentStreak == 30) {
-          bonus = XP_STREAK_30_DAYS;
+          bonus = xpStreak30Days;
           reason = '30-day streak';
         }
 

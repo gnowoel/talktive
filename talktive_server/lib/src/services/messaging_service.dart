@@ -261,7 +261,7 @@ class MessagingService {
     await GamificationService.awardXP(
       session,
       currentSender,
-      GamificationService.XP_PER_MESSAGE,
+      GamificationService.xpPerMessage,
       'Sent message',
       save: false,
     );

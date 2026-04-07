@@ -60,7 +60,7 @@ class MomentService {
     await GamificationService.awardXP(
       session,
       author,
-      GamificationService.XP_PER_MOMENT,
+      GamificationService.xpPerMoment,
       'Posted moment',
       save: false,
     );
@@ -84,13 +84,24 @@ class MomentService {
     Session session, {
     int limit = 20,
     int? lastId,
+    UuidValue? viewerId,
   }) async {
+    final blockedIds = viewerId != null
+        ? await ResidentService.getBlocksByUser(session, viewerId)
+        : <UuidValue>{};
+
     return await Moment.db.find(
       session,
       limit: limit,
       orderBy: (t) => t.id,
       orderDescending: true,
-      where: lastId != null ? (t) => t.id < lastId : null,
+      where: (t) {
+        var filter = (lastId != null ? t.id < lastId : Constant.bool(true));
+        if (blockedIds.isNotEmpty) {
+          filter &= t.authorId.notInSet(blockedIds);
+        }
+        return filter;
+      },
     );
   }
 
@@ -163,7 +174,7 @@ class MomentService {
           await GamificationService.awardXP(
             session,
             momentAuthor,
-            GamificationService.XP_USER_VOUCH,
+            GamificationService.xpUserVouch,
             'Moment liked',
             save: false,
           );

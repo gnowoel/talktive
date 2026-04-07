@@ -54,6 +54,7 @@ dependencies:
   record: ^6.2.0
   just_audio: ^0.10.5
   audio_session: ^0.2.3
+  riverpod: ^3.2.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

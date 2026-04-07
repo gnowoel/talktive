@@ -83,15 +83,28 @@ class LegacyMigrationService {
 
     http.Client? client;
     try {
-      client = await _authorizedClient();
+      final isDevelopment = session.server.runMode == 'development';
+      if (isDevelopment) {
+        client = http.Client();
+      } else {
+        client = await _authorizedClient();
+      }
 
-      final firestoreData = await _fetchFirestoreUser(client, userId);
+      final firestoreData = await _fetchFirestoreUser(
+        client,
+        userId,
+        isDevelopment: isDevelopment,
+      );
       if (firestoreData != null) {
         final migration = convertLegacyUserData(firestoreData);
         if (migration != null) return migration;
       }
 
-      final realtimeData = await _fetchRealtimeDatabaseUser(client, userId);
+      final realtimeData = await _fetchRealtimeDatabaseUser(
+        client,
+        userId,
+        isDevelopment: isDevelopment,
+      );
       if (realtimeData != null) {
         return convertLegacyUserData(realtimeData);
       }
@@ -122,7 +135,7 @@ class LegacyMigrationService {
 
     final xp = messageCount == null
         ? null
-        : messageCount * GamificationService.XP_PER_MESSAGE;
+        : messageCount * GamificationService.xpPerMessage;
     final level = xp == null ? null : GamificationService.computeBaseFloor(xp);
 
     final migration = protocol.LegacyMigrationData(
@@ -162,14 +175,22 @@ class LegacyMigrationService {
 
   static Future<Map<String, dynamic>?> _fetchFirestoreUser(
     http.Client client,
-    String userId,
-  ) async {
+    String userId, {
+    bool isDevelopment = false,
+  }) async {
     final projectId = _projectId;
-    final response = await client.get(
-      Uri.parse(
-        'https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents/users/$userId',
-      ),
-    );
+    final url =
+        isDevelopment
+            ? 'http://localhost:8088/v1/projects/$projectId/databases/(default)/documents/users/$userId'
+            : 'https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents/users/$userId';
+
+    final headers = <String, String>{};
+    if (isDevelopment) {
+      // In emulator, we can bypass rules by providing a dummy admin token.
+      headers['Authorization'] = 'Bearer owner';
+    }
+
+    final response = await client.get(Uri.parse(url), headers: headers);
 
     if (response.statusCode == 404) return null;
     if (response.statusCode < 200 || response.statusCode >= 300) {
@@ -192,13 +213,22 @@ class LegacyMigrationService {
 
   static Future<Map<String, dynamic>?> _fetchRealtimeDatabaseUser(
     http.Client client,
-    String userId,
-  ) async {
-    final response = await client.get(
-      Uri.parse(
-        'https://$_projectId-default-rtdb.firebaseio.com/users/$userId.json',
-      ),
-    );
+    String userId, {
+    bool isDevelopment = false,
+  }) async {
+    final projectId = _projectId;
+    final url =
+        isDevelopment
+            ? 'http://localhost:9000/users/$userId.json?ns=$projectId-default-rtdb'
+            : 'https://$projectId-default-rtdb.firebaseio.com/users/$userId.json';
+
+    final headers = <String, String>{};
+    if (isDevelopment) {
+      // In emulator, we can bypass rules by providing a dummy admin token.
+      headers['Authorization'] = 'Bearer owner';
+    }
+
+    final response = await client.get(Uri.parse(url), headers: headers);
 
     if (response.statusCode == 404) return null;
     if (response.statusCode < 200 || response.statusCode >= 300) {
@@ -212,6 +242,7 @@ class LegacyMigrationService {
     if (json is! Map) return null;
     return Map<String, dynamic>.from(json);
   }
+
 
   static dynamic _decodeFirestoreValue(Map<String, dynamic> value) {
     if (value.containsKey('nullValue')) return null;

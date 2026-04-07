@@ -22,7 +22,7 @@ class LoungeList extends _$LoungeList {
   }
 
   Future<List<LoungeWithMembership>> fetchLounges() async {
-    if (!sessionManager.isAuthenticated) return const [];
+    if (!canMakeAuthenticatedCalls) return const [];
     final client = ref.read(clientProvider);
     try {
       return await client.lounge.listMyLounges(limit: 50, offset: 0);
@@ -162,7 +162,7 @@ class LoungeList extends _$LoungeList {
 
   /// Refreshes the lounge list.
   Future<void> refresh() async {
-    if (!sessionManager.isAuthenticated) return;
+    if (!canMakeAuthenticatedCalls) return;
     state = const AsyncValue.loading();
     try {
       final lounges = await fetchLounges();
@@ -176,7 +176,7 @@ class LoungeList extends _$LoungeList {
 /// Provider for getting details about a specific lounge.
 @riverpod
 Future<Lounge> loungeDetails(Ref ref, int loungeId) async {
-  if (!sessionManager.isAuthenticated) {
+  if (!canMakeAuthenticatedCalls) {
     throw Exception('User is not authenticated');
   }
   final client = ref.read(clientProvider);
@@ -194,7 +194,7 @@ Future<List<LoungeMemberWithProfile>> loungeMembersWithProfiles(
   Ref ref,
   int loungeId,
 ) async {
-  if (!sessionManager.isAuthenticated) return const [];
+  if (!canMakeAuthenticatedCalls) return const [];
   final client = ref.read(clientProvider);
   try {
     return await client.lounge.getLoungeMembers(loungeId);
@@ -210,7 +210,7 @@ Future<List<LoungeMemberWithProfile>> pendingApplications(
   Ref ref,
   int loungeId,
 ) async {
-  if (!sessionManager.isAuthenticated) return const [];
+  if (!canMakeAuthenticatedCalls) return const [];
   final client = ref.read(clientProvider);
   try {
     return await client.lounge.getPendingApplications(loungeId);
@@ -223,7 +223,7 @@ Future<List<LoungeMemberWithProfile>> pendingApplications(
 /// Provider for getting members of a lounge.
 @riverpod
 Future<List<Resident>> loungeMembers(Ref ref, int loungeId) async {
-  if (!sessionManager.isAuthenticated) return const [];
+  if (!canMakeAuthenticatedCalls) return const [];
   final client = ref.read(clientProvider);
   try {
     final members = await client.lounge.getLoungeMembers(loungeId);

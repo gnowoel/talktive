@@ -114,7 +114,7 @@ class FCMManager extends _$FCMManager {
   /// Register FCM token with server.
   Future<void> _registerToken(String token) async {
     try {
-      if (!sessionManager.isAuthenticated) {
+      if (!canMakeAuthenticatedCalls) {
         debugPrint(
           'FCM DEBUG: Skipping token registration, sessionManager.isAuthenticated is false',
         );

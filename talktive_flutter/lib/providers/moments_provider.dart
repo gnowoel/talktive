@@ -22,14 +22,14 @@ class Moments extends _$Moments {
   }
 
   Future<List<Moment>> fetchMoments({int limit = 20}) async {
-    if (!sessionManager.isAuthenticated) return const [];
+    if (!canMakeAuthenticatedCalls) return const [];
     final client = ref.read(clientProvider);
     return await client.moment.listMoments(limit: limit);
   }
 
   /// Refreshes the moments list
   Future<void> refresh() async {
-    if (!sessionManager.isAuthenticated) return;
+    if (!canMakeAuthenticatedCalls) return;
     state = const AsyncValue.loading();
     try {
       final moments = await fetchMoments();
@@ -99,7 +99,7 @@ class MomentLikes extends _$MomentLikes {
   }
 
   Future<Set<int>> fetchLikedMoments() async {
-    if (!sessionManager.isAuthenticated) return const {};
+    if (!canMakeAuthenticatedCalls) return const {};
     final client = ref.read(clientProvider);
     final moments = await ref.read(momentsProvider.future);
 
@@ -169,7 +169,7 @@ class MomentComments extends _$MomentComments {
   }
 
   Future<List<MomentComment>> fetchComments(int momentId) async {
-    if (!sessionManager.isAuthenticated) return const [];
+    if (!canMakeAuthenticatedCalls) return const [];
     final client = ref.read(clientProvider);
     return await client.moment.getMomentComments(momentId, limit: 50);
   }
@@ -231,7 +231,7 @@ class UserMoments extends _$UserMoments {
   }
 
   Future<List<Moment>> fetchUserMoments(String userId, {int limit = 50}) async {
-    if (!sessionManager.isAuthenticated) return const [];
+    if (!canMakeAuthenticatedCalls) return const [];
     final client = ref.read(clientProvider);
     return await client.moment.listUserMoments(
       userId: UuidValue.fromString(userId),

@@ -59,7 +59,7 @@ class ActivityHistory extends _$ActivityHistory {
   }
 
   Future<List<UserNotification>> _fetchNotifications() async {
-    if (!sessionManager.isAuthenticated) return const [];
+    if (!canMakeAuthenticatedCalls) return const [];
     final client = ref.read(clientProvider);
     try {
       final notifications = await client.notification.getUserNotifications(
@@ -74,7 +74,7 @@ class ActivityHistory extends _$ActivityHistory {
   }
 
   Future<void> refresh() async {
-    if (!sessionManager.isAuthenticated) return;
+    if (!canMakeAuthenticatedCalls) return;
     bool isMounted = true;
     ref.onDispose(() => isMounted = false);
 

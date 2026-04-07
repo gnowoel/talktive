@@ -1,4 +1,5 @@
 import 'dart:async' show StreamSubscription, unawaited;
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -392,25 +393,37 @@ class Auth extends _$Auth {
   }
 
   Future<void> signOut() async {
-    // 1. Set state to Unauthenticated first to stop all reactive providers from fetching.
-    // This also triggers FCMManager.unregister() reactively while the session is still valid.
-    state = const AsyncValue.data(Unauthenticated());
-
-    // 2. Give reactive providers a chance to handle the state change (especially FCM unregistration).
-    await Future.delayed(Duration.zero);
+    if (authenticatedCallGate.isSigningOut) return;
+    authenticatedCallGate.beginSignOut();
 
     try {
-      // 3. Finally, invalidate the server session.
+      await _unregisterDeviceTokenBeforeSignOut();
+      state = const AsyncValue.data(Unauthenticated());
+      await Future<void>.delayed(Duration.zero);
       await sessionManager.signOutDevice();
       await FirebaseAuth.instance.signOut();
       await GoogleSignIn.instance.signOut();
     } catch (e) {
       debugPrint("SignOut error: $e");
+    } finally {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('user_name');
+      await prefs.remove('user_id');
+      await prefs.remove('onboarding_completed');
+      authenticatedCallGate.endSignOut();
     }
+  }
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('user_name');
-    await prefs.remove('user_id');
-    await prefs.remove('onboarding_completed');
+  Future<void> _unregisterDeviceTokenBeforeSignOut() async {
+    try {
+      final messaging = FirebaseMessaging.instance;
+      final token = await messaging.getToken();
+      if (token == null || !sessionManager.isAuthenticated) return;
+
+      await client.notification.unregisterDeviceToken(token);
+      await messaging.deleteToken();
+    } catch (e) {
+      debugPrint('SignOut token cleanup skipped: $e');
+    }
   }
 }

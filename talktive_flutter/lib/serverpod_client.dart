@@ -11,6 +11,25 @@ late final Client client;
 /// Global session manager for authentication
 late final FlutterAuthSessionManager sessionManager;
 
+class AuthenticatedCallGate {
+  bool _isSigningOut = false;
+
+  bool get isSigningOut => _isSigningOut;
+
+  void beginSignOut() {
+    _isSigningOut = true;
+  }
+
+  void endSignOut() {
+    _isSigningOut = false;
+  }
+}
+
+final authenticatedCallGate = AuthenticatedCallGate();
+
+bool get canMakeAuthenticatedCalls =>
+    sessionManager.isAuthenticated && !authenticatedCallGate.isSigningOut;
+
 /// Initializes the global Serverpod client.
 Future<void> initializeServerpodClient() async {
   final serverUrl = AppConfig.instance.serverpodUrl;

@@ -31,7 +31,7 @@ class CurrentResident extends _$CurrentResident {
   }
 
   Future<Resident?> fetchCurrentResident() async {
-    if (!sessionManager.isAuthenticated) return null;
+    if (!canMakeAuthenticatedCalls) return null;
     final client = ref.read(clientProvider);
     final authStateAsync = ref.read(authProvider);
 
@@ -58,7 +58,7 @@ class CurrentResident extends _$CurrentResident {
 
   /// Refreshes the current resident's data.
   Future<void> refresh() async {
-    if (!sessionManager.isAuthenticated) return;
+    if (!canMakeAuthenticatedCalls) return;
     final oldResident = state.value;
     state = const AsyncValue.loading();
     try {
@@ -93,7 +93,7 @@ class CurrentResident extends _$CurrentResident {
 /// Provider to fetch a resident by their user ID.
 @riverpod
 Future<Resident?> residentById(Ref ref, String userId) async {
-  if (!sessionManager.isAuthenticated) return null;
+  if (!canMakeAuthenticatedCalls) return null;
   final client = ref.read(clientProvider);
   try {
     return await client.resident.getResidentById(userId);

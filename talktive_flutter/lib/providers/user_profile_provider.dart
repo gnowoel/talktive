@@ -24,7 +24,7 @@ class UserProfile extends _$UserProfile {
     }
 
     try {
-      if (!sessionManager.isAuthenticated) return null;
+      if (!canMakeAuthenticatedCalls) return null;
       final client = ref.read(clientProvider);
       return await client.resident.getUserProfile(userId);
     } catch (e) {
@@ -35,7 +35,7 @@ class UserProfile extends _$UserProfile {
 
   /// Refreshes the profile data from the server.
   Future<void> refresh() async {
-    if (!sessionManager.isAuthenticated) return;
+    if (!canMakeAuthenticatedCalls) return;
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final client = ref.read(clientProvider);

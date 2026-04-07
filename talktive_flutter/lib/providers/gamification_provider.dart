@@ -45,7 +45,7 @@ class GamificationNotifier extends _$GamificationNotifier {
   }
 
   Future<GamificationData?> fetchAll() async {
-    if (!sessionManager.isAuthenticated) return null;
+    if (!canMakeAuthenticatedCalls) return null;
     final client = ref.read(clientProvider);
     try {
       final status = await client.gamification.getGamificationStatus();
@@ -98,7 +98,7 @@ class GamificationNotifier extends _$GamificationNotifier {
 
   /// Refreshes the gamification data.
   Future<void> refresh() async {
-    if (!sessionManager.isAuthenticated) return;
+    if (!canMakeAuthenticatedCalls) return;
     bool isMounted = true;
     ref.onDispose(() => isMounted = false);
 

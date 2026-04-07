@@ -49,7 +49,7 @@ class SocialRelationshipsState extends _$SocialRelationshipsState {
   }
 
   Future<List<String>> fetchLikes() async {
-    if (!sessionManager.isAuthenticated) return [];
+    if (!canMakeAuthenticatedCalls) return [];
     try {
       final client = ref.read(clientProvider);
       return await client.resident.getMyLikedResidentIds();
@@ -59,7 +59,7 @@ class SocialRelationshipsState extends _$SocialRelationshipsState {
   }
 
   Future<List<String>> fetchBlockedUsers() async {
-    if (!sessionManager.isAuthenticated) return [];
+    if (!canMakeAuthenticatedCalls) return [];
     try {
       final client = ref.read(clientProvider);
       return await client.resident.getBlockedResidentIds();

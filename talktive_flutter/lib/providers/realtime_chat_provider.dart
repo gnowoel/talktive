@@ -150,7 +150,7 @@ class RealtimeChat extends _$RealtimeChat {
 
   /// Fetches message history from the server.
   Future<List<Message>> _fetchMessages({int offset = 0}) async {
-    if (!sessionManager.isAuthenticated) return const [];
+    if (!canMakeAuthenticatedCalls) return const [];
     final client = ref.read(clientProvider);
     try {
       return await client.message.listMessages(
@@ -166,7 +166,7 @@ class RealtimeChat extends _$RealtimeChat {
 
   /// Subscribes to real-time updates via WebSocket.
   void _subscribe() {
-    if (_isSubscribed || !sessionManager.isAuthenticated) return;
+    if (_isSubscribed || !canMakeAuthenticatedCalls) return;
 
     final client = ref.read(clientProvider);
 
@@ -392,7 +392,7 @@ class RealtimeChat extends _$RealtimeChat {
 
   /// Refreshes the message list.
   Future<void> refresh() async {
-    if (!sessionManager.isAuthenticated) return;
+    if (!canMakeAuthenticatedCalls) return;
     try {
       final messages = await _fetchMessages();
       state = AsyncValue.data(

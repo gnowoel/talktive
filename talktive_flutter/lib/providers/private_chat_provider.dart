@@ -22,7 +22,7 @@ class PrivateChatList extends _$PrivateChatList {
   }
 
   Future<List<PrivateChatWithProfile>> fetchPrivateChats() async {
-    if (!sessionManager.isAuthenticated) return const [];
+    if (!canMakeAuthenticatedCalls) return const [];
     final client = ref.read(clientProvider);
     try {
       return await client.privateChat.listPrivateChats();
@@ -69,7 +69,7 @@ class PrivateChatList extends _$PrivateChatList {
 
   /// Refreshes the private chat list.
   Future<void> refresh() async {
-    if (!sessionManager.isAuthenticated) return;
+    if (!canMakeAuthenticatedCalls) return;
     state = const AsyncValue.loading();
     try {
       final chats = await fetchPrivateChats();
@@ -99,7 +99,7 @@ Future<PrivateChatWithProfile?> privateChatDetails(
   Ref ref,
   int privateChatId,
 ) async {
-  if (!sessionManager.isAuthenticated) return null;
+  if (!canMakeAuthenticatedCalls) return null;
   final client = ref.read(clientProvider);
   try {
     return await client.privateChat.getPrivateChatDetails(privateChatId);

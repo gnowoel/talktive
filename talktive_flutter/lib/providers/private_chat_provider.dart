@@ -38,8 +38,11 @@ class PrivateChatList extends _$PrivateChatList {
     String? initialMessage,
   }) async {
     final authState = ref.read(authProvider).value;
-    if (authState is Authenticated && authState.userId.toString() == otherUserId) {
-      throw Exception('Cannot create private chat with yourself.');
+    if (authState is Authenticated && authState.userId == otherUserId) {
+      throw TalktiveException(
+        message: 'Cannot create private chat with yourself.',
+        code: 'SELF_CHAT_NOT_ALLOWED',
+      );
     }
 
     final client = ref.read(clientProvider);

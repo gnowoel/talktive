@@ -53,7 +53,6 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     final socialState = ref.watch(socialRelationshipsStateProvider).value;
     final isBlocked = socialState?.isBlocked(widget.userId) ?? false;
     final profileAsync = ref.watch(userProfileProvider(widget.userId));
-
     final currentResident = ref.watch(currentResidentProvider).value;
     final isSelf = currentResident?.userInfoId.toString() == widget.userId;
 
@@ -75,10 +74,14 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           icon: const Icon(Icons.close, size: 24),
           onPressed: () => context.pop(),
         ),
-        actions: [_buildTrailingMenu(isBlocked)],
+        actions: isSelf ? const [] : [_buildTrailingMenu(isBlocked)],
       ),
       body: profileAsync.when(
-        data: (profile) => _buildProfileContent(isBlocked, profile),
+        data: (profile) => _buildProfileContent(
+          isBlocked: isBlocked,
+          isSelf: isSelf,
+          profile: profile,
+        ),
         loading: () => const Center(
           child: CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
@@ -269,7 +272,11 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     }
   }
 
-  Widget _buildProfileContent(bool isBlocked, UserProfileView? profile) {
+  Widget _buildProfileContent({
+    required bool isBlocked,
+    required bool isSelf,
+    required UserProfileView? profile,
+  }) {
     final name = profile?.userName ?? widget.userName ?? 'Neighbor';
     final avatar = profile?.userAvatar ?? widget.userAvatar;
     final floor = profile?.floor ?? widget.userFloor ?? 1;
@@ -363,10 +370,12 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
           const SizedBox(height: AppTheme.duoSpacingLarge),
 
           // Action Button (Vouch)
-          _buildVouchButton(
-            profile,
-          ).animate().fadeIn(delay: 250.ms).slideY(begin: 0.1, end: 0),
-          const SizedBox(height: AppTheme.duoSpacingMedium),
+          if (!isSelf) ...[
+            _buildVouchButton(
+              profile,
+            ).animate().fadeIn(delay: 250.ms).slideY(begin: 0.1, end: 0),
+            const SizedBox(height: AppTheme.duoSpacingMedium),
+          ],
 
           // Moments Button (New style)
           _buildMomentsButton(

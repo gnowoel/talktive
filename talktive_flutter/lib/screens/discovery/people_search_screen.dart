@@ -690,17 +690,16 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
     }
 
     // Determine age display
-    final ageDisplay =
-        user.ageRange != null && user.ageRange != 'Not Specified'
-            ? user.ageRange
-            : null;
+    final ageDisplay = user.ageRange != null && user.ageRange != 'Not Specified'
+        ? user.ageRange
+        : null;
 
     // Determine languages display
     final languages = user.languages ?? [];
     final languagesDisplay = languages.isNotEmpty
         ? (languages.length > 2
-            ? '${languages.take(2).map((c) => AppLanguages.getName(c)).join(', ')} +${languages.length - 2}'
-            : languages.map((c) => AppLanguages.getName(c)).join(', '))
+              ? '${languages.take(2).map((c) => AppLanguages.getName(c)).join(', ')} +${languages.length - 2}'
+              : languages.map((c) => AppLanguages.getName(c)).join(', '))
         : null;
 
     return DuoCard(
@@ -750,7 +749,10 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
                       ),
                       if (user.userMood != null) ...[
                         const SizedBox(width: 6),
-                        Text(user.userMood!, style: const TextStyle(fontSize: 16)),
+                        Text(
+                          user.userMood!,
+                          style: const TextStyle(fontSize: 16),
+                        ),
                       ],
                       const SizedBox(width: 8),
                       DuoFloorBadge(floor: user.floor),

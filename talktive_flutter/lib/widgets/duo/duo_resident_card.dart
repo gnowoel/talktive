@@ -46,15 +46,15 @@ class DuoResidentCard extends StatelessWidget {
     // Determine age display
     final ageDisplay =
         resident.ageRange != null && resident.ageRange != 'Not Specified'
-            ? resident.ageRange
-            : null;
+        ? resident.ageRange
+        : null;
 
     // Determine languages display
     final languages = resident.languages ?? [];
     final languagesDisplay = languages.isNotEmpty
         ? (languages.length > 2
-            ? '${languages.take(2).map((c) => AppLanguages.getName(c)).join(', ')} +${languages.length - 2}'
-            : languages.map((c) => AppLanguages.getName(c)).join(', '))
+              ? '${languages.take(2).map((c) => AppLanguages.getName(c)).join(', ')} +${languages.length - 2}'
+              : languages.map((c) => AppLanguages.getName(c)).join(', '))
         : null;
 
     return DuoCard(
@@ -96,12 +96,15 @@ class DuoResidentCard extends StatelessWidget {
                           ),
                           if (resident.mood != null) ...[
                             const SizedBox(width: 6),
-                            Text(resident.mood!,
-                                style: const TextStyle(fontSize: 16)),
+                            Text(
+                              resident.mood!,
+                              style: const TextStyle(fontSize: 16),
+                            ),
                           ],
                           const SizedBox(width: 8),
                           DuoFloorBadge(
-                              floor: DuoFloorHelper.computeFloor(resident)),
+                            floor: DuoFloorHelper.computeFloor(resident),
+                          ),
                           const Spacer(),
                           Text(
                             '⭐ ${resident.trustScore}',

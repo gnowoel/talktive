@@ -9,10 +9,7 @@ class DuoRegionBadge extends StatelessWidget {
   final String? countryCode;
 
   /// Creates a [DuoRegionBadge].
-  const DuoRegionBadge({
-    super.key,
-    this.countryCode,
-  });
+  const DuoRegionBadge({super.key, this.countryCode});
 
   @override
   Widget build(BuildContext context) {

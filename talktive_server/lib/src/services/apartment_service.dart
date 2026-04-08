@@ -145,6 +145,7 @@ class ApartmentService {
     required Resident sender,
     required Resident receiver,
   }) {
+    if (sender.userInfoId == receiver.userInfoId) return false;
     if (isMuted(sender)) return false;
     return true;
   }
@@ -154,6 +155,9 @@ class ApartmentService {
     required Resident sender,
     required Resident receiver,
   }) {
+    if (sender.userInfoId == receiver.userInfoId) {
+      return 'You cannot knock on your own door.';
+    }
     if (isMuted(sender)) return getMuteReason(sender);
     return 'You cannot invite this resident at this time.';
   }

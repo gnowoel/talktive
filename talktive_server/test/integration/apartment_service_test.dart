@@ -22,6 +22,27 @@ void main() {
       resident = await Resident.db.insertRow(session, resident);
     });
 
+    group('INVITE / SOCIAL RULES', () {
+      test('canInvite returns false for self-invite', () async {
+        final session = sessionBuilder.build();
+        final canInvite = ApartmentService.canInvite(
+          sender: resident,
+          receiver: resident,
+        );
+        expect(canInvite, isFalse);
+      });
+
+      test('cannotInviteReason returns self-knock message for self-invite',
+          () async {
+        final session = sessionBuilder.build();
+        final reason = ApartmentService.cannotInviteReason(
+          sender: resident,
+          receiver: resident,
+        );
+        expect(reason, 'You cannot knock on your own door.');
+      });
+    });
+
     group('Effective Floor Formula', () {
       test(
         'is capped by trust score if user is high-level but poorly behaved',

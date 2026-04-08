@@ -33,6 +33,28 @@ void main() {
       plazaChannel = await protocol.Channel.db.insertRow(session, channel);
     });
 
+    group('getOrCreatePrivateChat', () {
+      test('throws SELF_CHAT_NOT_ALLOWED when creating chat with yourself',
+          () async {
+        final session = sessionBuilder.build();
+
+        expect(
+          () => MessagingService.getOrCreatePrivateChat(
+            session,
+            sender: testUser,
+            otherUserId: testUser.userInfoId,
+          ),
+          throwsA(
+            isA<protocol.TalktiveException>().having(
+              (e) => e.code,
+              'code',
+              'SELF_CHAT_NOT_ALLOWED',
+            ),
+          ),
+        );
+      });
+    });
+
     group('validateMessage', () {
       test('allows a simple text message from valid user', () async {
         final session = sessionBuilder.build();

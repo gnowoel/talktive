@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:talktive_client/talktive_client.dart';
+import '../../config/languages.dart';
 import '../../config/theme.dart';
 import 'package:talktive/helpers/duo_floor_helper.dart';
 import 'duo_card.dart';
 import 'duo_avatar.dart';
+import 'duo_floor_badge.dart';
 
 /// Duolingo-style card for displaying a resident's summary information.
 class DuoResidentCard extends StatelessWidget {
@@ -30,103 +32,156 @@ class DuoResidentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Determine gender symbol
+    String? genderSymbol;
+    if (resident.gender != null && resident.gender != 'prefer-not-to-say') {
+      genderSymbol = switch (resident.gender) {
+        'male' => '♂️',
+        'female' => '♀️',
+        'non-binary' => '⚧️',
+        _ => null,
+      };
+    }
+
+    // Determine age display
+    final ageDisplay =
+        resident.ageRange != null && resident.ageRange != 'Not Specified'
+            ? resident.ageRange
+            : null;
+
+    // Determine languages display
+    final languages = resident.languages ?? [];
+    final languagesDisplay = languages.isNotEmpty
+        ? (languages.length > 2
+            ? '${languages.take(2).map((c) => AppLanguages.getName(c)).join(', ')} +${languages.length - 2}'
+            : languages.map((c) => AppLanguages.getName(c)).join(', '))
+        : null;
+
     return DuoCard(
       onTap: onTap,
       margin: const EdgeInsets.only(bottom: AppTheme.duoSpacingMedium),
       child: Padding(
-        padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+        padding: const EdgeInsets.all(12),
         child: Column(
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 DuoAvatar(
                   imageUrl: resident.customAvatarUrl ?? resident.avatar,
                   placeholderEmoji: resident.avatar,
-                  size: 48,
-                  mood: resident.mood,
-                  floorLevel: DuoFloorHelper.computeFloor(resident),
+                  size: 56,
                   showRing: true,
+                  showMood: false,
+                  showFloor: false,
                 ),
-                const SizedBox(width: AppTheme.duoSpacingMedium),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Title Row: Name + Mood + Floor
                       Row(
                         children: [
                           Flexible(
                             child: Text(
                               resident.userName ?? 'Resident',
                               style: const TextStyle(
-                                fontSize: 16,
+                                fontSize: 17,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'Poppins',
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ),
-                          if (isHost) ...[
-                            const SizedBox(width: 8),
-                            _buildTag(
-                              'HOST',
-                              Colors.orange,
-                              AppTheme.duoYellow,
-                            ),
+                          if (resident.mood != null) ...[
+                            const SizedBox(width: 6),
+                            Text(resident.mood!,
+                                style: const TextStyle(fontSize: 16)),
                           ],
-                          if (showBadge && badgeText != null) ...[
-                            const SizedBox(width: 8),
-                            _buildTag(
-                              badgeText!,
-                              badgeColor ?? AppTheme.primaryColor,
-                              (badgeColor ?? AppTheme.primaryColor).withValues(
-                                alpha: 0.1,
-                              ),
+                          const SizedBox(width: 8),
+                          DuoFloorBadge(
+                              floor: DuoFloorHelper.computeFloor(resident)),
+                          const Spacer(),
+                          Text(
+                            '⭐ ${resident.trustScore}',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppTheme.duoOrange,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Poppins',
                             ),
-                          ],
+                          ),
                         ],
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        subtitle ??
-                            'Floor ${DuoFloorHelper.computeFloor(resident)} • ⭐ ${resident.trustScore}',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: AppTheme.textSecondary,
+
+                      // Bio on the second line
+                      if (resident.bio != null && resident.bio!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text(
+                            resident.bio!,
+                            style: TextStyle(
+                              color: AppTheme.textSecondary,
+                              fontSize: 13,
+                              fontFamily: 'Rubik',
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+
+                      const SizedBox(height: 6),
+
+                      // Metadata Row: Gender/Age · Languages
+                      DefaultTextStyle(
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[500],
                           fontFamily: 'Rubik',
+                        ),
+                        child: Row(
+                          children: [
+                            if (genderSymbol != null || ageDisplay != null) ...[
+                              Text([?genderSymbol, ?ageDisplay].join(' ')),
+                              if (languagesDisplay != null)
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 6),
+                                  child: Text('·'),
+                                ),
+                            ],
+                            if (languagesDisplay != null) ...[
+                              const Icon(
+                                Icons.language_rounded,
+                                size: 13,
+                                color: Colors.grey,
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  languagesDisplay,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
                 if (onTap != null && (actions == null || actions!.isEmpty))
-                  const Icon(Icons.chevron_right, color: AppTheme.textLight),
+                  const SizedBox(width: 8),
+                if (onTap != null && (actions == null || actions!.isEmpty))
+                  const Icon(Icons.chevron_right, size: 20, color: Colors.grey),
               ],
             ),
             if (actions != null && actions!.isNotEmpty) ...[
-              const SizedBox(height: AppTheme.duoSpacingMedium),
+              const SizedBox(height: 8),
               Row(mainAxisAlignment: MainAxisAlignment.end, children: actions!),
             ],
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTag(String text, Color textColor, Color bgColor) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: bgColor.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          color: textColor,
-          fontFamily: 'Poppins',
-          letterSpacing: 0.5,
         ),
       ),
     );

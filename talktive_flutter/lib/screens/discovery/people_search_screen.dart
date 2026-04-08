@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talktive_client/talktive_client.dart' as protocol;
 import '../../config/interests.dart';
+import '../../config/languages.dart';
 
 import '../../config/theme.dart';
 import '../../providers/client_provider.dart';
@@ -16,6 +17,7 @@ import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_empty_state.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_avatar.dart';
+import '../../widgets/duo/duo_floor_badge.dart';
 import '../../helpers/duo_snackbar_helper.dart';
 
 class PeopleSearchScreen extends ConsumerStatefulWidget {
@@ -676,6 +678,31 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
   }
 
   Widget _buildUserCard(protocol.UserSummary user, int index) {
+    // Determine gender symbol
+    String? genderSymbol;
+    if (user.gender != null && user.gender != 'prefer-not-to-say') {
+      genderSymbol = switch (user.gender) {
+        'male' => '♂️',
+        'female' => '♀️',
+        'non-binary' => '⚧️',
+        _ => null,
+      };
+    }
+
+    // Determine age display
+    final ageDisplay =
+        user.ageRange != null && user.ageRange != 'Not Specified'
+            ? user.ageRange
+            : null;
+
+    // Determine languages display
+    final languages = user.languages ?? [];
+    final languagesDisplay = languages.isNotEmpty
+        ? (languages.length > 2
+            ? '${languages.take(2).map((c) => AppLanguages.getName(c)).join(', ')} +${languages.length - 2}'
+            : languages.map((c) => AppLanguages.getName(c)).join(', '))
+        : null;
+
     return DuoCard(
       margin: const EdgeInsets.only(bottom: 12),
       onTap: () {
@@ -692,64 +719,116 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             DuoAvatar(
               imageUrl: user.userAvatar,
-              size: 48,
-              floorLevel: user.floor,
+              size: 56,
               isOnline: user.isOnline,
+              showMood: false,
+              showFloor: false,
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    user.userName ?? 'Resident',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  if (user.userMood != null)
-                    Text(
-                      user.userMood!,
-                      style: TextStyle(
-                        color: AppTheme.textSecondary,
-                        fontSize: 13,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  const SizedBox(height: 4),
+                  // Title Row: Name + Mood + Floor
                   Row(
                     children: [
-                      Text(
-                        'Floor ${user.floor}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.duoBlue,
+                      Flexible(
+                        child: Text(
+                          user.userName ?? 'Resident',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 17,
+                            fontFamily: 'Poppins',
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      if (user.userMood != null) ...[
+                        const SizedBox(width: 6),
+                        Text(user.userMood!, style: const TextStyle(fontSize: 16)),
+                      ],
+                      const SizedBox(width: 8),
+                      DuoFloorBadge(floor: user.floor),
                       if (user.matchScore != null) ...[
-                        const SizedBox(width: 8),
-                        const Text('⚡', style: TextStyle(fontSize: 14)),
+                        const Spacer(),
                         Text(
-                          '${user.matchScore}% Match',
+                          '${user.matchScore}%',
                           style: const TextStyle(
                             fontSize: 12,
                             color: AppTheme.duoGreen,
                             fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins',
                           ),
                         ),
+                        const SizedBox(width: 2),
+                        const Text('⚡', style: TextStyle(fontSize: 10)),
                       ],
                     ],
+                  ),
+
+                  // Bio on the second line
+                  if (user.userBio != null && user.userBio!.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(
+                        user.userBio!,
+                        style: TextStyle(
+                          color: AppTheme.textSecondary,
+                          fontSize: 13,
+                          fontFamily: 'Rubik',
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+
+                  const SizedBox(height: 6),
+
+                  // Metadata Row: Gender/Age · Languages
+                  DefaultTextStyle(
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[500],
+                      fontFamily: 'Rubik',
+                    ),
+                    child: Row(
+                      children: [
+                        if (genderSymbol != null || ageDisplay != null) ...[
+                          Text([?genderSymbol, ?ageDisplay].join(' ')),
+                          if (languagesDisplay != null)
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 6),
+                              child: Text('·'),
+                            ),
+                        ],
+                        if (languagesDisplay != null) ...[
+                          const Icon(
+                            Icons.language_rounded,
+                            size: 13,
+                            color: Colors.grey,
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              languagesDisplay,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, size: 24, color: Colors.grey),
+            const SizedBox(width: 8),
+            const Icon(Icons.chevron_right, size: 20, color: Colors.grey),
           ],
         ),
       ),

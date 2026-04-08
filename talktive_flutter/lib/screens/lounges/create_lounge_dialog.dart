@@ -12,6 +12,7 @@ import '../../config/interests.dart';
 import '../../widgets/duo/duo_button.dart';
 import '../../widgets/duo/duo_input.dart';
 import '../../widgets/duo/duo_keyboard_dismissible.dart';
+import '../../config/lounge_icons.dart';
 
 class CreateLoungeDialog extends ConsumerStatefulWidget {
   final Lounge? existingLounge;
@@ -26,7 +27,7 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _rulesController = TextEditingController();
-  String _selectedEmoji = '👥';
+  String _selectedEmoji = AppLoungeIcons.defaultIcon;
   bool _isPublic = true;
   int _maxMembers = 50;
   List<String> _selectedInterests = [];
@@ -35,20 +36,6 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
   String _selectedCountryFlag = '🌍';
   bool _isCreating = false;
 
-  final List<String> _emojiOptions = [
-    '👥',
-    '🎮',
-    '🎨',
-    '🎵',
-    '📚',
-    '💻',
-    '🏀',
-    '🍕',
-    '🌍',
-    '🚀',
-    '💡',
-    '🎯',
-  ];
 
   @override
   void initState() {
@@ -235,7 +222,7 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
                         spacing: 8,
                         runSpacing: 8,
                         alignment: WrapAlignment.center,
-                        children: _emojiOptions.map((emoji) {
+                        children: AppLoungeIcons.all.map((emoji) {
                           final isSelected = emoji == _selectedEmoji;
                           return GestureDetector(
                             onTap: () {

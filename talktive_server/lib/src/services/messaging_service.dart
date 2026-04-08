@@ -253,22 +253,28 @@ class MessagingService {
     required protocol.Channel channel,
     required protocol.Resident sender,
   }) async {
+    final currentSender = await ResidentService.getResident(
+      session,
+      sender.userInfoId,
+    );
+    if (currentSender == null) return;
+
     final channelId = channel.id!;
 
     // 1. Award XP and update streak
     await GamificationService.awardXP(
       session,
-      sender,
+      currentSender,
       GamificationService.xpPerMessage,
       'Sent message',
       save: false,
     );
     await GamificationService.updateMessageStreak(
       session,
-      sender,
+      currentSender,
       save: false,
     );
-    await ResidentService.updateResident(session, sender);
+    await ResidentService.updateResident(session, currentSender);
 
     // 2. Award Lounge XP
     if (channel.type == protocol.ChannelType.lounge) {
@@ -283,12 +289,12 @@ class MessagingService {
     // 3. Achievement Progress
     await GamificationService.trackMultipleProgress(
       session,
-      sender.userInfoId,
+      currentSender.userInfoId,
       ['first_message', 'conversationalist', 'chatterbox'],
     );
     await GamificationService.checkTimeBasedAchievements(
       session,
-      sender.userInfoId,
+      currentSender.userInfoId,
     );
   }
 

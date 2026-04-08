@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
+import 'package:talktive_server/src/services/gamification_service.dart';
 import 'package:talktive_server/src/services/messaging_service.dart';
 import 'test_tools/serverpod_test_tools.dart';
 
@@ -211,6 +212,37 @@ void main() {
         );
         expect(retrievedMessage, isNotNull);
         expect(retrievedMessage!.mediaUrl, 'https://example.com/voice.m4a');
+      });
+
+      test('onMessagePostSave preserves newer resident fields', () async {
+        final session = sessionBuilder.build();
+
+        final staleSender = testUser.copyWith(bio: 'stale bio');
+        final persistedSender = testUser.copyWith(bio: 'fresh bio');
+        await protocol.Resident.db.updateRow(session, persistedSender);
+
+        await MessagingService.onMessagePostSave(
+          session,
+          message: protocol.Message(
+            channelId: plazaChannel.id!,
+            senderId: testUser.userInfoId,
+            createdAt: DateTime.now(),
+            senderName: 'Resident',
+            senderFloor: 1,
+            senderTrustScore: 100,
+            isSystem: false,
+          ),
+          channel: plazaChannel,
+          sender: staleSender,
+        );
+
+        final updatedResident = await protocol.Resident.db.findById(
+          session,
+          testUser.id!,
+        );
+        expect(updatedResident, isNotNull);
+        expect(updatedResident!.bio, 'fresh bio');
+        expect(updatedResident.xp, GamificationService.xpPerMessage);
       });
     });
 

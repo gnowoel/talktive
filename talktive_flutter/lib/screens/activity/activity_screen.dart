@@ -19,7 +19,7 @@ import '../../widgets/duo/duo_streak_card.dart';
 import '../../widgets/duo/duo_badge.dart';
 import '../../widgets/duo/duo_stat_card.dart';
 import '../../helpers/duo_snackbar_helper.dart';
-import '../../helpers/resident_ext.dart';
+
 import 'package:talktive/helpers/duo_floor_helper.dart';
 
 /// Activity screen showing significant notification history and gamification progress
@@ -51,7 +51,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
   Widget build(BuildContext context) {
     final activityAsync = ref.watch(activityHistoryProvider);
     final gamificationAsync = ref.watch(gamificationProvider);
-    final residentAsync = ref.watch(currentResidentProvider);
+
 
     return Stack(
       children: [
@@ -63,42 +63,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
           trailingHeader: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (residentAsync.value?.isTrialActive ?? false)
-                Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      margin: const EdgeInsets.only(right: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.9),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          const Text('💎', style: TextStyle(fontSize: 12)),
-                          const SizedBox(width: 4),
-                          Text(
-                            'PLUS TRIAL',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w900,
-                              color: AppTheme.duoPurple,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                    .animate(onPlay: (c) => c.repeat())
-                    .shimmer(delay: 2.seconds, duration: 1.5.seconds),
+
               _buildHeaderIcon(
                 context,
                 icon: Icons.person,

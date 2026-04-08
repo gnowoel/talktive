@@ -13,6 +13,7 @@ import '../../widgets/duo/duo_avatar.dart';
 import '../../widgets/duo/duo_loading_indicator.dart';
 import '../../widgets/duo/duo_stat_card.dart';
 import '../../widgets/duo/duo_empty_state.dart';
+import '../../widgets/duo/duo_region_badge.dart';
 import '../../helpers/resident_ext.dart';
 import 'package:talktive/helpers/duo_snackbar_helper.dart';
 import '../../providers/client_provider.dart';
@@ -80,7 +81,7 @@ class LoungeProfileScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                _buildRegionBadge(lounge.country),
+                DuoRegionBadge(countryCode: lounge.country),
               ],
             ),
             centerTitle: true,
@@ -662,35 +663,6 @@ class LoungeProfileScreen extends ConsumerWidget {
             }
           }
         },
-      ),
-    );
-  }
-
-  Widget _buildRegionBadge(String? countryCode) {
-    final isGlobal = countryCode == null || countryCode == 'Global';
-    final label = isGlobal ? 'Global' : countryCode;
-    final emoji = isGlobal ? '🌍' : '🚩';
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(emoji, style: const TextStyle(fontSize: 10)),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey[600],
-            ),
-          ),
-        ],
       ),
     );
   }

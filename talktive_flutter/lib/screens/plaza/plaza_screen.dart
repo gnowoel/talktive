@@ -63,16 +63,9 @@ class PlazaScreen extends ConsumerWidget {
         final xpNeeded = DuoFloorHelper.getXPNeeded(resident);
         final progressPercent = (xpProgress / xpNeeded).clamp(0.0, 1.0);
 
-        return Container(
-          width: double.infinity,
+        return DuoCard(
           margin: const EdgeInsets.all(AppTheme.duoSpacingMedium),
           padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(AppTheme.duoRadiusLarge),
-            border: Border.all(color: AppTheme.duoBorder, width: 2),
-            boxShadow: AppTheme.duoCardShadow,
-          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

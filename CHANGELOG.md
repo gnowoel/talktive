@@ -1,5 +1,19 @@
 # Talktive Development Changelog
 
+## April 8, 2026 - Backend Consolidation & Security Hardening 🏗️🛡️⚡
+
+### Search & Security
+- **SQL Injection Prevention**: Properly escaped raw query literals in `SearchService` (both resident and lounge filters) when using custom `Expression` and `ilike` patterns. This prevents potential syntax errors or injection via the search bar.
+- **Activity Tracking Hardening**: Ensured `lastMessageDate` is updated synchronously in the primary message-send path. This guarantees that "Active Residents" discovery results are always fresh and reliable for real-time engagement.
+
+### Architecture & Service Consolidation
+- **Unified Lounge Membership**: Consolidated the lounge joining logic into `LoungeService._finalizeMembershipJoined`. This ensures that XP awards, capacity checks, and achievement tracking are handled consistently whether a user joins via direct invite or approved application.
+- **Messaging Flow Optimization**: Streamlined `MessagingService.onMessagePostSave` by removing redundant database fetches in the background task. Leveraged the existing resident object to process side-effects (XP, streaks, achievements) with lower resource overhead.
+
+### UI/UX Consistency
+- **Plaza Design Refinement**: Refactored the `PlazaScreen` welcome banner to use the standardized `DuoCard` widget. This improves visual consistency with the rest of the app and ensures proper spacing and shadows across all device sizes.
+- **Code Quality**: Performed a project-wide diagnostic and resolved minor inconsistencies in the Serverpod backend and Flutter frontend integration.
+
 ## April 6, 2026 - Compatibility Recovery & Migration Reconciliation 🛠️🧭
 
 ### Endpoint Compatibility Recovery

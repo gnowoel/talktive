@@ -37,6 +37,11 @@ class PrivateChatList extends _$PrivateChatList {
     String otherUserId, {
     String? initialMessage,
   }) async {
+    final authState = ref.read(authProvider).value;
+    if (authState is Authenticated && authState.userId.toString() == otherUserId) {
+      throw Exception('Cannot create private chat with yourself.');
+    }
+
     final client = ref.read(clientProvider);
     try {
       final chat = await client.privateChat.getOrCreatePrivateChat(

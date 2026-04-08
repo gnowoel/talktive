@@ -54,6 +54,9 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
     final isBlocked = socialState?.isBlocked(widget.userId) ?? false;
     final profileAsync = ref.watch(userProfileProvider(widget.userId));
 
+    final currentResident = ref.watch(currentResidentProvider).value;
+    final isSelf = currentResident?.userInfoId.toString() == widget.userId;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -84,7 +87,7 @@ class _UserProfileViewScreenState extends ConsumerState<UserProfileViewScreen> {
         error: (error, stack) => _buildErrorState(error.toString()),
       ),
       bottomNavigationBar:
-          isBlocked || profileAsync.isLoading || profileAsync.hasError
+          isBlocked || isSelf || profileAsync.isLoading || profileAsync.hasError
           ? null
           : _buildBottomBar(context, ref),
     );

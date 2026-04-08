@@ -66,12 +66,22 @@ class LoungeProfileScreen extends ConsumerWidget {
         return Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
-            title: Text(
-              lounge.name,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Poppins',
-              ),
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    lounge.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins',
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                _buildRegionBadge(lounge.country),
+              ],
             ),
             centerTitle: true,
             backgroundColor: Colors.white,
@@ -652,6 +662,35 @@ class LoungeProfileScreen extends ConsumerWidget {
             }
           }
         },
+      ),
+    );
+  }
+
+  Widget _buildRegionBadge(String? countryCode) {
+    final isGlobal = countryCode == null || countryCode == 'Global';
+    final label = isGlobal ? 'Global' : countryCode;
+    final emoji = isGlobal ? '🌍' : '🚩';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 10)),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[600],
+            ),
+          ),
+        ],
       ),
     );
   }

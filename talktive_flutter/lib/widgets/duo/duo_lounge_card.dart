@@ -112,6 +112,8 @@ class DuoLoungeCard extends StatelessWidget {
                 context,
               ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
             ),
+            const SizedBox(width: 8),
+            _buildRegionBadge(lounge.country),
             if (lounge.lastMessageAt != null) ...[
               const SizedBox(width: 8),
               Icon(Icons.schedule_rounded, size: 14, color: Colors.grey[400]),
@@ -206,6 +208,35 @@ class DuoLoungeCard extends StatelessWidget {
       ).textTheme.bodyMedium?.copyWith(color: Colors.grey[800]),
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  Widget _buildRegionBadge(String? countryCode) {
+    final isGlobal = countryCode == null || countryCode == 'Global';
+    final label = isGlobal ? 'Global' : countryCode;
+    final emoji = isGlobal ? '🌍' : '🚩';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 10)),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[600],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

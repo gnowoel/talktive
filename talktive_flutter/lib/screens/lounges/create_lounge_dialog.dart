@@ -351,128 +351,85 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
                       'Specify the country for this lounge',
                     ),
                     const SizedBox(height: AppTheme.duoSpacingSmall),
-                    InkWell(
-                      onTap: () {
-                        HapticFeedback.mediumImpact();
-                        showCountryPicker(
-                          context: context,
-                          countryListTheme: CountryListThemeData(
-                            bottomSheetHeight:
-                                MediaQuery.of(context).size.height * 0.65,
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(AppTheme.duoRadiusLarge),
-                            ),
-                            backgroundColor: Colors.white,
-                            textStyle: const TextStyle(
-                              fontFamily: 'Rubik',
-                              fontSize: 15,
-                            ),
-                            searchTextStyle: const TextStyle(
-                              fontFamily: 'Rubik',
-                              fontSize: 16,
-                            ),
-                            inputDecoration: InputDecoration(
-                              hintText: 'Search for a country...',
-                              prefixIcon: const Icon(Icons.search),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(
-                                  AppTheme.duoRadiusMedium,
-                                ),
-                                borderSide: BorderSide(
-                                  color: Colors.grey[200]!,
-                                ),
-                              ),
-                            ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildRegionTile(
+                            title: 'Global',
+                            subtitle: 'Anyone can join',
+                            emoji: '🌍',
+                            isSelected: _selectedCountry == 'Global',
+                            onTap: () {
+                              HapticFeedback.lightImpact();
+                              setState(() {
+                                _selectedCountry = 'Global';
+                                _selectedCountryFlag = '🌍';
+                              });
+                            },
                           ),
-                          onSelect: (Country country) {
-                            setState(() {
-                              _selectedCountry = country.countryCode;
-                              _selectedCountryFlag = country.flagEmoji;
-                            });
-                          },
-                        );
-                      },
-                      borderRadius: BorderRadius.circular(
-                        AppTheme.duoRadiusMedium,
-                      ),
-                      child: Container(
-                        padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[50],
-                          borderRadius: BorderRadius.circular(
-                            AppTheme.duoRadiusMedium,
-                          ),
-                          border: Border.all(color: Colors.grey[200]!),
                         ),
-                        child: Row(
-                          children: [
-                            Text(
-                              _selectedCountryFlag,
-                              style: const TextStyle(fontSize: 24),
-                            ),
-                            const SizedBox(width: AppTheme.duoSpacingMedium),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    _selectedCountry == 'Global'
-                                        ? 'Global (All Neighbors)'
-                                        : _selectedCountry,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'Poppins',
+                        const SizedBox(width: AppTheme.duoSpacingSmall),
+                        Expanded(
+                          child: _buildRegionTile(
+                            title: _selectedCountry == 'Global'
+                                ? 'Country'
+                                : _selectedCountry,
+                            subtitle: _selectedCountry == 'Global'
+                                ? 'Specific region'
+                                : 'Region target',
+                            emoji: _selectedCountry == 'Global'
+                                ? '🏳️'
+                                : _selectedCountryFlag,
+                            isSelected: _selectedCountry != 'Global',
+                            onTap: () {
+                              HapticFeedback.mediumImpact();
+                              showCountryPicker(
+                                context: context,
+                                countryListTheme: CountryListThemeData(
+                                  bottomSheetHeight:
+                                      MediaQuery.of(context).size.height * 0.65,
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(
+                                        AppTheme.duoRadiusLarge),
+                                  ),
+                                  backgroundColor: Colors.white,
+                                  textStyle: const TextStyle(
+                                    fontFamily: 'Rubik',
+                                    fontSize: 15,
+                                  ),
+                                  searchTextStyle: const TextStyle(
+                                    fontFamily: 'Rubik',
+                                    fontSize: 16,
+                                  ),
+                                  inputDecoration: InputDecoration(
+                                    hintText: 'Search for a country...',
+                                    prefixIcon: const Icon(Icons.search),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 12,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                        AppTheme.duoRadiusMedium,
+                                      ),
+                                      borderSide: BorderSide(
+                                        color: Colors.grey[200]!,
+                                      ),
                                     ),
                                   ),
-                                  Text(
-                                    _selectedCountry == 'Global'
-                                        ? 'Anyone can find this lounge'
-                                        : 'Specifically for residents in this region',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const Icon(
-                              Icons.arrow_forward_ios,
-                              size: 14,
-                              color: AppTheme.textSecondary,
-                            ),
-                          ],
+                                ),
+                                onSelect: (Country country) {
+                                  setState(() {
+                                    _selectedCountry = country.countryCode;
+                                    _selectedCountryFlag = country.flagEmoji;
+                                  });
+                                },
+                              );
+                            },
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                    if (_selectedCountry != 'Global')
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8, left: 4),
-                        child: TextButton.icon(
-                          onPressed: () {
-                            HapticFeedback.lightImpact();
-                            setState(() {
-                              _selectedCountry = 'Global';
-                              _selectedCountryFlag = '🌍';
-                            });
-                          },
-                          icon: const Icon(Icons.public, size: 16),
-                          label: const Text(
-                            'Reset to Global',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          style: TextButton.styleFrom(
-                            foregroundColor: AppTheme.duoBlue,
-                          ),
-                        ),
-                      ),
                     const SizedBox(height: AppTheme.duoSpacingLarge),
 
                     // Languages Section
@@ -685,6 +642,60 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
       end: 0.0,
       duration: 400.ms,
       curve: Curves.easeOutCubic,
+    );
+  }
+
+  Widget _buildRegionTile({
+    required String title,
+    required String subtitle,
+    required String emoji,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppTheme.duoBlue.withValues(alpha: 0.1)
+              : Colors.grey[50],
+          borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
+          border: Border.all(
+            color: isSelected ? AppTheme.duoBlue : Colors.grey[200]!,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            Text(emoji, style: const TextStyle(fontSize: 24)),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
+                fontSize: 13,
+                color: isSelected ? AppTheme.duoBlue : AppTheme.textPrimary,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 10,
+                color: isSelected
+                    ? AppTheme.duoBlue.withValues(alpha: 0.7)
+                    : Colors.grey[600],
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
     );
   }
 

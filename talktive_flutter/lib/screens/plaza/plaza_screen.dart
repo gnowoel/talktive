@@ -66,6 +66,8 @@ class PlazaScreen extends ConsumerWidget {
         return DuoCard(
           margin: const EdgeInsets.all(AppTheme.duoSpacingMedium),
           padding: const EdgeInsets.all(AppTheme.duoSpacingLarge),
+          borderWidth: 2.0,
+          borderColor: AppTheme.duoBorder,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

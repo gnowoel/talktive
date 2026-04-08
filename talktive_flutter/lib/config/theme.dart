@@ -121,8 +121,8 @@ class AppTheme {
   static Color getContrastColor(Color background) {
     final double luminance = background.computeLuminance();
     // Standard threshold for choosing black vs white text
-    // Increased to 0.5 to ensure orange and green backgrounds use white text
-    return luminance > 0.5 ? textPrimary : Colors.white;
+    // Increased to 0.7 to ensure orange and green backgrounds use white text
+    return luminance > 0.7 ? textPrimary : Colors.white;
   }
 
   /// Returns a brand color optimized for text on a white/light background.

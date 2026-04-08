@@ -31,7 +31,7 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
   int _maxMembers = 50;
   List<String> _selectedInterests = [];
   List<String> _selectedLanguages = ['en'];
-  String _selectedCountry = 'Unknown';
+  String _selectedCountry = 'Global';
   String _selectedCountryFlag = '🌍';
   bool _isCreating = false;
 
@@ -62,10 +62,10 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
       _maxMembers = g.maxMembers;
       _selectedInterests = List<String>.from(g.interests ?? []);
       _selectedLanguages = List<String>.from(g.languages ?? ['en']);
-      _selectedCountry = g.country ?? 'Unknown';
+      _selectedCountry = g.country ?? 'Global';
       _rulesController.text = g.rules ?? '';
       // Attempt to find flag if country is known
-      if (_selectedCountry != 'Unknown') {
+      if (_selectedCountry != 'Global') {
         try {
           final c = CountryParser.parseCountryCode(_selectedCountry);
           _selectedCountryFlag = c.flagEmoji;
@@ -112,7 +112,7 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
               maxMembers: _maxMembers,
               interests: _selectedInterests.isEmpty ? null : _selectedInterests,
               languages: _selectedLanguages,
-              country: _selectedCountry == 'Unknown' ? null : _selectedCountry,
+              country: _selectedCountry == 'Global' ? null : _selectedCountry,
               rules: _rulesController.text.trim().isEmpty
                   ? null
                   : _rulesController.text.trim(),
@@ -130,7 +130,7 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
               maxMembers: _maxMembers,
               interests: _selectedInterests.isEmpty ? null : _selectedInterests,
               languages: _selectedLanguages,
-              country: _selectedCountry == 'Unknown' ? null : _selectedCountry,
+              country: _selectedCountry == 'Global' ? null : _selectedCountry,
               rules: _rulesController.text.trim().isEmpty
                   ? null
                   : _rulesController.text.trim(),
@@ -360,9 +360,34 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
                     const SizedBox(height: AppTheme.duoSpacingLarge),
 
                     // Country Section
-                    _buildSectionHeader(
-                      'Region',
-                      'Specify the country for this lounge',
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: _buildSectionHeader(
+                            'Region',
+                            'Specify the country for this lounge',
+                          ),
+                        ),
+                        if (_selectedCountry != 'Global')
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              visualDensity: VisualDensity.compact,
+                              padding: EdgeInsets.zero,
+                            ),
+                            onPressed: () {
+                              HapticFeedback.lightImpact();
+                              setState(() {
+                                _selectedCountry = 'Global';
+                                _selectedCountryFlag = '🌍';
+                              });
+                            },
+                            child: const Text(
+                              'Reset to Global',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ),
+                      ],
                     ),
                     const SizedBox(height: AppTheme.duoSpacingSmall),
                     InkWell(
@@ -397,9 +422,7 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
                             const SizedBox(width: AppTheme.duoSpacingMedium),
                             Expanded(
                               child: Text(
-                                _selectedCountry == 'Unknown'
-                                    ? 'Select Country'
-                                    : _selectedCountry,
+                                _selectedCountry,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),

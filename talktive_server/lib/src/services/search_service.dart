@@ -23,8 +23,8 @@ class SearchService {
       final q = query.trim();
       final escapedQuery = _escapeSqlLiteral(q);
       expr &=
-          (t.userName.ilike('%$q%') |
-          t.bio.ilike('%$q%') |
+          (t.userName.ilike('%$escapedQuery%') |
+          t.bio.ilike('%$escapedQuery%') |
           Expression("interests::text ilike '%$escapedQuery%'"));
     }
 
@@ -145,8 +145,8 @@ class SearchService {
       final q = query.trim();
       final escapedQuery = _escapeSqlLiteral(q);
       expr &=
-          (t.name.ilike('%$q%') |
-          t.description.ilike('%$q%') |
+          (t.name.ilike('%$escapedQuery%') |
+          t.description.ilike('%$escapedQuery%') |
           Expression("interests::text ilike '%$escapedQuery%'"));
     }
 

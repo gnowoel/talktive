@@ -290,37 +290,7 @@ class LoungeService {
     }
 
     if (member.invitedBy == lounge.creatorId) {
-      if (lounge.memberCount >= lounge.maxMembers) {
-        throw protocol.TalktiveException(message: 'Lounge is full');
-      }
-
-      await ChannelService.updateMemberStatus(
-        session,
-        channelId: lounge.channelId,
-        userId: userId,
-        status: protocol.ChannelMemberStatus.joined,
-      );
-
-      lounge.memberCount += 1;
-      await protocol.Lounge.db.updateRow(session, lounge);
-
-      await GamificationService.trackProgress(
-        session,
-        userId,
-        'social_butterfly',
-      );
-      final resident = await ResidentService.getResident(session, userId);
-      if (resident != null) {
-        await GamificationService.awardXP(
-          session,
-          resident,
-          25,
-          'Joined lounge',
-        );
-      }
-
-      // Award Lounge XP
-      await awardLoungeXP(session, lounge.channelId, 5, 'Member joined');
+      await _finalizeMembershipJoined(session, lounge, userId);
     } else {
       await ChannelService.updateMemberStatus(
         session,
@@ -329,6 +299,46 @@ class LoungeService {
         status: protocol.ChannelMemberStatus.applied,
       );
     }
+  }
+
+  /// Refactored helper to finalize a user joining a lounge.
+  static Future<void> _finalizeMembershipJoined(
+    Session session,
+    protocol.Lounge lounge,
+    UuidValue userId,
+  ) async {
+    if (lounge.memberCount >= lounge.maxMembers) {
+      throw protocol.TalktiveException(message: 'Lounge is full');
+    }
+
+    await ChannelService.updateMemberStatus(
+      session,
+      channelId: lounge.channelId,
+      userId: userId,
+      status: protocol.ChannelMemberStatus.joined,
+    );
+
+    lounge.memberCount += 1;
+    await protocol.Lounge.db.updateRow(session, lounge);
+
+    await GamificationService.trackProgress(
+      session,
+      userId,
+      'social_butterfly',
+    );
+
+    final resident = await ResidentService.getResident(session, userId);
+    if (resident != null) {
+      await GamificationService.awardXP(
+        session,
+        resident,
+        25,
+        'Joined lounge',
+      );
+    }
+
+    // Award Lounge XP
+    await awardLoungeXP(session, lounge.channelId, 5, 'Member joined');
   }
 
   /// Approves a lounge application.
@@ -369,38 +379,7 @@ class LoungeService {
       );
       return;
     }
-
-    if (lounge.memberCount >= lounge.maxMembers) {
-      throw protocol.TalktiveException(message: 'Lounge is full');
-    }
-
-    await ChannelService.updateMemberStatus(
-      session,
-      channelId: lounge.channelId,
-      userId: targetId,
-      status: protocol.ChannelMemberStatus.joined,
-    );
-
-    lounge.memberCount += 1;
-    await protocol.Lounge.db.updateRow(session, lounge);
-
-    await GamificationService.trackProgress(
-      session,
-      targetId,
-      'social_butterfly',
-    );
-    final resident = await ResidentService.getResident(session, targetId);
-    if (resident != null) {
-      await GamificationService.awardXP(
-        session,
-        resident,
-        25,
-        'Application approved',
-      );
-    }
-
-    // Award Lounge XP
-    await awardLoungeXP(session, lounge.channelId, 5, 'Member joined');
+    await _finalizeMembershipJoined(session, lounge, targetId);
   }
 
   /// Leaves or kicks from a lounge.

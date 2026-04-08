@@ -201,8 +201,10 @@ class MessagingService {
       senderTrustScore: sender.trustScore,
     );
 
-    // 3. Save to database
+    // 3. Save to database and update sender activity
     final savedMessage = await protocol.Message.db.insertRow(session, message);
+    sender.lastMessageDate = savedMessage.createdAt;
+    await ResidentService.updateResident(session, sender);
 
     // 4. MAIN PATH SENSITIVE OPERATIONS (Immediate UI reaction)
     // Update sender's lastReadAt and lastMessage fields
@@ -251,28 +253,22 @@ class MessagingService {
     required protocol.Channel channel,
     required protocol.Resident sender,
   }) async {
-    final senderUuid = sender.userInfoId;
-    final currentSender = await protocol.Resident.db.findFirstRow(
-      session,
-      where: (t) => t.userInfoId.equals(senderUuid),
-    );
-    if (currentSender == null) return;
     final channelId = channel.id!;
 
     // 1. Award XP and update streak
     await GamificationService.awardXP(
       session,
-      currentSender,
+      sender,
       GamificationService.xpPerMessage,
       'Sent message',
       save: false,
     );
     await GamificationService.updateMessageStreak(
       session,
-      currentSender,
+      sender,
       save: false,
     );
-    await ResidentService.updateResident(session, currentSender);
+    await ResidentService.updateResident(session, sender);
 
     // 2. Award Lounge XP
     if (channel.type == protocol.ChannelType.lounge) {
@@ -287,12 +283,12 @@ class MessagingService {
     // 3. Achievement Progress
     await GamificationService.trackMultipleProgress(
       session,
-      senderUuid,
+      sender.userInfoId,
       ['first_message', 'conversationalist', 'chatterbox'],
     );
     await GamificationService.checkTimeBasedAchievements(
       session,
-      senderUuid,
+      sender.userInfoId,
     );
   }
 

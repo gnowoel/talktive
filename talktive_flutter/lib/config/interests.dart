@@ -1,25 +1,32 @@
 class AppInterests {
   static const List<String> all = [
-    '🎮 Gaming & Games',
-    '🎵 Music & Podcasting',
-    '🎬 Movies & TV',
-    '📚 Books & Writing',
-    '🎨 Art & Design',
-    '📷 Photography',
-    '✈️ Travel & Culture',
-    '🍴 Food & Dining',
+    // --- ⚽ SPORTS & FITNESS ---
     '⚽ Sports & Fitness',
     '🧘 Wellness & Health',
-    '💻 Tech & Science',
-    '🌌 Astronomy',
-    '🌱 Nature & Pets',
-    '👗 Fashion & Beauty',
+    '🚵 Adventure & Outdoors',
+
+    // --- 🎮 ENTERTAINMENT ---
+    '🎮 Gaming & Arcade',
+    '🎵 Music & Audio',
+    '🎬 Movies & Shows',
+    '📷 Photography & Art',
+
+    // --- 💻 TECH & WORK ---
+    '💻 Tech & Software',
+    '🔬 Science & Innovation',
     '💰 Business & Finance',
-    '🏛️ History & Society',
-    '⚖️ Law & Politics',
-    '☕ Coffee & Tea',
-    '🛠️ DIY & Crafts',
-    '🧩 Puzzles & Strategy',
+
+    // --- 🍴 LIFESTYLE ---
+    '🍴 Food & Cooking',
+    '☕ Coffee & Chill',
+    '👗 Fashion & Style',
+    '🌱 Pets & Nature',
+
+    // --- 📚 CULTURE & LEARNING ---
+    '📚 Reading & Writing',
+    '🏛️ History & Culture',
+    '🌍 Travel & World',
+    '🧩 Hobbies & DIY',
   ];
 
   /// Gets the interest without the emoji.

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../config/theme.dart';
 import 'duo_header.dart';
 
@@ -112,6 +113,8 @@ class DuoPageScaffold extends StatelessWidget {
         ),
       ),
     );
+  }
+
   List<Widget> _buildBackgroundDecorations() {
     return [
       Positioned(
@@ -134,13 +137,10 @@ class DuoPageScaffold extends StatelessWidget {
 
   Widget _buildFloatingBubble(double size, Color color) {
     return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
-    )
+          width: size,
+          height: size,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        )
         .animate(onPlay: (controller) => controller.repeat(reverse: true))
         .moveY(begin: 0, end: 15, duration: 3.seconds, curve: Curves.easeInOut)
         .scale(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:talktive_client/talktive_client.dart';
 import '../../config/theme.dart';
 import '../../helpers/date_formatter.dart';
@@ -40,7 +41,7 @@ class DuoLoungeCard extends StatelessWidget {
                 _buildEmojiContainer(),
                 const SizedBox(width: AppTheme.duoSpacingMedium),
                 Expanded(child: _buildInfo(context)),
-                if (trailing != null) trailing!,
+                if (trailing case final t?) t,
               ],
             ),
             if (showInterests &&
@@ -61,7 +62,7 @@ class DuoLoungeCard extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ).animate().fadeIn(duration: 300.ms).slideX(begin: 0.1, end: 0);
   }
 
   Widget _buildEmojiContainer() {
@@ -74,34 +75,81 @@ class DuoLoungeCard extends StatelessWidget {
       [AppTheme.duoRed, AppTheme.duoRed.withValues(alpha: 0.6)],
     ];
 
-    // Pick a gradient based on lounge name hash
     final hash = (lounge.name.hashCode.abs()) % gradients.length;
     final selectedGradient = gradients[hash];
 
-    return Container(
-      width: 56,
-      height: 56,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            selectedGradient[0].withValues(alpha: 0.2),
-            selectedGradient[1].withValues(alpha: 0.2),
-          ],
+    final bool isLive =
+        lounge.lastMessageAt != null &&
+        DateTime.now().difference(lounge.lastMessageAt!).inMinutes < 10;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                selectedGradient[0].withValues(alpha: 0.2),
+                selectedGradient[1].withValues(alpha: 0.2),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
+            border: Border.all(
+              color: selectedGradient[0].withValues(alpha: 0.3),
+              width: 1.5,
+            ),
+          ),
+          child: Center(
+            child: Text(
+              lounge.emoji ?? '👥',
+              style: const TextStyle(fontSize: 28),
+            ),
+          ),
         ),
-        borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
-        border: Border.all(
-          color: selectedGradient[0].withValues(alpha: 0.3),
-          width: 1.5,
-        ),
-      ),
-      child: Center(
-        child: Text(
-          lounge.emoji ?? '👥',
-          style: const TextStyle(fontSize: 28),
-        ),
-      ),
+        if (isLive)
+          Positioned(
+            top: -2,
+            right: -2,
+            child:
+                Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.duoRed,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.duoRed.withValues(alpha: 0.4),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                      child: const Text(
+                        'LIVE',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 7,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    )
+                    .animate(
+                      onPlay: (controller) => controller.repeat(reverse: true),
+                    )
+                    .scale(
+                      begin: const Offset(1, 1),
+                      end: const Offset(1.1, 1.1),
+                      duration: 800.ms,
+                    ),
+          ),
+      ],
     );
   }
 

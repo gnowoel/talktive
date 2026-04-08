@@ -62,6 +62,10 @@ class SettingsScreen extends ConsumerWidget {
                     ? (val) =>
                           _updatePrivacySettings(context, ref, hideAds: val)
                     : null,
+                onLockedTap: resident.isTrialActive
+                    ? () =>
+                        DuoUpgradeHelper.showPaidOnlyPrompt(context, 'No Ads')
+                    : null,
               ),
               _buildFeatureRow(
                 context,
@@ -440,12 +444,17 @@ class SettingsScreen extends ConsumerWidget {
     required bool isLocked,
     bool? value,
     Function(bool)? onChanged,
+    VoidCallback? onLockedTap,
   }) {
     return InkWell(
       onTap: isLocked
           ? () {
               HapticFeedback.lightImpact();
-              DuoUpgradeHelper.showUpgradePrompt(context, title);
+              if (onLockedTap != null) {
+                onLockedTap();
+              } else {
+                DuoUpgradeHelper.showUpgradePrompt(context, title);
+              }
             }
           : null,
       borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),

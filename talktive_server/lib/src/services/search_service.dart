@@ -150,7 +150,11 @@ class SearchService {
           Expression("interests::text ilike '%$escapedQuery%'"));
     }
 
-    if (country != null) expr &= t.country.equals(country);
+    if (country == 'GLOBAL') {
+      expr &= t.country.equals(null);
+    } else if (country != null) {
+      expr &= t.country.equals(country);
+    }
 
     if (interest != null) {
       expr &= Expression(
@@ -279,9 +283,13 @@ class SearchService {
       session,
       where: (t) {
         var expr = t.isPublic.equals(true);
-        if (country != null) {
+
+        if (country == 'GLOBAL') {
+          expr &= t.country.equals(null);
+        } else if (country != null) {
           expr &= t.country.equals(country);
         }
+
         if (interest != null) {
           expr &= Expression(
             'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'',
@@ -326,9 +334,13 @@ class SearchService {
       session,
       where: (t) {
         var expr = t.isPublic.equals(true);
-        if (country != null) {
+
+        if (country == 'GLOBAL') {
+          expr &= t.country.equals(null);
+        } else if (country != null) {
           expr &= t.country.equals(country);
         }
+
         if (language != null) {
           expr &= Expression(
             'languages::jsonb ? \'${language.replaceAll("'", "''")}\'',

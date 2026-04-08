@@ -41,7 +41,7 @@ class DuoLoungeCard extends StatelessWidget {
                 _buildEmojiContainer(),
                 const SizedBox(width: AppTheme.duoSpacingMedium),
                 Expanded(child: _buildInfo(context)),
-                if (trailing case final t?) t,
+                ?trailing,
               ],
             ),
             if (showInterests &&

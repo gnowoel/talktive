@@ -64,7 +64,7 @@ class SettingsScreen extends ConsumerWidget {
                     : null,
                 onLockedTap: resident.isTrialActive
                     ? () =>
-                        DuoUpgradeHelper.showPaidOnlyPrompt(context, 'No Ads')
+                          DuoUpgradeHelper.showPaidOnlyPrompt(context, 'No Ads')
                     : null,
               ),
               _buildFeatureRow(

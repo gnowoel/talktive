@@ -54,7 +54,10 @@ class DuoFloorBadge extends StatelessWidget {
     if (isHighFloor) {
       badge = badge
           .animate(onPlay: (c) => c.repeat())
-          .shimmer(duration: 1500.ms, color: Colors.white.withValues(alpha: 0.4))
+          .shimmer(
+            duration: 1500.ms,
+            color: Colors.white.withValues(alpha: 0.4),
+          )
           .animate()
           .scale(
             begin: const Offset(1, 1),

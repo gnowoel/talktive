@@ -22,12 +22,15 @@ abstract class UserSummary
     this.userName,
     this.userAvatar,
     this.userMood,
+    this.userBio,
     required this.floor,
     this.trustScore,
     this.sharedInterests,
     this.sharedLanguages,
     this.matchScore,
     this.ageRange,
+    this.gender,
+    this.languages,
     bool? isOnline,
     this.role,
   }) : isOnline = isOnline ?? false;
@@ -37,12 +40,15 @@ abstract class UserSummary
     String? userName,
     String? userAvatar,
     String? userMood,
+    String? userBio,
     required int floor,
     int? trustScore,
     List<String>? sharedInterests,
     List<String>? sharedLanguages,
     int? matchScore,
     String? ageRange,
+    String? gender,
+    List<String>? languages,
     bool? isOnline,
     _i2.ResidentRole? role,
   }) = _UserSummaryImpl;
@@ -53,6 +59,7 @@ abstract class UserSummary
       userName: jsonSerialization['userName'] as String?,
       userAvatar: jsonSerialization['userAvatar'] as String?,
       userMood: jsonSerialization['userMood'] as String?,
+      userBio: jsonSerialization['userBio'] as String?,
       floor: jsonSerialization['floor'] as int,
       trustScore: jsonSerialization['trustScore'] as int?,
       sharedInterests: jsonSerialization['sharedInterests'] == null
@@ -67,6 +74,12 @@ abstract class UserSummary
             ),
       matchScore: jsonSerialization['matchScore'] as int?,
       ageRange: jsonSerialization['ageRange'] as String?,
+      gender: jsonSerialization['gender'] as String?,
+      languages: jsonSerialization['languages'] == null
+          ? null
+          : _i3.Protocol().deserialize<List<String>>(
+              jsonSerialization['languages'],
+            ),
       isOnline: jsonSerialization['isOnline'] == null
           ? null
           : _i1.BoolJsonExtension.fromJson(jsonSerialization['isOnline']),
@@ -84,6 +97,8 @@ abstract class UserSummary
 
   String? userMood;
 
+  String? userBio;
+
   int floor;
 
   int? trustScore;
@@ -95,6 +110,10 @@ abstract class UserSummary
   int? matchScore;
 
   String? ageRange;
+
+  String? gender;
+
+  List<String>? languages;
 
   bool isOnline;
 
@@ -108,12 +127,15 @@ abstract class UserSummary
     String? userName,
     String? userAvatar,
     String? userMood,
+    String? userBio,
     int? floor,
     int? trustScore,
     List<String>? sharedInterests,
     List<String>? sharedLanguages,
     int? matchScore,
     String? ageRange,
+    String? gender,
+    List<String>? languages,
     bool? isOnline,
     _i2.ResidentRole? role,
   });
@@ -125,12 +147,15 @@ abstract class UserSummary
       if (userName != null) 'userName': userName,
       if (userAvatar != null) 'userAvatar': userAvatar,
       if (userMood != null) 'userMood': userMood,
+      if (userBio != null) 'userBio': userBio,
       'floor': floor,
       if (trustScore != null) 'trustScore': trustScore,
       if (sharedInterests != null) 'sharedInterests': sharedInterests?.toJson(),
       if (sharedLanguages != null) 'sharedLanguages': sharedLanguages?.toJson(),
       if (matchScore != null) 'matchScore': matchScore,
       if (ageRange != null) 'ageRange': ageRange,
+      if (gender != null) 'gender': gender,
+      if (languages != null) 'languages': languages?.toJson(),
       'isOnline': isOnline,
       if (role != null) 'role': role?.toJson(),
     };
@@ -144,12 +169,15 @@ abstract class UserSummary
       if (userName != null) 'userName': userName,
       if (userAvatar != null) 'userAvatar': userAvatar,
       if (userMood != null) 'userMood': userMood,
+      if (userBio != null) 'userBio': userBio,
       'floor': floor,
       if (trustScore != null) 'trustScore': trustScore,
       if (sharedInterests != null) 'sharedInterests': sharedInterests?.toJson(),
       if (sharedLanguages != null) 'sharedLanguages': sharedLanguages?.toJson(),
       if (matchScore != null) 'matchScore': matchScore,
       if (ageRange != null) 'ageRange': ageRange,
+      if (gender != null) 'gender': gender,
+      if (languages != null) 'languages': languages?.toJson(),
       'isOnline': isOnline,
       if (role != null) 'role': role?.toJson(),
     };
@@ -169,12 +197,15 @@ class _UserSummaryImpl extends UserSummary {
     String? userName,
     String? userAvatar,
     String? userMood,
+    String? userBio,
     required int floor,
     int? trustScore,
     List<String>? sharedInterests,
     List<String>? sharedLanguages,
     int? matchScore,
     String? ageRange,
+    String? gender,
+    List<String>? languages,
     bool? isOnline,
     _i2.ResidentRole? role,
   }) : super._(
@@ -182,12 +213,15 @@ class _UserSummaryImpl extends UserSummary {
          userName: userName,
          userAvatar: userAvatar,
          userMood: userMood,
+         userBio: userBio,
          floor: floor,
          trustScore: trustScore,
          sharedInterests: sharedInterests,
          sharedLanguages: sharedLanguages,
          matchScore: matchScore,
          ageRange: ageRange,
+         gender: gender,
+         languages: languages,
          isOnline: isOnline,
          role: role,
        );
@@ -201,12 +235,15 @@ class _UserSummaryImpl extends UserSummary {
     Object? userName = _Undefined,
     Object? userAvatar = _Undefined,
     Object? userMood = _Undefined,
+    Object? userBio = _Undefined,
     int? floor,
     Object? trustScore = _Undefined,
     Object? sharedInterests = _Undefined,
     Object? sharedLanguages = _Undefined,
     Object? matchScore = _Undefined,
     Object? ageRange = _Undefined,
+    Object? gender = _Undefined,
+    Object? languages = _Undefined,
     bool? isOnline,
     Object? role = _Undefined,
   }) {
@@ -215,6 +252,7 @@ class _UserSummaryImpl extends UserSummary {
       userName: userName is String? ? userName : this.userName,
       userAvatar: userAvatar is String? ? userAvatar : this.userAvatar,
       userMood: userMood is String? ? userMood : this.userMood,
+      userBio: userBio is String? ? userBio : this.userBio,
       floor: floor ?? this.floor,
       trustScore: trustScore is int? ? trustScore : this.trustScore,
       sharedInterests: sharedInterests is List<String>?
@@ -225,6 +263,10 @@ class _UserSummaryImpl extends UserSummary {
           : this.sharedLanguages?.map((e0) => e0).toList(),
       matchScore: matchScore is int? ? matchScore : this.matchScore,
       ageRange: ageRange is String? ? ageRange : this.ageRange,
+      gender: gender is String? ? gender : this.gender,
+      languages: languages is List<String>?
+          ? languages
+          : this.languages?.map((e0) => e0).toList(),
       isOnline: isOnline ?? this.isOnline,
       role: role is _i2.ResidentRole? ? role : this.role,
     );

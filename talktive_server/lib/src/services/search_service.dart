@@ -61,7 +61,8 @@ class SearchService {
     required protocol.Resident currentUser,
   }) async {
     final hasQuery = query != null && query.trim().isNotEmpty;
-    final hasFilters = gender != null ||
+    final hasFilters =
+        gender != null ||
         country != null ||
         language != null ||
         interest != null ||
@@ -98,8 +99,10 @@ class SearchService {
       );
     }
 
-    final blockedIds =
-        await ResidentService.getBlocksByUser(session, currentUser.userInfoId);
+    final blockedIds = await ResidentService.getBlocksByUser(
+      session,
+      currentUser.userInfoId,
+    );
 
     final residents = await protocol.Resident.db.find(
       session,
@@ -201,8 +204,10 @@ class SearchService {
       );
     }
 
-    final blockedIds =
-        await ResidentService.getBlocksByUser(session, currentUser.userInfoId);
+    final blockedIds = await ResidentService.getBlocksByUser(
+      session,
+      currentUser.userInfoId,
+    );
 
     final lounges = await protocol.Lounge.db.find(
       session,
@@ -375,7 +380,8 @@ class SearchService {
     int limit = 10,
     protocol.Resident? currentUser,
   }) async {
-    final hasFilters = gender != null ||
+    final hasFilters =
+        gender != null ||
         country != null ||
         language != null ||
         interest != null ||

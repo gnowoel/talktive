@@ -1409,7 +1409,6 @@ class EndpointResident extends _i2.EndpointRef {
     },
   );
 
-  /// Updates only the custom avatar URL (standalone method for overlay button).
   _i3.Future<_i11.Resident> updateCustomAvatar(
     String? customAvatarUrl, {
     int? avatarSize,
@@ -1430,7 +1429,6 @@ class EndpointResident extends _i2.EndpointRef {
         {'userId': userId},
       );
 
-  /// Updates privacy settings (Others, Voice, Search, etc).
   _i3.Future<_i11.Resident> updatePrivacy({
     bool? hideAds,
     bool? showVoiceMessages,

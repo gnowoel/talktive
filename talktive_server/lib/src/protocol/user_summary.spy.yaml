@@ -5,11 +5,14 @@ fields:
   userName: String?
   userAvatar: String?
   userMood: String?
+  userBio: String?
   floor: int
   trustScore: int?
   sharedInterests: List<String>?
   sharedLanguages: List<String>?
   matchScore: int?
   ageRange: String?
+  gender: String?
+  languages: List<String>?
   isOnline: bool, default=false
   role: ResidentRole?

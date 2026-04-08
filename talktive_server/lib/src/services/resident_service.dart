@@ -358,12 +358,15 @@ class ResidentService {
       userName: gated.userName,
       userAvatar: gated.customAvatarUrl ?? gated.avatar,
       userMood: gated.mood,
+      userBio: gated.bio,
       floor: ApartmentService.computeEffectiveFloor(gated),
       trustScore: gated.trustScore,
       sharedInterests: sharedInterests,
       sharedLanguages: sharedLanguages,
       matchScore: matchScore,
       ageRange: gated.ageRange,
+      gender: gated.gender,
+      languages: gated.languages,
       isOnline: canSeeOnline ? isResidentOnline(gated) : false,
       role: gated.role,
     );
@@ -704,7 +707,9 @@ class ResidentService {
   }) async {
     final senderId = sender.userInfoId;
     if (targetId == senderId) {
-      throw protocol.TalktiveException(message: 'You cannot vouch for yourself.');
+      throw protocol.TalktiveException(
+        message: 'You cannot vouch for yourself.',
+      );
     }
 
     final existingLike = await protocol.UserLike.db.findFirstRow(
@@ -713,7 +718,9 @@ class ResidentService {
     );
 
     if (existingLike != null) {
-      throw protocol.TalktiveException(message: 'You already vouched for this resident.');
+      throw protocol.TalktiveException(
+        message: 'You already vouched for this resident.',
+      );
     }
 
     final target = await getResident(session, targetId);

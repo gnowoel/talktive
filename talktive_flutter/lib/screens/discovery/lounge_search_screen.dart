@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talktive_client/talktive_client.dart' as protocol;
+import 'package:country_picker/country_picker.dart';
 import '../../config/interests.dart';
 
 import '../../config/theme.dart';
@@ -242,7 +243,9 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
             ),
           if (_selectedCountry != null)
             _buildFilterPill(
-              _selectedCountry!,
+              _selectedCountry == 'GLOBAL'
+                  ? '🌍 Global Only'
+                  : '📍 $_selectedCountry',
               () => setState(() {
                 _selectedCountry = null;
                 _performSearch(_searchController.text);
@@ -524,6 +527,8 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
                           setState(() {});
                         }),
                       ),
+                      const SizedBox(height: 24),
+                      _buildRegionSection(setSheetState),
                       const SizedBox(height: 40),
                       DuoButton(
                         text: 'Apply Filters',
@@ -605,6 +610,93 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
           }).toList(),
         ),
       ],
+    );
+  }
+
+  Widget _buildRegionSection(StateSetter setSheetState) {
+    final bool isGlobal = _selectedCountry == 'GLOBAL';
+    final bool isSpecific = _selectedCountry != null && !isGlobal;
+    final bool isAny = _selectedCountry == null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Region',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _buildRegionOption(
+              'Any Region',
+              isAny,
+              () => setSheetState(() {
+                _selectedCountry = null;
+                setState(() {});
+              }),
+            ),
+            _buildRegionOption(
+              '🌍 Global Only',
+              isGlobal,
+              () => setSheetState(() {
+                _selectedCountry = 'GLOBAL';
+                setState(() {});
+              }),
+            ),
+            _buildRegionOption(
+              isSpecific ? '📍 $_selectedCountry' : 'Specific Country',
+              isSpecific,
+              () {
+                HapticFeedback.lightImpact();
+                showCountryPicker(
+                  context: context,
+                  onSelect: (Country country) {
+                    setSheetState(() {
+                      _selectedCountry = country.countryCode;
+                      setState(() {});
+                    });
+                  },
+                );
+              },
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRegionOption(String label, bool isSelected, VoidCallback onTap) {
+    return Material(
+      color: isSelected ? AppTheme.duoBlue : Colors.grey[100],
+      borderRadius: BorderRadius.circular(16),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isSelected ? AppTheme.duoBlue : Colors.grey[300]!,
+            ),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? Colors.white : AppTheme.textPrimary,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              fontSize: 14,
+            ),
+          ),
+        ),
+      ),
     );
   }
 

@@ -18,16 +18,30 @@ void main() {
       final session = sessionBuilder.build();
 
       // Clear existing data
-      await protocol.Message.db.deleteWhere(session, where: (_) => Constant.bool(true));
-      await protocol.ChannelMember.db.deleteWhere(session, where: (_) => Constant.bool(true));
-      await protocol.Channel.db.deleteWhere(session, where: (_) => Constant.bool(true));
-      await protocol.Resident.db.deleteWhere(session, where: (_) => Constant.bool(true));
+      await protocol.Message.db.deleteWhere(
+        session,
+        where: (_) => Constant.bool(true),
+      );
+      await protocol.ChannelMember.db.deleteWhere(
+        session,
+        where: (_) => Constant.bool(true),
+      );
+      await protocol.Channel.db.deleteWhere(
+        session,
+        where: (_) => Constant.bool(true),
+      );
+      await protocol.Resident.db.deleteWhere(
+        session,
+        where: (_) => Constant.bool(true),
+      );
 
       // Create test users
       userA = await protocol.Resident.db.insertRow(
         session,
         protocol.Resident(
-          userInfoId: UuidValue.fromString('550e8400-e29b-41d4-a716-446655440000'),
+          userInfoId: UuidValue.fromString(
+            '550e8400-e29b-41d4-a716-446655440000',
+          ),
           userName: 'UserA',
           level: 1,
           trustScore: 100,
@@ -37,7 +51,9 @@ void main() {
       userB = await protocol.Resident.db.insertRow(
         session,
         protocol.Resident(
-          userInfoId: UuidValue.fromString('550e8400-e29b-41d4-a716-446655440001'),
+          userInfoId: UuidValue.fromString(
+            '550e8400-e29b-41d4-a716-446655440001',
+          ),
           userName: 'UserB',
           level: 1,
           trustScore: 100,
@@ -47,7 +63,9 @@ void main() {
       userC = await protocol.Resident.db.insertRow(
         session,
         protocol.Resident(
-          userInfoId: UuidValue.fromString('550e8400-e29b-41d4-a716-446655440002'),
+          userInfoId: UuidValue.fromString(
+            '550e8400-e29b-41d4-a716-446655440002',
+          ),
           userName: 'UserC',
           level: 1,
           trustScore: 100,
@@ -141,20 +159,23 @@ void main() {
         expect(mentionedIds, isNot(contains(userC.userInfoId)));
       });
 
-      test('Plaza: does NOT detect users who have NOT messaged recently', () async {
-        final session = sessionBuilder.build();
+      test(
+        'Plaza: does NOT detect users who have NOT messaged recently',
+        () async {
+          final session = sessionBuilder.build();
 
-        // User C has NOT sent any messages in Plaza
+          // User C has NOT sent any messages in Plaza
 
-        final mentionedIds = await MentionService.getMentionedUserIds(
-          session,
-          plazaChannel.id!,
-          'Hey @UserC are you there?',
-        );
+          final mentionedIds = await MentionService.getMentionedUserIds(
+            session,
+            plazaChannel.id!,
+            'Hey @UserC are you there?',
+          );
 
-        // Should be empty because User C is not in the dynamic whitelist
-        expect(mentionedIds, isEmpty);
-      });
+          // Should be empty because User C is not in the dynamic whitelist
+          expect(mentionedIds, isEmpty);
+        },
+      );
 
       test('Lounge: detects members even if they haven\'t messaged', () async {
         final session = sessionBuilder.build();
@@ -201,7 +222,7 @@ void main() {
             senderTrustScore: 100,
           ),
         );
-        
+
         // User C also sends a message in Plaza
         await protocol.Message.db.insertRow(
           session,
@@ -259,31 +280,34 @@ void main() {
         expect(data['route'], '/plaza/chat');
       });
 
-      test('Lounge: mention notification uses /lounges/chat/ID route', () async {
-        final session = sessionBuilder.build();
+      test(
+        'Lounge: mention notification uses /lounges/chat/ID route',
+        () async {
+          final session = sessionBuilder.build();
 
-        await NotificationService.sendMentionNotification(
-          session,
-          userB.userInfoId,
-          'UserA',
-          'Hey @UserB!',
-          loungeChannel.id!,
-          'Lounge',
-          channel: loungeChannel,
-        );
+          await NotificationService.sendMentionNotification(
+            session,
+            userB.userInfoId,
+            'UserA',
+            'Hey @UserB!',
+            loungeChannel.id!,
+            'Lounge',
+            channel: loungeChannel,
+          );
 
-        final notifications = await protocol.UserNotification.db.find(
-          session,
-          where: (t) => t.userId.equals(userB.userInfoId),
-          orderBy: (t) => t.createdAt,
-          orderDescending: true,
-        );
+          final notifications = await protocol.UserNotification.db.find(
+            session,
+            where: (t) => t.userId.equals(userB.userInfoId),
+            orderBy: (t) => t.createdAt,
+            orderDescending: true,
+          );
 
-        final latest = notifications.first;
-        final data = jsonDecode(latest.data!) as Map<String, dynamic>;
-        // Should contain /lounges/chat/
-        expect(data['route'], startsWith('/lounges/chat/'));
-      });
+          final latest = notifications.first;
+          final data = jsonDecode(latest.data!) as Map<String, dynamic>;
+          // Should contain /lounges/chat/
+          expect(data['route'], startsWith('/lounges/chat/'));
+        },
+      );
     });
   });
 }

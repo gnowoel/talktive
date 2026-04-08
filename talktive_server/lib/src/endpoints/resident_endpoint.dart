@@ -91,7 +91,6 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
       migrationId,
     );
 
-
     // 2. Create Resident via service
     return await ResidentService.createResident(
       session,
@@ -130,10 +129,14 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     InputValidationService.validateName(name).throwIfInvalid();
     InputValidationService.validateGender(gender).throwIfInvalid();
     InputValidationService.validateBio(bio).throwIfInvalid();
-    InputValidationService.validateStringList(interests, 'Interests')
-        .throwIfInvalid();
-    InputValidationService.validateStringList(languages, 'Languages')
-        .throwIfInvalid();
+    InputValidationService.validateStringList(
+      interests,
+      'Interests',
+    ).throwIfInvalid();
+    InputValidationService.validateStringList(
+      languages,
+      'Languages',
+    ).throwIfInvalid();
 
     final resident = await getAuthenticatedResident(session);
 

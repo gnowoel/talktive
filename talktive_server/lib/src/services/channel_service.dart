@@ -2,7 +2,6 @@ import 'package:serverpod/serverpod.dart';
 import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import 'package:collection/collection.dart';
 
-
 /// Generic service for managing Channels and ChannelMembers.
 /// This consolidates logic used by Private Chats, Lounges, and the Plaza.
 class ChannelService {

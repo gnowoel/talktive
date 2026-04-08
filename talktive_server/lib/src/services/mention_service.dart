@@ -75,7 +75,8 @@ class MentionService {
         // Match name followed by space, punctuation, or end of string
         if (chunk.startsWith(name)) {
           final nextCharIdx = name.length;
-          final bool isWordBoundary = nextCharIdx >= chunk.length ||
+          final bool isWordBoundary =
+              nextCharIdx >= chunk.length ||
               RegExp(r'[\s.,!?;:]').hasMatch(chunk[nextCharIdx]);
 
           if (isWordBoundary) {

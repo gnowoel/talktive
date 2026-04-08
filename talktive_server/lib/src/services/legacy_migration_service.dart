@@ -179,10 +179,9 @@ class LegacyMigrationService {
     bool isDevelopment = false,
   }) async {
     final projectId = _projectId;
-    final url =
-        isDevelopment
-            ? 'http://localhost:8088/v1/projects/$projectId/databases/(default)/documents/users/$userId'
-            : 'https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents/users/$userId';
+    final url = isDevelopment
+        ? 'http://localhost:8088/v1/projects/$projectId/databases/(default)/documents/users/$userId'
+        : 'https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents/users/$userId';
 
     final headers = <String, String>{};
     if (isDevelopment) {
@@ -217,10 +216,9 @@ class LegacyMigrationService {
     bool isDevelopment = false,
   }) async {
     final projectId = _projectId;
-    final url =
-        isDevelopment
-            ? 'http://localhost:9000/users/$userId.json?ns=$projectId-default-rtdb'
-            : 'https://$projectId-default-rtdb.firebaseio.com/users/$userId.json';
+    final url = isDevelopment
+        ? 'http://localhost:9000/users/$userId.json?ns=$projectId-default-rtdb'
+        : 'https://$projectId-default-rtdb.firebaseio.com/users/$userId.json';
 
     final headers = <String, String>{};
     if (isDevelopment) {
@@ -242,7 +240,6 @@ class LegacyMigrationService {
     if (json is! Map) return null;
     return Map<String, dynamic>.from(json);
   }
-
 
   static dynamic _decodeFirestoreValue(Map<String, dynamic> value) {
     if (value.containsKey('nullValue')) return null;

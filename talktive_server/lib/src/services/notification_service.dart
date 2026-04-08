@@ -339,7 +339,9 @@ class NotificationService {
   }) async {
     // Resolve loungeId from channelId if not provided
     int? resolvedLoungeId = loungeId;
-    if (resolvedLoungeId == null && channel?.type != protocol.ChannelType.plaza && channel?.type != protocol.ChannelType.private) {
+    if (resolvedLoungeId == null &&
+        channel?.type != protocol.ChannelType.plaza &&
+        channel?.type != protocol.ChannelType.private) {
       final lounge = await protocol.Lounge.db.findFirstRow(
         session,
         where: (t) => t.channelId.equals(channelId),
@@ -351,8 +353,9 @@ class NotificationService {
 
     // Resolve route based on channel type
     String route = '/lounges';
-    final resolvedChannel = channel ?? await protocol.Channel.db.findById(session, channelId);
-    
+    final resolvedChannel =
+        channel ?? await protocol.Channel.db.findById(session, channelId);
+
     if (resolvedChannel?.type == protocol.ChannelType.plaza) {
       route = '/plaza/chat';
     } else if (resolvedChannel?.type == protocol.ChannelType.private) {

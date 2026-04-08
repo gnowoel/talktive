@@ -70,6 +70,9 @@ class DuoPageScaffold extends StatelessWidget {
               ),
             ),
 
+            // 1b. Animated Background Decorations (Premium Feel)
+            ..._buildBackgroundDecorations(),
+
             // 2. Layout Column
             Column(
               children: [
@@ -109,5 +112,42 @@ class DuoPageScaffold extends StatelessWidget {
         ),
       ),
     );
+  List<Widget> _buildBackgroundDecorations() {
+    return [
+      Positioned(
+        top: -20,
+        right: -30,
+        child: _buildFloatingBubble(80, Colors.white.withValues(alpha: 0.12)),
+      ),
+      Positioned(
+        top: 40,
+        left: -40,
+        child: _buildFloatingBubble(120, Colors.white.withValues(alpha: 0.08)),
+      ),
+      Positioned(
+        top: 100,
+        right: 40,
+        child: _buildFloatingBubble(60, Colors.white.withValues(alpha: 0.1)),
+      ),
+    ];
+  }
+
+  Widget _buildFloatingBubble(double size, Color color) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+      ),
+    )
+        .animate(onPlay: (controller) => controller.repeat(reverse: true))
+        .moveY(begin: 0, end: 15, duration: 3.seconds, curve: Curves.easeInOut)
+        .scale(
+          begin: const Offset(1, 1),
+          end: const Offset(1.1, 1.1),
+          duration: 4.seconds,
+          curve: Curves.easeInOut,
+        );
   }
 }

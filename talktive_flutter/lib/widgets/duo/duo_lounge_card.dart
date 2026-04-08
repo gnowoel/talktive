@@ -65,20 +65,42 @@ class DuoLoungeCard extends StatelessWidget {
   }
 
   Widget _buildEmojiContainer() {
+    final List<List<Color>> gradients = [
+      AppTheme.duoBlueGradient,
+      AppTheme.duoPurpleGradient,
+      AppTheme.duoGreenGradient,
+      AppTheme.secondaryGradient,
+      [AppTheme.duoOrange, AppTheme.duoOrange.withValues(alpha: 0.6)],
+      [AppTheme.duoRed, AppTheme.duoRed.withValues(alpha: 0.6)],
+    ];
+
+    // Pick a gradient based on lounge name hash
+    final hash = (lounge.name.hashCode.abs()) % gradients.length;
+    final selectedGradient = gradients[hash];
+
     return Container(
       width: 56,
       height: 56,
       decoration: BoxDecoration(
         gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
           colors: [
-            AppTheme.duoBlueGradient[0].withValues(alpha: 0.2),
-            AppTheme.duoBlueGradient[1].withValues(alpha: 0.2),
+            selectedGradient[0].withValues(alpha: 0.2),
+            selectedGradient[1].withValues(alpha: 0.2),
           ],
         ),
         borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
+        border: Border.all(
+          color: selectedGradient[0].withValues(alpha: 0.3),
+          width: 1.5,
+        ),
       ),
       child: Center(
-        child: Text(lounge.emoji ?? '👥', style: const TextStyle(fontSize: 28)),
+        child: Text(
+          lounge.emoji ?? '👥',
+          style: const TextStyle(fontSize: 28),
+        ),
       ),
     );
   }

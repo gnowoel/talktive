@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../config/theme.dart';
 
 /// A small, Duolingo-style badge that displays a user's floor level.
@@ -16,14 +17,17 @@ class DuoFloorBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final color = _getFloorColor(floor);
+    final isHighFloor = floor >= 10;
+
+    Widget badge = Container(
       padding: EdgeInsets.symmetric(horizontal: padding, vertical: 2),
       decoration: BoxDecoration(
-        color: _getFloorColor(floor),
+        color: color,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: color.withValues(alpha: 0.3),
             blurRadius: 4,
             offset: const Offset(0, 1),
           ),
@@ -46,6 +50,28 @@ class DuoFloorBadge extends StatelessWidget {
         ],
       ),
     );
+
+    if (isHighFloor) {
+      badge = badge
+          .animate(onPlay: (c) => c.repeat())
+          .shimmer(duration: 1500.ms, color: Colors.white.withValues(alpha: 0.4))
+          .animate()
+          .scale(
+            begin: const Offset(1, 1),
+            end: const Offset(1.05, 1.05),
+            duration: 800.ms,
+            curve: Curves.easeInOut,
+          )
+          .then()
+          .scale(
+            begin: const Offset(1.05, 1.05),
+            end: const Offset(1, 1),
+            duration: 800.ms,
+            curve: Curves.easeInOut,
+          );
+    }
+
+    return badge;
   }
 
   Color _getFloorColor(int floor) {

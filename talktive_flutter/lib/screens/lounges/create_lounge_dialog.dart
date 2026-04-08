@@ -351,91 +351,128 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
                       'Specify the country for this lounge',
                     ),
                     const SizedBox(height: AppTheme.duoSpacingSmall),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildRegionToggle(
-                            title: 'Global',
-                            emoji: '🌍',
-                            isSelected: _selectedCountry == 'Global',
-                            onTap: () {
-                              HapticFeedback.lightImpact();
-                              setState(() {
-                                _selectedCountry = 'Global';
-                                _selectedCountryFlag = '🌍';
-                              });
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: AppTheme.duoSpacingSmall),
-                        Expanded(
-                          child: _buildRegionToggle(
-                            title: _selectedCountry == 'Global'
-                                ? 'Country'
-                                : _selectedCountry,
-                            emoji: _selectedCountry == 'Global'
-                                ? '🏳️'
-                                : _selectedCountryFlag,
-                            isSelected: _selectedCountry != 'Global',
-                            onTap: () {
-                              showCountryPicker(
-                                context: context,
-                                countryListTheme: CountryListThemeData(
-                                  bottomSheetHeight:
-                                      MediaQuery.of(context).size.height *
-                                      0.65,
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(
-                                      AppTheme.duoRadiusLarge,
-                                    ),
-                                  ),
-                                  backgroundColor: Colors.white,
-                                  textStyle: const TextStyle(
-                                    fontFamily: 'Rubik',
-                                    fontSize: 15,
-                                  ),
-                                  searchTextStyle: const TextStyle(
-                                    fontFamily: 'Rubik',
-                                    fontSize: 16,
-                                  ),
-                                  inputDecoration: InputDecoration(
-                                    hintText: 'Search for a country...',
-                                    prefixIcon: const Icon(Icons.search),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 12,
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        AppTheme.duoRadiusMedium,
-                                      ),
-                                      borderSide: BorderSide(
-                                        color: Colors.grey[200]!,
-                                      ),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        AppTheme.duoRadiusMedium,
-                                      ),
-                                      borderSide: BorderSide(
-                                        color: Colors.grey[200]!,
-                                      ),
-                                    ),
-                                  ),
+                    InkWell(
+                      onTap: () {
+                        HapticFeedback.mediumImpact();
+                        showCountryPicker(
+                          context: context,
+                          countryListTheme: CountryListThemeData(
+                            bottomSheetHeight:
+                                MediaQuery.of(context).size.height * 0.65,
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(AppTheme.duoRadiusLarge),
+                            ),
+                            backgroundColor: Colors.white,
+                            textStyle: const TextStyle(
+                              fontFamily: 'Rubik',
+                              fontSize: 15,
+                            ),
+                            searchTextStyle: const TextStyle(
+                              fontFamily: 'Rubik',
+                              fontSize: 16,
+                            ),
+                            inputDecoration: InputDecoration(
+                              hintText: 'Search for a country...',
+                              prefixIcon: const Icon(Icons.search),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  AppTheme.duoRadiusMedium,
                                 ),
-                                onSelect: (Country country) {
-                                  setState(() {
-                                    _selectedCountry = country.countryCode;
-                                    _selectedCountryFlag = country.flagEmoji;
-                                  });
-                                  HapticFeedback.selectionClick();
-                                },
-                              );
-                            },
+                                borderSide: BorderSide(
+                                  color: Colors.grey[200]!,
+                                ),
+                              ),
+                            ),
+                          ),
+                          onSelect: (Country country) {
+                            setState(() {
+                              _selectedCountry = country.countryCode;
+                              _selectedCountryFlag = country.flagEmoji;
+                            });
+                          },
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(
+                        AppTheme.duoRadiusMedium,
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.all(AppTheme.duoSpacingMedium),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[50],
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.duoRadiusMedium,
+                          ),
+                          border: Border.all(color: Colors.grey[200]!),
+                        ),
+                        child: Row(
+                          children: [
+                            Text(
+                              _selectedCountryFlag,
+                              style: const TextStyle(fontSize: 24),
+                            ),
+                            const SizedBox(width: AppTheme.duoSpacingMedium),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _selectedCountry == 'Global'
+                                        ? 'Global (All Neighbors)'
+                                        : _selectedCountry,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                  Text(
+                                    _selectedCountry == 'Global'
+                                        ? 'Anyone can find this lounge'
+                                        : 'Specifically for residents in this region',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(
+                              Icons.arrow_forward_ios,
+                              size: 14,
+                              color: AppTheme.textSecondary,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    if (_selectedCountry != 'Global')
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8, left: 4),
+                        child: TextButton.icon(
+                          onPressed: () {
+                            HapticFeedback.lightImpact();
+                            setState(() {
+                              _selectedCountry = 'Global';
+                              _selectedCountryFlag = '🌍';
+                            });
+                          },
+                          icon: const Icon(Icons.public, size: 16),
+                          label: const Text(
+                            'Reset to Global',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppTheme.duoBlue,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
                     const SizedBox(height: AppTheme.duoSpacingLarge),
 
                     // Languages Section
@@ -667,57 +704,6 @@ class _CreateLoungeDialogState extends ConsumerState<CreateLoungeDialog> {
         Text(subtitle, style: TextStyle(fontSize: 11, color: Colors.grey[600])),
         const SizedBox(height: 4),
       ],
-    );
-  }
-
-  Widget _buildRegionToggle({
-    required String title,
-    required String emoji,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: 200.ms,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.grey[50],
-          borderRadius: BorderRadius.circular(AppTheme.duoRadiusMedium),
-          border: Border.all(
-            color: isSelected ? AppTheme.duoBlue : Colors.grey[200]!,
-            width: isSelected ? 2 : 1,
-          ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppTheme.duoBlue.withValues(alpha: 0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(emoji, style: const TextStyle(fontSize: 18)),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  color: isSelected ? AppTheme.duoBlue : AppTheme.textSecondary,
-                  fontFamily: 'Poppins',
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

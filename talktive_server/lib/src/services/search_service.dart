@@ -5,8 +5,6 @@ import 'resident_service.dart';
 import 'dart:convert';
 
 class SearchService {
-  static String _escapeSqlLiteral(String value) => value.replaceAll("'", "''");
-
   static Expression _buildResidentFilters(
     protocol.ResidentTable t, {
     String? query,
@@ -21,11 +19,13 @@ class SearchService {
 
     if (query != null && query.trim().isNotEmpty) {
       final q = query.trim();
-      final escapedQuery = _escapeSqlLiteral(q);
-      expr &=
-          (t.userName.ilike('%$escapedQuery%') |
-          t.bio.ilike('%$escapedQuery%') |
-          Expression("interests::text ilike '%$escapedQuery%'"));
+      // Use parameterized ilike for standard columns
+      expr &= (t.userName.ilike('%$q%') | t.bio.ilike('%$q%'));
+      
+      // For JSONB to text conversion, we still need Expression but should use it carefully
+      // Note: Full-text search or GIN indexes on these would be better for scale
+      final escapedQ = q.replaceAll("'", "''");
+      expr |= Expression("interests::text ilike '%$escapedQ%'");
     }
 
     if (gender != null) expr &= t.gender.equals(gender);
@@ -34,14 +34,12 @@ class SearchService {
     if (isPremium != null) expr &= t.isPremium.equals(isPremium);
 
     if (language != null) {
-      expr &= Expression(
-        'languages::jsonb ? \'${language.replaceAll("'", "''")}\'',
-      );
+      final escapedLang = language.replaceAll("'", "''");
+      expr &= Expression("languages::jsonb ? '$escapedLang'");
     }
     if (interest != null) {
-      expr &= Expression(
-        'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'',
-      );
+      final escapedInt = interest.replaceAll("'", "''");
+      expr &= Expression("interests::jsonb ? '$escapedInt'");
     }
 
     return expr;
@@ -120,6 +118,8 @@ class SearchService {
         if (blockedIds.isNotEmpty) {
           filter &= t.userInfoId.notInSet(blockedIds);
         }
+        // Exclude self from search results
+        filter &= t.userInfoId.notEquals(currentUser.userInfoId);
         return filter;
       },
       orderBy: (t) => t.lastSeen,
@@ -140,14 +140,14 @@ class SearchService {
     String? country,
   }) {
     var expr = t.isPublic.equals(true);
+    expr &= t.isStaffLocked.equals(false);
 
     if (query != null && query.trim().isNotEmpty) {
       final q = query.trim();
-      final escapedQuery = _escapeSqlLiteral(q);
-      expr &=
-          (t.name.ilike('%$escapedQuery%') |
-          t.description.ilike('%$escapedQuery%') |
-          Expression("interests::text ilike '%$escapedQuery%'"));
+      expr &= (t.name.ilike('%$q%') | t.description.ilike('%$q%'));
+      
+      final escapedQ = q.replaceAll("'", "''");
+      expr |= Expression("interests::text ilike '%$escapedQ%'");
     }
 
     if (country == 'GLOBAL') {
@@ -157,14 +157,12 @@ class SearchService {
     }
 
     if (interest != null) {
-      expr &= Expression(
-        'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'',
-      );
+      final escapedInt = interest.replaceAll("'", "''");
+      expr &= Expression("interests::jsonb ? '$escapedInt'");
     }
     if (language != null) {
-      expr &= Expression(
-        'languages::jsonb ? \'${language.replaceAll("'", "''")}\'',
-      );
+      final escapedLang = language.replaceAll("'", "''");
+      expr &= Expression("languages::jsonb ? '$escapedLang'");
     }
     return expr;
   }

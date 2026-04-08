@@ -27,6 +27,15 @@ indexes:
     fields: creatorId
   lounge_active_idx:
     fields: isPublic, isStaffLocked, lastMessageAt
+  lounge_search_idx:
+    fields: name
+    type: gin
+  lounge_interests_idx:
+    fields: interests
+    type: gin
+  lounge_languages_idx:
+    fields: languages
+    type: gin
   lounge_member_idx:
     fields: memberCount
   lounge_lastmsg_idx:

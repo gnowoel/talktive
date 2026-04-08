@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,12 +29,14 @@ class LoungeSearchScreen extends ConsumerStatefulWidget {
 
 class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
   final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
 
   List<protocol.Lounge>? _searchResults;
   List<protocol.Lounge>? _recommendedLounges;
   List<protocol.Lounge>? _popularLounges;
   bool _isLoading = false;
   String? _searchQuery;
+  String? _errorMessage;
 
   // Search Filters
   String? _selectedLanguage;
@@ -59,14 +62,25 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _searchController.dispose();
     super.dispose();
   }
 
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      _performSearch(query);
+    });
+  }
+
   Future<void> _performSearch(String query) async {
+    if (!mounted) return;
+
     setState(() {
       _isLoading = true;
       _searchQuery = query;
+      _errorMessage = null;
     });
 
     try {
@@ -107,7 +121,13 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
         }
       }
     } catch (e) {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = e.toString();
+        });
+        DuoSnackBarHelper.showError(context, 'Search failed: $e');
+      }
     }
   }
 
@@ -159,7 +179,7 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
                           : Icons.lock_outline,
                       iconColor: AppTheme.duoBlue,
                       enabled: hasAdvancedSearch,
-                      onChanged: (val) => _performSearch(val),
+                      onChanged: _onSearchChanged,
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
                               icon: const Icon(

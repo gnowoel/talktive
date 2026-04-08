@@ -62,6 +62,12 @@ indexes:
   resident_search_idx:
     fields: userName
     type: gin
+  resident_interests_idx:
+    fields: interests
+    type: gin
+  resident_languages_idx:
+    fields: languages
+    type: gin
   resident_metadata_idx:
     fields: gender, country, role
   resident_msg_date_idx:

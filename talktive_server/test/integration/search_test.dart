@@ -174,5 +174,198 @@ void main() {
         },
       );
     });
+
+    group('Resident Advanced Search', () {
+      late protocol.Resident resident1;
+      late protocol.Resident resident2;
+      late protocol.Resident nonPremiumUser;
+
+      setUp(() async {
+        final session = sessionBuilder.build();
+
+        // Create a non-premium user
+        nonPremiumUser = await protocol.Resident.db.insertRow(
+          session,
+          protocol.Resident(
+            userInfoId: UuidValue.fromString(uuid.v4()),
+            userName: 'Free User',
+            isPremium: false,
+          ),
+        );
+
+        // Create test residents
+        resident1 = await protocol.Resident.db.insertRow(
+          session,
+          protocol.Resident(
+            userInfoId: UuidValue.fromString(uuid.v4()),
+            userName: 'Alice Smith',
+            gender: 'female',
+            ageRange: '25-34',
+            country: 'US',
+            languages: ['en', 'es'],
+            interests: ['Chess', 'Coding'],
+            lastSeen: DateTime.now(),
+            isPremium: true,
+          ),
+        );
+
+        resident2 = await protocol.Resident.db.insertRow(
+          session,
+          protocol.Resident(
+            userInfoId: UuidValue.fromString(uuid.v4()),
+            userName: 'Bob Jones',
+            gender: 'male',
+            ageRange: '35-44',
+            country: 'UK',
+            languages: ['en', 'fr'],
+            interests: ['Chess', 'Music'],
+            lastSeen: DateTime.now(),
+            isPremium: false,
+          ),
+        );
+      });
+
+      test('searchUsers filters by gender', () async {
+        final session = sessionBuilder.build();
+        final results = await SearchService.searchUsers(
+          session,
+          'Chess',
+          gender: 'female',
+          currentUser: currentUser,
+        );
+
+        expect(results.length, 1);
+        expect(results.first.userName, 'Alice Smith');
+      });
+
+      test('searchUsers filters by country', () async {
+        final session = sessionBuilder.build();
+        final results = await SearchService.searchUsers(
+          session,
+          'Chess',
+          country: 'UK',
+          currentUser: currentUser,
+        );
+
+        expect(results.length, 1);
+        expect(results.first.userName, 'Bob Jones');
+      });
+
+      test('searchUsers filters by ageRange', () async {
+        final session = sessionBuilder.build();
+        final results = await SearchService.searchUsers(
+          session,
+          'Chess',
+          ageRange: '25-34',
+          currentUser: currentUser,
+        );
+
+        expect(results.length, 1);
+        expect(results.first.userName, 'Alice Smith');
+      });
+
+      test('searchUsers filters by premium status', () async {
+        final session = sessionBuilder.build();
+        final results = await SearchService.searchUsers(
+          session,
+          'Chess',
+          isPremium: true,
+          currentUser: currentUser,
+        );
+
+        expect(results.length, 1);
+        expect(results.first.userName, 'Alice Smith');
+      });
+
+      test('searchUsers throws exception for non-premium filtering', () async {
+        final session = sessionBuilder.build();
+
+        expect(
+          () => SearchService.searchUsers(
+            session,
+            'Chess',
+            gender: 'female',
+            currentUser: nonPremiumUser,
+          ),
+          throwsA(
+            isA<protocol.TalktiveException>().having(
+              (e) => e.code,
+              'code',
+              'PREMIUM_REQUIRED',
+            ),
+          ),
+        );
+      });
+
+      test('searchUsers allows search without filters for non-premium', () async {
+        final session = sessionBuilder.build();
+        final results = await SearchService.searchUsers(
+          session,
+          'Alice',
+          currentUser: nonPremiumUser,
+        );
+
+        expect(results.length, 1);
+        expect(results.first.userName, 'Alice Smith');
+      });
+
+      test('searchUsers respects discovery settings', () async {
+        final session = sessionBuilder.build();
+
+        // Disable discovery for currentUser
+        final updatedUser = currentUser.copyWith(showAdvancedDiscovery: false);
+        await protocol.Resident.db.updateRow(session, updatedUser);
+
+        expect(
+          () => SearchService.searchUsers(
+            session,
+            'Chess',
+            gender: 'female',
+            currentUser: updatedUser,
+          ),
+          throwsA(
+            isA<protocol.TalktiveException>().having(
+              (e) => e.code,
+              'code',
+              'FEATURE_DISABLED',
+            ),
+          ),
+        );
+      });
+
+      test('searchUsers excludes blocked users', () async {
+        final session = sessionBuilder.build();
+
+        // Alice blocks Bob
+        await protocol.Block.db.insertRow(
+          session,
+          protocol.Block(
+            blockerId: resident1.userInfoId,
+            blockedId: resident2.userInfoId,
+            createdAt: DateTime.now(),
+          ),
+        );
+
+        final results = await SearchService.searchUsers(
+          session,
+          'Chess',
+          currentUser: resident1,
+        );
+
+        // Bob should be excluded
+        expect(results.any((r) => r.userName == 'Bob Jones'), isFalse);
+      });
+
+      test('searchUsers excludes self', () async {
+        final session = sessionBuilder.build();
+        final results = await SearchService.searchUsers(
+          session,
+          'Alice',
+          currentUser: resident1,
+        );
+
+        expect(results.any((r) => r.userName == 'Alice Smith'), isFalse);
+      });
+    });
   });
 }

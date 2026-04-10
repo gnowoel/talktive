@@ -1,4 +1,3 @@
-import 'package:serverpod/serverpod.dart';
 import 'package:test/test.dart';
 import 'package:talktive_server/src/generated/protocol.dart';
 import 'test_tools/serverpod_test_tools.dart';

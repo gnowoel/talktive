@@ -6,7 +6,6 @@ import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     hide Endpoints, Protocol;
 import 'package:serverpod_auth_idp_server/core.dart';
 import 'package:serverpod_auth_idp_server/providers/firebase.dart';
-import 'package:serverpod_cloud_storage_r2/serverpod_cloud_storage_r2.dart';
 
 import 'src/generated/endpoints.dart';
 import 'src/generated/protocol.dart';
@@ -22,26 +21,6 @@ import 'src/utils/seed_data.dart';
 void run(List<String> args) async {
   // Initialize Serverpod and connect it with your generated code.
   final pod = Serverpod(args, Protocol(), Endpoints());
-
-  // Register Cloud Storage
-  // Only register Cloudflare R2 in production/staging environments
-  if (pod.runMode != 'development') {
-    final accountId =
-        Platform.environment['CLOUDFLARE_ACCOUNT_ID'] ?? '<ACCOUNT_ID>';
-    final publicHost =
-        Platform.environment['CLOUDFLARE_PUBLIC_HOST'] ?? 'media.talktive.app';
-
-    pod.addCloudStorage(
-      R2CloudStorage(
-        serverpod: pod,
-        storageId: 'public',
-        public: true,
-        bucket: 'talktive-media',
-        accountId: accountId,
-        publicHost: publicHost,
-      ),
-    );
-  }
 
   // Register Future Calls
   pod.registerFutureCall(DailyCleanupCall(), 'dailyCleanup');

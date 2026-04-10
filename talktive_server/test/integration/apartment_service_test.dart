@@ -32,15 +32,17 @@ void main() {
         expect(canInvite, isFalse);
       });
 
-      test('cannotInviteReason returns self-knock message for self-invite',
-          () async {
-        final session = sessionBuilder.build();
-        final reason = ApartmentService.cannotInviteReason(
-          sender: resident,
-          receiver: resident,
-        );
-        expect(reason, 'You cannot knock on your own door.');
-      });
+      test(
+        'cannotInviteReason returns self-knock message for self-invite',
+        () async {
+          final session = sessionBuilder.build();
+          final reason = ApartmentService.cannotInviteReason(
+            sender: resident,
+            receiver: resident,
+          );
+          expect(reason, 'You cannot knock on your own door.');
+        },
+      );
     });
 
     group('Effective Floor Formula', () {

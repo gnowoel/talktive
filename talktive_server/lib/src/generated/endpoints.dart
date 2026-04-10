@@ -2602,6 +2602,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<bool?>(),
               nullable: true,
             ),
+            'allowPushNotifications': _i1.ParameterDescription(
+              name: 'allowPushNotifications',
+              type: _i1.getType<bool?>(),
+              nullable: true,
+            ),
             'showVoiceMessages': _i1.ParameterDescription(
               name: 'showVoiceMessages',
               type: _i1.getType<bool?>(),
@@ -2646,6 +2651,7 @@ class Endpoints extends _i1.EndpointDispatch {
                   .updatePrivacy(
                     session,
                     hideAds: params['hideAds'],
+                    allowPushNotifications: params['allowPushNotifications'],
                     showVoiceMessages: params['showVoiceMessages'],
                     showAdvancedDiscovery: params['showAdvancedDiscovery'],
                     showCustomAvatar: params['showCustomAvatar'],

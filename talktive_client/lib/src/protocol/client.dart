@@ -1431,6 +1431,7 @@ class EndpointResident extends _i2.EndpointRef {
 
   _i3.Future<_i11.Resident> updatePrivacy({
     bool? hideAds,
+    bool? allowPushNotifications,
     bool? showVoiceMessages,
     bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
@@ -1443,6 +1444,7 @@ class EndpointResident extends _i2.EndpointRef {
     'updatePrivacy',
     {
       'hideAds': hideAds,
+      'allowPushNotifications': allowPushNotifications,
       'showVoiceMessages': showVoiceMessages,
       'showAdvancedDiscovery': showAdvancedDiscovery,
       'showCustomAvatar': showCustomAvatar,

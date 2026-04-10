@@ -3941,6 +3941,7 @@ class _ResidentEndpoint {
   _i3.Future<_i11.Resident> updatePrivacy(
     _i1.TestSessionBuilder sessionBuilder, {
     bool? hideAds,
+    bool? allowPushNotifications,
     bool? showVoiceMessages,
     bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
@@ -3962,6 +3963,7 @@ class _ResidentEndpoint {
           methodName: 'updatePrivacy',
           parameters: _i1.testObjectToJson({
             'hideAds': hideAds,
+            'allowPushNotifications': allowPushNotifications,
             'showVoiceMessages': showVoiceMessages,
             'showAdvancedDiscovery': showAdvancedDiscovery,
             'showCustomAvatar': showCustomAvatar,

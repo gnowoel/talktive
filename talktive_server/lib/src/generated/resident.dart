@@ -53,6 +53,7 @@ abstract class Resident
     bool? showCustomAvatar,
     bool? keepPrivateChats,
     this.customAvatarUrl,
+    bool? allowPushNotifications,
   }) : trustScore = trustScore ?? 100,
        suspended = suspended ?? false,
        xp = xp ?? 0,
@@ -70,7 +71,8 @@ abstract class Resident
        showVoiceMessages = showVoiceMessages ?? true,
        showAdvancedDiscovery = showAdvancedDiscovery ?? true,
        showCustomAvatar = showCustomAvatar ?? true,
-       keepPrivateChats = keepPrivateChats ?? true;
+       keepPrivateChats = keepPrivateChats ?? true,
+       allowPushNotifications = allowPushNotifications ?? true;
 
   factory Resident({
     int? id,
@@ -109,6 +111,7 @@ abstract class Resident
     bool? showCustomAvatar,
     bool? keepPrivateChats,
     String? customAvatarUrl,
+    bool? allowPushNotifications,
   }) = _ResidentImpl;
 
   factory Resident.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -221,6 +224,12 @@ abstract class Resident
               jsonSerialization['keepPrivateChats'],
             ),
       customAvatarUrl: jsonSerialization['customAvatarUrl'] as String?,
+      allowPushNotifications:
+          jsonSerialization['allowPushNotifications'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['allowPushNotifications'],
+            ),
     );
   }
 
@@ -301,6 +310,8 @@ abstract class Resident
 
   String? customAvatarUrl;
 
+  bool allowPushNotifications;
+
   @override
   _i1.Table<int?> get table => t;
 
@@ -344,6 +355,7 @@ abstract class Resident
     bool? showCustomAvatar,
     bool? keepPrivateChats,
     String? customAvatarUrl,
+    bool? allowPushNotifications,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -387,6 +399,7 @@ abstract class Resident
       'showCustomAvatar': showCustomAvatar,
       'keepPrivateChats': keepPrivateChats,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
+      'allowPushNotifications': allowPushNotifications,
     };
   }
 
@@ -432,6 +445,7 @@ abstract class Resident
       'showCustomAvatar': showCustomAvatar,
       'keepPrivateChats': keepPrivateChats,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
+      'allowPushNotifications': allowPushNotifications,
     };
   }
 
@@ -505,6 +519,7 @@ class _ResidentImpl extends Resident {
     bool? showCustomAvatar,
     bool? keepPrivateChats,
     String? customAvatarUrl,
+    bool? allowPushNotifications,
   }) : super._(
          id: id,
          userInfoId: userInfoId,
@@ -542,6 +557,7 @@ class _ResidentImpl extends Resident {
          showCustomAvatar: showCustomAvatar,
          keepPrivateChats: keepPrivateChats,
          customAvatarUrl: customAvatarUrl,
+         allowPushNotifications: allowPushNotifications,
        );
 
   /// Returns a shallow copy of this [Resident]
@@ -585,6 +601,7 @@ class _ResidentImpl extends Resident {
     bool? showCustomAvatar,
     bool? keepPrivateChats,
     Object? customAvatarUrl = _Undefined,
+    bool? allowPushNotifications,
   }) {
     return Resident(
       id: id is int? ? id : this.id,
@@ -641,6 +658,8 @@ class _ResidentImpl extends Resident {
       customAvatarUrl: customAvatarUrl is String?
           ? customAvatarUrl
           : this.customAvatarUrl,
+      allowPushNotifications:
+          allowPushNotifications ?? this.allowPushNotifications,
     );
   }
 }
@@ -840,6 +859,12 @@ class ResidentUpdateTable extends _i1.UpdateTable<ResidentTable> {
         table.customAvatarUrl,
         value,
       );
+
+  _i1.ColumnValue<bool, bool> allowPushNotifications(bool value) =>
+      _i1.ColumnValue(
+        table.allowPushNotifications,
+        value,
+      );
 }
 
 class ResidentTable extends _i1.Table<int?> {
@@ -1004,6 +1029,11 @@ class ResidentTable extends _i1.Table<int?> {
       'customAvatarUrl',
       this,
     );
+    allowPushNotifications = _i1.ColumnBool(
+      'allowPushNotifications',
+      this,
+      hasDefault: true,
+    );
   }
 
   late final ResidentUpdateTable updateTable;
@@ -1078,6 +1108,8 @@ class ResidentTable extends _i1.Table<int?> {
 
   late final _i1.ColumnString customAvatarUrl;
 
+  late final _i1.ColumnBool allowPushNotifications;
+
   @override
   List<_i1.Column> get columns => [
     id,
@@ -1116,6 +1148,7 @@ class ResidentTable extends _i1.Table<int?> {
     showCustomAvatar,
     keepPrivateChats,
     customAvatarUrl,
+    allowPushNotifications,
   ];
 }
 

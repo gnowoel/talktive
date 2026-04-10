@@ -52,6 +52,7 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showCustomAvatar,
     bool? keepPrivateChats,
     this.customAvatarUrl,
+    bool? allowPushNotifications,
   }) : trustScore = trustScore ?? 100,
        suspended = suspended ?? false,
        xp = xp ?? 0,
@@ -69,7 +70,8 @@ abstract class Resident implements _i1.SerializableModel {
        showVoiceMessages = showVoiceMessages ?? true,
        showAdvancedDiscovery = showAdvancedDiscovery ?? true,
        showCustomAvatar = showCustomAvatar ?? true,
-       keepPrivateChats = keepPrivateChats ?? true;
+       keepPrivateChats = keepPrivateChats ?? true,
+       allowPushNotifications = allowPushNotifications ?? true;
 
   factory Resident({
     int? id,
@@ -108,6 +110,7 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showCustomAvatar,
     bool? keepPrivateChats,
     String? customAvatarUrl,
+    bool? allowPushNotifications,
   }) = _ResidentImpl;
 
   factory Resident.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -220,6 +223,12 @@ abstract class Resident implements _i1.SerializableModel {
               jsonSerialization['keepPrivateChats'],
             ),
       customAvatarUrl: jsonSerialization['customAvatarUrl'] as String?,
+      allowPushNotifications:
+          jsonSerialization['allowPushNotifications'] == null
+          ? null
+          : _i1.BoolJsonExtension.fromJson(
+              jsonSerialization['allowPushNotifications'],
+            ),
     );
   }
 
@@ -298,6 +307,8 @@ abstract class Resident implements _i1.SerializableModel {
 
   String? customAvatarUrl;
 
+  bool allowPushNotifications;
+
   /// Returns a shallow copy of this [Resident]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -338,6 +349,7 @@ abstract class Resident implements _i1.SerializableModel {
     bool? showCustomAvatar,
     bool? keepPrivateChats,
     String? customAvatarUrl,
+    bool? allowPushNotifications,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -381,6 +393,7 @@ abstract class Resident implements _i1.SerializableModel {
       'showCustomAvatar': showCustomAvatar,
       'keepPrivateChats': keepPrivateChats,
       if (customAvatarUrl != null) 'customAvatarUrl': customAvatarUrl,
+      'allowPushNotifications': allowPushNotifications,
     };
   }
 
@@ -430,6 +443,7 @@ class _ResidentImpl extends Resident {
     bool? showCustomAvatar,
     bool? keepPrivateChats,
     String? customAvatarUrl,
+    bool? allowPushNotifications,
   }) : super._(
          id: id,
          userInfoId: userInfoId,
@@ -467,6 +481,7 @@ class _ResidentImpl extends Resident {
          showCustomAvatar: showCustomAvatar,
          keepPrivateChats: keepPrivateChats,
          customAvatarUrl: customAvatarUrl,
+         allowPushNotifications: allowPushNotifications,
        );
 
   /// Returns a shallow copy of this [Resident]
@@ -510,6 +525,7 @@ class _ResidentImpl extends Resident {
     bool? showCustomAvatar,
     bool? keepPrivateChats,
     Object? customAvatarUrl = _Undefined,
+    bool? allowPushNotifications,
   }) {
     return Resident(
       id: id is int? ? id : this.id,
@@ -566,6 +582,8 @@ class _ResidentImpl extends Resident {
       customAvatarUrl: customAvatarUrl is String?
           ? customAvatarUrl
           : this.customAvatarUrl,
+      allowPushNotifications:
+          allowPushNotifications ?? this.allowPushNotifications,
     );
   }
 }

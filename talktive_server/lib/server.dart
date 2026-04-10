@@ -127,16 +127,17 @@ void run(List<String> args) async {
     // Seed Achievements
     await SeedData.seedAchievements(session);
 
-    final plaza = await Channel.db.findById(session, 1);
+    final plaza = await Channel.db.findFirstRow(
+      session,
+      where: (t) => t.type.equals(ChannelType.plaza),
+    );
     if (plaza == null) {
-      session.log('Seeding: Creating Plaza Channel (ID 1)');
-      // Insert with explicit ID if possible, or just insert and hope it gets ID 1.
-      // Postgres serials usually start at 1. If empty, it will be 1.
-      // To be safe, we can try to force it if the framework allows, or just insert.
+      session.log('Seeding: Creating Plaza Channel');
       await Channel.db.insertRow(
         session,
         Channel(
           type: ChannelType.plaza,
+          name: 'The Plaza',
           createdAt: DateTime.now(),
         ),
       );

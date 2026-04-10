@@ -214,6 +214,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
   Future<protocol.Resident> updatePrivacy(
     Session session, {
     bool? hideAds,
+    bool? allowPushNotifications,
     bool? showVoiceMessages,
     bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
@@ -254,6 +255,7 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
       session,
       resident: resident,
       hideAds: hideAds,
+      allowPushNotifications: allowPushNotifications,
       showVoiceMessages: showVoiceMessages,
       showAdvancedDiscovery: showAdvancedDiscovery,
       showCustomAvatar: showCustomAvatar,

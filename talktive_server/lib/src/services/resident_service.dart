@@ -962,6 +962,7 @@ class ResidentService {
     Session session, {
     required protocol.Resident resident,
     bool? hideAds,
+    bool? allowPushNotifications,
     bool? showVoiceMessages,
     bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
@@ -977,6 +978,10 @@ class ResidentService {
     // hideAds is specifically Paid-only (Trial does not count)
     if (hideAds != null && isPaid) {
       resident.hideAds = hideAds;
+    }
+
+    if (allowPushNotifications != null) {
+      resident.allowPushNotifications = allowPushNotifications;
     }
 
     _setPlusToggles(resident, {

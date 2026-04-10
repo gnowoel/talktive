@@ -53,6 +53,9 @@ fields:
 
   customAvatarUrl: String?
 
+  # Global Notification Setting
+  allowPushNotifications: bool, default=true
+
 indexes:
   resident_user_idx:
     fields: userInfoId

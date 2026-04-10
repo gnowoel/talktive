@@ -657,11 +657,14 @@ class ResidentService {
     }
 
     try {
-      final idList = userIds.map((u) => "'$u'").join(',');
+      final userUuids = userIds.map((u) => u.uuid).toList();
 
       // 1. Message counts
       final messageCounts = await session.db.unsafeQuery(
-        'SELECT "senderId", count(*) as count FROM message WHERE "senderId" IN ($idList) GROUP BY "senderId"',
+        'SELECT "senderId", count(*) as count FROM message WHERE "senderId" = ANY(@userIds) GROUP BY "senderId"',
+        parameters: QueryParameters.named({
+          'userIds': userUuids,
+        }),
       );
       for (final row in messageCounts) {
         final id = row[0].toString();
@@ -672,7 +675,10 @@ class ResidentService {
 
       // 2. Moment counts
       final momentCounts = await session.db.unsafeQuery(
-        'SELECT "authorId", count(*) as count FROM moment WHERE "authorId" IN ($idList) GROUP BY "authorId"',
+        'SELECT "authorId", count(*) as count FROM moment WHERE "authorId" = ANY(@userIds) GROUP BY "authorId"',
+        parameters: QueryParameters.named({
+          'userIds': userUuids,
+        }),
       );
       for (final row in momentCounts) {
         final id = row[0].toString();
@@ -683,7 +689,10 @@ class ResidentService {
 
       // 3. Report counts (against the user)
       final reportCounts = await session.db.unsafeQuery(
-        'SELECT "targetId", count(*) as count FROM report WHERE "targetId" IN ($idList) GROUP BY "targetId"',
+        'SELECT "targetId", count(*) as count FROM report WHERE "targetId" = ANY(@userIds) GROUP BY "targetId"',
+        parameters: QueryParameters.named({
+          'userIds': userUuids,
+        }),
       );
       for (final row in reportCounts) {
         final id = row[0].toString();

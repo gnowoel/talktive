@@ -7,14 +7,14 @@ This guide provides step-by-step instructions for deploying Talktive to its dist
 ### 1. Launch Instances
 In the Amazon Lightsail console (`us-east-1` region), launch three **Ubuntu 22.04 LTS** instances:
 
-1.  **App Server**: 2GB RAM / 1 vCPU (Dual-stack).
-2.  **DB Server**: 2GB RAM / 1 vCPU (**IPv6-only**).
-3.  **Cache Server**: 1GB RAM / 1 vCPU (**IPv6-only**).
+1.  **App Server**: 2GB RAM / 1 vCPU.
+2.  **DB Server**: 2GB RAM / 1 vCPU.
+3.  **Cache Server**: 1GB RAM / 1 vCPU.
 
 ### 2. Networking Setup
 1.  **Static IP**: Attach a Static IP to the **App Server**.
 2.  **DNS**: Map `api.talktive.app` to the App Server's Static IP.
-3.  **Private IPs**: Note the **Private IPv4** addresses for the DB and Cache servers from the "Networking" tab.
+3.  **Private IPs**: Note the private IP addresses for the DB and Cache servers from the "Networking" tab.
 
 ### 3. Firewall Configuration
 Configure the firewall for each instance in the Lightsail console:
@@ -22,7 +22,7 @@ Configure the firewall for each instance in the Lightsail console:
 *   **App Server**:
     *   HTTP (80) - Custom (Anywhere)
     *   HTTPS (443) - Custom (Anywhere)
-    *   8080-8082 - Custom (Anywhere)
+    *   Keep `8080`-`8082` off the public firewall; they are for local reverse proxying and operator checks.
 *   **DB Server**:
     *   5432 - Custom (Only App Server Private IP)
 *   **Cache Server**:
@@ -50,14 +50,14 @@ listen_addresses = '*'
 Edit `/etc/postgresql/16/main/pg_hba.conf`:
 ```bash
 # Add entry for the App Server's Private IP
-host    talktive    postgres    <APP_SERVER_PRIVATE_IP>/32    md5
+host    serverpod    postgres    <APP_SERVER_PRIVATE_IP>/32    md5
 ```
 
 ### 3. Create Database & Extensions
 ```bash
 sudo -u postgres psql
-CREATE DATABASE talktive;
-\c talktive
+CREATE DATABASE serverpod;
+\c serverpod
 CREATE EXTENSION IF NOT EXISTS vector;
 ALTER USER postgres WITH PASSWORD 'your_strong_db_password';
 \q
@@ -109,16 +109,26 @@ sudo usermod -aG docker $USER
     cd talktive/talktive_server
     ```
 2.  **Configure Environment**:
-    *   Edit `config/production.yaml`: Set `database.host` and `redis.host` to their respective Private IPs.
+    *   Edit `config/production.yaml`: Set `database.host` and `redis.host` to their respective private IPs.
+    *   Edit `config/production.yaml`: Set `database.requireSsl: false` for this private-network deployment unless you explicitly configure PostgreSQL TLS.
+    *   Edit `config/production.yaml`: Replace the Cloudflare R2 `endpoint` placeholder with your real account endpoint.
     *   Create `config/passwords.yaml`: Add DB password, Redis password, and Cloudflare R2 keys.
+    *   Create `config/firebase_service_account_key.json`: Add the Firebase Admin service account used by the identity provider.
 3.  **Build & Run**:
     ```bash
     docker build -t talktive-server -f Dockerfile.production .
     docker run -d --name talktive-server --restart unless-stopped \
-      -p 8080:8080 -p 8081:8081 -p 8082:8082 \
+      -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 -p 127.0.0.1:8082:8082 \
       -v $(pwd)/config:/app/config \
       talktive-server
     ```
+
+### 3. Apply Migrations
+Before routing production traffic, run:
+```bash
+dart bin/main.dart --apply-migrations
+```
+Run this from `talktive_server` with the production `config/` mounted in place, or from an equivalent one-off release container.
 
 ---
 
@@ -131,7 +141,15 @@ sudo apt install nginx certbot python3-certbot-nginx
 
 ### 2. Configure Site
 Create `/etc/nginx/sites-available/talktive`:
-*(Use the configuration provided in the DEPLOYMENT.md, ensuring `proxy_pass` points to `localhost:8080` for API and `localhost:8082` for Web).*
+Use `docs/nginx/talktive.conf` as the production baseline. It proxies:
+- API traffic to `127.0.0.1:8080`
+- Serverpod WebSocket traffic on `/websocket` and `/v1/websocket`
+- Optional web-server traffic under `/app/` to `127.0.0.1:8082`
+
+Copy it into place:
+```bash
+sudo cp docs/nginx/talktive.conf /etc/nginx/sites-available/talktive
+```
 
 ### 3. Enable & SSL
 ```bash
@@ -151,4 +169,23 @@ sudo certbot --nginx -d api.talktive.app
     flutter build apk --release # For Android
     flutter build ios --release # For iOS
     ```
-3.  **Verify**: Open the app and ensure the "Building Maintenance" screen does **not** appear and you can sign in.
+3.  **Verify**: Open the app and ensure the "Building Maintenance" screen does **not** appear, Google sign-in succeeds, and API calls resolve against `https://api.talktive.app`.
+
+## Phase 7: Verification
+
+1.  **Container Health**:
+    ```bash
+    curl -X POST http://127.0.0.1:8080/health \
+      -H 'Content-Type: application/json' \
+      -d '{"method":"check"}'
+    ```
+2.  **Readiness Check**:
+    ```bash
+    curl -X POST http://127.0.0.1:8080/health \
+      -H 'Content-Type: application/json' \
+      -d '{"method":"ready"}'
+    ```
+3.  **Logs**:
+    ```bash
+    docker logs --tail=200 talktive-server
+    ```

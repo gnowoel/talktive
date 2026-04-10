@@ -8,13 +8,12 @@ This guide covers deploying the Talktive Serverpod backend to a distributed prod
 
 | Server | Role | Specs | Network Tier | Private Hostname |
 | :--- | :--- | :--- | :--- | :--- |
-| **App Server** | Serverpod Engine | 2GB RAM / 1 vCPU | Dual-stack | `app.talktive.internal` |
-| **DB Server** | PostgreSQL 16 + pgvector | 2GB RAM / 1 vCPU | **IPv6-only** | `db.talktive.internal` |
-| **Cache Server** | Redis 7 | 1GB RAM / 1 vCPU | **IPv6-only** | `redis.talktive.internal` |
+| **App Server** | Serverpod Engine | 2GB RAM / 1 vCPU | Public + private networking | `app.talktive.internal` |
+| **DB Server** | PostgreSQL 16 + pgvector | 2GB RAM / 1 vCPU | Private networking | `db.talktive.internal` |
+| **Cache Server** | Redis 7 | 1GB RAM / 1 vCPU | Private networking | `redis.talktive.internal` |
 
 **Key Benefits:**
-- **Cost Optimization:** Using "IPv6-only" for DB and Cache servers removes the public IPv4 surcharge.
-- **Security:** DB and Cache servers are isolated from the public internet, communicating only via **Private IPv4** with the App Server.
+- **Security:** DB and Cache servers stay off the public internet and accept traffic only from the App Server over the residence's private network.
 - **Scalability:** High-energy WebSocket traffic is isolated from heavy DB searches.
 
 ---
@@ -37,13 +36,13 @@ This guide covers deploying the Talktive Serverpod backend to a distributed prod
 ## Infrastructure Configuration
 
 ### 1. Networking (Lightsail VPC)
-1. **Enable IPv6** on all three instances.
+1. **Private networking**: Place all three instances in the same Lightsail private network.
 2. **Static IP**: Attach a Static IP to the **App Server** only.
-3. **Internal Routing**: Identify the **Private IPv4** addresses of each instance.
+3. **Internal Routing**: Identify the private IP addresses of the DB and Cache servers.
    - Example: DB Private IP `172.26.x.x`, Redis Private IP `172.26.y.y`.
 
 ### 2. Firewall Rules
-- **App Server**: Allow 80 (HTTP), 443 (HTTPS), and Serverpod ports (8080-8082).
+- **App Server**: Allow 80 (HTTP) and 443 (HTTPS) publicly. Keep 8080-8082 reachable only from localhost or your private admin network.
 - **DB Server**: Allow 5432 **only** from the App Server's Private IP.
 - **Cache Server**: Allow 6379 **only** from the App Server's Private IP.
 
@@ -65,7 +64,7 @@ apiServer:
 database:
   host: <DB_PRIVATE_IP> # Use the DB server's Private IPv4
   port: 5432
-  name: talktive
+  name: serverpod
   user: postgres
   requireSsl: false # Private VPC doesn't need SSL overhead
 
@@ -104,6 +103,8 @@ jwtSecret: <GENERATED_JWT_SECRET>
 sessionSecret: <GENERATED_SESSION_SECRET>
 ```
 
+Also place your Firebase Admin credentials at `talktive_server/config/firebase_service_account_key.json`, because the server reads that file during startup in both development and production modes.
+
 ---
 
 ## Deployment Steps
@@ -115,4 +116,4 @@ Detailed step-by-step instructions can be found in **[docs/PRODUCTION_RELEASE_GU
 2. **Configure DB/Cache**: Set up native PostgreSQL and Redis on their respective servers.
 3. **Deploy App**: Build and run the Serverpod Docker container on the App Server.
 4. **Setup Nginx**: Configure SSL termination and WebSocket proxying.
-5. **Verify**: Run health checks and monitor logs.
+5. **Verify**: Run the Serverpod health endpoint with `curl -X POST http://127.0.0.1:8080/health -H 'Content-Type: application/json' -d '{\"method\":\"check\"}'` and monitor logs.

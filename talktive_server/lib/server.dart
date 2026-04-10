@@ -103,24 +103,7 @@ void run(List<String> args) async {
   // Seed Data
   final session = await pod.createSession(enableLogging: true);
   try {
-    // Seed Achievements
-    await SeedData.seedAchievements(session);
-
-    final plaza = await Channel.db.findFirstRow(
-      session,
-      where: (t) => t.type.equals(ChannelType.plaza),
-    );
-    if (plaza == null) {
-      session.log('Seeding: Creating Plaza Channel');
-      await Channel.db.insertRow(
-        session,
-        Channel(
-          type: ChannelType.plaza,
-          name: 'The Plaza',
-          createdAt: DateTime.now(),
-        ),
-      );
-    }
+    await _seedCoreData(session);
   } catch (e) {
     session.log('Seeding Error: $e', level: LogLevel.error);
   } finally {
@@ -148,5 +131,38 @@ void run(List<String> args) async {
     stdout.writeln(
       'Notification: Daily cleanup already scheduled or failed to schedule: $e',
     );
+  }
+}
+
+Future<void> _seedCoreData(Session session) async {
+  await SeedData.seedAchievements(session);
+  await _withPlazaSeedLock(session, () async {
+    final plaza = await Channel.db.findFirstRow(
+      session,
+      where: (t) => t.type.equals(ChannelType.plaza),
+    );
+    if (plaza != null) return;
+    session.log('Seeding: Creating Plaza Channel');
+    await Channel.db.insertRow(
+      session,
+      Channel(
+        type: ChannelType.plaza,
+        name: 'The Plaza',
+        createdAt: DateTime.now(),
+      ),
+    );
+  });
+}
+
+Future<void> _withPlazaSeedLock(
+  Session session,
+  Future<void> Function() action,
+) async {
+  const plazaSeedLockId = 884211;
+  await session.db.unsafeQuery('SELECT pg_advisory_lock($plazaSeedLockId)');
+  try {
+    await action();
+  } finally {
+    await session.db.unsafeQuery('SELECT pg_advisory_unlock($plazaSeedLockId)');
   }
 }

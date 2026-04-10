@@ -38,14 +38,15 @@ class AppConfig {
         ? 'http://localhost:8080'
         : 'http://10.0.2.2:8080';
     final assetUrl = (assetConfig['apiUrl'] as String?)?.trim();
+    final hasProductionUrl =
+        serverpodUrlOverride.isNotEmpty ||
+        (assetUrl != null && assetUrl.isNotEmpty);
 
     // Harden for production
-    if (kReleaseMode) {
-      if (assetUrl == null || assetUrl.isEmpty) {
-        throw StateError(
-          'Critical Error: apiUrl is missing in assets/config.json for production build.',
-        );
-      }
+    if (kReleaseMode && !hasProductionUrl) {
+      throw StateError(
+        'Critical Error: apiUrl is missing in assets/config.json for production build.',
+      );
     }
 
     final configuredUrl = serverpodUrlOverride.isNotEmpty

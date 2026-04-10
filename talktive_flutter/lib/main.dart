@@ -23,6 +23,7 @@ import 'services/edge_to_edge_manager.dart';
 import 'services/background_messaging_handler.dart';
 import 'services/voice_service.dart';
 import 'version_selector.dart';
+import 'screens/maintenance_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -59,7 +60,13 @@ Future<void> main() async {
     serverClientId: kIsWeb ? null : AuthConfig.webClientId,
   );
 
-  await AppConfig.initialize();
+  try {
+    await AppConfig.initialize();
+  } catch (e) {
+    debugPrint('Main: AppConfig initialization failed: $e');
+    runApp(const _MaintenanceApp());
+    return;
+  }
 
   try {
     await Firebase.initializeApp(
@@ -96,4 +103,16 @@ Future<void> main() async {
   FirebaseMessaging.onBackgroundMessage(backgroundMessagingHandler);
 
   runApp(const VersionSelector());
+}
+
+class _MaintenanceApp extends StatelessWidget {
+  const _MaintenanceApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: const MaintenanceScreen(),
+    );
+  }
 }

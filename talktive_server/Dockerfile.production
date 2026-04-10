@@ -61,7 +61,7 @@ EXPOSE 8080 8081 8082
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
+    CMD curl -fsS -X POST http://localhost:8080/health -H "Content-Type: application/json" -d '{"method":"check"}' || exit 1
 
 # Run the server
 CMD ["/app/bin/server"]

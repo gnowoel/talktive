@@ -24,7 +24,6 @@ void main() {
 
     group('INVITE / SOCIAL RULES', () {
       test('canInvite returns false for self-invite', () async {
-        final session = sessionBuilder.build();
         final canInvite = ApartmentService.canInvite(
           sender: resident,
           receiver: resident,
@@ -35,7 +34,6 @@ void main() {
       test(
         'cannotInviteReason returns self-knock message for self-invite',
         () async {
-          final session = sessionBuilder.build();
           final reason = ApartmentService.cannotInviteReason(
             sender: resident,
             receiver: resident,

@@ -34,7 +34,6 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
 
   List<protocol.UserSummary>? _users;
   bool _isLoading = false;
-  String? _errorMessage;
 
   // Search Filters
   String? _selectedGender;
@@ -98,7 +97,6 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
 
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
     });
 
     try {
@@ -123,7 +121,6 @@ class _PeopleSearchScreenState extends ConsumerState<PeopleSearchScreen> {
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _errorMessage = e.toString();
         });
         DuoSnackBarHelper.showError(context, 'Search failed: $e');
       }

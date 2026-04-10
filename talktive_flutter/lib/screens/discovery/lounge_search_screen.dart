@@ -36,7 +36,6 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
   List<protocol.Lounge>? _popularLounges;
   bool _isLoading = false;
   String? _searchQuery;
-  String? _errorMessage;
 
   // Search Filters
   String? _selectedLanguage;
@@ -80,7 +79,6 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
     setState(() {
       _isLoading = true;
       _searchQuery = query;
-      _errorMessage = null;
     });
 
     try {
@@ -124,7 +122,6 @@ class _LoungeSearchScreenState extends ConsumerState<LoungeSearchScreen> {
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _errorMessage = e.toString();
         });
         DuoSnackBarHelper.showError(context, 'Search failed: $e');
       }

@@ -38,6 +38,16 @@ class AppConfig {
         ? 'http://localhost:8080'
         : 'http://10.0.2.2:8080';
     final assetUrl = (assetConfig['apiUrl'] as String?)?.trim();
+
+    // Harden for production
+    if (kReleaseMode) {
+      if (assetUrl == null || assetUrl.isEmpty) {
+        throw StateError(
+          'Critical Error: apiUrl is missing in assets/config.json for production build.',
+        );
+      }
+    }
+
     final configuredUrl = serverpodUrlOverride.isNotEmpty
         ? serverpodUrlOverride
         : kDebugMode
@@ -48,7 +58,7 @@ class AppConfig {
       serverpodUrl: configuredUrl == null || configuredUrl.isEmpty
           ? fallbackLocalUrl
           : configuredUrl,
-      useFirebaseEmulators: useFirebaseEmulatorsOverride,
+      useFirebaseEmulators: kReleaseMode ? false : useFirebaseEmulatorsOverride,
       firebaseEmulatorHost: kIsWeb ? 'localhost' : '10.0.2.2',
     );
   }

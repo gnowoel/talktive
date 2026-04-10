@@ -297,17 +297,20 @@ void main() {
         );
       });
 
-      test('searchUsers allows search without filters for non-premium', () async {
-        final session = sessionBuilder.build();
-        final results = await SearchService.searchUsers(
-          session,
-          'Alice',
-          currentUser: nonPremiumUser,
-        );
+      test(
+        'searchUsers allows search without filters for non-premium',
+        () async {
+          final session = sessionBuilder.build();
+          final results = await SearchService.searchUsers(
+            session,
+            'Alice',
+            currentUser: nonPremiumUser,
+          );
 
-        expect(results.length, 1);
-        expect(results.first.userName, 'Alice Smith');
-      });
+          expect(results.length, 1);
+          expect(results.first.userName, 'Alice Smith');
+        },
+      );
 
       test('searchUsers respects discovery settings', () async {
         final session = sessionBuilder.build();

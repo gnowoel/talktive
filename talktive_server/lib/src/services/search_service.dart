@@ -21,7 +21,7 @@ class SearchService {
       final q = query.trim();
       // Use parameterized ilike for standard columns
       expr &= (t.userName.ilike('%$q%') | t.bio.ilike('%$q%'));
-      
+
       // For JSONB to text conversion, we still need Expression but should use it carefully
       // Note: Full-text search or GIN indexes on these would be better for scale
       final escapedQ = q.replaceAll("'", "''");
@@ -145,7 +145,7 @@ class SearchService {
     if (query != null && query.trim().isNotEmpty) {
       final q = query.trim();
       expr &= (t.name.ilike('%$q%') | t.description.ilike('%$q%'));
-      
+
       final escapedQ = q.replaceAll("'", "''");
       expr |= Expression("interests::text ilike '%$escapedQ%'");
     }

@@ -135,8 +135,8 @@ void run(List<String> args) async {
 }
 
 Future<void> _seedCoreData(Session session) async {
-  await SeedData.seedAchievements(session);
-  await _withPlazaSeedLock(session, () async {
+  await _withAdvisoryLock(session, 884210, () => SeedData.seedAchievements(session));
+  await _withAdvisoryLock(session, 884211, () async {
     final plaza = await Channel.db.findFirstRow(
       session,
       where: (t) => t.type.equals(ChannelType.plaza),
@@ -154,15 +154,15 @@ Future<void> _seedCoreData(Session session) async {
   });
 }
 
-Future<void> _withPlazaSeedLock(
+Future<void> _withAdvisoryLock(
   Session session,
+  int lockId,
   Future<void> Function() action,
 ) async {
-  const plazaSeedLockId = 884211;
-  await session.db.unsafeQuery('SELECT pg_advisory_lock($plazaSeedLockId)');
+  await session.db.unsafeQuery('SELECT pg_advisory_lock($lockId)');
   try {
     await action();
   } finally {
-    await session.db.unsafeQuery('SELECT pg_advisory_unlock($plazaSeedLockId)');
+    await session.db.unsafeQuery('SELECT pg_advisory_unlock($lockId)');
   }
 }

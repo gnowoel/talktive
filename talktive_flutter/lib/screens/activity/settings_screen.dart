@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talktive_client/talktive_client.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:app_settings/app_settings.dart';
 import '../../config/theme.dart';
 import '../../providers/current_resident_provider.dart';
 import '../../widgets/duo/duo_card.dart';
@@ -174,6 +176,45 @@ class SettingsScreen extends ConsumerWidget {
                     : null,
               ),
               const SizedBox(height: AppTheme.duoSpacingLarge),
+              _buildSectionHeader(context, 'Notification Preferences'),
+              _buildFeatureRow(
+                context,
+                icon: Icons.notifications_active,
+                title: 'Push Notifications',
+                description:
+                    'Get instant alerts for messages, moments, and plaza activity.',
+                isLocked: false,
+                value: resident.allowPushNotifications,
+                onChanged: (val) => _updatePrivacySettings(
+                  context,
+                  ref,
+                  allowPushNotifications: val,
+                ),
+              ),
+              const SizedBox(height: AppTheme.duoSpacingMedium),
+              DuoCard(
+                onTap: () => _diagnoseNotifications(context),
+                child: const ListTile(
+                  leading: Icon(
+                    Icons.settings_suggest,
+                    size: 28,
+                    color: AppTheme.duoPurple,
+                  ),
+                  title: Text(
+                    'System Permission Status',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    'Check if your phone allows Talktive to send notifications.',
+                  ),
+                  trailing: Icon(
+                    Icons.chevron_right,
+                    size: 24,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppTheme.duoSpacingLarge),
               _buildSectionHeader(context, 'Ad Preferences'),
               DuoCard(
                 child: ListTile(
@@ -253,6 +294,7 @@ class SettingsScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref, {
     bool? hideAds,
+    bool? allowPushNotifications,
     bool? showVoiceMessages,
     bool? showAdvancedDiscovery,
     bool? showCustomAvatar,
@@ -268,6 +310,8 @@ class SettingsScreen extends ConsumerWidget {
     try {
       await client.resident.updatePrivacy(
         hideAds: hideAds ?? resident.hideAds,
+        allowPushNotifications:
+            allowPushNotifications ?? resident.allowPushNotifications,
         showVoiceMessages: showVoiceMessages ?? resident.showVoiceMessages,
         showAdvancedDiscovery:
             showAdvancedDiscovery ?? resident.showAdvancedDiscovery,
@@ -287,6 +331,57 @@ class SettingsScreen extends ConsumerWidget {
       if (!context.mounted) return;
       DuoSnackBarHelper.showError(context, 'Failed to update settings');
     }
+  }
+
+  Future<void> _diagnoseNotifications(BuildContext context) async {
+    HapticFeedback.mediumImpact();
+    final messaging = FirebaseMessaging.instance;
+    final settings = await messaging.getNotificationSettings();
+
+    if (!context.mounted) return;
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      DuoSnackBarHelper.showSuccess(context, 'All systems go! 🚀');
+    } else if (settings.authorizationStatus == AuthorizationStatus.notDetermined) {
+      await messaging.requestPermission(alert: true, badge: true, sound: true);
+    } else {
+      // Show bottom sheet or dialog to open settings
+      _showPermissionDeniedDialog(context);
+    }
+  }
+
+  void _showPermissionDeniedDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('🔔', style: TextStyle(fontSize: 48)),
+            const SizedBox(height: 16),
+            const Text(
+              'Notifications are Blocked',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'To receive pings, you need to enable notifications in your phone\'s system settings.',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            DuoButton(
+              text: 'Open Phone Settings',
+              onPressed: () {
+                Navigator.pop(context);
+                AppSettings.openAppSettings(type: AppSettingsType.notification);
+              },
+              width: double.infinity,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildSectionHeader(BuildContext context, String title) {

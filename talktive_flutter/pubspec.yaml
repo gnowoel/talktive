@@ -55,6 +55,7 @@ dependencies:
   just_audio: ^0.10.5
   audio_session: ^0.2.3
   riverpod: ^3.2.1
+  app_settings: ^7.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

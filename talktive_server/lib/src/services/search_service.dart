@@ -5,6 +5,20 @@ import 'resident_service.dart';
 import 'dart:convert';
 
 class SearchService {
+  static String _escapeSqlLiteral(String value) => value.replaceAll("'", "''");
+
+  static Future<Set<UuidValue>> _getHiddenResidentIds(
+    Session session,
+    UuidValue residentId,
+  ) async {
+    final blocked = await ResidentService.getBlocksByUser(session, residentId);
+    final blockedBy = await ResidentService.getBlocksAgainstUser(
+      session,
+      residentId,
+    );
+    return {...blocked, ...blockedBy};
+  }
+
   static Expression _buildResidentFilters(
     protocol.ResidentTable t, {
     String? query,
@@ -19,13 +33,11 @@ class SearchService {
 
     if (query != null && query.trim().isNotEmpty) {
       final q = query.trim();
-      // Use parameterized ilike for standard columns
-      expr &= (t.userName.ilike('%$q%') | t.bio.ilike('%$q%'));
-
-      // For JSONB to text conversion, we still need Expression but should use it carefully
-      // Note: Full-text search or GIN indexes on these would be better for scale
-      final escapedQ = q.replaceAll("'", "''");
-      expr |= Expression("interests::text ilike '%$escapedQ%'");
+      final escapedQ = _escapeSqlLiteral(q);
+      expr &=
+          (t.userName.ilike('%$q%') |
+              t.bio.ilike('%$q%') |
+              Expression("interests::text ilike '%$escapedQ%'"));
     }
 
     if (gender != null) expr &= t.gender.equals(gender);
@@ -34,11 +46,11 @@ class SearchService {
     if (isPremium != null) expr &= t.isPremium.equals(isPremium);
 
     if (language != null) {
-      final escapedLang = language.replaceAll("'", "''");
+      final escapedLang = _escapeSqlLiteral(language);
       expr &= Expression("languages::jsonb ? '$escapedLang'");
     }
     if (interest != null) {
-      final escapedInt = interest.replaceAll("'", "''");
+      final escapedInt = _escapeSqlLiteral(interest);
       expr &= Expression("interests::jsonb ? '$escapedInt'");
     }
 
@@ -97,7 +109,7 @@ class SearchService {
       );
     }
 
-    final blockedIds = await ResidentService.getBlocksByUser(
+    final hiddenResidentIds = await _getHiddenResidentIds(
       session,
       currentUser.userInfoId,
     );
@@ -115,8 +127,8 @@ class SearchService {
           ageRange: ageRange,
           isPremium: isPremium,
         );
-        if (blockedIds.isNotEmpty) {
-          filter &= t.userInfoId.notInSet(blockedIds);
+        if (hiddenResidentIds.isNotEmpty) {
+          filter &= t.userInfoId.notInSet(hiddenResidentIds);
         }
         // Exclude self from search results
         filter &= t.userInfoId.notEquals(currentUser.userInfoId);
@@ -144,10 +156,11 @@ class SearchService {
 
     if (query != null && query.trim().isNotEmpty) {
       final q = query.trim();
-      expr &= (t.name.ilike('%$q%') | t.description.ilike('%$q%'));
-
-      final escapedQ = q.replaceAll("'", "''");
-      expr |= Expression("interests::text ilike '%$escapedQ%'");
+      final escapedQ = _escapeSqlLiteral(q);
+      expr &=
+          (t.name.ilike('%$q%') |
+              t.description.ilike('%$q%') |
+              Expression("interests::text ilike '%$escapedQ%'"));
     }
 
     if (country == 'GLOBAL') {
@@ -157,11 +170,11 @@ class SearchService {
     }
 
     if (interest != null) {
-      final escapedInt = interest.replaceAll("'", "''");
+      final escapedInt = _escapeSqlLiteral(interest);
       expr &= Expression("interests::jsonb ? '$escapedInt'");
     }
     if (language != null) {
-      final escapedLang = language.replaceAll("'", "''");
+      final escapedLang = _escapeSqlLiteral(language);
       expr &= Expression("languages::jsonb ? '$escapedLang'");
     }
     return expr;
@@ -206,7 +219,7 @@ class SearchService {
       );
     }
 
-    final blockedIds = await ResidentService.getBlocksByUser(
+    final hiddenResidentIds = await _getHiddenResidentIds(
       session,
       currentUser.userInfoId,
     );
@@ -221,8 +234,8 @@ class SearchService {
           language: language,
           country: country,
         );
-        if (blockedIds.isNotEmpty) {
-          filter &= t.creatorId.notInSet(blockedIds);
+        if (hiddenResidentIds.isNotEmpty) {
+          filter &= t.creatorId.notInSet(hiddenResidentIds);
         }
         return filter;
       },
@@ -281,6 +294,7 @@ class SearchService {
       session,
       where: (t) {
         var expr = t.isPublic.equals(true);
+        expr &= t.isStaffLocked.equals(false);
 
         if (country == 'GLOBAL') {
           expr &= t.country.equals(null);
@@ -289,14 +303,10 @@ class SearchService {
         }
 
         if (interest != null) {
-          expr &= Expression(
-            'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'',
-          );
+          expr &= Expression('interests::jsonb ? \'${_escapeSqlLiteral(interest)}\'');
         }
         if (language != null) {
-          expr &= Expression(
-            'languages::jsonb ? \'${language.replaceAll("'", "''")}\'',
-          );
+          expr &= Expression('languages::jsonb ? \'${_escapeSqlLiteral(language)}\'');
         }
         return expr;
       },
@@ -332,6 +342,7 @@ class SearchService {
       session,
       where: (t) {
         var expr = t.isPublic.equals(true);
+        expr &= t.isStaffLocked.equals(false);
 
         if (country == 'GLOBAL') {
           expr &= t.country.equals(null);
@@ -340,15 +351,11 @@ class SearchService {
         }
 
         if (language != null) {
-          expr &= Expression(
-            'languages::jsonb ? \'${language.replaceAll("'", "''")}\'',
-          );
+          expr &= Expression('languages::jsonb ? \'${_escapeSqlLiteral(language)}\'');
         }
         if (interestArray != null) {
           if (interest != null) {
-            expr &= Expression(
-              'interests::jsonb ? \'${interest.replaceAll("'", "''")}\'',
-            );
+            expr &= Expression('interests::jsonb ? \'${_escapeSqlLiteral(interest)}\'');
           } else {
             expr &= Expression('interests::jsonb ?| array[$interestArray]');
           }
@@ -408,6 +415,9 @@ class SearchService {
     }
 
     final sevenDaysAgo = DateTime.now().subtract(const Duration(days: 7));
+    final hiddenResidentIds = currentUser == null
+        ? <UuidValue>{}
+        : await _getHiddenResidentIds(session, currentUser.userInfoId);
 
     // Refactored: Query Residents directly using DB-level filters and order by activity.
     // This avoids the 'fetch then filter' bottleneck.
@@ -423,6 +433,12 @@ class SearchService {
             ageRange: ageRange,
             isPremium: isPremium,
           ) &
+          (currentUser != null
+              ? t.userInfoId.notEquals(currentUser.userInfoId)
+              : const Expression('TRUE')) &
+          (hiddenResidentIds.isNotEmpty
+              ? t.userInfoId.notInSet(hiddenResidentIds)
+              : const Expression('TRUE')) &
           (t.lastMessageDate >= sevenDaysAgo),
       orderBy: (t) => t.lastMessageDate,
       orderDescending: true,
@@ -441,7 +457,13 @@ class SearchService {
           interest: interest,
           ageRange: ageRange,
           isPremium: isPremium,
-        ),
+        ) &
+        (currentUser != null
+            ? t.userInfoId.notEquals(currentUser.userInfoId)
+            : const Expression('TRUE')) &
+        (hiddenResidentIds.isNotEmpty
+            ? t.userInfoId.notInSet(hiddenResidentIds)
+            : const Expression('TRUE')),
         orderBy: (t) => t.lastSeen,
         orderDescending: true,
         limit: limit,

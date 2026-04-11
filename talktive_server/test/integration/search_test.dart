@@ -369,6 +369,119 @@ void main() {
 
         expect(results.any((r) => r.userName == 'Alice Smith'), isFalse);
       });
+
+      test('searchUsers without query still excludes self and blocked', () async {
+        final session = sessionBuilder.build();
+
+        await protocol.Block.db.insertRow(
+          session,
+          protocol.Block(
+            blockerId: resident1.userInfoId,
+            blockedId: resident2.userInfoId,
+            createdAt: DateTime.now(),
+          ),
+        );
+
+        final results = await SearchService.searchUsers(
+          session,
+          null,
+          currentUser: resident1,
+        );
+
+        expect(results.any((r) => r.userName == 'Alice Smith'), isFalse);
+        expect(results.any((r) => r.userName == 'Bob Jones'), isFalse);
+      });
+
+      test('searchUsers does not leak suspended residents by interest match', () async {
+        final session = sessionBuilder.build();
+
+        await protocol.Resident.db.insertRow(
+          session,
+          protocol.Resident(
+            userInfoId: UuidValue.fromString(uuid.v4()),
+            userName: 'Hidden Chess',
+            bio: 'Hidden resident',
+            interests: ['Chess'],
+            suspended: true,
+            lastSeen: DateTime.now(),
+          ),
+        );
+
+        final results = await SearchService.searchUsers(
+          session,
+          'Chess',
+          currentUser: currentUser,
+        );
+
+        expect(results.any((r) => r.userName == 'Hidden Chess'), isFalse);
+      });
+    });
+
+    group('Lounge Search Safety', () {
+      test('searchLounges does not leak staff locked lounges by interest match', () async {
+        final session = sessionBuilder.build();
+
+        await protocol.Lounge.db.insertRow(
+          session,
+          protocol.Lounge(
+            name: 'Hidden Lounge',
+            channelId: await (() async {
+              final channel = await protocol.Channel.db.insertRow(
+                session,
+                protocol.Channel(
+                  type: protocol.ChannelType.lounge,
+                  createdAt: DateTime.now(),
+                ),
+              );
+              return channel.id!;
+            })(),
+            creatorId: currentUser.userInfoId,
+            isPublic: true,
+            isStaffLocked: true,
+            interests: ['Chess'],
+            memberCount: 99,
+            createdAt: DateTime.now(),
+          ),
+        );
+
+        final results = await SearchService.searchLounges(
+          session,
+          'Chess',
+          currentUser: currentUser,
+        );
+
+        expect(results.any((l) => l.name == 'Hidden Lounge'), isFalse);
+      });
+
+      test('getPopularLounges excludes staff locked lounges', () async {
+        final session = sessionBuilder.build();
+
+        await protocol.Lounge.db.insertRow(
+          session,
+          protocol.Lounge(
+            name: 'Locked Popular',
+            channelId: await (() async {
+              final channel = await protocol.Channel.db.insertRow(
+                session,
+                protocol.Channel(
+                  type: protocol.ChannelType.lounge,
+                  createdAt: DateTime.now(),
+                ),
+              );
+              return channel.id!;
+            })(),
+            creatorId: currentUser.userInfoId,
+            isPublic: true,
+            isStaffLocked: true,
+            memberCount: 999,
+            createdAt: DateTime.now(),
+          ),
+        );
+
+        final results = await SearchService.getPopularLounges(session);
+
+        expect(results.any((l) => l.name == 'Locked Popular'), isFalse);
+      });
     });
   });
 }

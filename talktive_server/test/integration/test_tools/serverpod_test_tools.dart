@@ -97,7 +97,7 @@ export 'package:serverpod_test/serverpod_test_public_exports.dart';
 ///
 /// [serverpodStartTimeout] The timeout to use when starting Serverpod, which connects to the database among other things. Defaults to `Duration(seconds: 30)`.
 ///
-/// [testServerOutputMode] Options for controlling test server output during test execution. Defaults to `TestServerOutputMode.normal`.
+/// [testServerOutputMode] Options for controlling test server output during test execution. Defaults to `TestServerOutputMode.silent`.
 /// ```dart
 /// /// Options for controlling test server output during test execution.
 /// enum TestServerOutputMode {
@@ -145,7 +145,8 @@ void withServerpod(
       applyMigrations: applyMigrations,
       isDatabaseEnabled: true,
       serverpodLoggingMode: serverpodLoggingMode,
-      testServerOutputMode: testServerOutputMode,
+      testServerOutputMode:
+          testServerOutputMode ?? _i1.TestServerOutputMode.silent,
       experimentalFeatures: experimentalFeatures,
       runtimeParametersBuilder: runtimeParametersBuilder,
     ),
@@ -153,7 +154,8 @@ void withServerpod(
     maybeEnableSessionLogging: enableSessionLogging,
     maybeTestGroupTagsOverride: testGroupTagsOverride,
     maybeServerpodStartTimeout: serverpodStartTimeout,
-    maybeTestServerOutputMode: testServerOutputMode,
+    maybeTestServerOutputMode:
+        testServerOutputMode ?? _i1.TestServerOutputMode.silent,
   )(testClosure);
 }
 

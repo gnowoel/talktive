@@ -1,5 +1,7 @@
 BEGIN;
 
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 --
 -- Function: gen_random_uuid_v7()
 -- Source: https://gist.github.com/kjmph/5bd772b2c2df145aa645b837da7eca74
@@ -125,8 +127,8 @@ CREATE TABLE "lounge" (
     "maxMembers" bigint NOT NULL DEFAULT 50,
     "lastMessageAt" timestamp without time zone,
     "lastMessage" text,
-    "interests" json,
-    "languages" json,
+    "interests" jsonb,
+    "languages" jsonb,
     "country" text,
     "rules" text,
     "level" bigint NOT NULL DEFAULT 1,
@@ -138,7 +140,7 @@ CREATE TABLE "lounge" (
 CREATE UNIQUE INDEX "lounge_channel_idx" ON "lounge" USING btree ("channelId");
 CREATE INDEX "lounge_creator_idx" ON "lounge" USING btree ("creatorId");
 CREATE INDEX "lounge_active_idx" ON "lounge" USING btree ("isPublic", "isStaffLocked", "lastMessageAt");
-CREATE INDEX "lounge_search_idx" ON "lounge" USING gin ("name");
+CREATE INDEX "lounge_search_idx" ON "lounge" USING gin ("name" gin_trgm_ops);
 CREATE INDEX "lounge_interests_idx" ON "lounge" USING gin ("interests");
 CREATE INDEX "lounge_languages_idx" ON "lounge" USING gin ("languages");
 CREATE INDEX "lounge_member_idx" ON "lounge" USING btree ("memberCount");
@@ -300,8 +302,8 @@ CREATE TABLE "resident" (
     "mood" text,
     "avatar" text,
     "ageRange" text DEFAULT '18-24'::text,
-    "interests" json,
-    "languages" json,
+    "interests" jsonb,
+    "languages" jsonb,
     "role" text NOT NULL DEFAULT 'user'::text,
     "lastSeen" timestamp without time zone,
     "isPremium" boolean NOT NULL DEFAULT false,
@@ -322,7 +324,7 @@ CREATE TABLE "resident" (
 -- Indexes
 CREATE UNIQUE INDEX "resident_user_idx" ON "resident" USING btree ("userInfoId");
 CREATE INDEX "resident_lastseen_idx" ON "resident" USING btree ("lastSeen");
-CREATE INDEX "resident_search_idx" ON "resident" USING gin ("userName");
+CREATE INDEX "resident_search_idx" ON "resident" USING gin ("userName" gin_trgm_ops);
 CREATE INDEX "resident_interests_idx" ON "resident" USING gin ("interests");
 CREATE INDEX "resident_languages_idx" ON "resident" USING gin ("languages");
 CREATE INDEX "resident_metadata_idx" ON "resident" USING btree ("gender", "country", "role");

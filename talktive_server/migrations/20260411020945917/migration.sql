@@ -3,20 +3,22 @@ BEGIN;
 --
 -- ACTION ALTER TABLE
 --
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 --
 -- ACTION ALTER TABLE
 --
 CREATE INDEX "lounge_search_idx" ON "lounge" USING gin ("name" gin_trgm_ops);
-ALTER TABLE "lounge" ALTER COLUMN "interests" SET DATA TYPE jsonb;
-ALTER TABLE "lounge" ALTER COLUMN "languages" SET DATA TYPE jsonb;
+ALTER TABLE "lounge" ALTER COLUMN "interests" SET DATA TYPE jsonb USING "interests"::jsonb;
+ALTER TABLE "lounge" ALTER COLUMN "languages" SET DATA TYPE jsonb USING "languages"::jsonb;
 CREATE INDEX "lounge_interests_idx" ON "lounge" USING gin ("interests");
 CREATE INDEX "lounge_languages_idx" ON "lounge" USING gin ("languages");
 --
 -- ACTION ALTER TABLE
 --
 ALTER TABLE "resident" ADD COLUMN "allowPushNotifications" boolean NOT NULL DEFAULT true;
-ALTER TABLE "resident" ALTER COLUMN "interests" SET DATA TYPE jsonb;
-ALTER TABLE "resident" ALTER COLUMN "languages" SET DATA TYPE jsonb;
+ALTER TABLE "resident" ALTER COLUMN "interests" SET DATA TYPE jsonb USING "interests"::jsonb;
+ALTER TABLE "resident" ALTER COLUMN "languages" SET DATA TYPE jsonb USING "languages"::jsonb;
 CREATE INDEX "resident_interests_idx" ON "resident" USING gin ("interests");
 CREATE INDEX "resident_languages_idx" ON "resident" USING gin ("languages");
 

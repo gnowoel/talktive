@@ -9,6 +9,12 @@ import 'package:talktive_server/src/generated/protocol.dart' as protocol;
 import 'gamification_service.dart';
 
 class LegacyMigrationService {
+  static Future<protocol.LegacyMigrationData?> Function(
+    Session session,
+    String userId,
+  )?
+  testFetchOverride;
+
   static const Set<String> _supportedLanguageCodes = {
     'en',
     'es',
@@ -78,6 +84,10 @@ class LegacyMigrationService {
     String userId, {
     bool rethrowErrors = false,
   }) async {
+    if (testFetchOverride != null) {
+      return testFetchOverride!(session, userId);
+    }
+
     if (session.server.runMode == 'test') {
       return null;
     }
@@ -128,6 +138,10 @@ class LegacyMigrationService {
     }
 
     return null;
+  }
+
+  static void resetTestOverrides() {
+    testFetchOverride = null;
   }
 
   static protocol.LegacyMigrationData? convertLegacyUserData(

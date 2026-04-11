@@ -1,10 +1,20 @@
 import 'package:test/test.dart';
 import 'package:serverpod/serverpod.dart';
+import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart';
+import 'package:serverpod_auth_idp_server/providers/firebase.dart';
 import 'package:talktive_server/src/generated/protocol.dart';
+import 'package:talktive_server/src/services/legacy_migration_service.dart';
+import 'package:uuid/uuid.dart';
 import 'test_tools/serverpod_test_tools.dart';
 
 void main() {
+  const uuid = Uuid();
+
   withServerpod('Given Resident endpoint', (sessionBuilder, endpoints) {
+    tearDown(() {
+      LegacyMigrationService.resetTestOverrides();
+    });
+
     group('getResident', () {
       test('returns null for unauthenticated user', () async {
         final resident = await endpoints.resident.getResident(sessionBuilder);
@@ -279,6 +289,156 @@ void main() {
         expect(retrieved.languages, contains('ja'));
       });
 
+      test('applyLegacyMigration restores missing legacy progress', () async {
+        final session = sessionBuilder.build();
+        final authUserId = UuidValue.fromString(
+          'de49f23d-88dc-4b8f-b87f-d677ea291101',
+        );
+        final legacyUid = 'legacy-${authUserId.uuid}';
+
+        await Resident.db.insertRow(
+          session,
+          Resident(
+            userInfoId: authUserId,
+            userName: 'Resident',
+            avatar: '🙂',
+            gender: 'prefer-not-to-say',
+            languages: const ['en'],
+            xp: 0,
+            level: 1,
+            trustScore: 100,
+          ),
+        );
+
+        LegacyMigrationService.testFetchOverride = (session, userId) async {
+          expect(userId, legacyUid);
+          return LegacyMigrationData(
+            xp: 1440,
+            level: 6,
+            languages: const ['en', 'tl'],
+          );
+        };
+
+        await AuthUser.db.insertRow(
+          session,
+          AuthUser(id: authUserId, scopeNames: <String>{}),
+        );
+        await FirebaseAccount.db.insertRow(
+          session,
+          FirebaseAccount(
+            authUserId: authUserId,
+            userIdentifier: legacyUid,
+          ),
+        );
+
+        final result = await endpoints.resident.applyLegacyMigration(
+          sessionBuilder.copyWith(
+            authentication: AuthenticationOverride.authenticationInfo(
+              authUserId.uuid,
+              {},
+            ),
+          ),
+        );
+
+        expect(result.changedFields, containsAll(['xp', 'level', 'languages']));
+        expect(result.resident.xp, 1440);
+        expect(result.resident.level, 6);
+        expect(result.resident.languages, ['en', 'tl']);
+      });
+
+      test(
+        'applyLegacyMigration reports no-op when resident is current',
+        () async {
+          final session = sessionBuilder.build();
+          final authUserId = UuidValue.fromString(
+            'bc0d7f07-6c63-4031-9260-f43835f6f001',
+          );
+
+          await Resident.db.insertRow(
+            session,
+            Resident(
+              userInfoId: authUserId,
+              userName: 'Current Resident',
+              avatar: '😎',
+              gender: 'male',
+              languages: const ['en', 'es'],
+              xp: 5000,
+              level: 9,
+              trustScore: 100,
+              customAvatarUrl: 'https://cdn.example.com/current.png',
+              role: ResidentRole.moderator,
+            ),
+          );
+
+          LegacyMigrationService.testFetchOverride = (session, userId) async {
+            return LegacyMigrationData(
+              avatar: 'https://lh3.googleusercontent.com/a/photo.jpg',
+              gender: 'female',
+              languages: const ['en', 'tl'],
+              xp: 1440,
+              level: 6,
+              role: ResidentRole.user,
+            );
+          };
+
+          final result = await endpoints.resident.applyLegacyMigration(
+            sessionBuilder.copyWith(
+              authentication: AuthenticationOverride.authenticationInfo(
+                authUserId.uuid,
+                {},
+              ),
+            ),
+          );
+
+          expect(result.changedFields, isEmpty);
+          expect(result.resident.xp, greaterThanOrEqualTo(5000));
+          expect(result.resident.level, greaterThanOrEqualTo(9));
+          expect(result.resident.languages, ['en', 'es']);
+          expect(
+            result.resident.customAvatarUrl,
+            'https://cdn.example.com/current.png',
+          );
+        },
+      );
+
+      test('applyLegacyMigration throws when no legacy data exists', () async {
+        final session = sessionBuilder.build();
+        final authUserId = UuidValue.fromString(
+          '2b264868-77bc-4eb5-865b-46f373849001',
+        );
+
+        await Resident.db.insertRow(
+          session,
+          Resident(
+            userInfoId: authUserId,
+            userName: 'Resident',
+            level: 1,
+            trustScore: 100,
+          ),
+        );
+
+        LegacyMigrationService.testFetchOverride = (session, userId) async =>
+            null;
+
+        expect(
+          () => endpoints.resident.applyLegacyMigration(
+            sessionBuilder.copyWith(
+              authentication: AuthenticationOverride.authenticationInfo(
+                authUserId.uuid,
+                {},
+              ),
+            ),
+          ),
+          throwsA(
+            isA<TalktiveException>().having(
+              (e) => e.code,
+              'code',
+              'LEGACY_DATA_NOT_FOUND',
+            ),
+          ),
+        );
+      });
+
       test('handles long bio text', () async {
         final session = sessionBuilder.build();
 
@@ -391,4 +551,71 @@ void main() {
       });
     });
   });
+
+  withServerpod(
+    'Given Resident endpoint migration failure handling',
+    (sessionBuilder, endpoints) {
+      tearDown(() {
+        LegacyMigrationService.resetTestOverrides();
+      });
+
+      test(
+        'initializeResident fails closed when linked legacy fetch errors',
+        () async {
+          final session = sessionBuilder.build();
+          final authUserId = UuidValue.fromString(uuid.v4());
+          final legacyUid = 'legacy-${authUserId.uuid}';
+
+          await AuthUser.db.insertRow(
+            session,
+            AuthUser(id: authUserId, scopeNames: <String>{}),
+          );
+          await FirebaseAccount.db.insertRow(
+            session,
+            FirebaseAccount(
+              authUserId: authUserId,
+              userIdentifier: legacyUid,
+            ),
+          );
+
+          LegacyMigrationService.testFetchOverride = (session, userId) async {
+            throw TalktiveException(
+              message: 'Synthetic migration failure',
+              code: 'LEGACY_MIGRATION_FAILED',
+            );
+          };
+
+          expect(
+            () => endpoints.resident.initializeResident(
+              sessionBuilder.copyWith(
+                authentication: AuthenticationOverride.authenticationInfo(
+                  authUserId.uuid,
+                  {},
+                ),
+              ),
+              name: 'Resident',
+              avatar: '🙂',
+              gender: 'male',
+              country: 'US',
+              bio: 'Hello there',
+            ),
+            throwsA(
+              isA<TalktiveException>().having(
+                (e) => e.code,
+                'code',
+                'LEGACY_MIGRATION_FAILED',
+              ),
+            ),
+          );
+
+          final resident = await Resident.db.findFirstRow(
+            session,
+            where: (t) => t.userInfoId.equals(authUserId),
+          );
+          expect(resident, isNull);
+        },
+      );
+    },
+    rollbackDatabase: RollbackDatabase.disabled,
+  );
 }

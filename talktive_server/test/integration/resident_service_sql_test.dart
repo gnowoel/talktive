@@ -105,5 +105,93 @@ void main() {
       expect(counts[reporter.userInfoId.uuid]!['moments'], 0);
       expect(counts[reporter.userInfoId.uuid]!['reports'], 0);
     });
+
+    test(
+      'applyLegacyMigration restores XP without clobbering profile edits',
+      () async {
+        final session = sessionBuilder.build();
+        final resident = await protocol.Resident.db.insertRow(
+          session,
+          protocol.Resident(
+            userInfoId: UuidValue.fromString(uuid.v4()),
+            userName: 'New Persona',
+            bio: 'Fresh bio',
+            avatar: '🤖',
+            gender: 'prefer-not-to-say',
+            languages: const ['en'],
+            xp: 0,
+            level: 1,
+            trustScore: 100,
+            role: protocol.ResidentRole.user,
+          ),
+        );
+
+        final updated = await ResidentService.applyLegacyMigration(
+          session,
+          resident: resident,
+          migration: protocol.LegacyMigrationData(
+            name: 'Legacy Persona',
+            bio: 'Legacy bio',
+            avatar: '😎',
+            gender: 'female',
+            languages: const ['en', 'tl'],
+            xp: 1440,
+            level: 6,
+            role: protocol.ResidentRole.admin,
+          ),
+        );
+
+        expect(updated.userName, 'New Persona');
+        expect(updated.bio, 'Fresh bio');
+        expect(updated.avatar, '🤖');
+        expect(updated.gender, 'female');
+        expect(updated.languages, ['en', 'tl']);
+        expect(updated.xp, 1440);
+        expect(updated.level, 6);
+        expect(updated.role, protocol.ResidentRole.admin);
+      },
+    );
+
+    test(
+      'applyLegacyMigration keeps newer progress and premium avatar',
+      () async {
+        final session = sessionBuilder.build();
+        final resident = await protocol.Resident.db.insertRow(
+          session,
+          protocol.Resident(
+            userInfoId: UuidValue.fromString(uuid.v4()),
+            userName: 'Resident',
+            avatar: '🥷',
+            customAvatarUrl: 'https://cdn.example.com/current.png',
+            gender: 'male',
+            languages: const ['en', 'es'],
+            xp: 5000,
+            level: 9,
+            trustScore: 100,
+            role: protocol.ResidentRole.moderator,
+          ),
+        );
+
+        final updated = await ResidentService.applyLegacyMigration(
+          session,
+          resident: resident,
+          migration: protocol.LegacyMigrationData(
+            avatar: 'https://lh3.googleusercontent.com/a/photo.jpg',
+            gender: 'female',
+            languages: const ['en', 'tl'],
+            xp: 1440,
+            level: 6,
+            role: protocol.ResidentRole.user,
+          ),
+        );
+
+        expect(updated.customAvatarUrl, 'https://cdn.example.com/current.png');
+        expect(updated.gender, 'male');
+        expect(updated.languages, ['en', 'es']);
+        expect(updated.xp, 5000);
+        expect(updated.level, 9);
+        expect(updated.role, protocol.ResidentRole.moderator);
+      },
+    );
   });
 }

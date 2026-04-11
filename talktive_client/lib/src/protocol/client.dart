@@ -1380,6 +1380,14 @@ class EndpointResident extends _i2.EndpointRef {
     },
   );
 
+  /// Re-applies legacy Firebase data to an existing Resident profile.
+  _i3.Future<_i11.Resident> applyLegacyMigration() =>
+      caller.callServerEndpoint<_i11.Resident>(
+        'resident',
+        'applyLegacyMigration',
+        {},
+      );
+
   /// Updates an existing Resident's profile details.
   _i3.Future<_i11.Resident> updateResident({
     required String name,

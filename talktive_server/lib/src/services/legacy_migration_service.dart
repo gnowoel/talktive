@@ -75,8 +75,9 @@ class LegacyMigrationService {
 
   static Future<protocol.LegacyMigrationData?> fetchForUser(
     Session session,
-    String userId,
-  ) async {
+    String userId, {
+    bool rethrowErrors = false,
+  }) async {
     if (session.server.runMode == 'test') {
       return null;
     }
@@ -115,6 +116,13 @@ class LegacyMigrationService {
         exception: e,
         stackTrace: stackTrace,
       );
+      if (rethrowErrors) {
+        throw protocol.TalktiveException(
+          message:
+              'We could not restore your legacy profile yet. Please try again.',
+          code: 'LEGACY_MIGRATION_FAILED',
+        );
+      }
     } finally {
       client?.close();
     }

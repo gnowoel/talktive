@@ -303,6 +303,134 @@ class ResidentService {
     return resident;
   }
 
+  static Future<protocol.Resident> applyLegacyMigration(
+    Session session, {
+    required protocol.Resident resident,
+    required protocol.LegacyMigrationData migration,
+  }) async {
+    final updatedResident = _mergeLegacyMigration(resident, migration);
+    if (_matchesLegacyMigration(resident, updatedResident)) {
+      return resident;
+    }
+
+    final savedResident = await updateResident(session, updatedResident);
+    if (savedResident.userName != resident.userName &&
+        savedResident.userName != null) {
+      await syncAuthProfile(
+        session,
+        savedResident.userInfoId,
+        savedResident.userName!,
+      );
+    }
+
+    return savedResident;
+  }
+
+  static protocol.Resident _mergeLegacyMigration(
+    protocol.Resident resident,
+    protocol.LegacyMigrationData migration,
+  ) {
+    final legacyAvatar = migration.avatar;
+    final hasLegacyPhoto = legacyAvatar?.contains('://') ?? false;
+
+    return resident.copyWith(
+      xp: _maxInt(resident.xp, migration.xp),
+      level: _maxInt(resident.level, migration.level),
+      role: _mergeRole(resident.role, migration.role),
+      userName: _mergeText(resident.userName, migration.name),
+      bio: _mergeText(resident.bio, migration.bio),
+      gender: _mergeGender(resident.gender, migration.gender),
+      languages: _mergeLanguages(resident.languages, migration.languages),
+      avatar: hasLegacyPhoto
+          ? resident.avatar
+          : _mergeAvatar(resident.avatar, legacyAvatar),
+      customAvatarUrl: hasLegacyPhoto
+          ? _mergeText(resident.customAvatarUrl, legacyAvatar)
+          : resident.customAvatarUrl,
+    );
+  }
+
+  static bool _matchesLegacyMigration(
+    protocol.Resident current,
+    protocol.Resident updated,
+  ) {
+    return current.xp == updated.xp &&
+        current.level == updated.level &&
+        current.role == updated.role &&
+        current.userName == updated.userName &&
+        current.bio == updated.bio &&
+        current.gender == updated.gender &&
+        _sameStringList(current.languages, updated.languages) &&
+        current.avatar == updated.avatar &&
+        current.customAvatarUrl == updated.customAvatarUrl;
+  }
+
+  static int _maxInt(int current, int? incoming) {
+    if (incoming == null) return current;
+    return incoming > current ? incoming : current;
+  }
+
+  static protocol.ResidentRole _mergeRole(
+    protocol.ResidentRole current,
+    protocol.ResidentRole? incoming,
+  ) {
+    if (incoming == protocol.ResidentRole.admin) {
+      return protocol.ResidentRole.admin;
+    }
+    if (incoming == protocol.ResidentRole.moderator &&
+        current != protocol.ResidentRole.admin) {
+      return protocol.ResidentRole.moderator;
+    }
+    return current;
+  }
+
+  static String? _mergeText(String? current, String? incoming) {
+    if (!_isBlank(current)) return current;
+    return _isBlank(incoming) ? current : incoming;
+  }
+
+  static String? _mergeGender(String? current, String? incoming) {
+    if (!_isBlank(current) && current != 'prefer-not-to-say') {
+      return current;
+    }
+    return _isBlank(incoming) ? current : incoming;
+  }
+
+  static List<String>? _mergeLanguages(
+    List<String>? current,
+    List<String>? incoming,
+  ) {
+    if (incoming == null || incoming.isEmpty) return current;
+    if (current == null || current.isEmpty) return incoming;
+    if (_isDefaultLanguageOnly(current) && incoming.length > current.length) {
+      return incoming;
+    }
+    return current;
+  }
+
+  static String? _mergeAvatar(String? current, String? incoming) {
+    if (!_isBlank(current) && current != '😊') return current;
+    return _isBlank(incoming) ? current : incoming;
+  }
+
+  static bool _isBlank(String? value) {
+    return value == null || value.trim().isEmpty;
+  }
+
+  static bool _isDefaultLanguageOnly(List<String> languages) {
+    return languages.length == 1 && languages.first == 'en';
+  }
+
+  static bool _sameStringList(List<String>? left, List<String>? right) {
+    if (identical(left, right)) return true;
+    if (left == null || right == null) return left == right;
+    if (left.length != right.length) return false;
+    for (var index = 0; index < left.length; index++) {
+      if (left[index] != right[index]) return false;
+    }
+    return true;
+  }
+
   /// Checks if a user is blocked by another user.
   static Future<bool> isBlocked(
     Session session, {

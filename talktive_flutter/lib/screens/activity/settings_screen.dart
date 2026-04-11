@@ -253,6 +253,30 @@ class SettingsScreen extends ConsumerWidget {
                   },
                 ),
               ),
+              const SizedBox(height: AppTheme.duoSpacingLarge),
+              _buildSectionHeader(context, 'Account Recovery'),
+              DuoCard(
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.restore,
+                    size: 28,
+                    color: AppTheme.duoPurple,
+                  ),
+                  title: const Text(
+                    'Retry Legacy Migration',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: const Text(
+                    'Safely restore missing Firebase profile data like XP without overwriting your current setup.',
+                  ),
+                  trailing: const Icon(
+                    Icons.chevron_right,
+                    size: 24,
+                    color: AppTheme.textSecondary,
+                  ),
+                  onTap: () => _retryLegacyMigration(context, ref),
+                ),
+              ),
               if (resident.isStaff) ...[
                 const SizedBox(height: AppTheme.duoSpacingLarge),
                 _buildSectionHeader(context, 'Staff Tools'),
@@ -288,6 +312,31 @@ class SettingsScreen extends ConsumerWidget {
         error: (e, s) => Center(child: Text('Error: $e')),
       ),
     );
+  }
+
+  Future<void> _retryLegacyMigration(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    HapticFeedback.mediumImpact();
+    try {
+      await client.resident.applyLegacyMigration();
+      await ref.read(currentResidentProvider.notifier).refresh();
+      if (!context.mounted) return;
+      DuoSnackBarHelper.showSuccess(
+        context,
+        'Legacy profile restored successfully! ✨',
+      );
+    } on ServerpodClientException catch (e) {
+      if (!context.mounted) return;
+      DuoSnackBarHelper.showError(context, e.message);
+    } catch (e) {
+      if (!context.mounted) return;
+      DuoSnackBarHelper.showError(
+        context,
+        'Unable to restore legacy account data right now.',
+      );
+    }
   }
 
   Future<void> _updatePrivacySettings(
@@ -342,7 +391,8 @@ class SettingsScreen extends ConsumerWidget {
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       DuoSnackBarHelper.showSuccess(context, 'All systems go! 🚀');
-    } else if (settings.authorizationStatus == AuthorizationStatus.notDetermined) {
+    } else if (settings.authorizationStatus ==
+        AuthorizationStatus.notDetermined) {
       await messaging.requestPermission(alert: true, badge: true, sound: true);
     } else {
       // Show bottom sheet or dialog to open settings

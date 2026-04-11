@@ -114,6 +114,7 @@ resident:
   - getLegacyMigrationData:
   - getResidentById:
   - initializeResident:
+  - applyLegacyMigration:
   - updateResident:
   - updateCustomAvatar:
   - getUserProfile:

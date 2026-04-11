@@ -27,7 +27,8 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     final userId = await getUserIdOptional(session);
     if (userId == null) return null;
 
-    final migrationId = await _getFirebaseUid(session, userId);
+    final firebaseAccount = await _findFirebaseAccount(session, userId);
+    final migrationId = firebaseAccount?.userIdentifier ?? userId.uuid;
     return LegacyMigrationService.fetchForUser(session, migrationId);
   }
 
@@ -84,11 +85,12 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
     }
 
     // Try to get Firebase UID for legacy migration
-    final migrationId = await _getFirebaseUid(session, senderUuid);
-
+    final firebaseAccount = await _findFirebaseAccount(session, senderUuid);
+    final migrationId = firebaseAccount?.userIdentifier ?? senderUuid.uuid;
     final legacyMigration = await LegacyMigrationService.fetchForUser(
       session,
       migrationId,
+      rethrowErrors: firebaseAccount != null,
     );
 
     // 2. Create Resident via service
@@ -108,6 +110,33 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
       xp: legacyMigration?.xp ?? 0,
       level: legacyMigration?.level ?? 1,
       role: legacyMigration?.role ?? protocol.ResidentRole.user,
+    );
+  }
+
+  /// Re-applies legacy Firebase data to an existing Resident profile.
+  Future<protocol.Resident> applyLegacyMigration(Session session) async {
+    final userId = await getUserId(session);
+    final resident = await getAuthenticatedResident(session);
+    final firebaseAccount = await _findFirebaseAccount(session, userId);
+    final migrationId = firebaseAccount?.userIdentifier ?? userId.uuid;
+
+    final legacyMigration = await LegacyMigrationService.fetchForUser(
+      session,
+      migrationId,
+      rethrowErrors: firebaseAccount != null,
+    );
+
+    if (legacyMigration == null) {
+      throw protocol.TalktiveException(
+        message: 'No legacy account data was found to restore.',
+        code: 'LEGACY_DATA_NOT_FOUND',
+      );
+    }
+
+    return ResidentService.applyLegacyMigration(
+      session,
+      resident: resident,
+      migration: legacyMigration,
     );
   }
 
@@ -455,17 +484,22 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
   /// Helper to get the Firebase UID for a given Serverpod user ID.
   /// Defaults to the UUID if no mapping exists.
   Future<String> _getFirebaseUid(Session session, UuidValue authUserId) async {
+    final firebaseAccount = await _findFirebaseAccount(session, authUserId);
+    return firebaseAccount?.userIdentifier ?? authUserId.uuid;
+  }
+
+  Future<FirebaseAccount?> _findFirebaseAccount(
+    Session session,
+    UuidValue authUserId,
+  ) async {
     try {
-      final firebaseAccount = await FirebaseAccount.db.findFirstRow(
+      return await FirebaseAccount.db.findFirstRow(
         session,
         where: (t) => t.authUserId.equals(authUserId),
       );
-      if (firebaseAccount != null) {
-        return firebaseAccount.userIdentifier;
-      }
     } catch (e) {
       session.log('Resident: Failed to lookup Firebase account: $e');
     }
-    return authUserId.uuid;
+    return null;
   }
 }

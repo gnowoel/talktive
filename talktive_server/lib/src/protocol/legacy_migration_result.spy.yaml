@@ -1,0 +1,4 @@
+class: LegacyMigrationResult
+fields:
+  resident: Resident
+  changedFields: List<String>

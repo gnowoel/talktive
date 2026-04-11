@@ -141,14 +141,15 @@ void main() {
           ),
         );
 
-        expect(updated.userName, 'New Persona');
-        expect(updated.bio, 'Fresh bio');
-        expect(updated.avatar, '🤖');
-        expect(updated.gender, 'female');
-        expect(updated.languages, ['en', 'tl']);
-        expect(updated.xp, 1440);
-        expect(updated.level, 6);
-        expect(updated.role, protocol.ResidentRole.admin);
+        expect(updated.changedFields, containsAll(['xp', 'level', 'role']));
+        expect(updated.resident.userName, 'New Persona');
+        expect(updated.resident.bio, 'Fresh bio');
+        expect(updated.resident.avatar, '🤖');
+        expect(updated.resident.gender, 'female');
+        expect(updated.resident.languages, ['en', 'tl']);
+        expect(updated.resident.xp, 1440);
+        expect(updated.resident.level, 6);
+        expect(updated.resident.role, protocol.ResidentRole.admin);
       },
     );
 
@@ -185,12 +186,16 @@ void main() {
           ),
         );
 
-        expect(updated.customAvatarUrl, 'https://cdn.example.com/current.png');
-        expect(updated.gender, 'male');
-        expect(updated.languages, ['en', 'es']);
-        expect(updated.xp, 5000);
-        expect(updated.level, 9);
-        expect(updated.role, protocol.ResidentRole.moderator);
+        expect(updated.changedFields, isEmpty);
+        expect(
+          updated.resident.customAvatarUrl,
+          'https://cdn.example.com/current.png',
+        );
+        expect(updated.resident.gender, 'male');
+        expect(updated.resident.languages, ['en', 'es']);
+        expect(updated.resident.xp, 5000);
+        expect(updated.resident.level, 9);
+        expect(updated.resident.role, protocol.ResidentRole.moderator);
       },
     );
   });

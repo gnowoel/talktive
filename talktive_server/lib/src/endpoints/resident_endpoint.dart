@@ -114,7 +114,9 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
   }
 
   /// Re-applies legacy Firebase data to an existing Resident profile.
-  Future<protocol.Resident> applyLegacyMigration(Session session) async {
+  Future<protocol.LegacyMigrationResult> applyLegacyMigration(
+    Session session,
+  ) async {
     final userId = await getUserId(session);
     final resident = await getAuthenticatedResident(session);
     final firebaseAccount = await _findFirebaseAccount(session, userId);
@@ -479,13 +481,6 @@ class ResidentEndpoint extends Endpoint with EndpointAuthMixin {
         backgroundSession.log('Failed to send report notification: $e');
       }
     });
-  }
-
-  /// Helper to get the Firebase UID for a given Serverpod user ID.
-  /// Defaults to the UUID if no mapping exists.
-  Future<String> _getFirebaseUid(Session session, UuidValue authUserId) async {
-    final firebaseAccount = await _findFirebaseAccount(session, authUserId);
-    return firebaseAccount?.userIdentifier ?? authUserId.uuid;
   }
 
   Future<FirebaseAccount?> _findFirebaseAccount(

@@ -303,14 +303,22 @@ class ResidentService {
     return resident;
   }
 
-  static Future<protocol.Resident> applyLegacyMigration(
+  static Future<protocol.LegacyMigrationResult> applyLegacyMigration(
     Session session, {
     required protocol.Resident resident,
     required protocol.LegacyMigrationData migration,
   }) async {
     final updatedResident = _mergeLegacyMigration(resident, migration);
-    if (_matchesLegacyMigration(resident, updatedResident)) {
-      return resident;
+    final changedFields = _legacyMigrationChangedFields(
+      resident,
+      updatedResident,
+    );
+
+    if (changedFields.isEmpty) {
+      return protocol.LegacyMigrationResult(
+        resident: resident,
+        changedFields: changedFields,
+      );
     }
 
     final savedResident = await updateResident(session, updatedResident);
@@ -323,7 +331,10 @@ class ResidentService {
       );
     }
 
-    return savedResident;
+    return protocol.LegacyMigrationResult(
+      resident: savedResident,
+      changedFields: changedFields,
+    );
   }
 
   static protocol.Resident _mergeLegacyMigration(
@@ -350,19 +361,25 @@ class ResidentService {
     );
   }
 
-  static bool _matchesLegacyMigration(
+  static List<String> _legacyMigrationChangedFields(
     protocol.Resident current,
     protocol.Resident updated,
   ) {
-    return current.xp == updated.xp &&
-        current.level == updated.level &&
-        current.role == updated.role &&
-        current.userName == updated.userName &&
-        current.bio == updated.bio &&
-        current.gender == updated.gender &&
-        _sameStringList(current.languages, updated.languages) &&
-        current.avatar == updated.avatar &&
-        current.customAvatarUrl == updated.customAvatarUrl;
+    final changedFields = <String>[];
+    if (current.xp != updated.xp) changedFields.add('xp');
+    if (current.level != updated.level) changedFields.add('level');
+    if (current.role != updated.role) changedFields.add('role');
+    if (current.userName != updated.userName) changedFields.add('userName');
+    if (current.bio != updated.bio) changedFields.add('bio');
+    if (current.gender != updated.gender) changedFields.add('gender');
+    if (!_sameStringList(current.languages, updated.languages)) {
+      changedFields.add('languages');
+    }
+    if (current.avatar != updated.avatar) changedFields.add('avatar');
+    if (current.customAvatarUrl != updated.customAvatarUrl) {
+      changedFields.add('customAvatarUrl');
+    }
+    return changedFields;
   }
 
   static int _maxInt(int current, int? incoming) {

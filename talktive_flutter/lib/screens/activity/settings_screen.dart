@@ -320,13 +320,20 @@ class SettingsScreen extends ConsumerWidget {
   ) async {
     HapticFeedback.mediumImpact();
     try {
-      await client.resident.applyLegacyMigration();
+      final result = await client.resident.applyLegacyMigration();
       await ref.read(currentResidentProvider.notifier).refresh();
       if (!context.mounted) return;
-      DuoSnackBarHelper.showSuccess(
-        context,
-        'Legacy profile restored successfully! ✨',
-      );
+      final changedFields = result.changedFields;
+      if (changedFields.isEmpty) {
+        DuoSnackBarHelper.showSuccess(
+          context,
+          'Your legacy profile is already up to date. ✨',
+        );
+        return;
+      }
+
+      final summary = _describeMigrationChanges(changedFields);
+      DuoSnackBarHelper.showSuccess(context, 'Restored $summary ✨');
     } on ServerpodClientException catch (e) {
       if (!context.mounted) return;
       DuoSnackBarHelper.showError(context, e.message);
@@ -337,6 +344,26 @@ class SettingsScreen extends ConsumerWidget {
         'Unable to restore legacy account data right now.',
       );
     }
+  }
+
+  String _describeMigrationChanges(List<String> changedFields) {
+    if (changedFields.contains('xp') || changedFields.contains('level')) {
+      return 'your XP and floor progress';
+    }
+    if (changedFields.contains('userName') || changedFields.contains('bio')) {
+      return 'your profile details';
+    }
+    if (changedFields.contains('avatar') ||
+        changedFields.contains('customAvatarUrl')) {
+      return 'your profile avatar';
+    }
+    if (changedFields.contains('languages')) {
+      return 'your language preferences';
+    }
+    if (changedFields.contains('role')) {
+      return 'your account role';
+    }
+    return 'your legacy profile data';
   }
 
   Future<void> _updatePrivacySettings(

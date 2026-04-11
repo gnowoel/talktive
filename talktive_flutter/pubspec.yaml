@@ -9,9 +9,9 @@ environment:
 dependencies:
   talktive_client:
     path: ../talktive_client
-  serverpod_client: 3.4.5
-  serverpod_flutter: 3.4.5
-  serverpod_auth_core_flutter: 3.4.5
+  serverpod_client: 3.4.6
+  serverpod_flutter: 3.4.6
+  serverpod_auth_core_flutter: 3.4.6
   async: ^2.11.0
   cached_network_image: ^3.4.1
   cloud_firestore: ^6.1.0

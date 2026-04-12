@@ -19,6 +19,15 @@ When you are finished, you can shut down Serverpod with `Ctrl-C`, then stop Post
 The shared integration test helper in `test/integration/test_tools/serverpod_test_tools.dart`
 defaults the test server output to silent mode.
 
-This is intentional: with Serverpod `3.4.5`, the startup schema integrity check can emit a
-false-positive warning for `jsonb` list columns such as `resident.languages` and
-`lounge.interests` even when the test database is already fully migrated and correct.
+This is intentional: Serverpod `3.4.6` can still emit a false-positive startup
+schema integrity warning for `jsonb` list columns such as
+`resident.languages` and `lounge.interests` even when the test database is
+already fully migrated and correct.
+
+For this workspace, the warning was eliminated by patching the local pub-cache
+copy of `serverpod` to map PostgreSQL `jsonb` to `ColumnType.json` in:
+
+`~/.pub-cache/hosted/pub.dev/serverpod-3.4.6/lib/src/database/util/column_type_extension.dart`
+
+This fix is local to the machine. If the warning reappears on another machine,
+reapply that patch or upgrade to a Serverpod release that includes the fix.

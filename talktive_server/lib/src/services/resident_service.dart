@@ -139,12 +139,23 @@ class ResidentService {
       resident.id!,
     );
 
+    // Background tasks can outlive the row they were derived from during tests
+    // and ephemeral cleanup flows. If the resident no longer exists, there is
+    // nothing left to synchronize.
+    if (oldResident == null) {
+      session.log(
+        'Skipping resident update for missing row: ${resident.userInfoId}',
+        level: LogLevel.debug,
+      );
+      return resident;
+    }
+
     // 2. Perform update
     final updated = await protocol.Resident.db.updateRow(session, resident);
 
     // 3. Clean up physical media if custom avatar changed or was removed
-    if (oldResident?.customAvatarUrl != null &&
-        oldResident!.customAvatarUrl != updated.customAvatarUrl) {
+    if (oldResident.customAvatarUrl != null &&
+        oldResident.customAvatarUrl != updated.customAvatarUrl) {
       await FileStorageService.deleteMedia(
         session,
         oldResident.customAvatarUrl,

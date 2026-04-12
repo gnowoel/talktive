@@ -48,6 +48,7 @@ app.*.map.json
 .firebaserc
 firebase.json
 lib/firebase_options.dart
+web/firebase-config.js
 android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
 macos/Runner/GoogleService-Info.plist

@@ -24,10 +24,13 @@ schema integrity warning for `jsonb` list columns such as
 `resident.languages` and `lounge.interests` even when the test database is
 already fully migrated and correct.
 
-For this workspace, the warning was eliminated by patching the local pub-cache
-copy of `serverpod` to map PostgreSQL `jsonb` to `ColumnType.json` in:
+For this workspace, the warning was eliminated once by patching the local
+pub-cache copy of `serverpod` to map PostgreSQL `jsonb` to `ColumnType.json` in:
 
 `~/.pub-cache/hosted/pub.dev/serverpod-3.4.6/lib/src/database/util/column_type_extension.dart`
 
-This fix is local to the machine. If the warning reappears on another machine,
-reapply that patch or upgrade to a Serverpod release that includes the fix.
+This fix is local to the machine and is not required for normal development or
+release builds. The shared test helper already suppresses this startup noise by
+default. If the warning reappears on another machine, treat it as a known
+Serverpod `3.4.6` false positive unless you are actively debugging schema
+mapping internals, or upgrade to a Serverpod release that includes the fix.

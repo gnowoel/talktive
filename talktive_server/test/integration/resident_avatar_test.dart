@@ -63,5 +63,26 @@ void main() {
       );
       expect(oldExists, isFalse);
     });
+
+    test('skips stale background updates after the resident row is deleted', () async {
+      final session = sessionBuilder.build();
+
+      await protocol.Resident.db.deleteRow(session, testResident);
+
+      testResident.customAvatarUrl =
+          'http://localhost:8080/serverpod_cloud_storage?method=file&path=avatars/new_avatar.jpg';
+      final updatedResident = await ResidentService.updateResident(
+        session,
+        testResident,
+      );
+
+      final oldExists = await session.storage.fileExists(
+        storageId: 'public',
+        path: 'avatars/old_avatar.jpg',
+      );
+
+      expect(updatedResident.customAvatarUrl, contains('avatars/new_avatar.jpg'));
+      expect(oldExists, isTrue);
+    });
   });
 }

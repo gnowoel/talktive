@@ -5,24 +5,26 @@ This guide provides step-by-step instructions for deploying Talktive to its dist
 ## Phase 1: Provisioning Infrastructure
 
 ### 1. Launch Instances
-In the Amazon Lightsail console (`us-east-1` region), launch three **Ubuntu 22.04 LTS** instances:
+In the Amazon Lightsail console (`us-east-1` region), launch four **Ubuntu 24.04 LTS** instances:
 
-1.  **App Server**: 2GB RAM / 1 vCPU.
-2.  **DB Server**: 2GB RAM / 1 vCPU.
-3.  **Cache Server**: 1GB RAM / 1 vCPU.
+1.  **Nginx Server**: 512MB RAM / 1 vCPU.
+2.  **App Server**: 2GB RAM / 1 vCPU.
+3.  **DB Server**: 2GB RAM / 1 vCPU.
+4.  **Cache Server**: 1GB RAM / 1 vCPU.
 
 ### 2. Networking Setup
-1.  **Static IP**: Attach a Static IP to the **App Server**.
-2.  **DNS**: Map `api.talktive.app` to the App Server's Static IP.
-3.  **Private IPs**: Note the private IP addresses for the DB and Cache servers from the "Networking" tab.
+1.  **Static IP**: Attach a Static IP to the **Nginx Server**.
+2.  **DNS**: Map `api.talktive.app` to the Nginx Server's Static IP.
+3.  **Private IPs**: Note the private IP addresses for all servers from the "Networking" tab.
 
 ### 3. Firewall Configuration
 Configure the firewall for each instance in the Lightsail console:
 
-*   **App Server**:
+*   **Nginx Server**:
     *   HTTP (80) - Custom (Anywhere)
     *   HTTPS (443) - Custom (Anywhere)
-    *   Keep `8080`-`8082` off the public firewall; they are for local reverse proxying and operator checks.
+*   **App Server**:
+    *   8080-8082 - Custom (Only Nginx Server Private IP)
 *   **DB Server**:
     *   5432 - Custom (Only App Server Private IP)
 *   **Cache Server**:
@@ -118,7 +120,7 @@ sudo usermod -aG docker $USER
     ```bash
     docker build -t talktive-server -f Dockerfile.production .
     docker run -d --name talktive-server --restart unless-stopped \
-      -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 -p 127.0.0.1:8082:8082 \
+      -p 8080:8080 -p 8081:8081 -p 8082:8082 \
       -v $(pwd)/config:/app/config \
       talktive-server
     ```
@@ -132,23 +134,33 @@ Run this from `talktive_server` with the production `config/` mounted in place, 
 
 ---
 
-## Phase 5: Nginx & SSL
+## Phase 5: Nginx Server Setup (Public Facing)
+
+Connect to the **Nginx Server** via SSH:
 
 ### 1. Install Nginx
 ```bash
+sudo apt update
 sudo apt install nginx certbot python3-certbot-nginx
 ```
 
 ### 2. Configure Site
 Create `/etc/nginx/sites-available/talktive`:
-Use `docs/nginx/talktive.conf` as the production baseline. It proxies:
-- API traffic to `127.0.0.1:8080`
-- Serverpod WebSocket traffic on `/websocket` and `/v1/websocket`
-- Optional web-server traffic under `/app/` to `127.0.0.1:8082`
+Use `docs/nginx/talktive.conf` as the production baseline. 
 
-Copy it into place:
+**IMPORTANT**: Edit the `upstream` blocks in your Nginx config to point to the **App Server's Private IP** instead of `127.0.0.1`.
+
+Example:
+```nginx
+upstream talktive_api {
+  server <APP_SERVER_PRIVATE_IP>:8080;
+  keepalive 32;
+}
+```
+
+Copy your edited config into place:
 ```bash
-sudo cp docs/nginx/talktive.conf /etc/nginx/sites-available/talktive
+sudo nano /etc/nginx/sites-available/talktive
 ```
 
 ### 3. Enable & SSL

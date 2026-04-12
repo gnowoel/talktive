@@ -8,41 +8,44 @@ This guide covers deploying the Talktive Serverpod backend to a distributed prod
 
 | Server | Role | Specs | Network Tier | Private Hostname |
 | :--- | :--- | :--- | :--- | :--- |
-| **App Server** | Serverpod Engine | 2GB RAM / 1 vCPU | Public + private networking | `app.talktive.internal` |
+| **Nginx Server** | Reverse Proxy / SSL | 512MB RAM / 1 vCPU | Public + private networking | `nginx.talktive.internal` |
+| **App Server** | Serverpod Engine | 2GB RAM / 1 vCPU | Private networking | `app.talktive.internal` |
 | **DB Server** | PostgreSQL 16 + pgvector | 2GB RAM / 1 vCPU | Private networking | `db.talktive.internal` |
 | **Cache Server** | Redis 7 | 1GB RAM / 1 vCPU | Private networking | `redis.talktive.internal` |
 
 **Key Benefits:**
-- **Security:** DB and Cache servers stay off the public internet and accept traffic only from the App Server over the residence's private network.
-- **Scalability:** High-energy WebSocket traffic is isolated from heavy DB searches.
+- **Security:** Only the Nginx server is exposed to the public internet. All other servers (App, DB, Cache) stay off the public internet and accept traffic only over the residence's private network.
+- **Cost Efficiency:** Only one public IPv4 address is required for the Nginx server.
+- **Scalability:** High-energy WebSocket traffic can be easily load-balanced across multiple App servers in the future.
 
 ---
 
 ## Prerequisites
 
-### Required Software (on App Server)
-- Docker & Docker Compose
-- Git
-- Dart SDK 3.11.0+ (compatible with modern Serverpod)
+### Required Software
+- **Nginx Server**: Nginx, Certbot
+- **App Server**: Docker & Docker Compose, Git, Dart SDK 3.11.0+ (compatible with modern Serverpod)
+- **DB/Cache Servers**: Native PostgreSQL and Redis
 
 ### Required Accounts
 - **Amazon Lightsail**: In the `us-east-1` (N. Virginia) region.
 - **Cloudflare R2**: For media storage.
 - **Firebase project**: For authentication and push notifications.
-- **Domain name**: `api.talktive.app` mapped to the App Server's Static IP.
+- **Domain name**: `api.talktive.app` mapped to the **Nginx Server's** Static IP.
 
 ---
 
 ## Infrastructure Configuration
 
 ### 1. Networking (Lightsail VPC)
-1. **Private networking**: Place all three instances in the same Lightsail private network.
-2. **Static IP**: Attach a Static IP to the **App Server** only.
-3. **Internal Routing**: Identify the private IP addresses of the DB and Cache servers.
-   - Example: DB Private IP `172.26.x.x`, Redis Private IP `172.26.y.y`.
+1. **Private networking**: Place all four instances in the same Lightsail private network.
+2. **Static IP**: Attach a Static IP to the **Nginx Server** only.
+3. **Internal Routing**: Identify the private IP addresses of all servers.
+   - Example: Nginx Private IP `172.26.n.n`, App Private IP `172.26.a.a`, DB Private IP `172.26.d.d`, Redis Private IP `172.26.r.r`.
 
 ### 2. Firewall Rules
-- **App Server**: Allow 80 (HTTP) and 443 (HTTPS) publicly. Keep 8080-8082 reachable only from localhost or your private admin network.
+- **Nginx Server**: Allow 80 (HTTP) and 443 (HTTPS) publicly.
+- **App Server**: Allow 8080-8082 **only** from the Nginx Server's Private IP.
 - **DB Server**: Allow 5432 **only** from the App Server's Private IP.
 - **Cache Server**: Allow 6379 **only** from the App Server's Private IP.
 

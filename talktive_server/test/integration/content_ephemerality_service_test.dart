@@ -71,7 +71,10 @@ void main() {
         final result = await ContentEphemeralityService.runCleanup(session);
         expect(result['private_messages'], 1);
 
-        final count = await protocol.Message.db.count(session);
+        final count = await protocol.Message.db.count(
+          session,
+          where: (t) => t.channelId.equals(privateChannel.id!),
+        );
         expect(count, 0);
       });
 
@@ -102,7 +105,10 @@ void main() {
           final result = await ContentEphemeralityService.runCleanup(session);
           expect(result['private_messages'], 0);
 
-          final count = await protocol.Message.db.count(session);
+          final count = await protocol.Message.db.count(
+            session,
+            where: (t) => t.channelId.equals(privateChannel.id!),
+          );
           expect(count, 1);
         },
       );
@@ -138,7 +144,10 @@ void main() {
           final result = await ContentEphemeralityService.runCleanup(session);
           expect(result['private_messages'], 0);
 
-          final count = await protocol.Message.db.count(session);
+          final count = await protocol.Message.db.count(
+            session,
+            where: (t) => t.channelId.equals(privateChannel.id!),
+          );
           expect(count, 1);
         },
       );
@@ -174,7 +183,10 @@ void main() {
           final result = await ContentEphemeralityService.runCleanup(session);
           expect(result['private_messages'], 1);
 
-          final count = await protocol.Message.db.count(session);
+          final count = await protocol.Message.db.count(
+            session,
+            where: (t) => t.channelId.equals(privateChannel.id!),
+          );
           expect(count, 0);
         },
       );

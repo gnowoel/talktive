@@ -113,7 +113,7 @@ We follow a **Test-Driven Development (TDD)** approach to ensure architectural s
 - **Backend Integration Tests**: Full endpoint flows using `withServerpod` for real database interaction.
 - **Frontend Provider Tests**: Verifying state changes in Riverpod providers.
 - **Frontend Widget Tests**: UI consistency for the `Duo` component library.
-- **Quiet Integration Startup**: The shared helper in `talktive_server/test/integration/test_tools/serverpod_test_tools.dart` defaults test server output to silent mode because Serverpod `3.4.5` can emit a false-positive schema warning for `jsonb` list columns even when the test database is fully migrated.
+- **Quiet Integration Startup**: The shared helper in `talktive_server/test/integration/test_tools/serverpod_test_tools.dart` defaults test server output to silent mode because Serverpod `3.4.6` can still emit a false-positive schema warning for `jsonb` list columns even when the test database is fully migrated.
 
 ### 2. TDD Workflow
 
@@ -134,7 +134,7 @@ Every new feature or bugfix should follow the **Red-Green-Refactor** cycle:
   - In `development` mode, the server automatically targets local Firebase Emulators (`localhost:9000` for RTDB, `localhost:8088` for Firestore).
   - The server sends a dummy `Authorization: Bearer owner` header which is recognized by emulators to bypass security rules. Ensure your emulators are running (`firebase emulators:start`) before testing migration flows.
   - The migration uses the Firebase UID found in the `serverpod_auth_idp_firebase_account` table. If migration fails, verify that your local session is correctly mapped to a Firebase account in that table.
-- **Silent Test Schema Warnings**: If you do not see the old `json/jsonb` schema warning during integration tests, that is expected. We verified the test database is correct; the warning was a Serverpod `3.4.5` false positive, so the shared helper suppresses that startup noise by default.
+- **Silent Test Schema Warnings**: If you do not see the old `json/jsonb` schema warning during integration tests, that is expected. We verified the test database is correct; the warning is still a Serverpod `3.4.6` false positive, so the shared helper suppresses that startup noise by default.
 - **Debug Shortcuts**: In `kDebugMode`, the `VersionSelector` provides a **"Direct to Firebase (Debug Only)"** link to bypass version selection and account restoration steps during development.
 - **Database Mismatch**: If you see `DatabaseQueryException`, run `serverpod generate` and create a new migration.
 - **Missing Migration Version**: If Serverpod reports that the DB has a migration version that is not present in project files, reconcile the history by restoring or bridging that version in `talktive_server/migrations/` and updating `migration_registry.txt` before attempting broader test runs.

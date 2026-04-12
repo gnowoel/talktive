@@ -19,8 +19,8 @@ RUN dart pub get
 # Copy source code
 COPY . .
 
-# Generate Serverpod code
-RUN dart pub global activate serverpod_cli
+# Generate Serverpod code with a pinned CLI version to keep release builds reproducible
+RUN dart pub global activate serverpod_cli 3.4.6
 RUN dart pub global run serverpod_cli generate
 
 # Compile the application
